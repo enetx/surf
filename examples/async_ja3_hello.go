@@ -13,10 +13,7 @@ func main() {
 	urls = append(urls, surf.NewAsyncURL("https://ya.ru"))
 	urls = append(urls, surf.NewAsyncURL("https://www.yahoo.com"))
 
-	opt := surf.NewOptions()
-	// opt.ForceHTTP1()
-
-	opt.JA3().Chrome87()
+	opt := surf.NewOptions().Impersonate().Chrome()
 
 	jobs, errors := surf.NewClient().SetOptions(opt).Async.Get(urls).Do()
 

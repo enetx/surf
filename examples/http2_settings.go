@@ -34,7 +34,7 @@ func main() {
 
 	opt.HTTP2Settings().
 		EnablePush(1).
-		MaxConcurrentStreams(1001).
+		MaxConcurrentStreams(1000).
 		MaxFrameSize(16384).
 		MaxHeaderListSize(262144).
 		InitialWindowSize(6291456).
@@ -48,7 +48,7 @@ func main() {
 		Set()
 
 	opt.JA3().Chrome87()
-	// opt.ForceHTTP1()
+	opt.ForceHTTP1()
 
 	headers := g.NewMapOrd[string, string]().
 		Set(":method", "").
@@ -64,7 +64,7 @@ func main() {
 		Set("Sec-Fetch-Mode", "navigate").
 		Set("Sec-Fetch-User", "?1").
 		Set("Sec-Fetch-Dest", "document").
-		// Set("Accept-Encoding", "gzip, deflate, br").
+		Set("Accept-Encoding", "gzip, deflate, br").
 		Set("User-Agent", "").
 		Set("Accept-Language", "en-US,en;q=0.9")
 

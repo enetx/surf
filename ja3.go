@@ -12,6 +12,7 @@ import (
 	"gitlab.com/x0xO/surf/internal/connectproxy"
 )
 
+// https://lwthiker.com/networks/2022/06/17/tls-fingerprinting.html
 type ja3 struct {
 	spec utls.ClientHelloSpec
 	id   utls.ClientHelloID

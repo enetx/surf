@@ -140,32 +140,28 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		t2 := http2.Transport{DialTLS: rt.dialTLSHTTP2}
 
 		if rt.ja3.opt.useHTTP2s {
-			t2.Settings = []http2.Setting{}
-
 			h := rt.ja3.opt.http2s
 
-			if h.headerTableSize != 0 {
-				t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingHeaderTableSize, Val: h.headerTableSize})
+			appendSetting := func(id http2.SettingID, val uint32) {
+				if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
+					t2.Settings = append(t2.Settings, http2.Setting{ID: id, Val: val})
+				}
 			}
 
-			if h.usePush {
-				t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingEnablePush, Val: h.enablePush})
+			settings := [...]struct {
+				id  http2.SettingID
+				val uint32
+			}{
+				{http2.SettingHeaderTableSize, h.headerTableSize},
+				{http2.SettingEnablePush, h.enablePush},
+				{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
+				{http2.SettingInitialWindowSize, h.initialWindowSize},
+				{http2.SettingMaxFrameSize, h.maxFrameSize},
+				{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
 			}
 
-			if h.maxConcurrentStreams != 0 {
-				t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxConcurrentStreams, Val: h.maxConcurrentStreams})
-			}
-
-			if h.initialWindowSize != 0 {
-				t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingInitialWindowSize, Val: h.initialWindowSize})
-			}
-
-			if h.maxFrameSize != 0 {
-				t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxFrameSize, Val: h.maxFrameSize})
-			}
-
-			if h.maxHeaderListSize != 0 {
-				t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxHeaderListSize, Val: h.maxHeaderListSize})
+			for _, s := range settings {
+				appendSetting(s.id, s.val)
 			}
 
 			if h.connectionFlow != 0 {

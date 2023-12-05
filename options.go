@@ -48,6 +48,7 @@ func (opt *Options) addcliMW(m clientMiddleware) *Options {
 	return opt
 }
 
+// HTTP2Settings configures settings related to HTTP/2 and returns an http2s struct.
 func (opt *Options) HTTP2Settings() *http2s {
 	opt.useHTTP2s = true
 	h2 := &http2s{opt: opt}
@@ -55,6 +56,9 @@ func (opt *Options) HTTP2Settings() *http2s {
 
 	return h2
 }
+
+// Impersonate configures something related to impersonation and returns an impersonate struct.
+func (opt *Options) Impersonate() *impersonate { return &impersonate{opt: opt} }
 
 // JA3 configures the client to use a specific TLS fingerprint.
 func (opt *Options) JA3() *ja3 {

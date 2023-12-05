@@ -6,7 +6,7 @@ import (
 )
 
 // http2s represents HTTP/2 settings for configuring an Options object.
-// https://httpwg.org/specs/rfc7540.html#iana-settings
+// https://lwthiker.com/networks/2022/06/17/http2-fingerprinting.html
 type http2s struct {
 	opt                  *Options
 	priorityFrames       []http2.PriorityFrame
@@ -85,38 +85,37 @@ func (h *http2s) Set() *Options {
 	}
 
 	return h.opt.addcliMW(func(c *Client) {
-		t1 := c.GetTransport().(*http.Transport)
-		t1.ForceAttemptHTTP2 = true
+		t1, ok := c.GetTransport().(*http.Transport)
+		if !ok {
+			return
+		}
 
+		t1.ForceAttemptHTTP2 = true
 		t2, err := http2.ConfigureTransports(t1)
 		if err != nil {
 			return
 		}
 
-		t2.Settings = []http2.Setting{}
-
-		if h.headerTableSize != 0 {
-			t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingHeaderTableSize, Val: h.headerTableSize})
+		appendSetting := func(id http2.SettingID, val uint32) {
+			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
+				t2.Settings = append(t2.Settings, http2.Setting{ID: id, Val: val})
+			}
 		}
 
-		if h.usePush {
-			t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingEnablePush, Val: h.enablePush})
+		settings := [...]struct {
+			id  http2.SettingID
+			val uint32
+		}{
+			{http2.SettingHeaderTableSize, h.headerTableSize},
+			{http2.SettingEnablePush, h.enablePush},
+			{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
+			{http2.SettingInitialWindowSize, h.initialWindowSize},
+			{http2.SettingMaxFrameSize, h.maxFrameSize},
+			{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
 		}
 
-		if h.maxConcurrentStreams != 0 {
-			t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxConcurrentStreams, Val: h.maxConcurrentStreams})
-		}
-
-		if h.initialWindowSize != 0 {
-			t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingInitialWindowSize, Val: h.initialWindowSize})
-		}
-
-		if h.maxFrameSize != 0 {
-			t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxFrameSize, Val: h.maxFrameSize})
-		}
-
-		if h.maxHeaderListSize != 0 {
-			t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxHeaderListSize, Val: h.maxHeaderListSize})
+		for _, s := range settings {
+			appendSetting(s.id, s.val)
 		}
 
 		if h.connectionFlow != 0 {
