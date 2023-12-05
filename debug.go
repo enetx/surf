@@ -21,31 +21,6 @@ func (resp Response) Debug() *debug { return &debug{resp: resp} }
 // Print prints the debug information.
 func (d *debug) Print() { _, _ = fmt.Println(d.print.String()) }
 
-// DNSStat appends DNS cache statistics to the debug information.
-func (d *debug) DNSStat() *debug {
-	if d.resp.opt == nil {
-		return d
-	}
-
-	if d.resp.opt.dnsCacheStats == nil {
-		return d
-	}
-
-	stats := d.resp.opt.dnsCacheStats
-
-	if d.print.Len() != 0 {
-		_, _ = fmt.Fprint(&d.print, "\n")
-	}
-
-	_, _ = fmt.Fprintf(&d.print, "Total Connections: %d\n", stats.totalConn)
-	_, _ = fmt.Fprintf(&d.print, "Total DNS Queries: %d\n", stats.dnsQuery)
-	_, _ = fmt.Fprintf(&d.print, "Successful DNS Queries: %d\n", stats.successfulDNSQuery)
-	_, _ = fmt.Fprintf(&d.print, "Cache Hit: %d\n", stats.cacheHit)
-	_, _ = fmt.Fprintf(&d.print, "Cache Miss: %d\n", stats.cacheMiss)
-
-	return d
-}
-
 // Request appends the request details to the debug information.
 func (d *debug) Request(verbos ...bool) *debug {
 	body, err := httputil.DumpRequestOut(d.resp.request.request, false)

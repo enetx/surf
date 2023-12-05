@@ -26,7 +26,7 @@ type roundtripper struct {
 	cachedConnections sync.Map
 }
 
-func newRoundtripper(ja3 *ja3, dialContext func(context.Context, string, string) (net.Conn, error)) http.RoundTripper {
+func newRoundTripper(ja3 *ja3, dialContext func(context.Context, string, string) (net.Conn, error)) http.RoundTripper {
 	rt := new(roundtripper)
 	rt.dialContext = dialContext
 	rt.ja3 = ja3
@@ -166,6 +166,10 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 			if h.maxHeaderListSize != 0 {
 				t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxHeaderListSize, Val: h.maxHeaderListSize})
+			}
+
+			if h.connectionFlow != 0 {
+				t2.ConnectionFlow = h.connectionFlow
 			}
 
 			if !h.priorityParam.IsZero() {

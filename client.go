@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net"
@@ -64,6 +65,25 @@ func (c *Client) RequestMiddleware(m requestMiddleware) *Client {
 func (c *Client) ResponseMiddleware(m responseMiddleware) *Client {
 	c.respMW = append(c.respMW, m)
 	return c
+}
+
+// GetDNSStat returns a string representation of DNS cache statistics.
+func (c *Client) GetDNSStat() g.String {
+	if c.opt == nil || c.opt.dnsCacheStats == nil {
+		return "no cache enabled in options"
+	}
+
+	stats := c.opt.dnsCacheStats
+
+	var builder strings.Builder
+
+	_, _ = fmt.Fprintf(&builder, "Total Connections: %d\n", stats.totalConn)
+	_, _ = fmt.Fprintf(&builder, "Total DNS Queries: %d\n", stats.dnsQuery)
+	_, _ = fmt.Fprintf(&builder, "Successful DNS Queries: %d\n", stats.successfulDNSQuery)
+	_, _ = fmt.Fprintf(&builder, "Cache Hit: %d\n", stats.cacheHit)
+	_, _ = fmt.Fprintf(&builder, "Cache Miss: %d\n", stats.cacheMiss)
+
+	return g.String(builder.String())
 }
 
 // GetClient returns http.Client used by the Client.

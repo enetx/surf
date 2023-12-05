@@ -30,8 +30,8 @@ github.com/refraction-networking/utls v1.5.4 h1:9k6EO2b8TaOGsQ7Pl7p9w6PUhx18/ZCe
 github.com/refraction-networking/utls v1.5.4/go.mod h1:SPuDbBmgLGp8s+HLNc83FuavwZCFoMmExj+ltUHiHUw=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-gitlab.com/x0xO/g v1.0.0 h1:5WpnIq6G8nMV/MmNAqnogZtXJWNcrm6+ZsHJfkrREzI=
-gitlab.com/x0xO/g v1.0.0/go.mod h1:KCztiBikbGm7tIiJuWB8c84ZQKKuJ2AUp+v/lKfDDzM=
+gitlab.com/x0xO/g v1.0.1 h1:8dJnFHQwc0UPBi7DfEV0rbumNchZcZc3fMXu6MHEIsk=
+gitlab.com/x0xO/g v1.0.1/go.mod h1:KCztiBikbGm7tIiJuWB8c84ZQKKuJ2AUp+v/lKfDDzM=
 gitlab.com/x0xO/http v1.0.0 h1:FENkpSEyDE7MJlxJsjmm/lxiYm/oDG/xO5RTFwdnzD8=
 gitlab.com/x0xO/http v1.0.0/go.mod h1:be7Xw7MKKQhY5UHIHR161chengXC7mgH6mmE/A3aPRk=
 gitlab.com/x0xO/http2 v1.0.0 h1:M6dH+cQCNJ4Eea4/FyghXCoNPGH/BOcr3vbGcsAoVi8=

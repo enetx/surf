@@ -9,15 +9,16 @@ import (
 // https://httpwg.org/specs/rfc7540.html#iana-settings
 type http2s struct {
 	opt                  *Options
+	priorityFrames       []http2.PriorityFrame
+	priorityParam        http2.PriorityParam
 	headerTableSize      uint32
-	usePush              bool
 	enablePush           uint32
 	maxConcurrentStreams uint32
 	initialWindowSize    uint32
 	maxFrameSize         uint32
 	maxHeaderListSize    uint32
-	priorityParam        http2.PriorityParam
-	priorityFrames       []http2.PriorityFrame
+	connectionFlow       uint32
+	usePush              bool
 }
 
 // HeaderTableSize sets the header table size for HTTP/2 settings.
@@ -57,11 +58,19 @@ func (h *http2s) MaxHeaderListSize(size uint32) *http2s {
 	return h
 }
 
+// ConnectionFlow sets the flow control for the HTTP/2 connection.
+func (h *http2s) ConnectionFlow(size uint32) *http2s {
+	h.connectionFlow = size
+	return h
+}
+
+// PriorityParam sets the priority parameter for HTTP/2.
 func (h *http2s) PriorityParam(priorityParam http2.PriorityParam) *http2s {
 	h.priorityParam = priorityParam
 	return h
 }
 
+// PriorityFrames sets the priority frames for HTTP/2.
 func (h *http2s) PriorityFrames(priorityFrames []http2.PriorityFrame) *http2s {
 	h.priorityFrames = priorityFrames
 	return h
@@ -108,6 +117,10 @@ func (h *http2s) Set() *Options {
 
 		if h.maxHeaderListSize != 0 {
 			t2.Settings = append(t2.Settings, http2.Setting{ID: http2.SettingMaxHeaderListSize, Val: h.maxHeaderListSize})
+		}
+
+		if h.connectionFlow != 0 {
+			t2.ConnectionFlow = h.connectionFlow
 		}
 
 		if !h.priorityParam.IsZero() {

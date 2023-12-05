@@ -89,7 +89,7 @@ func (j *ja3) setOptions() *Options {
 			}
 		}
 
-		c.GetClient().Transport = newRoundtripper(j, dialContext)
+		c.GetClient().Transport = newRoundTripper(j, dialContext)
 	})
 }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -12,23 +11,26 @@ func main() {
 	opt := surf.NewOptions()
 
 	opt.DNSCache(time.Second*30, 10)
-	opt.JA3().Chrome83()
+	// opt.JA3().Chrome83()
 
 	cli := surf.NewClient().SetOptions(opt) // separate client to reuse client and DNS cache
-	url := "https://tls.peet.ws/api/all"
+	url := "https://tls.peet.ws/api/clean"
 
 	r, err := cli.Get(url).Do() // cache the ip of the DNS response
-
-	for i := 0; i < 10; i++ {
-		r, err = cli.Get(url).Do() // use DNS cache
-		fmt.Println(r.Body.String())
-	}
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	for i := 0; i < 10; i++ {
+		r, err = cli.Get(url).Do() // use DNS cache
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		r.Body.Limit(1).String().Print()
+	}
+
 	cli.ClearCachedTransports()
 
-	r.Debug().DNSStat().Print()
+	cli.GetDNSStat().Print()
 }
