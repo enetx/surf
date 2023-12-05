@@ -19,9 +19,9 @@ func main() {
 	}
 
 	opt := surf.NewOptions()
-	opt.JA3().Chrome87()
+	// opt.JA3().Chrome87()
 
-	opt.ForceHTTP1()
+	// opt.ForceHTTP1()
 
 	// opt.Proxy("http://localhost:8080")
 	// opt.Proxy("socks5://localhost:9050")

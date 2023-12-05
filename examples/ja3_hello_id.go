@@ -12,12 +12,15 @@ func main() {
 	url := "https://tls.peet.ws/api/all"
 
 	opt := surf.NewOptions()
-	opt.JA3().Chrome87()
-	// opt.ForceHTTP1()
+	opt.JA3().Chrome83()
+
+	opt.ForceHTTP1()
 
 	// opt.Proxy("socks5://localhost:9050")
 
-	r, err := surf.NewClient().SetOptions(opt).Get(url).Do()
+	cli := surf.NewClient().SetOptions(opt)
+
+	r, err := cli.Get(url).Do()
 	if err != nil {
 		fmt.Println(err)
 		return

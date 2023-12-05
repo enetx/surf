@@ -21,21 +21,27 @@ var (
 )
 
 type roundtripper struct {
+	transport         http.RoundTripper
 	dialContext       func(ctx context.Context, network, address string) (net.Conn, error)
 	ja3               *ja3
 	cachedConnections sync.Map
 }
 
-func newRoundTripper(ja3 *ja3, dialContext func(context.Context, string, string) (net.Conn, error)) http.RoundTripper {
+func newRoundTripper(
+	ja3 *ja3,
+	transport http.RoundTripper,
+	dialContext func(context.Context, string, string) (net.Conn, error),
+) http.RoundTripper {
 	rt := new(roundtripper)
 	rt.dialContext = dialContext
 	rt.ja3 = ja3
+	rt.transport = transport
 
 	return rt
 }
 
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	addr := rt.getDialTLSAddr(req)
+	addr := rt.address(req)
 
 	value, ok := cachedTransports.Load(addr)
 
@@ -60,7 +66,10 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
 	switch strings.ToLower(req.URL.Scheme) {
 	case "http":
-		cachedTransports.Store(addr, &http.Transport{DialContext: rt.dialContext, DisableKeepAlives: true})
+		t1 := rt.transport.(*http.Transport).Clone()
+		t1.DialContext = rt.dialContext
+		cachedTransports.Store(addr, t1)
+
 		return nil
 	case "https":
 	default:
@@ -75,8 +84,8 @@ func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
 	return err
 }
 
-func (rt *roundtripper) dialTLSHTTP2(network, addr string, _ *tls.Config) (net.Conn, error) {
-	return rt.dialTLS(context.Background(), network, addr)
+func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+	return rt.dialTLS(ctx, network, addr)
 }
 
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -137,7 +146,8 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 	switch conn.ConnectionState().NegotiatedProtocol {
 	case http2.NextProtoTLS:
-		t2 := http2.Transport{DialTLS: rt.dialTLSHTTP2}
+		t2 := new(http2.Transport)
+		t2.DialTLSContext = rt.dialTLSHTTP2
 
 		if rt.ja3.opt.useHTTP2s {
 			h := rt.ja3.opt.http2s
@@ -177,9 +187,11 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 			}
 		}
 
-		cachedTransports.Store(addr, &t2)
+		cachedTransports.Store(addr, t2)
 	default:
-		cachedTransports.Store(addr, &http.Transport{DialTLSContext: rt.dialTLS, DisableKeepAlives: true})
+		t1 := rt.transport.(*http.Transport).Clone()
+		t1.DialTLSContext = rt.dialTLS
+		cachedTransports.Store(addr, t1)
 	}
 
 	rt.cachedConnections.Store(addr, conn)
@@ -187,7 +199,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 	return nil, errProtocolNegotiated
 }
 
-func (rt *roundtripper) getDialTLSAddr(req *http.Request) string {
+func (rt *roundtripper) address(req *http.Request) string {
 	host, port, err := net.SplitHostPort(req.URL.Host)
 	if err == nil {
 		return net.JoinHostPort(host, port)

@@ -15,7 +15,9 @@ func main() {
 
 	opt := surf.NewOptions().Impersonate().Chrome()
 
-	jobs, errors := surf.NewClient().SetOptions(opt).Async.Get(urls).Do()
+	cli := surf.NewClient()
+
+	jobs, errors := cli.SetOptions(opt).Async.Get(urls).Do()
 
 	var wg sync.WaitGroup
 
@@ -25,8 +27,8 @@ func main() {
 		defer wg.Done()
 
 		for job := range jobs {
-			job.Body.Limit(20).String().Print()
 			job.Debug().Request(true).Response().Print()
+			job.Body.Limit(2).String().Print()
 			// fmt.Println()
 		}
 	}()

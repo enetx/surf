@@ -48,7 +48,6 @@ func main() {
 		Set()
 
 	opt.JA3().Chrome87()
-	opt.ForceHTTP1()
 
 	headers := g.NewMapOrd[string, string]().
 		Set(":method", "").
