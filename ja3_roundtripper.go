@@ -68,6 +68,8 @@ func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
 	case "http":
 		t1 := rt.transport.(*http.Transport).Clone()
 		t1.DialContext = rt.dialContext
+		t1.DisableKeepAlives = true
+
 		cachedTransports.Store(addr, t1)
 
 		return nil
@@ -191,6 +193,8 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 	default:
 		t1 := rt.transport.(*http.Transport).Clone()
 		t1.DialTLSContext = rt.dialTLS
+		t1.DisableKeepAlives = true
+
 		cachedTransports.Store(addr, t1)
 	}
 
