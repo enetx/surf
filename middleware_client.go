@@ -42,7 +42,9 @@ func defaultClientMW(client *Client) {
 
 // forceHTTP1MW configures the client to use HTTP/1.1 forcefully.
 func forseHTTP1MW(client *Client) {
-	client.GetTransport().(*http.Transport).TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	transport := client.GetTransport().(*http.Transport)
+	transport.ForceAttemptHTTP2 = false
+	transport.TLSClientConfig.NextProtos = []string{"http/1.1"}
 }
 
 // sessionMW configures the client's cookie jar to enable session handling.
