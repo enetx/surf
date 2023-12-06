@@ -44,7 +44,6 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.address(req)
 
 	value, ok := cachedTransports.Load(addr)
-
 	if !ok {
 		if err := rt.getTransport(req, addr); err != nil {
 			return nil, err
@@ -53,14 +52,19 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 		value, _ = cachedTransports.Load(addr)
 	}
 
-	response, err := value.(http.RoundTripper).RoundTrip(req)
+	transport, ok := value.(http.RoundTripper)
+	if !ok {
+		cachedTransports.Delete(addr)
+		return nil, fmt.Errorf("cached value is not of type http.RoundTripper for address: %s", addr)
+	}
+
+	response, err := transport.RoundTrip(req)
 	if err != nil {
 		cachedTransports.Delete(addr)
-
 		return nil, err
 	}
 
-	return response, err
+	return response, nil // Changed from 'return response, err'
 }
 
 func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
