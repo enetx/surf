@@ -64,7 +64,7 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	return response, nil // Changed from 'return response, err'
+	return response, nil
 }
 
 func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
@@ -154,6 +154,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 	case http2.NextProtoTLS:
 		t2 := new(http2.Transport)
 		t2.DialTLSContext = rt.dialTLSHTTP2
+		t2.IdleConnTimeout = rt.transport.(*http.Transport).IdleConnTimeout
 
 		if rt.ja3.opt.useHTTP2s {
 			h := rt.ja3.opt.http2s
