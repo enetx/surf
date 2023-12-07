@@ -27,10 +27,8 @@ func main() {
 			log.Fatal(err)
 		}
 
-		r.Body.Limit(1).String().Print()
+		r.Body.String().Print()
 	}
-
-	cli.ClearCachedTransports()
 
 	cli.GetDNSStat().Print()
 }

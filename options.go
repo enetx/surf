@@ -14,27 +14,34 @@ type Options struct {
 	dialer                   *net.Dialer                                // Custom network dialer.
 	dnsCacheStats            *cacheDialerStats                          // DNS cache statistics.
 	checkRedirect            func(*http.Request, []*http.Request) error // Redirect policy.
-	http2s                   *http2s
-	retryCodes               g.Slice[int]        // Codes for retry attemps.
-	cliMW                    []clientMiddleware  // Client-level middlewares.
-	reqMW                    []requestMiddleware // Request-level middlewares.
-	retryWait                time.Duration       // Wait time between retries.
-	retryMax                 int                 // Maximum retry attempts.
-	maxRedirects             int                 // Maximum number of redirects to follow.
-	forseHTTP1               bool                // Use HTTP/1.1.
-	history                  bool                // Enable response history.
-	cacheBody                bool                // Cache response bodies.
-	followOnlyHostRedirects  bool                // Follow redirects only to the same host.
-	forwardHeadersOnRedirect bool                // Forward headers on redirects.
-	useJA3                   bool                // Use JA3.
-	useHTTP2s                bool                // Use HTTP2 settings.
-	useCacheDNS              bool                // Use cached DNS.
-	dnsCacheTTL              time.Duration       // DNS cache time-to-live.
-	dnsCacheMaxUsage         int64               // Maximum usage of DNS cache.
+	http2s                   *http2s                                    // HTTP2 settings.
+	retryCodes               g.Slice[int]                               // Codes for retry attemps.
+	cliMW                    []clientMiddleware                         // Client-level middlewares.
+	reqMW                    []requestMiddleware                        // Request-level middlewares.
+	respMW                   []responseMiddleware                       // Response-level middlewares.
+	retryWait                time.Duration                              // Wait time between retries.
+	retryMax                 int                                        // Maximum retry attempts.
+	maxRedirects             int                                        // Maximum number of redirects to follow.
+	forseHTTP1               bool                                       // Use HTTP/1.1.
+	history                  bool                                       // Enable response history.
+	cacheBody                bool                                       // Cache response bodies.
+	followOnlyHostRedirects  bool                                       // Follow redirects only to the same host.
+	forwardHeadersOnRedirect bool                                       // Forward headers on redirects.
+	useJA3                   bool                                       // Use JA3.
+	useHTTP2s                bool                                       // Use HTTP2 settings.
+	useCacheDNS              bool                                       // Use cached DNS.
+	dnsCacheTTL              time.Duration                              // DNS cache time-to-live.
+	dnsCacheMaxUsage         int64                                      // Maximum usage of DNS cache.
 }
 
 // NewOptions creates a new Options instance with default values.
 func NewOptions() *Options { return new(Options) }
+
+// addcliMW adds a client middleware to the Options.
+func (opt *Options) addcliMW(m clientMiddleware) *Options {
+	opt.cliMW = append(opt.cliMW, m)
+	return opt
+}
 
 // addreqMW adds a request middleware to the Options.
 func (opt *Options) addreqMW(m requestMiddleware) *Options {
@@ -42,9 +49,9 @@ func (opt *Options) addreqMW(m requestMiddleware) *Options {
 	return opt
 }
 
-// addcliMW adds a client middleware to the Options.
-func (opt *Options) addcliMW(m clientMiddleware) *Options {
-	opt.cliMW = append(opt.cliMW, m)
+// addrespMW adds a response middleware to the Options.
+func (opt *Options) addrespMW(m responseMiddleware) *Options {
+	opt.respMW = append(opt.respMW, m)
 	return opt
 }
 
@@ -63,6 +70,8 @@ func (opt *Options) Impersonate() *impersonate { return &impersonate{opt: opt} }
 // JA3 configures the client to use a specific TLS fingerprint.
 func (opt *Options) JA3() *ja3 {
 	opt.useJA3 = true
+	opt.addrespMW(clearCachedTransports)
+
 	return &ja3{opt: opt}
 }
 

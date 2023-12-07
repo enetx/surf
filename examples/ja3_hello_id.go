@@ -9,10 +9,11 @@ import (
 func main() {
 	// https://github.com/lwthiker/curl-impersonate/tree/main/chrome
 
-	url := "https://tls.peet.ws/api/all"
+	// url := "https://tls.peet.ws/api/all"
+	url := "https://www.google.com"
 
 	opt := surf.NewOptions()
-	opt.JA3().Chrome83()
+	opt.JA3().Chrome()
 
 	// opt.ForceHTTP1()
 

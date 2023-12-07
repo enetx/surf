@@ -38,3 +38,14 @@ func (opt *Options) applyReqMW(req *Request) error {
 
 	return nil
 }
+
+// applyRespMW applies response middlewares to the Options' response.
+func (opt *Options) applyRespMW(resp *Response) error {
+	for _, m := range opt.respMW {
+		if err := m(resp); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

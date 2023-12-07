@@ -92,22 +92,6 @@ func (c *Client) GetTransport() http.RoundTripper { return c.transport }
 // GetTLSConfig returns the tls.Config used by the Client.
 func (c *Client) GetTLSConfig() *tls.Config { return c.tlsConfig }
 
-// ClearCachedTransports clears cached transports stored in the Client if JA3 is enabled.
-// It iterates through the cached transports and deletes them, returning the count of deleted items.
-func (c *Client) ClearCachedTransports() int {
-	var count int
-
-	if c.opt != nil && c.opt.useJA3 {
-		cachedTransports.Range(func(key, _ any) bool {
-			cachedTransports.Delete(key)
-			count++
-			return true
-		})
-	}
-
-	return count
-}
-
 // SetOptions sets the provided options for the client and returns the updated client.
 // It configures various settings like HTTP2, sessions, keep-alive, dial TLS, resolver,
 // interface address, timeout, and redirect policy.

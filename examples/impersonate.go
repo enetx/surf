@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	url := "https://tls.peet.ws/api/all"
+	// url := "https://tls.peet.ws/api/all"
+	url := "https://www.google.com"
 
 	opt := surf.NewOptions()
 

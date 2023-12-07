@@ -109,6 +109,12 @@ func (req *Request) Do() (*Response, error) {
 		return nil, err
 	}
 
+	if opt != nil {
+		if err := opt.applyRespMW(response); err != nil {
+			return nil, err
+		}
+	}
+
 	return response, nil
 }
 

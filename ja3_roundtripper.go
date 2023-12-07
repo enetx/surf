@@ -60,7 +60,6 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	response, err := transport.RoundTrip(req)
 	if err != nil {
-		cachedTransports.Delete(addr)
 		return nil, err
 	}
 
