@@ -10,7 +10,7 @@ import (
 func main() {
 	var urls []*surf.AsyncURL
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		urls = append(urls, surf.NewAsyncURL("https://httpbingo.org/get"))
 	}
 

@@ -38,16 +38,16 @@ type Client struct {
 
 // NewClient creates a new Client with default settings.
 func NewClient() *Client {
-	c := &Client{Async: new(async)}
-	c.Async.client = c
-
-	c.
+	c := new(Client).
 		ClientMiddleware(defaultDialerMW).
 		ClientMiddleware(defaultTLSConfigMW).
 		ClientMiddleware(defaultTransportMW).
 		ClientMiddleware(defaultClientMW).
 		ClientMiddleware(redirectPolicyMW).
 		RequestMiddleware(defaultUserAgentMW)
+
+	c.Async = new(async)
+	c.Async.client = c
 
 	return c
 }
@@ -98,14 +98,20 @@ func (c *Client) GetTransport() http.RoundTripper { return c.transport }
 // GetTLSConfig returns the tls.Config used by the Client.
 func (c *Client) GetTLSConfig() *tls.Config { return c.tlsConfig }
 
-// ClearCachedTransports clears cached transports stored in the Client if used with JA3.
-func (c *Client) ClearCachedTransports() {
+// ClearCachedTransports clears cached transports stored in the Client if JA3 is enabled.
+// It iterates through the cached transports and deletes them, returning the count of deleted items.
+func (c *Client) ClearCachedTransports() int {
+	var count int
+
 	if c.opt != nil && c.opt.useJA3 {
 		cachedTransports.Range(func(key, _ any) bool {
 			cachedTransports.Delete(key)
+			count++
 			return true
 		})
 	}
+
+	return count
 }
 
 // SetOptions sets the provided options for the client and returns the updated client.

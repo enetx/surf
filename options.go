@@ -14,23 +14,23 @@ type Options struct {
 	dialer                   *net.Dialer                                // Custom network dialer.
 	dnsCacheStats            *cacheDialerStats                          // DNS cache statistics.
 	checkRedirect            func(*http.Request, []*http.Request) error // Redirect policy.
-	retryCodes               g.Slice[int]                               // Codes for retry attemps.
-	cliMW                    []clientMiddleware                         // Client-level middlewares.
-	reqMW                    []requestMiddleware                        // Request-level middlewares.
-	retryWait                time.Duration                              // Wait time between retries.
-	retryMax                 int                                        // Maximum retry attempts.
-	maxRedirects             int                                        // Maximum number of redirects to follow.
-	forseHTTP1               bool                                       // Use HTTP/1.1.
-	history                  bool                                       // Enable response history.
-	cacheBody                bool                                       // Cache response bodies.
-	followOnlyHostRedirects  bool                                       // Follow redirects only to the same host.
-	forwardHeadersOnRedirect bool                                       // Forward headers on redirects.
-	useJA3                   bool                                       // Use JA3.
-	useHTTP2s                bool                                       // Use HTTP2 settings.
-	useCacheDNS              bool                                       // Use cached DNS.
-	dnsCacheTTL              time.Duration                              // DNS cache time-to-live.
-	dnsCacheMaxUsage         int64                                      // Maximum usage of DNS cache.
 	http2s                   *http2s
+	retryCodes               g.Slice[int]        // Codes for retry attemps.
+	cliMW                    []clientMiddleware  // Client-level middlewares.
+	reqMW                    []requestMiddleware // Request-level middlewares.
+	retryWait                time.Duration       // Wait time between retries.
+	retryMax                 int                 // Maximum retry attempts.
+	maxRedirects             int                 // Maximum number of redirects to follow.
+	forseHTTP1               bool                // Use HTTP/1.1.
+	history                  bool                // Enable response history.
+	cacheBody                bool                // Cache response bodies.
+	followOnlyHostRedirects  bool                // Follow redirects only to the same host.
+	forwardHeadersOnRedirect bool                // Forward headers on redirects.
+	useJA3                   bool                // Use JA3.
+	useHTTP2s                bool                // Use HTTP2 settings.
+	useCacheDNS              bool                // Use cached DNS.
+	dnsCacheTTL              time.Duration       // DNS cache time-to-live.
+	dnsCacheMaxUsage         int64               // Maximum usage of DNS cache.
 }
 
 // NewOptions creates a new Options instance with default values.
