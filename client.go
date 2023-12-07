@@ -25,7 +25,6 @@ import (
 // Client struct provides a customizable HTTP client with configurable options for making requests,
 // handling connections, and managing TLS settings.
 type Client struct {
-	Async     *async               // Asynchronous request handling.
 	cli       *http.Client         // Standard HTTP client.
 	dialer    *net.Dialer          // Network dialer.
 	opt       *Options             // Client options.
@@ -38,18 +37,13 @@ type Client struct {
 
 // NewClient creates a new Client with default settings.
 func NewClient() *Client {
-	c := new(Client).
+	return new(Client).
 		ClientMiddleware(defaultDialerMW).
 		ClientMiddleware(defaultTLSConfigMW).
 		ClientMiddleware(defaultTransportMW).
 		ClientMiddleware(defaultClientMW).
 		ClientMiddleware(redirectPolicyMW).
 		RequestMiddleware(defaultUserAgentMW)
-
-	c.Async = new(async)
-	c.Async.client = c
-
-	return c
 }
 
 // ClientMiddleware add a client middleware.
