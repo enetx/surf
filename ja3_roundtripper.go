@@ -21,10 +21,9 @@ var (
 )
 
 type roundtripper struct {
-	transport         http.RoundTripper
-	dialContext       func(ctx context.Context, network, address string) (net.Conn, error)
-	ja3               *ja3
-	cachedConnections sync.Map
+	transport   http.RoundTripper
+	dialContext func(ctx context.Context, network, address string) (net.Conn, error)
+	ja3         *ja3
 }
 
 func newRoundTripper(
@@ -42,6 +41,7 @@ func newRoundTripper(
 
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.address(req)
+	fmt.Println(addr)
 
 	value, ok := cachedTransports.Load(addr)
 	if !ok {
@@ -54,7 +54,6 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	transport, ok := value.(http.RoundTripper)
 	if !ok {
-		cachedTransports.Delete(addr)
 		return nil, fmt.Errorf("cached value is not of type http.RoundTripper for address: %s", addr)
 	}
 
@@ -94,12 +93,6 @@ func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, 
 }
 
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
-	// If we have the connection from when we determined the HTTPS
-	// cachedTransports to use, return that.
-	if value, ok := rt.cachedConnections.LoadAndDelete(addr); ok {
-		return value.(net.Conn), nil
-	}
-
 	rawConn, err := rt.dialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
@@ -135,19 +128,21 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, err
 	}
 
-	if err = conn.Handshake(); err != nil {
+	if err = conn.HandshakeContext(ctx); err != nil {
 		_ = conn.Close()
 
 		if err.Error() == "tls: CurvePreferences includes unsupported curve" {
-			return nil, fmt.Errorf("conn.Handshake() error for tls 1.3 (please retry request): %+v", err)
+			return nil, fmt.Errorf("conn.HandshakeContext() error for tls 1.3 (please retry request): %+v", err)
 		}
 
-		return nil, fmt.Errorf("uTlsConn.Handshake() error: %+v", err)
+		return nil, fmt.Errorf("uTlsConn.HandshakeContext() error: %+v", err)
 	}
 
 	if _, ok := cachedTransports.Load(addr); ok {
 		return conn, nil
 	}
+
+	var transport http.RoundTripper
 
 	switch conn.ConnectionState().NegotiatedProtocol {
 	case http2.NextProtoTLS:
@@ -193,16 +188,16 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 			}
 		}
 
-		cachedTransports.Store(addr, t2)
+		transport = t2
 	default:
 		t1 := rt.transport.(*http.Transport).Clone()
 		t1.DialTLSContext = rt.dialTLS
 		t1.DisableKeepAlives = true
 
-		cachedTransports.Store(addr, t1)
+		transport = t1
 	}
 
-	rt.cachedConnections.Store(addr, conn)
+	cachedTransports.Store(addr, transport)
 
 	return nil, errProtocolNegotiated
 }
