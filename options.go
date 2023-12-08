@@ -70,7 +70,7 @@ func (opt *Options) Impersonate() *impersonate { return &impersonate{opt: opt} }
 // JA3 configures the client to use a specific TLS fingerprint.
 func (opt *Options) JA3() *ja3 {
 	opt.useJA3 = true
-	opt.addrespMW(clearCachedTransports)
+	opt.addrespMW(clearCachedTransportsMW)
 
 	return &ja3{opt: opt}
 }
