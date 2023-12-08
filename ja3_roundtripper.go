@@ -41,7 +41,6 @@ func newRoundTripper(
 
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.address(req)
-	fmt.Println(addr)
 
 	value, ok := cachedTransports.Load(addr)
 	if !ok {
