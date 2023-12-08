@@ -21,9 +21,10 @@ var (
 )
 
 type roundtripper struct {
-	transport   http.RoundTripper
-	dialContext func(ctx context.Context, network, address string) (net.Conn, error)
-	ja3         *ja3
+	transport         http.RoundTripper
+	dialContext       func(ctx context.Context, network, address string) (net.Conn, error)
+	ja3               *ja3
+	cachedConnections sync.Map
 }
 
 func newRoundTripper(
@@ -92,6 +93,12 @@ func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, 
 }
 
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
+	// If we have the connection from when we determined the HTTPS
+	// cachedTransports to use, return that.
+	if value, ok := rt.cachedConnections.LoadAndDelete(addr); ok {
+		return value.(net.Conn), nil
+	}
+
 	rawConn, err := rt.dialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
@@ -196,6 +203,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		transport = t1
 	}
 
+	rt.cachedConnections.Store(addr, conn)
 	cachedTransports.Store(addr, transport)
 
 	return nil, errProtocolNegotiated
