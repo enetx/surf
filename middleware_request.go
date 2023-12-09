@@ -41,12 +41,18 @@ func userAgentMW(req *Request, userAgent any) error {
 	return nil
 }
 
-// got1xxResponseMW configures the request's context to handle 1xx responses.
+// got101ResponseMW configures the request's context to handle 1xx responses.
 // It sets up a client trace for capturing 1xx responses and returns any error encountered.
-func got1xxResponseMW(req *Request) error {
+func got101ResponseMW(req *Request) error {
 	req.WithContext(httptrace.WithClientTrace(req.GetRequest().Context(),
 		&httptrace.ClientTrace{
-			Got1xxResponse: func(_ int, _ textproto.MIMEHeader) error { return errors.New("101 status code") },
+			Got1xxResponse: func(code int, _ textproto.MIMEHeader) error {
+				if code != 101 {
+					return nil
+				}
+
+				return errors.New("101 status code")
+			},
 		},
 	))
 
