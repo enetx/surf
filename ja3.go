@@ -1,9 +1,11 @@
 package surf
 
 import (
+	"context"
 	"crypto/sha256"
 	"errors"
 	"math/rand"
+	"net"
 	"slices"
 	"strconv"
 	"strings"
@@ -85,7 +87,10 @@ func (j *ja3) setOptions() *Options {
 				tp = p[rand.Intn(len(p))]
 			}
 
-			if dialer, err := connectproxy.NewDialer(tp); err == nil {
+			dialer, err := connectproxy.NewDialer(tp)
+			if err != nil {
+				dialContext = func(context.Context, string, string) (net.Conn, error) { return nil, err }
+			} else {
 				dialContext = dialer.DialContext
 			}
 		}

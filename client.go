@@ -44,6 +44,7 @@ func NewClient() *Client {
 		ClientMiddleware(defaultClientMW).
 		ClientMiddleware(redirectPolicyMW).
 		RequestMiddleware(defaultUserAgentMW).
+		RequestMiddleware(got1xxResponseMW).
 		ResponseMiddleware(webSocketUpgradeErrorMW)
 }
 

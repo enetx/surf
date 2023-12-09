@@ -7,17 +7,25 @@ import (
 )
 
 func main() {
-	url := "playtoto.asia" // 101
+	// giayluoinam.edu.vn
+	// g3net.website
+	// danielfdyer.xyz
+	// louiejparkinson.xyz
+	// juliogroup.uk
 
-	opt := surf.NewOptions().Impersonate().Chrome()
+	// url := "juliogroup.uk" // 101 stream error
+	url := "playtoto.asia" // 101 websocket
 
-	cli := surf.NewClient().SetOptions(opt)
+	opt := surf.NewOptions()
+	opt.Impersonate().Chrome()
 
-	r, err := cli.Get(url).Do()
+	cli := surf.NewClient()
+
+	r, err := cli.SetOptions(opt).Get(url).Do()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	r.Body.String().Print()
+	r.Debug().Request(true).Response().Print()
 }

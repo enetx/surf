@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/textproto"
 	"strings"
 
 	"gitlab.com/x0xO/http/httptrace"
@@ -36,6 +37,18 @@ func userAgentMW(req *Request, userAgent any) error {
 	}
 
 	req.SetHeaders(map[string]string{"User-Agent": ua})
+
+	return nil
+}
+
+// got1xxResponseMW configures the request's context to handle 1xx responses.
+// It sets up a client trace for capturing 1xx responses and returns any error encountered.
+func got1xxResponseMW(req *Request) error {
+	req.WithContext(httptrace.WithClientTrace(req.GetRequest().Context(),
+		&httptrace.ClientTrace{
+			Got1xxResponse: func(_ int, _ textproto.MIMEHeader) error { return errors.New("101 status code") },
+		},
+	))
 
 	return nil
 }

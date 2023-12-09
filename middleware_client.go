@@ -32,6 +32,7 @@ func defaultTransportMW(client *Client) {
 	transport.MaxIdleConnsPerHost = _maxIdleConnsPerHost
 	transport.IdleConnTimeout = _idleConnTimeout
 	transport.ForceAttemptHTTP2 = true
+
 	client.transport = transport
 }
 
