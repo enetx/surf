@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	utls "github.com/refraction-networking/utls"
+	"gitlab.com/x0xO/http"
 	"gitlab.com/x0xO/surf/internal/connectproxy"
 )
 
@@ -72,10 +73,8 @@ func (j *ja3) SetHelloSpec(spec utls.ClientHelloSpec) *Options {
 
 func (j *ja3) setOptions() *Options {
 	return j.opt.addcliMW(func(c *Client) {
-		dialContext := c.GetDialer().DialContext
-
 		if j.opt.useCacheDNS {
-			dialContext = c.cacheDialer().DialContext
+			c.GetTransport().(*http.Transport).DialContext = c.cacheDialer().DialContext
 		}
 
 		if j.opt.proxy != nil {
@@ -87,15 +86,14 @@ func (j *ja3) setOptions() *Options {
 				tp = p[rand.Intn(len(p))]
 			}
 
-			dialer, err := connectproxy.NewDialer(tp)
-			if err != nil {
-				dialContext = func(context.Context, string, string) (net.Conn, error) { return nil, err }
+			if dialer, err := connectproxy.NewDialer(tp); err != nil {
+				c.GetTransport().(*http.Transport).DialContext = func(context.Context, string, string) (net.Conn, error) { return nil, err }
 			} else {
-				dialContext = dialer.DialContext
+				c.GetTransport().(*http.Transport).DialContext = dialer.DialContext
 			}
 		}
 
-		c.GetClient().Transport = newRoundTripper(j, c.GetTransport(), dialContext)
+		c.GetClient().Transport = newRoundTripper(j, c.GetTransport())
 	})
 }
 

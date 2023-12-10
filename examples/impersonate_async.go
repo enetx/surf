@@ -10,11 +10,11 @@ import (
 )
 
 func main() {
-	// url := "https://tls.peet.ws/api/all"
-	url := "https://www.google.com"
+	url := "https://tls.peet.ws/api/all"
+	// url := "https://www.google.com"
 
 	opt := surf.NewOptions()
-	opt.Impersonate().Chrome()
+	opt.Impersonate().FireFox()
 
 	// opt.Proxy("socks5://localhost:9050")
 
@@ -56,7 +56,7 @@ func main() {
 				return
 			}
 
-			r.Debug().Response().Print()
+			r.Debug().Response(true).Print()
 		}(url)
 	}
 

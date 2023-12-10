@@ -21,19 +21,13 @@ var (
 )
 
 type roundtripper struct {
-	transport         http.RoundTripper
-	dialContext       func(ctx context.Context, network, address string) (net.Conn, error)
 	ja3               *ja3
+	transport         http.RoundTripper
 	cachedConnections sync.Map
 }
 
-func newRoundTripper(
-	ja3 *ja3,
-	transport http.RoundTripper,
-	dialContext func(context.Context, string, string) (net.Conn, error),
-) http.RoundTripper {
+func newRoundTripper(ja3 *ja3, transport http.RoundTripper) http.RoundTripper {
 	rt := new(roundtripper)
-	rt.dialContext = dialContext
 	rt.ja3 = ja3
 	rt.transport = transport
 
@@ -69,7 +63,6 @@ func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
 	switch strings.ToLower(req.URL.Scheme) {
 	case "http":
 		t1 := rt.transport.(*http.Transport).Clone()
-		t1.DialContext = rt.dialContext
 		t1.DisableKeepAlives = true
 
 		cachedTransports.Store(addr, t1)
@@ -99,7 +92,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return value.(net.Conn), nil
 	}
 
-	rawConn, err := rt.dialContext(ctx, network, addr)
+	rawConn, err := rt.transport.(*http.Transport).DialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
 	}

@@ -11,12 +11,10 @@ import (
 func main() {
 	// https://github.com/lwthiker/curl-impersonate/tree/main/chrome
 
-	// url := "https://tls.peet.ws/api/all"
-	// url := "ouyi.xin" // bad url
-	url := "playtoto.asia" // bad url
+	url := "https://tls.peet.ws/api/all"
 
 	opt := surf.NewOptions()
-	// opt.JA3().Chrome87()
+	opt.JA3().Chrome87()
 
 	// opt.ForceHTTP1()
 
