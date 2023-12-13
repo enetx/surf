@@ -73,8 +73,8 @@ func (j *ja3) SetHelloSpec(spec utls.ClientHelloSpec) *Options {
 
 func (j *ja3) setOptions() *Options {
 	return j.opt.addcliMW(func(c *Client) {
-		if j.opt.useCacheDNS {
-			c.GetTransport().(*http.Transport).DialContext = c.cacheDialer().DialContext
+		if !j.opt.useSingleton {
+			j.opt.addrespMW(clearCachedTransportsMW)
 		}
 
 		if j.opt.proxy != nil {

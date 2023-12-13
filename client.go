@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net"
@@ -30,7 +29,6 @@ type Client struct {
 	opt       *Options             // Client options.
 	transport http.RoundTripper    // HTTP transport settings.
 	tlsConfig *tls.Config          // TLS configuration.
-	history   history              // History of HTTP responses.
 	reqMW     []requestMiddleware  // Request middleware functions.
 	respMW    []responseMiddleware // Response middleware functions.
 }
@@ -63,23 +61,20 @@ func (c *Client) ResponseMiddleware(m responseMiddleware) *Client {
 	return c
 }
 
-// GetDNSStat returns a string representation of DNS cache statistics.
-func (c *Client) GetDNSStat() g.String {
-	if c.opt == nil || c.opt.dnsCacheStats == nil {
-		return "no cache enabled in options"
-	}
+// FlushCache removes all entries from the cached transports
+// and returns a slice containing the addresses that were removed.
+// Specifically used when Singleton is enabled for JA3 or Impersonate functionalities.
+func (c *Client) FlushCache() []string {
+	var addresses []string
 
-	stats := c.opt.dnsCacheStats
+	cachedTransports.Range(func(key, _ any) bool {
+		cachedTransports.Delete(key)
+		addresses = append(addresses, key.(string))
 
-	var builder strings.Builder
+		return true
+	})
 
-	_, _ = fmt.Fprintf(&builder, "Total Connections: %d\n", stats.totalConn)
-	_, _ = fmt.Fprintf(&builder, "Total DNS Queries: %d\n", stats.dnsQuery)
-	_, _ = fmt.Fprintf(&builder, "Successful DNS Queries: %d\n", stats.successfulDNSQuery)
-	_, _ = fmt.Fprintf(&builder, "Cache Hit: %d\n", stats.cacheHit)
-	_, _ = fmt.Fprintf(&builder, "Cache Miss: %d\n", stats.cacheMiss)
-
-	return g.String(builder.String())
+	return addresses
 }
 
 // GetClient returns http.Client used by the Client.

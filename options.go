@@ -12,7 +12,6 @@ import (
 type Options struct {
 	proxy                    any                                        // Proxy configuration.
 	dialer                   *net.Dialer                                // Custom network dialer.
-	dnsCacheStats            *cacheDialerStats                          // DNS cache statistics.
 	checkRedirect            func(*http.Request, []*http.Request) error // Redirect policy.
 	http2s                   *http2s                                    // HTTP2 settings.
 	retryCodes               g.Slice[int]                               // Codes for retry attemps.
@@ -23,15 +22,12 @@ type Options struct {
 	retryMax                 int                                        // Maximum retry attempts.
 	maxRedirects             int                                        // Maximum number of redirects to follow.
 	forseHTTP1               bool                                       // Use HTTP/1.1.
-	history                  bool                                       // Enable response history.
 	cacheBody                bool                                       // Cache response bodies.
 	followOnlyHostRedirects  bool                                       // Follow redirects only to the same host.
 	forwardHeadersOnRedirect bool                                       // Forward headers on redirects.
 	useJA3                   bool                                       // Use JA3.
 	useHTTP2s                bool                                       // Use HTTP2 settings.
-	useCacheDNS              bool                                       // Use cached DNS.
-	dnsCacheTTL              time.Duration                              // DNS cache time-to-live.
-	dnsCacheMaxUsage         int64                                      // Maximum usage of DNS cache.
+	useSingleton             bool
 }
 
 // NewOptions creates a new Options instance with default values.
@@ -55,6 +51,13 @@ func (opt *Options) addrespMW(m responseMiddleware) *Options {
 	return opt
 }
 
+// Singleton configures the client to use a singleton instance, ensuring there's only one client instance.
+// This is needed specifically for JA3 or Impersonate functionalities.
+func (opt *Options) Singleton() *Options {
+	opt.useSingleton = true
+	return opt
+}
+
 // HTTP2Settings configures settings related to HTTP/2 and returns an http2s struct.
 func (opt *Options) HTTP2Settings() *http2s {
 	opt.useHTTP2s = true
@@ -70,8 +73,6 @@ func (opt *Options) Impersonate() *impersonate { return &impersonate{opt: opt} }
 // JA3 configures the client to use a specific TLS fingerprint.
 func (opt *Options) JA3() *ja3 {
 	opt.useJA3 = true
-	opt.addrespMW(clearCachedTransportsMW)
-
 	return &ja3{opt: opt}
 }
 
@@ -80,36 +81,6 @@ func (opt *Options) JA3() *ja3 {
 // socket instead of a traditional TCP/IP connection.
 func (opt *Options) UnixDomainSocket(socketPath string) *Options {
 	return opt.addcliMW(func(client *Client) { unixDomainSocketMW(client, socketPath) })
-}
-
-// DNSCache configures the DNS cache settings of the HTTP client.
-//
-// DNS caching can improve the performance of HTTP clients by caching the DNS
-// lookup results for the specified Time-To-Live (TTL) duration and limiting the usage of the
-// cached DNS result.
-//
-// Parameters:
-//
-// - ttl: the TTL duration for the DNS cache. After this duration, the DNS cache for a host will be
-// invalidated.
-//
-// - maxUsage: the maximum number of times a cached DNS lookup result can be used. After this
-// number is reached, the DNS cache for a host will be invalidated.
-//
-// Returns the same Options object, allowing for chaining of configuration calls.
-//
-// Example:
-//
-//	opt := surf.NewOptions().DNSCache(time.Second*30, 10)
-//	cli := surf.NewClient().SetOptions(opt)
-//
-// The client will now use a DNS cache with a 30-second TTL and a maximum usage count of 10.
-func (opt *Options) DNSCache(ttl time.Duration, maxUsage int64) *Options {
-	opt.useCacheDNS = true
-	opt.dnsCacheTTL = ttl
-	opt.dnsCacheMaxUsage = maxUsage
-
-	return opt.addcliMW(dnsCacheMW)
 }
 
 // DNS sets the custom DNS resolver address.
@@ -196,14 +167,6 @@ func (opt *Options) Retry(retryMax int, retryWait time.Duration, codes ...int) *
 	}
 
 	return opt
-}
-
-// History configures whether the client should keep a history of requests (for debugging purposes
-// only).
-// WARNING: use only for debugging, not in async mode, no concurrency safe!!!
-func (opt *Options) History() *Options {
-	opt.history = true
-	return opt.addcliMW(redirectPolicyMW)
 }
 
 // ForceHTTP1MW configures the client to use HTTP/1.1 forcefully.

@@ -1,43 +1,25 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"sync"
-	"time"
 
 	"gitlab.com/x0xO/surf"
 )
 
 func main() {
-	url := "https://tls.peet.ws/api/all"
-	// url := "https://www.google.com"
-
 	opt := surf.NewOptions()
+	opt.Singleton() // for reuse client
+
 	opt.Impersonate().FireFox()
 
-	// opt.Proxy("socks5://localhost:9050")
+	cli := surf.NewClient().SetOptions(opt)
 
 	var urls []string
 
-	urls = append(urls, url)
-	urls = append(urls, url)
-	urls = append(urls, url)
-	urls = append(urls, url)
-	urls = append(urls, url)
-	urls = append(urls, url)
-
-	// for _, url := range urls {
-	// 	ctx, _ := context.WithTimeout(context.Background(), time.Second*30)
-
-	// 	r, err := surf.NewClient().SetOptions(opt).Get(url).WithContext(ctx).Do()
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		return
-	// 	}
-
-	// 	r.Debug().Response().Print()
-	// }
+	urls = append(urls, "https://tls.peet.ws/api/all")
+	urls = append(urls, "https://www.google.com")
+	urls = append(urls, "https://dzen.ru")
 
 	var wg sync.WaitGroup
 
@@ -47,20 +29,20 @@ func main() {
 		go func(url string) {
 			defer wg.Done()
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-			defer cancel()
-
-			r, err := surf.NewClient().SetOptions(opt).Get(url).WithContext(ctx).Do()
+			r, err := cli.Get(url).Do()
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			r.Debug().Response(true).Print()
+			r.Debug().Response().Print()
+			fmt.Println()
 		}(url)
 	}
 
 	wg.Wait()
+
+	fmt.Println(cli.FlushCache())
 
 	fmt.Println("FINISH")
 }

@@ -20,7 +20,6 @@ type Response struct {
 	Status        string         // HTTP status string.
 	UserAgent     string         // User agent string.
 	Proto         string         // HTTP protocol version.
-	History       history        // Response history.
 	Cookies       cookies        // Response cookies.
 	Time          time.Duration  // Total time taken for the response.
 	ContentLength int64          // Length of the response content.

@@ -123,10 +123,6 @@ func redirectPolicyMW(client *Client) {
 					req.Header[key] = val
 				}
 			}
-
-			if opt.history {
-				client.history = append(client.history, req.Response)
-			}
 		}
 
 		return nil
@@ -146,9 +142,6 @@ func dnsMW(client *Client, dns string) {
 
 // dnsTLSMW sets up a DNS over TLS for client.
 func dnsTLSMW(client *Client, resolver *net.Resolver) { client.GetDialer().Resolver = resolver }
-
-// dnsCacheMW sets up a DNS cache for client.
-func dnsCacheMW(client *Client) { client.cacheDialer() }
 
 // configureUnixSocket sets the DialContext function for the client's HTTP transport to use
 // a Unix domain socket if the unixDomainSocket option is set.

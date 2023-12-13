@@ -11,6 +11,7 @@ func main() {
 	// url := "https://www.google.com"
 
 	opt := surf.NewOptions()
+	// opt.Proxy("socks5://localhost:9050")
 
 	// "ja3_hash": random
 	// "ja4": "t13d1516h2_8daaf6152771_5fb3489db586",
@@ -22,10 +23,7 @@ func main() {
 	// "akamai_fingerprint_hash": "fd4f649c50a64e33cc9e2407055bafbe"
 	opt.Impersonate().FireFox()
 
-	// opt.Proxy("socks5://localhost:9050")
-
-	r, err := surf.NewClient().SetOptions(opt).Get(url).
-		Do()
+	r, err := surf.NewClient().SetOptions(opt).Get(url).Do()
 	if err != nil {
 		log.Fatal(err)
 	}
