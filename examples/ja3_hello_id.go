@@ -14,10 +14,9 @@ func main() {
 	url := "https://tls.peet.ws/api/all"
 
 	opt := surf.NewOptions()
-
-	// opt.Proxy("socks5://localhost:9050")
 	opt.JA3().Chrome87()
 
+	// opt.Proxy("socks5://localhost:9050")
 	// opt.ForceHTTP1()
 
 	cli := surf.NewClient().SetOptions(opt)

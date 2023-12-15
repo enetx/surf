@@ -194,11 +194,12 @@ func h2cMW(client *Client) {
 	t2 := new(http2.Transport)
 
 	t2.AllowHTTP = true
+	t2.DisableCompression = client.GetTransport().(*http.Transport).DisableCompression
+	t2.IdleConnTimeout = client.transport.(*http.Transport).IdleConnTimeout
+
 	t2.DialTLSContext = func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
 		return net.Dial(network, addr)
 	}
-
-	t2.IdleConnTimeout = client.transport.(*http.Transport).IdleConnTimeout
 
 	if client.opt.http2s != nil {
 		h := client.opt.http2s

@@ -84,7 +84,7 @@ func (h *http2s) Set() *Options {
 		return h.opt
 	}
 
-	return h.opt.addcliMW(func(c *Client) {
+	return h.opt.addcliMW(0, func(c *Client) {
 		t1, ok := c.GetTransport().(*http.Transport)
 		if !ok {
 			return

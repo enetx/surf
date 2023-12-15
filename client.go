@@ -100,9 +100,9 @@ func (c *Client) SetOptions(opt *Options) *Client {
 	c.opt = opt
 	c.opt.dialer = c.dialer
 
-	for _, m := range c.opt.cliMW {
-		c.ClientMiddleware(m)
-	}
+	// sorting client middleware by priority
+	c.opt.cliMW.SortBy(func(i, j int) bool { return (*c.opt.cliMW)[i].Key < (*c.opt.cliMW)[j].Key })
+	c.opt.cliMW.ForEach(func(_ int, m clientMiddleware) { c.ClientMiddleware(m) })
 
 	return c
 }

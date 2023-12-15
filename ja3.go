@@ -72,7 +72,7 @@ func (j *ja3) SetHelloSpec(spec utls.ClientHelloSpec) *Options {
 }
 
 func (j *ja3) setOptions() *Options {
-	return j.opt.addcliMW(func(c *Client) {
+	return j.opt.addcliMW(0, func(c *Client) {
 		if !j.opt.singleton {
 			j.opt.addrespMW(clearCachedTransportsMW)
 		}

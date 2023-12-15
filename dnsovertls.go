@@ -82,7 +82,7 @@ func (dnsOverTLS) resolver(serverName string, addresses ...string) *net.Resolver
 // options.
 func (dot *dnsOverTLS) AddProvider(serverName string, addresses ...string) *Options {
 	resolver := dot.resolver(serverName, addresses...)
-	return dot.opt.addcliMW(func(client *Client) { dnsTLSMW(client, resolver) })
+	return dot.opt.addcliMW(0, func(client *Client) { dnsTLSMW(client, resolver) })
 }
 
 // dial returns a dial function that establishes a secure connection to a random DNS server address
