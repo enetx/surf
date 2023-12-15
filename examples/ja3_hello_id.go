@@ -31,10 +31,5 @@ func main() {
 		return
 	}
 
-	fmt.Println(r.StatusCode)
-	if r.StatusCode == 101 {
-		r.Body.String().Print()
-	}
-
 	r.Debug().Request(true).Response(true).Print()
 }

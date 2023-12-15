@@ -65,6 +65,10 @@ func (c *Client) ResponseMiddleware(m responseMiddleware) *Client {
 // and returns a slice containing the addresses that were removed.
 // Specifically used when Singleton is enabled for JA3 or Impersonate functionalities.
 func (c *Client) FlushCache() []string {
+	if c.opt == nil || !c.opt.singleton {
+		return nil
+	}
+
 	var addresses []string
 
 	cachedTransports.Range(func(key, _ any) bool {

@@ -14,8 +14,8 @@ func main() {
 	// juliogroup.uk
 
 	// url := "juliogroup.uk" // 101 stream error
-	url := "playtoto.asia" // 101 websocket
-	// url := "bompreco.cloud" // 101 websocket
+	// url := "playtoto.asia" // 101 websocket
+	url := "bompreco.cloud" // 101 websocket
 
 	opt := surf.NewOptions()
 	opt.Impersonate().Chrome()

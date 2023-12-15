@@ -10,7 +10,6 @@ import (
 func main() {
 	opt := surf.NewOptions()
 	opt.Singleton() // for reuse client
-
 	opt.Impersonate().FireFox()
 
 	cli := surf.NewClient().SetOptions(opt)

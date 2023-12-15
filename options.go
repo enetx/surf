@@ -25,9 +25,8 @@ type Options struct {
 	cacheBody                bool                                       // Cache response bodies.
 	followOnlyHostRedirects  bool                                       // Follow redirects only to the same host.
 	forwardHeadersOnRedirect bool                                       // Forward headers on redirects.
-	useJA3                   bool                                       // Use JA3.
-	useHTTP2s                bool                                       // Use HTTP2 settings.
-	useSingleton             bool
+	ja3                      bool                                       // Use JA3.
+	singleton                bool                                       // Use Singleton.
 }
 
 // NewOptions creates a new Options instance with default values.
@@ -54,13 +53,16 @@ func (opt *Options) addrespMW(m responseMiddleware) *Options {
 // Singleton configures the client to use a singleton instance, ensuring there's only one client instance.
 // This is needed specifically for JA3 or Impersonate functionalities.
 func (opt *Options) Singleton() *Options {
-	opt.useSingleton = true
+	opt.singleton = true
 	return opt
+}
+
+func (opt *Options) H2C() *Options {
+	return opt.addcliMW(h2cMW)
 }
 
 // HTTP2Settings configures settings related to HTTP/2 and returns an http2s struct.
 func (opt *Options) HTTP2Settings() *http2s {
-	opt.useHTTP2s = true
 	h2 := &http2s{opt: opt}
 	h2.opt.http2s = h2
 
@@ -72,7 +74,7 @@ func (opt *Options) Impersonate() *impersonate { return &impersonate{opt: opt} }
 
 // JA3 configures the client to use a specific TLS fingerprint.
 func (opt *Options) JA3() *ja3 {
-	opt.useJA3 = true
+	opt.ja3 = true
 	return &ja3{opt: opt}
 }
 

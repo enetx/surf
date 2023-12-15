@@ -10,6 +10,7 @@ import (
 
 	"gitlab.com/x0xO/http"
 	"gitlab.com/x0xO/http/cookiejar"
+	"gitlab.com/x0xO/http2"
 )
 
 // default dialer for surf.
@@ -168,7 +169,7 @@ func unixDomainSocketMW(client *Client, unixDomainSocket string) {
 // proxyMW configures the request's proxy settings based on the provided
 // proxy options. It supports single or multiple proxy options.
 func proxyMW(client *Client, proxys any) {
-	if client.opt.useJA3 {
+	if client.opt.ja3 {
 		return
 	}
 
@@ -187,4 +188,55 @@ func proxyMW(client *Client, proxys any) {
 
 	proxyURL, _ := url.Parse(proxy)
 	client.GetTransport().(*http.Transport).Proxy = http.ProxyURL(proxyURL)
+}
+
+func h2cMW(client *Client) {
+	t2 := new(http2.Transport)
+
+	t2.AllowHTTP = true
+	t2.DialTLSContext = func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
+		return net.Dial(network, addr)
+	}
+
+	t2.IdleConnTimeout = client.transport.(*http.Transport).IdleConnTimeout
+
+	if client.opt.http2s != nil {
+		h := client.opt.http2s
+
+		appendSetting := func(id http2.SettingID, val uint32) {
+			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
+				t2.Settings = append(t2.Settings, http2.Setting{ID: id, Val: val})
+			}
+		}
+
+		settings := [...]struct {
+			id  http2.SettingID
+			val uint32
+		}{
+			{http2.SettingHeaderTableSize, h.headerTableSize},
+			{http2.SettingEnablePush, h.enablePush},
+			{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
+			{http2.SettingInitialWindowSize, h.initialWindowSize},
+			{http2.SettingMaxFrameSize, h.maxFrameSize},
+			{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
+		}
+
+		for _, s := range settings {
+			appendSetting(s.id, s.val)
+		}
+
+		if h.connectionFlow != 0 {
+			t2.ConnectionFlow = h.connectionFlow
+		}
+
+		if !h.priorityParam.IsZero() {
+			t2.PriorityParam = h.priorityParam
+		}
+
+		if h.priorityFrames != nil {
+			t2.PriorityFrames = h.priorityFrames
+		}
+	}
+
+	client.cli.Transport = t2
 }

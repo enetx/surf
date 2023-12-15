@@ -149,7 +149,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		t2.DialTLSContext = rt.dialTLSHTTP2
 		t2.IdleConnTimeout = rt.transport.(*http.Transport).IdleConnTimeout
 
-		if rt.ja3.opt.useHTTP2s {
+		if rt.ja3.opt.http2s != nil {
 			h := rt.ja3.opt.http2s
 
 			appendSetting := func(id http2.SettingID, val uint32) {

@@ -15,10 +15,37 @@ import (
 
 	"gitlab.com/x0xO/http"
 	"gitlab.com/x0xO/http/httptest"
+	"gitlab.com/x0xO/http2"
+	"gitlab.com/x0xO/http2/h2c"
 
 	"github.com/andybalholm/brotli"
 	"gitlab.com/x0xO/surf"
 )
+
+func TestH2C(t *testing.T) {
+	t.Parallel()
+
+	h2s := &http2.Server{}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello %s http == %v", r.Proto, r.TLS == nil)
+	})
+
+	ts := httptest.NewUnstartedServer(h2c.NewHandler(handler, h2s))
+	ts.Start()
+
+	defer ts.Close()
+
+	r, err := surf.NewClient().SetOptions(surf.NewOptions().H2C()).Get(ts.URL).Do()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if !r.Body.Contains("Hello HTTP/2.0 http == true") {
+		t.Error()
+	}
+}
 
 func TestUnixDomainSocket(t *testing.T) {
 	t.Parallel()
@@ -505,7 +532,7 @@ func TestHTTP2(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions()).Get(ts.URL).Do()
+	r, err := surf.NewClient().Get(ts.URL).Do()
 	if err != nil {
 		t.Error(err)
 		return
