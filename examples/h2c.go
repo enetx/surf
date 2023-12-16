@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	http2.VerboseLogs = true
+
 	go H2CServerUpgrade()
 
 	opt := surf.NewOptions().H2C()
@@ -20,7 +22,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r.Body.String().Print()
+	fmt.Println()
+	r.Debug().Request(true).Response(true).Print()
 }
 
 func H2CServerUpgrade() {

@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	// http2.VerboseLogs = true // http2 logs
+
 	url := "https://tls.peet.ws/api/all"
 	// url := "https://www.google.com"
 

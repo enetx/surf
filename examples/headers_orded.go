@@ -22,7 +22,6 @@ func main() {
 		Set("3", "3").
 		Set("4", "4")
 
-	// opt := surf.NewOptions().UserAgent("root")
 	opt := surf.NewOptions().UserAgent("root")
 
 	r, err := surf.NewClient().SetOptions(opt).Get(URL).SetHeaders(orderedHeaders).Do()

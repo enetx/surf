@@ -11,7 +11,7 @@ func main() {
 	r, err := surf.NewClient().
 		// SetOptions(surf.NewOptions().ForceHTTP1()).
 		SetOptions(surf.NewOptions()).
-		Get("https://http2.pro/api/v1").
+		Get("https://tls.peet.ws/api/all").
 		Do()
 	if err != nil {
 		log.Fatal(err)
