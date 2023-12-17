@@ -10,121 +10,159 @@ import (
 	"io"
 	"net"
 	"net/url"
-	"strconv"
+	"strings"
 	"sync"
-
-	"golang.org/x/net/proxy"
 
 	"gitlab.com/x0xO/http"
 	"gitlab.com/x0xO/http2"
+	"golang.org/x/net/proxy"
 )
 
-// connectDialer allows to configure one-time use HTTP CONNECT client
-type connectDialer struct {
-	// overridden dialer allow to control establishment of TCP connection
-	Dialer proxy.ContextDialer
+type proxyDialer struct {
+	ProxyURL      *url.URL
+	DefaultHeader http.Header
 
-	cachedH2RawConn net.Conn
-	DefaultHeader   http.Header
+	// overridden dialer allow to control establishment of TCP connection
+	Dialer net.Dialer
 
 	// overridden DialTLS allows user to control establishment of TLS connection
 	// MUST return connection with completed Handshake, and NegotiatedProtocol
 	DialTLS func(network string, address string) (net.Conn, string, error)
 
-	cachedH2ClientConn *http2.ClientConn
-	ProxyURL           url.URL
-	cacheH2Mu          sync.Mutex
-	EnableH2ConnReuse  bool
+	h2Mu   sync.Mutex
+	h2Conn *http2.ClientConn
+	conn   net.Conn
+
+	tr2 *http2.Transport
 }
 
-// NewDialer creates a dialer to issue CONNECT requests and tunnel traffic via HTTP/S proxy.
-// proxyUrlStr must provide Scheme and Host, may provide credentials and port.
-// Example: https://username:password@golang.org:443
-func NewDialer(proxyURLStr string) (proxy.ContextDialer, error) {
-	proxyURL, err := url.Parse(proxyURLStr)
+const (
+	schemeHTTP  = "http"
+	schemeHTTPS = "https"
+	socks5      = "socks5"
+	socks5H     = "socks5h"
+
+	invalidProxy = "invalid proxy `%s`, %s"
+)
+
+func NewDialer(proxy string) (*proxyDialer, error) {
+	parsed, err := url.Parse(proxy)
 	if err != nil {
 		return nil, err
 	}
 
-	if proxyURL.Host == "" || proxyURL.Host == "undefined" {
-		return nil, errors.New("invalid url `" + proxyURLStr +
-			"`, make sure to specify full url like https://username:password@hostname.com:443/")
+	if parsed.Host == "" {
+		return nil, fmt.Errorf(invalidProxy, proxy, "make sure to specify full url like http(s)://username:password@ip:port")
 	}
 
-	client := &connectDialer{
-		ProxyURL:          *proxyURL,
-		DefaultHeader:     make(http.Header),
-		EnableH2ConnReuse: true,
-	}
-
-	switch proxyURL.Scheme {
-	case "http":
-		if proxyURL.Port() == "" {
-			proxyURL.Host = net.JoinHostPort(proxyURL.Host, "80")
-		}
-	case "https":
-		if proxyURL.Port() == "" {
-			proxyURL.Host = net.JoinHostPort(proxyURL.Host, "443")
-		}
-	case "socks5":
-		var auth *proxy.Auth
-		if proxyURL.User != nil {
-			if proxyURL.User.Username() != "" {
-				username := proxyURL.User.Username()
-				password, _ := proxyURL.User.Password()
-				auth = &proxy.Auth{User: username, Password: password}
-			}
-		}
-		dialSocksProxy, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, nil)
-		if err != nil {
-			return nil, fmt.Errorf("error creating SOCKS5 proxy, reason %s", err)
-		}
-
-		if contextDialer, ok := dialSocksProxy.(proxy.ContextDialer); ok {
-			client.Dialer = contextDialer
-		} else {
-			return nil, errors.New("failed type assertion to DialContext")
-		}
-
-		return client, nil
+	switch parsed.Scheme {
 	case "":
-		return nil, errors.New("specify scheme explicitly (https://)")
+		return nil, fmt.Errorf(invalidProxy, proxy, "empty scheme")
+	case schemeHTTP:
+		if parsed.Port() == "" {
+			parsed.Host = net.JoinHostPort(parsed.Host, "80")
+		}
+	case schemeHTTPS:
+		if parsed.Port() == "" {
+			parsed.Host = net.JoinHostPort(parsed.Host, "443")
+		}
+	case socks5, socks5H:
+		if parsed.Port() == "" {
+			parsed.Host = net.JoinHostPort(parsed.Host, "1080")
+		}
 	default:
-		return nil, errors.New("scheme " + proxyURL.Scheme + " is not supported")
+		return nil, fmt.Errorf(invalidProxy, proxy, "scheme "+parsed.Scheme+" is not supported")
 	}
 
-	client.Dialer = &net.Dialer{}
+	proxyDialer := &proxyDialer{
+		ProxyURL:      parsed,
+		DefaultHeader: make(http.Header),
+	}
 
-	if proxyURL.User != nil {
-		if proxyURL.User.Username() != "" {
-			username := proxyURL.User.Username()
-			password, _ := proxyURL.User.Password()
-			auth := username + ":" + password
+	if parsed.User != nil {
+		if parsed.User.Username() != "" {
+			password, ok := parsed.User.Password()
+			if !ok {
+				return nil, fmt.Errorf(invalidProxy, proxy, "password is empty")
+			}
+
+			auth := parsed.User.Username() + ":" + password
 			basicAuth := "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
-
-			client.DefaultHeader.Add("Proxy-Authorization", basicAuth)
+			proxyDialer.DefaultHeader.Add("Proxy-Authorization", basicAuth)
 		}
 	}
 
-	return client, nil
+	return proxyDialer, nil
 }
 
-func (c *connectDialer) Dial(network, address string) (net.Conn, error) {
+func (c *proxyDialer) Dial(network, address string) (net.Conn, error) {
 	return c.DialContext(context.Background(), network, address)
 }
 
-// ContextKeyHeader Users of context.WithValue should define their own types for keys
 type ContextKeyHeader struct{}
 
-// ctx.Value will be inspected for optional ContextKeyHeader{} key, with `http.Header` value,
-// which will be added to outgoing request headers, overriding any colliding c.DefaultHeader
-func (c *connectDialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
-	if c.ProxyURL.Scheme == "socks5" {
-		return c.Dialer.DialContext(ctx, network, address)
+func (c *proxyDialer) connectHTTP1(req *http.Request, conn net.Conn) error {
+	req.Proto = "HTTP/1.1"
+	req.ProtoMajor = 1
+	req.ProtoMinor = 1
+
+	err := req.Write(conn)
+	if err != nil {
+		_ = conn.Close()
+		return err
+	}
+
+	resp, err := http.ReadResponse(bufio.NewReader(conn), req)
+	if err != nil {
+		_ = conn.Close()
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		_ = conn.Close()
+		return fmt.Errorf("proxy error : %s", resp.Status)
+	}
+
+	return nil
+}
+
+func (c *proxyDialer) connectHTTP2(req *http.Request, conn net.Conn, h2clientConn *http2.ClientConn) (net.Conn, error) {
+	req.Proto = "HTTP/2.0"
+	req.ProtoMajor = 2
+	req.ProtoMinor = 0
+	pr, pw := io.Pipe()
+	req.Body = pr
+
+	resp, err := h2clientConn.RoundTrip(req)
+	if err != nil {
+		_ = conn.Close()
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		_ = conn.Close()
+		return nil, fmt.Errorf("proxy error : %s", resp.Status)
+	}
+
+	return newHTTP2Conn(conn, pw, resp.Body), nil
+}
+
+func (c *proxyDialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
+	if c.ProxyURL == nil {
+		return nil, errors.New("proxy is not set")
+	}
+
+	if strings.HasPrefix(c.ProxyURL.Scheme, "socks") {
+		dial, err := proxy.FromURL(c.ProxyURL, proxy.Direct)
+		if err != nil {
+			return nil, err
+		}
+
+		return dial.(proxy.ContextDialer).DialContext(ctx, network, address)
 	}
 
 	req := (&http.Request{
-		Method: "CONNECT",
+		Method: http.MethodConnect,
 		URL:    &url.URL{Host: address},
 		Header: make(http.Header),
 		Host:   address,
@@ -140,91 +178,58 @@ func (c *connectDialer) DialContext(ctx context.Context, network, address string
 		}
 	}
 
-	connectHTTP2 := func(rawConn net.Conn, h2clientConn *http2.ClientConn) (net.Conn, error) {
-		req.Proto = "HTTP/2.0"
-		req.ProtoMajor = 2
-		req.ProtoMinor = 0
-		pr, pw := io.Pipe()
-		req.Body = pr
+	c.h2Mu.Lock()
+	unlocked := false
 
-		resp, err := h2clientConn.RoundTrip(req)
-		if err != nil {
-			_ = rawConn.Close()
-			return nil, err
-		}
-
-		if resp.StatusCode != http.StatusOK {
-			_ = rawConn.Close()
-			return nil, errors.New("Proxy responded with non 200 code: " + resp.Status + "StatusCode:" + strconv.Itoa(resp.StatusCode))
-		}
-		return newHTTP2Conn(rawConn, pw, resp.Body), nil
-	}
-
-	connectHTTP1 := func(rawConn net.Conn) (net.Conn, error) {
-		req.Proto = "HTTP/1.1"
-		req.ProtoMajor = 1
-		req.ProtoMinor = 1
-
-		err := req.Write(rawConn)
-		if err != nil {
-			_ = rawConn.Close()
-			return nil, err
-		}
-
-		resp, err := http.ReadResponse(bufio.NewReader(rawConn), req)
-		if err != nil {
-			_ = rawConn.Close()
-			return nil, err
-		}
-
-		if resp.StatusCode != http.StatusOK {
-			_ = rawConn.Close()
-			return nil, errors.New("Proxy responded with non 200 code: " + resp.Status + " StatusCode:" + strconv.Itoa(resp.StatusCode))
-		}
-
-		return rawConn, nil
-	}
-
-	if c.EnableH2ConnReuse {
-		c.cacheH2Mu.Lock()
-		unlocked := false
-
-		if c.cachedH2ClientConn != nil && c.cachedH2RawConn != nil {
-			if c.cachedH2ClientConn.CanTakeNewRequest() {
-				rc := c.cachedH2RawConn
-				cc := c.cachedH2ClientConn
-				c.cacheH2Mu.Unlock()
-				unlocked = true
-				proxyConn, err := connectHTTP2(rc, cc)
-				if err == nil {
-					return proxyConn, err
-				}
-				// else: carry on and try again
+	if c.h2Conn != nil && c.conn != nil {
+		if c.h2Conn.CanTakeNewRequest() {
+			rc := c.conn
+			cc := c.h2Conn
+			c.h2Mu.Unlock()
+			unlocked = true
+			proxyConn, err := c.connectHTTP2(req, rc, cc)
+			if err == nil {
+				return proxyConn, nil
 			}
 		}
-
-		if !unlocked {
-			c.cacheH2Mu.Unlock()
-		}
 	}
 
+	if !unlocked {
+		c.h2Mu.Unlock()
+	}
+
+	rawConn, negotiatedProtocol, err := c.initProxyConn(ctx, network)
+	if err != nil {
+		return nil, err
+	}
+
+	proxyConn, err := c.connect(req, rawConn, negotiatedProtocol)
+	if err != nil {
+		return nil, err
+	}
+
+	return proxyConn, nil
+}
+
+func (c *proxyDialer) initProxyConn(ctx context.Context, network string) (net.Conn, string, error) {
 	var (
-		err                error
 		rawConn            net.Conn
 		negotiatedProtocol string
+		err                error
 	)
 
 	switch c.ProxyURL.Scheme {
-	case "http":
+	case schemeHTTP:
 		rawConn, err = c.Dialer.DialContext(ctx, network, c.ProxyURL.Host)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
-	case "https":
+
+	case schemeHTTPS:
 		if c.DialTLS != nil {
 			rawConn, negotiatedProtocol, err = c.DialTLS(network, c.ProxyURL.Host)
 			if err != nil {
-				return nil, err
+				return nil, "", err
 			}
 		} else {
 			tlsConf := tls.Config{
@@ -232,52 +237,51 @@ func (c *connectDialer) DialContext(ctx context.Context, network, address string
 				ServerName:         c.ProxyURL.Hostname(),
 				InsecureSkipVerify: true,
 			}
-			tlsConn, err := tls.Dial(network, c.ProxyURL.Host, &tlsConf)
+
+			var tlsConn *tls.Conn
+			tlsConn, err = tls.Dial(network, c.ProxyURL.Host, &tlsConf)
 			if err != nil {
-				return nil, err
+				return nil, "", err
 			}
+
 			err = tlsConn.Handshake()
 			if err != nil {
-				return nil, err
+				return nil, "", err
 			}
+
 			negotiatedProtocol = tlsConn.ConnectionState().NegotiatedProtocol
 			rawConn = tlsConn
 		}
 	default:
-		return nil, errors.New("scheme " + c.ProxyURL.Scheme + " is not supported")
+		return nil, "", errors.New("scheme " + c.ProxyURL.Scheme + " is not supported")
 	}
 
-	switch negotiatedProtocol {
-	case "":
-		fallthrough
-	case "http/1.1":
-		return connectHTTP1(rawConn)
-	case "h2":
-		t := http2.Transport{}
-		h2clientConn, err := t.NewClientConn(rawConn)
-		if err != nil {
-			_ = rawConn.Close()
-			return nil, err
+	return rawConn, negotiatedProtocol, err
+}
+
+func (c *proxyDialer) connect(req *http.Request, conn net.Conn, negotiatedProtocol string) (net.Conn, error) {
+	if negotiatedProtocol == http2.NextProtoTLS {
+		if c.tr2 == nil {
+			c.tr2 = new(http2.Transport)
 		}
 
-		proxyConn, err := connectHTTP2(rawConn, h2clientConn)
-		if err != nil {
-			_ = rawConn.Close()
-			return nil, err
+		if h2clientConn, err := c.tr2.NewClientConn(conn); err == nil {
+			if proxyConn, err := c.connectHTTP2(req, conn, h2clientConn); err == nil {
+				c.h2Mu.Lock()
+				c.h2Conn = h2clientConn
+				c.conn = conn
+				c.h2Mu.Unlock()
+				return proxyConn, err
+			}
 		}
-
-		if c.EnableH2ConnReuse {
-			c.cacheH2Mu.Lock()
-			c.cachedH2ClientConn = h2clientConn
-			c.cachedH2RawConn = rawConn
-			c.cacheH2Mu.Unlock()
-		}
-
-		return proxyConn, err
-	default:
-		_ = rawConn.Close()
-		return nil, errors.New("negotiated unsupported application layer protocol: " + negotiatedProtocol)
 	}
+
+	if err := c.connectHTTP1(req, conn); err != nil {
+		_ = conn.Close()
+		return nil, err
+	}
+
+	return conn, nil
 }
 
 func newHTTP2Conn(c net.Conn, pipedReqBody *io.PipeWriter, respBody io.ReadCloser) net.Conn {
@@ -296,7 +300,6 @@ func (h *http2Conn) Close() error {
 	if err := h.in.Close(); err != nil {
 		retErr = err
 	}
-
 	if err := h.out.Close(); err != nil {
 		retErr = err
 	}

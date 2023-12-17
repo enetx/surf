@@ -8,14 +8,14 @@ import (
 )
 
 func main() {
-	URL := "http://httpbingo.org/cookies"
+	URL := "https://httpbingo.org/cookies"
 
-	opt := surf.NewOptions()
-
+	opt := surf.NewOptions().Session()
 	opt.JA3().Chrome87()
-	opt.Session()
 
-	r, err := surf.NewClient().SetOptions(opt).Get(URL + "/set?name1=value1&name2=value2").Do()
+	cli := surf.NewClient().SetOptions(opt)
+
+	r, err := cli.Get(URL + "/set?name1=value1&name2=value2").Do()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -25,7 +25,7 @@ func main() {
 
 	r.SetCookies(URL, []*http.Cookie{{Name: "root", Value: "cookie"}})
 
-	r, _ = r.Get(URL).Do()
+	r, _ = cli.Get(URL).Do()
 	r.Body.String().Print()
 
 	// check if cookies in response

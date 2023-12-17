@@ -11,6 +11,7 @@ import (
 
 	"gitlab.com/x0xO/http"
 	"gitlab.com/x0xO/http2"
+	"gitlab.com/x0xO/surf/internal/ja3c"
 
 	utls "github.com/refraction-networking/utls"
 )
@@ -108,10 +109,10 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, err
 	}
 
-	spec = processSpec(spec)
+	// spec = ja3c.ProcessSpec(spec)
 
 	if rt.ja3.opt.forseHTTP1 {
-		setAlpnProtocolToHTTP1(&spec)
+		ja3c.SetAlpnProtocolToHTTP1(&spec)
 	}
 
 	config := &utls.Config{

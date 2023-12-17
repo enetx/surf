@@ -10,15 +10,16 @@ import (
 func main() {
 	opt := surf.NewOptions()
 	opt.Singleton() // for reuse client
-	opt.Impersonate().FireFox()
 
-	cli := surf.NewClient().SetOptions(opt)
+	opt.Impersonate().Chrome120()
 
 	var urls []string
 
-	urls = append(urls, "https://tls.peet.ws/api/all")
+	urls = append(urls, "http://tls.peet.ws/api/all")
 	urls = append(urls, "https://www.google.com")
 	urls = append(urls, "https://dzen.ru")
+
+	cli := surf.NewClient().SetOptions(opt)
 
 	var wg sync.WaitGroup
 
