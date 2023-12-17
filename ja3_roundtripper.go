@@ -16,15 +16,14 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
-var (
-	errProtocolNegotiated = errors.New("protocol negotiated")
-	cachedTransports      sync.Map
-)
+var errProtocolNegotiated = errors.New("protocol negotiated")
 
 type roundtripper struct {
-	ja3               *ja3
-	transport         http.RoundTripper
-	cachedConnections sync.Map
+	transport          http.RoundTripper
+	clientSessionCache utls.ClientSessionCache
+	ja3                *ja3
+	cachedConnections  sync.Map
+	cachedTransports   sync.Map
 }
 
 func newRoundTripper(ja3 *ja3, transport http.RoundTripper) http.RoundTripper {
@@ -32,19 +31,23 @@ func newRoundTripper(ja3 *ja3, transport http.RoundTripper) http.RoundTripper {
 	rt.ja3 = ja3
 	rt.transport = transport
 
+	if rt.ja3.opt.session {
+		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
+	}
+
 	return rt
 }
 
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.address(req)
 
-	value, ok := cachedTransports.Load(addr)
+	value, ok := rt.cachedTransports.Load(addr)
 	if !ok {
 		if err := rt.getTransport(req, addr); err != nil {
 			return nil, err
 		}
 
-		value, _ = cachedTransports.Load(addr)
+		value, _ = rt.cachedTransports.Load(addr)
 	}
 
 	transport, ok := value.(http.RoundTripper)
@@ -60,14 +63,23 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	return response, nil
 }
 
+func (rt *roundtripper) CloseIdleConnections() {
+	type closeIdler interface{ CloseIdleConnections() }
+
+	rt.cachedTransports.Range(func(key, transport any) bool {
+		if tr, ok := transport.(closeIdler); ok {
+			tr.CloseIdleConnections()
+		}
+
+		rt.cachedTransports.Delete(key)
+		return true
+	})
+}
+
 func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
 	switch strings.ToLower(req.URL.Scheme) {
 	case "http":
-		t1 := rt.transport.(*http.Transport).Clone()
-		t1.DisableKeepAlives = true
-
-		cachedTransports.Store(addr, t1)
-
+		rt.cachedTransports.Store(addr, rt.buildHTTP1Transport())
 		return nil
 	case "https":
 	default:
@@ -117,8 +129,9 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 	config := &utls.Config{
 		ServerName:         host,
-		OmitEmptyPsk:       true,
 		InsecureSkipVerify: true,
+		OmitEmptyPsk:       true,
+		ClientSessionCache: rt.clientSessionCache,
 	}
 
 	conn := utls.UClient(rawConn, config, utls.HelloCustom)
@@ -138,67 +151,18 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, fmt.Errorf("uTlsConn.HandshakeContext() error: %+v", err)
 	}
 
-	if _, ok := cachedTransports.Load(addr); ok {
+	if _, ok := rt.cachedTransports.Load(addr); ok {
 		return conn, nil
 	}
 
-	var transport http.RoundTripper
-
 	switch conn.ConnectionState().NegotiatedProtocol {
 	case http2.NextProtoTLS:
-		t2 := new(http2.Transport)
-		t2.DialTLSContext = rt.dialTLSHTTP2
-		t2.IdleConnTimeout = rt.transport.(*http.Transport).IdleConnTimeout
-
-		if rt.ja3.opt.http2s != nil {
-			h := rt.ja3.opt.http2s
-
-			appendSetting := func(id http2.SettingID, val uint32) {
-				if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
-					t2.Settings = append(t2.Settings, http2.Setting{ID: id, Val: val})
-				}
-			}
-
-			settings := [...]struct {
-				id  http2.SettingID
-				val uint32
-			}{
-				{http2.SettingHeaderTableSize, h.headerTableSize},
-				{http2.SettingEnablePush, h.enablePush},
-				{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
-				{http2.SettingInitialWindowSize, h.initialWindowSize},
-				{http2.SettingMaxFrameSize, h.maxFrameSize},
-				{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
-			}
-
-			for _, s := range settings {
-				appendSetting(s.id, s.val)
-			}
-
-			if h.connectionFlow != 0 {
-				t2.ConnectionFlow = h.connectionFlow
-			}
-
-			if !h.priorityParam.IsZero() {
-				t2.PriorityParam = h.priorityParam
-			}
-
-			if h.priorityFrames != nil {
-				t2.PriorityFrames = h.priorityFrames
-			}
-		}
-
-		transport = t2
+		rt.cachedTransports.Store(addr, rt.buildHTTP2Transport())
 	default:
-		t1 := rt.transport.(*http.Transport).Clone()
-		t1.DialTLSContext = rt.dialTLS
-		t1.DisableKeepAlives = true
-
-		transport = t1
+		rt.cachedTransports.Store(addr, rt.buildHTTP1Transport())
 	}
 
 	rt.cachedConnections.Store(addr, conn)
-	cachedTransports.Store(addr, transport)
 
 	return nil, errProtocolNegotiated
 }
@@ -210,4 +174,59 @@ func (rt *roundtripper) address(req *http.Request) string {
 	}
 
 	return net.JoinHostPort(req.URL.Host, "443") // we can assume port is 443 at this point
+}
+
+func (rt *roundtripper) buildHTTP1Transport() *http.Transport {
+	t := rt.transport.(*http.Transport).Clone()
+	t.DialTLSContext = rt.dialTLS
+
+	return t
+}
+
+func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
+	t := new(http2.Transport)
+	t.DialTLSContext = rt.dialTLSHTTP2
+	t.DisableCompression = rt.transport.(*http.Transport).DisableCompression
+	t.IdleConnTimeout = rt.transport.(*http.Transport).IdleConnTimeout
+	t.TLSClientConfig = rt.transport.(*http.Transport).TLSClientConfig
+
+	if rt.ja3.opt.http2s != nil {
+		h := rt.ja3.opt.http2s
+
+		appendSetting := func(id http2.SettingID, val uint32) {
+			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
+				t.Settings = append(t.Settings, http2.Setting{ID: id, Val: val})
+			}
+		}
+
+		settings := [...]struct {
+			id  http2.SettingID
+			val uint32
+		}{
+			{http2.SettingHeaderTableSize, h.headerTableSize},
+			{http2.SettingEnablePush, h.enablePush},
+			{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
+			{http2.SettingInitialWindowSize, h.initialWindowSize},
+			{http2.SettingMaxFrameSize, h.maxFrameSize},
+			{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
+		}
+
+		for _, s := range settings {
+			appendSetting(s.id, s.val)
+		}
+
+		if h.connectionFlow != 0 {
+			t.ConnectionFlow = h.connectionFlow
+		}
+
+		if !h.priorityParam.IsZero() {
+			t.PriorityParam = h.priorityParam
+		}
+
+		if h.priorityFrames != nil {
+			t.PriorityFrames = h.priorityFrames
+		}
+	}
+
+	return t
 }

@@ -15,7 +15,7 @@ func main() {
 
 	var urls []string
 
-	urls = append(urls, "http://tls.peet.ws/api/all")
+	urls = append(urls, "https://tls.peet.ws/api/all")
 	urls = append(urls, "https://www.google.com")
 	urls = append(urls, "https://dzen.ru")
 
@@ -42,7 +42,7 @@ func main() {
 
 	wg.Wait()
 
-	fmt.Println(cli.FlushCache())
+	cli.CloseIdleConnections()
 
 	fmt.Println("FINISH")
 }

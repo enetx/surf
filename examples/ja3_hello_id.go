@@ -8,11 +8,15 @@ import (
 
 func main() {
 	// https://github.com/lwthiker/curl-impersonate/tree/main/chrome
-	// url := "https://tls.peet.ws/api/all"
-	url := "https://tools.scrapfly.io/api/fp/anything"
+
+	url := "https://tls.peet.ws/api/all"
+	// url := "http://tools.scrapfly.io/api/fp/anything"
 
 	opt := surf.NewOptions()
-	opt.JA3().Firefox()
+	// opt.ForceHTTP1()
+
+	opt.JA3().Chrome87()
+
 	// opt.Proxy("socks5://127.0.0.1:9050")
 	// opt.Proxy("http://127.0.0.1:8080")
 

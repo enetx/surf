@@ -61,24 +61,14 @@ func (c *Client) ResponseMiddleware(m responseMiddleware) *Client {
 	return c
 }
 
-// FlushCache removes all entries from the cached transports
-// and returns a slice containing the addresses that were removed.
+// CloseIdleConnections removes all entries from the cached transports.
 // Specifically used when Singleton is enabled for JA3 or Impersonate functionalities.
-func (c *Client) FlushCache() []string {
+func (c *Client) CloseIdleConnections() {
 	if c.opt == nil || !c.opt.singleton {
-		return nil
+		return
 	}
 
-	var addresses []string
-
-	cachedTransports.Range(func(key, _ any) bool {
-		cachedTransports.Delete(key)
-		addresses = append(addresses, key.(string))
-
-		return true
-	})
-
-	return addresses
+	c.cli.CloseIdleConnections()
 }
 
 // GetClient returns http.Client used by the Client.

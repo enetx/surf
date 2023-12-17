@@ -26,6 +26,7 @@ type Options struct {
 	followOnlyHostRedirects  bool                                       // Follow redirects only to the same host.
 	forwardHeadersOnRedirect bool                                       // Forward headers on redirects.
 	ja3                      bool                                       // Use JA3.
+	session                  bool                                       // Use Session.
 	singleton                bool                                       // Use Singleton.
 }
 
@@ -182,7 +183,10 @@ func (opt *Options) ForceHTTP1() *Options {
 }
 
 // Session configures whether the client should maintain a session.
-func (opt *Options) Session() *Options { return opt.addcliMW(0, sessionMW) }
+func (opt *Options) Session() *Options {
+	opt.session = true
+	return opt.addcliMW(0, sessionMW)
+}
 
 // MaxRedirects sets the maximum number of redirects the client should follow.
 func (opt *Options) MaxRedirects(maxRedirects int) *Options {
