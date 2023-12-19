@@ -49,8 +49,13 @@ func forseHTTP1MW(client *Client) {
 	transport.TLSClientConfig.NextProtos = []string{"http/1.1"}
 }
 
-// sessionMW configures the client's cookie jar to enable session handling.
-func sessionMW(client *Client) { client.GetClient().Jar, _ = cookiejar.New(nil) }
+// sessionMW configures the client's cookie jar for session management.
+// It initializes a new cookie jar and sets up the TLS configuration
+// to manage client sessions efficiently.
+func sessionMW(client *Client) {
+	client.GetClient().Jar, _ = cookiejar.New(nil)
+	client.GetTLSConfig().ClientSessionCache = tls.NewLRUClientSessionCache(0)
+}
 
 // disableKeepAliveMW disables the keep-alive setting for the client's transport.
 func disableKeepAliveMW(client *Client) {
