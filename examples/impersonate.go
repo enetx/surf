@@ -22,5 +22,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r.Body.String().Print()
+	r.Debug().Request().Response(true).Print()
 }

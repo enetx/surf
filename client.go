@@ -43,7 +43,8 @@ func NewClient() *Client {
 		ClientMiddleware(redirectPolicyMW).
 		RequestMiddleware(defaultUserAgentMW).
 		RequestMiddleware(got101ResponseMW).
-		ResponseMiddleware(webSocketUpgradeErrorMW)
+		ResponseMiddleware(webSocketUpgradeErrorMW).
+		ResponseMiddleware(decodeBodyMW)
 }
 
 // ClientMiddleware add a client middleware.

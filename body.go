@@ -2,32 +2,23 @@ package surf
 
 import (
 	"bufio"
-	"compress/gzip"
-	"compress/zlib"
 	"errors"
 	"io"
 	"math"
 	"regexp"
 
-	"github.com/andybalholm/brotli"
 	"gitlab.com/x0xO/g"
 	"golang.org/x/net/html/charset"
 )
 
 // body represents the content and properties of an HTTP response body.
 type body struct {
-	body        io.ReadCloser // ReadCloser for accessing the body content.
+	Reader      io.ReadCloser // ReadCloser for accessing the body content.
 	contentType string        // Content type of the body.
-	content     g.Bytes       // Content of the body as HBytes.
+	content     g.Bytes       // Content of the body as Bytes.
 	limit       int64         // Maximum allowed size of the body.
-	deflate     bool          // Indicates if the body is compressed using deflate.
-	gzip        bool          // Indicates if the body is compressed using gzip.
-	brotli      bool          // Indicates if the body is compressed using brotli.
 	cache       bool          // Indicates if the body is cacheable.
 }
-
-// Reader returns an io.Reader for accessing the body's content.
-func (b *body) Reader() io.Reader { return b.body }
 
 // MD5 returns the MD5 hash of the body's content as a HString.
 func (b *body) MD5() g.String { return b.String().Hash().MD5() }
@@ -39,7 +30,7 @@ func (b *body) XML(data any) error { return b.String().Dec().XML(data).Err() }
 func (b *body) JSON(data any) error { return b.String().Dec().JSON(data).Err() }
 
 // Stream returns the body's bufio.Reader for streaming the content.
-func (b *body) Stream() *bufio.Reader { return bufio.NewReader(b.body) }
+func (b *body) Stream() *bufio.Reader { return bufio.NewReader(b.Reader) }
 
 // String returns the body's content as a g.String.
 func (b *body) String() g.String { return b.Bytes().ToString() }
@@ -49,15 +40,15 @@ func (b *body) Limit(limit int64) *body { b.limit = limit; return b }
 
 // Close closes the body and returns any error encountered.
 func (b *body) Close() error {
-	if b.body == nil {
+	if b.Reader == nil {
 		return errors.New("empty body error")
 	}
 
-	if _, err := io.Copy(io.Discard, b.body); err != nil {
+	if _, err := io.Copy(io.Discard, b.Reader); err != nil {
 		return err
 	}
 
-	return b.body.Close()
+	return b.Reader.Close()
 }
 
 // UTF8 converts the body's content to UTF-8 encoding and returns it as a string.
@@ -81,7 +72,7 @@ func (b *body) Bytes() g.Bytes {
 		return b.content
 	}
 
-	if _, err := b.body.Read(nil); err != nil {
+	if _, err := b.Reader.Read(nil); err != nil {
 		if err.Error() == "http: read on closed response body" {
 			return nil
 		}
@@ -89,13 +80,11 @@ func (b *body) Bytes() g.Bytes {
 
 	defer b.Close()
 
-	b.decodeBody()
-
 	if b.limit == -1 {
 		b.limit = math.MaxInt64
 	}
 
-	content, err := io.ReadAll(io.LimitReader(b.body, b.limit))
+	content, err := io.ReadAll(io.LimitReader(b.Reader, b.limit))
 	if err != nil {
 		return nil
 	}
@@ -110,32 +99,8 @@ func (b *body) Bytes() g.Bytes {
 // Dump dumps the body's content to a file with the given filename.
 func (b *body) Dump(filename string) error {
 	defer b.Close()
-	b.decodeBody()
 
-	return g.NewFile(g.String(filename)).WriteFromReader(b.body).Err()
-}
-
-// decodeBody decodes the compressed body content based on the specified compression method.
-// It supports decoding content compressed using deflate, gzip, or brotli algorithms.
-// The method updates the body content to its decompressed form if decoding is successful.
-func (b *body) decodeBody() {
-	var (
-		reader io.ReadCloser
-		err    error
-	)
-
-	switch {
-	case b.deflate:
-		reader, err = zlib.NewReader(b.body)
-	case b.gzip:
-		reader, err = gzip.NewReader(b.body)
-	case b.brotli:
-		reader = io.NopCloser(brotli.NewReader(b.body))
-	}
-
-	if err == nil && reader != nil {
-		b.body = reader
-	}
+	return g.NewFile(g.String(filename)).WriteFromReader(b.Reader).Err()
 }
 
 // Contains checks if the body's content contains the provided pattern (byte slice, string, or

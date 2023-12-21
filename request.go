@@ -94,12 +94,9 @@ func (req *Request) Do() (*Response, error) {
 		request:       req,
 		response:      resp,
 		Body: &body{
-			body:        resp.Body,
+			Reader:      resp.Body,
 			cache:       opt != nil && opt.cacheBody,
 			contentType: resp.Header.Get("Content-Type"),
-			deflate:     resp.Header.Get("Content-Encoding") == "deflate",
-			gzip:        resp.Header.Get("Content-Encoding") == "gzip",
-			brotli:      resp.Header.Get("Content-Encoding") == "br",
 			limit:       -1,
 		},
 	}

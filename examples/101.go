@@ -13,16 +13,12 @@ func main() {
 	// louiejparkinson.xyz
 	// juliogroup.uk
 
-	url := "juliogroup.uk" // 101 stream error
-	// url := "playtoto.asia" // 101 websocket
-	// url := "bompreco.cloud" // 101 websocket
+	// url := "juliogroup.uk" // 101 stream error
+	url := "bompreco.cloud" // 101 websocket
 
 	opt := surf.NewOptions()
-	opt.Impersonate().Chrome()
 
-	cli := surf.NewClient()
-
-	r, err := cli.SetOptions(opt).Get(url).Do()
+	r, err := surf.NewClient().SetOptions(opt).Get(url).Do()
 	if err != nil {
 		fmt.Println(err)
 		return
