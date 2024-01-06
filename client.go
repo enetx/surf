@@ -93,7 +93,7 @@ func (c *Client) SetOptions(opt *Options) *Client {
 
 	// sorting client middleware by priority
 	c.opt.cliMW.SortBy(func(i, j int) bool { return (*c.opt.cliMW)[i].Key < (*c.opt.cliMW)[j].Key })
-	c.opt.cliMW.ForEach(func(_ int, m clientMiddleware) { c.ClientMiddleware(m) })
+	c.opt.cliMW.Iter().ForEach(func(_ int, m clientMiddleware) { c.ClientMiddleware(m) })
 
 	return c
 }

@@ -25,7 +25,7 @@ func (h headers) Contains(header string, patterns any) bool {
 					return true
 				}
 			case []string:
-				if v.ContainsAny(g.SliceMap(ps, g.NewString).Map(g.String.Lower)...) {
+				if v.ContainsAny(g.SliceMap(ps, g.NewString).Iter().Map(g.String.Lower).Collect()...) {
 					return true
 				}
 			case []*regexp.Regexp:

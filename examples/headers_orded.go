@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	URL := "https://tls.peet.ws/api/all"
+	url := "https://tls.peet.ws/api/all"
 
 	orderedHeaders := g.NewMapOrd[string, string]().
 		Set(":method", "").
@@ -24,7 +24,7 @@ func main() {
 
 	opt := surf.NewOptions().UserAgent("root")
 
-	r, err := surf.NewClient().SetOptions(opt).Get(URL).SetHeaders(orderedHeaders).Do()
+	r, err := surf.NewClient().SetOptions(opt).Get(url).SetHeaders(orderedHeaders).Do()
 	if err != nil {
 		log.Fatal(err)
 	}
