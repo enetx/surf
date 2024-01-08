@@ -30,18 +30,30 @@ func (b *body) XML(data any) error { return b.String().Dec().XML(data).Err() }
 func (b *body) JSON(data any) error { return b.String().Dec().JSON(data).Err() }
 
 // Stream returns the body's bufio.Reader for streaming the content.
-func (b *body) Stream() *bufio.Reader { return bufio.NewReader(b.Reader) }
+func (b *body) Stream() *bufio.Reader {
+	if b == nil || b.Reader == nil {
+		return nil
+	}
+
+	return bufio.NewReader(b.Reader)
+}
 
 // String returns the body's content as a g.String.
 func (b *body) String() g.String { return b.Bytes().ToString() }
 
 // Limit sets the body's size limit and returns the modified body.
-func (b *body) Limit(limit int64) *body { b.limit = limit; return b }
+func (b *body) Limit(limit int64) *body {
+	if b != nil {
+		b.limit = limit
+	}
+
+	return b
+}
 
 // Close closes the body and returns any error encountered.
 func (b *body) Close() error {
-	if b.Reader == nil {
-		return errors.New("empty body error")
+	if b == nil || b.Reader == nil {
+		return errors.New("cannot close: body is empty or contains no content")
 	}
 
 	if _, err := io.Copy(io.Discard, b.Reader); err != nil {
@@ -53,6 +65,10 @@ func (b *body) Close() error {
 
 // UTF8 converts the body's content to UTF-8 encoding and returns it as a string.
 func (b *body) UTF8() g.String {
+	if b == nil {
+		return ""
+	}
+
 	reader, err := charset.NewReader(b.Bytes().Reader(), b.contentType)
 	if err != nil {
 		return b.String()
@@ -68,6 +84,10 @@ func (b *body) UTF8() g.String {
 
 // Bytes returns the body's content as a byte slice.
 func (b *body) Bytes() g.Bytes {
+	if b == nil {
+		return nil
+	}
+
 	if b.cache && b.content != nil {
 		return b.content
 	}
@@ -98,6 +118,10 @@ func (b *body) Bytes() g.Bytes {
 
 // Dump dumps the body's content to a file with the given filename.
 func (b *body) Dump(filename string) error {
+	if b == nil || b.Reader == nil {
+		return errors.New("cannot dump: body is empty or contains no content")
+	}
+
 	defer b.Close()
 
 	return g.NewFile(g.String(filename)).WriteFromReader(b.Reader).Err()

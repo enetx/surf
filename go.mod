@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/andybalholm/brotli v1.0.6
 	github.com/refraction-networking/utls v1.6.0
-	gitlab.com/x0xO/g v1.0.21
+	gitlab.com/x0xO/g v1.0.24
 	gitlab.com/x0xO/http v1.0.1
 	gitlab.com/x0xO/http2 v1.0.2
 	golang.org/x/net v0.19.0

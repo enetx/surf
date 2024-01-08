@@ -25,6 +25,10 @@ func webSocketUpgradeErrorMW(r *Response) error {
 // It supports decoding content compressed using deflate, gzip, or brotli algorithms.
 // The mw updates the body content to its decompressed form if decoding is successful.
 func decodeBodyMW(r *Response) error {
+	if r.Body == nil {
+		return nil
+	}
+
 	var (
 		reader io.ReadCloser
 		err    error

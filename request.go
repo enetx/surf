@@ -43,9 +43,11 @@ func (req *Request) Do() (*Response, error) {
 		}
 	}
 
-	req.body, req.request.Body, req.error = drainbody.DrainBody(req.request.Body)
-	if req.error != nil {
-		return nil, req.error
+	if req.request.Method != http.MethodHead {
+		req.body, req.request.Body, req.error = drainbody.DrainBody(req.request.Body)
+		if req.error != nil {
+			return nil, req.error
+		}
 	}
 
 	var (
@@ -93,12 +95,15 @@ func (req *Request) Do() (*Response, error) {
 		remoteAddr:    req.remoteAddr,
 		request:       req,
 		response:      resp,
-		Body: &body{
+	}
+
+	if req.request.Method != http.MethodHead {
+		response.Body = &body{
 			Reader:      resp.Body,
 			cache:       opt != nil && opt.cacheBody,
 			contentType: resp.Header.Get("Content-Type"),
 			limit:       -1,
-		},
+		}
 	}
 
 	if err := req.client.applyRespMW(response); err != nil {

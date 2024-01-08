@@ -57,7 +57,7 @@ func (d *debug) Response(verbos ...bool) *debug {
 
 	_, _ = fmt.Fprint(&d.print, g.Bytes(body).TrimSpace().ToString())
 
-	if len(verbos) != 0 && verbos[0] {
+	if len(verbos) != 0 && verbos[0] && d.resp.Body != nil {
 		_, _ = fmt.Fprint(&d.print, d.resp.Body.String().TrimSpace().AddPrefix("\n\n"))
 	}
 
