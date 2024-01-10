@@ -4,18 +4,18 @@ go 1.21
 
 require (
 	github.com/andybalholm/brotli v1.0.6
-	github.com/refraction-networking/utls v1.6.0
-	gitlab.com/x0xO/g v1.0.24
-	gitlab.com/x0xO/http v1.0.1
-	gitlab.com/x0xO/http2 v1.0.2
-	golang.org/x/net v0.19.0
+	github.com/refraction-networking/utls v1.6.1
+	gitlab.com/x0xO/g v1.0.28
+	gitlab.com/x0xO/http v1.0.2
+	gitlab.com/x0xO/http2 v1.0.4
+	golang.org/x/net v0.20.0
 )
 
 require (
-	github.com/cloudflare/circl v1.3.6 // indirect
+	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/quic-go/quic-go v0.37.4 // indirect
-	golang.org/x/crypto v0.16.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
