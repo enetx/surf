@@ -6,7 +6,7 @@ require (
 	github.com/andybalholm/brotli v1.1.0
 	github.com/refraction-networking/utls v1.6.1
 	gitlab.com/x0xO/g v1.0.37
-	gitlab.com/x0xO/http v1.0.2
+	gitlab.com/x0xO/http v1.0.3
 	gitlab.com/x0xO/http2 v1.0.4
 	golang.org/x/net v0.20.0
 )
