@@ -10,7 +10,6 @@ import (
 func main() {
 	r, err := surf.NewClient().
 		// SetOptions(surf.NewOptions().ForceHTTP1()).
-		SetOptions(surf.NewOptions()).
 		Get("https://tls.peet.ws/api/all").
 		Do()
 	if err != nil {

@@ -128,6 +128,7 @@ func (j *ja3) Chrome100() *Options        { return j.SetHelloID(utls.HelloChrome
 func (j *ja3) Chrome102() *Options        { return j.SetHelloID(utls.HelloChrome_102) }
 func (j *ja3) Chrome106() *Options        { return j.SetHelloID(utls.HelloChrome_106_Shuffle) }
 func (j *ja3) Chrome120() *Options        { return j.SetHelloID(utls.HelloChrome_120) }
+func (j *ja3) Chrome120PQ() *Options      { return j.SetHelloID(utls.HelloChrome_120_PQ) }
 func (j *ja3) Edge() *Options             { return j.SetHelloID(utls.HelloEdge_85) }
 func (j *ja3) Edge85() *Options           { return j.SetHelloID(utls.HelloEdge_85) }
 func (j *ja3) Edge106() *Options          { return j.SetHelloID(utls.HelloEdge_106) }

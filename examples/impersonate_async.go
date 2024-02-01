@@ -11,7 +11,7 @@ func main() {
 	opt := surf.NewOptions()
 	opt.Singleton() // for reuse client
 
-	opt.Impersonate().Chrome120()
+	opt.Impersonate().Chrome()
 
 	var urls []string
 
