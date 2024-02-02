@@ -32,7 +32,7 @@ func newRoundTripper(ja3 *ja3, transport http.RoundTripper) http.RoundTripper {
 	rt.transport = transport
 
 	if rt.ja3.opt.session {
-		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
+		// rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
 	}
 
 	return rt

@@ -148,6 +148,10 @@ func (req *Request) SetHeaders(headers any) *Request {
 		for header, data := range h {
 			req.request.Header.Set(header, data)
 		}
+	case map[string][]string:
+		for header, data := range h {
+			req.request.Header.Set(header, data[0])
+		}
 	case *g.MapOrd[string, string]:
 		h = req.orderHeaders(h)
 		h.Iter().ForEach(func(header, data string) { req.request.Header.Set(header, data) })
@@ -169,6 +173,10 @@ func (req *Request) AddHeaders(headers any) *Request {
 	case map[string]string:
 		for header, data := range h {
 			req.request.Header.Add(header, data)
+		}
+	case map[string][]string:
+		for header, data := range h {
+			req.request.Header.Add(header, data[0])
 		}
 	case *g.MapOrd[string, string]:
 		h = req.orderHeaders(h)
