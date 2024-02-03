@@ -9,6 +9,7 @@ import (
 
 	"gitlab.com/x0xO/g"
 	"gitlab.com/x0xO/http"
+	"gitlab.com/x0xO/surf/header"
 	"gitlab.com/x0xO/surf/internal/drainbody"
 )
 
@@ -101,7 +102,7 @@ func (req *Request) Do() (*Response, error) {
 		response.Body = &body{
 			Reader:      resp.Body,
 			cache:       opt != nil && opt.cacheBody,
-			contentType: resp.Header.Get("Content-Type"),
+			contentType: resp.Header.Get(header.CONTENT_TYPE),
 			limit:       -1,
 		}
 	}
@@ -144,13 +145,13 @@ func (req *Request) SetHeaders(headers any) *Request {
 	}
 
 	switch h := any(headers).(type) {
+	case http.Header:
+		for header, data := range h {
+			req.request.Header.Set(header, data[0])
+		}
 	case map[string]string:
 		for header, data := range h {
 			req.request.Header.Set(header, data)
-		}
-	case map[string][]string:
-		for header, data := range h {
-			req.request.Header.Set(header, data[0])
 		}
 	case *g.MapOrd[string, string]:
 		h = req.orderHeaders(h)
@@ -170,13 +171,13 @@ func (req *Request) AddHeaders(headers any) *Request {
 	}
 
 	switch h := any(headers).(type) {
+	case http.Header:
+		for header, data := range h {
+			req.request.Header.Add(header, data[0])
+		}
 	case map[string]string:
 		for header, data := range h {
 			req.request.Header.Add(header, data)
-		}
-	case map[string][]string:
-		for header, data := range h {
-			req.request.Header.Add(header, data[0])
 		}
 	case *g.MapOrd[string, string]:
 		h = req.orderHeaders(h)

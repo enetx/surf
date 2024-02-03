@@ -3,6 +3,7 @@ package surf
 import (
 	"gitlab.com/x0xO/g"
 	"gitlab.com/x0xO/http2"
+	"gitlab.com/x0xO/surf/header"
 )
 
 type impersonate struct{ opt *Options }
@@ -52,20 +53,20 @@ func (im *impersonate) Chrome() *Options {
 		Set(":authority", "").
 		Set(":scheme", "").
 		Set(":path", "").
-		Set("cookie", "").
-		Set("sec-ch-ua", `"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"`).
-		Set("sec-ch-ua-mobile", "?0").
-		Set("sec-ch-ua-platform", `"Windows"`).
-		Set("upgrade-insecure-requests", "1").
-		Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36").
-		Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7").
-		Set("sec-fetch-site", "none").
-		Set("sec-fetch-mode", "navigate").
-		Set("sec-fetch-user", "?1").
-		Set("sec-fetch-dest", "document").
-		Set("referer", "").
-		Set("accept-encoding", "gzip, deflate, br").
-		Set("accept-language", "en-US,en;q=0.9")
+		Set(header.COOKIE, "").
+		Set(header.SEC_CH_UA, `"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"`).
+		Set(header.SEC_CH_UA_MOBILE, "?0").
+		Set(header.SEC_CH_UA_PLATFORM, `"Windows"`).
+		Set(header.UPGRADE_INSECURE_REQUESTS, "1").
+		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36").
+		Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7").
+		Set(header.SEC_FETCH_SITE, "none").
+		Set(header.SEC_FETCH_MODE, "navigate").
+		Set(header.SEC_FETCH_USER, "?1").
+		Set(header.SEC_FETCH_DEST, "document").
+		Set(header.REFERER, "").
+		Set(header.ACCEPT_ENCODING, "gzip, deflate, br").
+		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
 
 	return im.setOptions(headers)
 }
@@ -165,18 +166,18 @@ func (im *impersonate) FireFox() *Options {
 		Set(":path", "").
 		Set(":authority", "").
 		Set(":scheme", "").
-		Set("cookie", "").
-		Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0").
-		Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8").
-		Set("accept-language", "en-US,en;q=0.5").
-		Set("accept-encoding", "gzip, deflate, br").
-		Set("referer", "").
-		Set("upgrade-insecure-requests", "1").
-		Set("sec-fetch-dest", "document").
-		Set("sec-fetch-mode", "navigate").
-		Set("sec-fetch-site", "none").
-		Set("sec-fetch-user", "?1").
-		Set("te", "trailers")
+		Set(header.COOKIE, "").
+		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0").
+		Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8").
+		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5").
+		Set(header.ACCEPT_ENCODING, "gzip, deflate, br").
+		Set(header.REFERER, "").
+		Set(header.UPGRADE_INSECURE_REQUESTS, "1").
+		Set(header.SEC_FETCH_DEST, "document").
+		Set(header.SEC_FETCH_MODE, "navigate").
+		Set(header.SEC_FETCH_SITE, "none").
+		Set(header.SEC_FETCH_USER, "?1").
+		Set(header.TE, "trailers")
 
 	return im.setOptions(headers)
 }

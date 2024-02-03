@@ -7,14 +7,12 @@ import (
 )
 
 func main() {
-	// giayluoinam.edu.vn
-	// g3net.website
-	// danielfdyer.xyz
-	// louiejparkinson.xyz
-	// juliogroup.uk
-
-	// url := "juliogroup.uk" // 101 stream error
-	url := "bompreco.cloud" // 101 websocket
+	// url := "giayluoinam.edu.vn"
+	// url := "g3net.website" // 101 stream error
+	// url := "danielfdyer.xyz"
+	// url := "louiejparkinson.xyz"
+	url := "juliogroup.uk" // 101 proxy
+	// url := "bompreco.cloud" // 101 websocket
 
 	opt := surf.NewOptions()
 

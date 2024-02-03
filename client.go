@@ -19,6 +19,7 @@ import (
 
 	"gitlab.com/x0xO/g"
 	"gitlab.com/x0xO/http"
+	"gitlab.com/x0xO/surf/header"
 )
 
 // Client struct provides a customizable HTTP client with configurable options for making requests,
@@ -237,7 +238,7 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath string, data ...any) *Re
 		return request
 	}
 
-	req.Header.Set("Content-Type", formWriter.FormDataContentType())
+	req.Header.Set(header.CONTENT_TYPE, formWriter.FormDataContentType())
 
 	request.request = req
 	request.client = c
@@ -279,7 +280,7 @@ func (c *Client) Multipart(rawURL string, multipartValues map[string]string) *Re
 		return request
 	}
 
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set(header.CONTENT_TYPE, writer.FormDataContentType())
 
 	request.request = req
 	request.client = c
@@ -339,7 +340,7 @@ func (c *Client) buildRequest(rawURL, methodType string, data any) *Request {
 	}
 
 	if contentType != "" {
-		req.Header.Add("Content-Type", contentType)
+		req.Header.Add(header.CONTENT_TYPE, contentType)
 	}
 
 	request.request = req

@@ -8,12 +8,13 @@ import (
 
 	"github.com/andybalholm/brotli"
 	"gitlab.com/x0xO/http"
+	"gitlab.com/x0xO/surf/header"
 )
 
 func closeIdleConnectionsMW(r *Response) error { r.cli.CloseIdleConnections(); return nil }
 
 func webSocketUpgradeErrorMW(r *Response) error {
-	if r.StatusCode == http.StatusSwitchingProtocols && r.Headers.Get("Upgrade") == "websocket" {
+	if r.StatusCode == http.StatusSwitchingProtocols && r.Headers.Get(header.UPGRADE) == "websocket" {
 		return fmt.Errorf("%s \"%s\" error: received unexpected response, switching protocols to WebSocket",
 			r.request.request.Method, r.URL.String())
 	}
@@ -34,7 +35,7 @@ func decodeBodyMW(r *Response) error {
 		err    error
 	)
 
-	switch r.Headers.Get("Content-Encoding") {
+	switch r.Headers.Get(header.CONTENT_ENCODING) {
 	case "deflate":
 		reader, err = zlib.NewReader(r.Body.Reader)
 	case "gzip":

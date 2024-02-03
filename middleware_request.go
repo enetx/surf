@@ -8,13 +8,14 @@ import (
 	"strings"
 
 	"gitlab.com/x0xO/http/httptrace"
+	"gitlab.com/x0xO/surf/header"
 )
 
 // default user-agent for surf.
 func defaultUserAgentMW(req *Request) error {
-	if req.GetRequest().Header.Get("User-Agent") == "" {
+	if req.GetRequest().Header.Get(header.USER_AGENT) == "" {
 		// Set the default user-agent header.
-		req.SetHeaders(map[string]string{"User-Agent": _userAgent})
+		req.SetHeaders(map[string]string{header.USER_AGENT: _userAgent})
 	}
 
 	return nil
@@ -36,7 +37,7 @@ func userAgentMW(req *Request, userAgent any) error {
 		return fmt.Errorf("unsupported user agent type")
 	}
 
-	req.SetHeaders(map[string]string{"User-Agent": ua})
+	req.SetHeaders(map[string]string{header.USER_AGENT: ua})
 
 	return nil
 }
@@ -74,7 +75,7 @@ func remoteAddrMW(req *Request) error {
 // bearerAuthMW adds a Bearer token to the Authorization header of the given request.
 func bearerAuthMW(req *Request, authentication string) error {
 	if authentication != "" {
-		req.AddHeaders(map[string]string{"Authorization": "Bearer " + authentication})
+		req.AddHeaders(map[string]string{header.AUTHORIZATION: "Bearer " + authentication})
 	}
 
 	return nil
@@ -82,7 +83,7 @@ func bearerAuthMW(req *Request, authentication string) error {
 
 // basicAuthMW sets basic authentication for the request based on the client's options.
 func basicAuthMW(req *Request, authentication any) error {
-	if req.GetRequest().Header.Get("Authorization") != "" {
+	if req.GetRequest().Header.Get(header.AUTHORIZATION) != "" {
 		return nil
 	}
 
@@ -126,7 +127,7 @@ func basicAuthMW(req *Request, authentication any) error {
 // contentTypeMW sets the Content-Type header for the given HTTP request.
 func contentTypeMW(req *Request, contentType string) error {
 	if contentType != "" {
-		req.SetHeaders(map[string]string{"Content-Type": contentType})
+		req.SetHeaders(map[string]string{header.CONTENT_TYPE: contentType})
 	}
 
 	return nil
