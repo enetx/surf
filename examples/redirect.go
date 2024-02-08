@@ -9,10 +9,14 @@ import (
 
 func main() {
 	opt := surf.NewOptions()
+
+	// max 4 redirects
 	opt.MaxRedirects(4)
 
-	// or custom redirect policy
+	// not follow redirects
+	// opt.NotFollowRedirects()
 
+	// or custom redirect policy
 	// opt.RedirectPolicy(
 	// 	func(req *http.Request, via []*http.Request) error {
 	// 		if len(via) >= 4 {

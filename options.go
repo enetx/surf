@@ -135,13 +135,8 @@ func (opt *Options) ContentType(contentType string) *Options {
 }
 
 // CacheBody configures whether the client should cache the body of the response.
-func (opt *Options) CacheBody(enable ...bool) *Options {
-	if len(enable) != 0 {
-		opt.cacheBody = enable[0]
-	} else {
-		opt.cacheBody = true
-	}
-
+func (opt *Options) CacheBody() *Options {
+	opt.cacheBody = true
 	return opt
 }
 
@@ -192,6 +187,11 @@ func (opt *Options) Session() *Options {
 func (opt *Options) MaxRedirects(maxRedirects int) *Options {
 	opt.maxRedirects = maxRedirects
 	return opt.addcliMW(0, redirectPolicyMW)
+}
+
+// NotFollowRedirects disables following redirects for the client.
+func (opt *Options) NotFollowRedirects() *Options {
+	return opt.RedirectPolicy(func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse })
 }
 
 // FollowOnlyHostRedirects configures whether the client should only follow redirects within the
