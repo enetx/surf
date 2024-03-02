@@ -49,7 +49,8 @@ func main() {
 
 	opt.JA3().Chrome87()
 
-	headers := g.NewMapOrd[string, string]().
+	headers := g.NewMapOrd[string, string]()
+	headers.
 		Set(":method", "").
 		Set(":authority", "").
 		Set(":scheme", "").

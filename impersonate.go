@@ -48,7 +48,8 @@ func (im *impersonate) Chrome() *Options {
 	//   "accept-language: en-US,en;q=0.9"
 	// ],
 
-	headers := g.NewMapOrd[string, string]().
+	headers := g.NewMapOrd[string, string]()
+	headers.
 		Set(":method", "").
 		Set(":authority", "").
 		Set(":scheme", "").
@@ -161,7 +162,8 @@ func (im *impersonate) FireFox() *Options {
 	//   "te: trailers"
 	// ],
 
-	headers := g.NewMapOrd[string, string]().
+	headers := g.NewMapOrd[string, string]()
+	headers.
 		Set(":method", "").
 		Set(":path", "").
 		Set(":authority", "").
@@ -182,7 +184,7 @@ func (im *impersonate) FireFox() *Options {
 	return im.setOptions(headers)
 }
 
-func (im *impersonate) setOptions(headers *g.MapOrd[string, string]) *Options {
+func (im *impersonate) setOptions(headers g.MapOrd[string, string]) *Options {
 	return im.opt.addreqMW(func(r *Request) error {
 		r.SetHeaders(headers)
 		return nil

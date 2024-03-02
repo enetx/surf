@@ -10,7 +10,8 @@ import (
 func main() {
 	url := "https://tls.peet.ws/api/all"
 
-	orderedHeaders := g.NewMapOrd[string, string]().
+	orderedHeaders := g.NewMapOrd[string, string]()
+	orderedHeaders.
 		Set(":method", "").
 		Set(":authority", "").
 		Set(":scheme", "").

@@ -60,21 +60,18 @@ func (req *Request) Do() (*Response, error) {
 	start := time.Now()
 	cli := req.client.cli
 
-	for {
-		resp, err = cli.Do(req.request)
+retry:
+	resp, err = cli.Do(req.request)
+	if err != nil {
+		return nil, err
+	}
 
-		if err != nil || opt == nil || opt.retryMax == 0 || attempts >= opt.retryMax ||
-			opt.retryCodes.Empty() || !opt.retryCodes.Contains(resp.StatusCode) {
-			break
-		}
-
+	if opt != nil && opt.retryMax != 0 && attempts < opt.retryMax && opt.retryCodes.NotEmpty() &&
+		opt.retryCodes.Contains(resp.StatusCode) {
 		attempts++
 
 		time.Sleep(opt.retryWait)
-	}
-
-	if err != nil {
-		return nil, err
+		goto retry
 	}
 
 	if req.writeErr != nil && (*req.writeErr).Error() != "" {
@@ -153,12 +150,12 @@ func (req *Request) SetHeaders(headers any) *Request {
 		for header, data := range h {
 			req.request.Header.Set(header, data)
 		}
-	case *g.MapOrd[string, string]:
+	case g.MapOrd[string, string]:
 		h = req.orderHeaders(h)
 		h.Iter().ForEach(func(header, data string) { req.request.Header.Set(header, data) })
 
 	default:
-		panic("use map[string]string or *g.MapOrd[string, string] for ordered headers")
+		panic("use map[string]string or g.MapOrd[string, string] for ordered headers")
 	}
 
 	return req
@@ -179,7 +176,7 @@ func (req *Request) AddHeaders(headers any) *Request {
 		for header, data := range h {
 			req.request.Header.Add(header, data)
 		}
-	case *g.MapOrd[string, string]:
+	case g.MapOrd[string, string]:
 		h = req.orderHeaders(h)
 		h.Iter().ForEach(func(header, data string) { req.request.Header.Add(header, data) })
 	default:
@@ -189,7 +186,7 @@ func (req *Request) AddHeaders(headers any) *Request {
 	return req
 }
 
-func (req *Request) orderHeaders(h *g.MapOrd[string, string]) *g.MapOrd[string, string] {
+func (req *Request) orderHeaders(h g.MapOrd[string, string]) g.MapOrd[string, string] {
 	fh := func(h string) bool { return []rune(h)[0] != ':' }
 	fph := func(h string) bool { return !fh(h) }
 

@@ -16,6 +16,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	rr(r)
+
 	fmt.Println(r.Body.Limit(10).String())
 	fmt.Println(r.Body.String()) // print cached body
 }

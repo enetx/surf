@@ -15,7 +15,7 @@ type Options struct {
 	checkRedirect            func(*http.Request, []*http.Request) error // Redirect policy.
 	http2s                   *http2s                                    // HTTP2 settings.
 	retryCodes               g.Slice[int]                               // Codes for retry attemps.
-	cliMW                    *g.MapOrd[int, clientMiddleware]           // Client-level middlewares.
+	cliMW                    g.MapOrd[int, clientMiddleware]            // Client-level middlewares.
 	reqMW                    []requestMiddleware                        // Request-level middlewares.
 	respMW                   []responseMiddleware                       // Response-level middlewares.
 	retryWait                time.Duration                              // Wait time between retries.
@@ -163,7 +163,11 @@ func (opt *Options) Retry(retryMax int, retryWait time.Duration, codes ...int) *
 	opt.retryWait = retryWait
 
 	if len(codes) == 0 {
-		opt.retryCodes = g.SliceOf(http.StatusInternalServerError, http.StatusTooManyRequests, http.StatusServiceUnavailable)
+		opt.retryCodes = g.SliceOf(
+			http.StatusInternalServerError,
+			http.StatusTooManyRequests,
+			http.StatusServiceUnavailable,
+		)
 	} else {
 		opt.retryCodes = g.SliceOf(codes...)
 	}
