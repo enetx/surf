@@ -190,7 +190,7 @@ func (req *Request) orderHeaders(h g.MapOrd[string, string]) g.MapOrd[string, st
 	fh := func(h string) bool { return []rune(h)[0] != ':' }
 	fph := func(h string) bool { return !fh(h) }
 
-	req.headersKeys.AddUniqueInPlace(h.Keys().Iter().Map(strings.ToLower).Collect()...)
+	req.headersKeys.AddUniqueInPlace(h.Iter().Keys().Map(strings.ToLower).Collect()...)
 
 	if ho := req.headersKeys.Iter().Filter(fh).Collect(); !ho.Empty() {
 		req.request.Header[http.HeaderOrderKey] = ho
