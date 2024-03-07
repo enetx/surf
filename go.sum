@@ -22,10 +22,10 @@ github.com/refraction-networking/utls v1.6.3 h1:MFOfRN35sSx6K5AZNIoESsBuBxS2LCgR
 github.com/refraction-networking/utls v1.6.3/go.mod h1:yil9+7qSl+gBwJqztoQseO6Pr3h62pQoY1lXiNR/FPs=
 gitlab.com/x0xO/g v1.0.42 h1:0qFyp8C6Jm3psl6xr2E4HIjt5ihCokvwc1MupaS9Nt0=
 gitlab.com/x0xO/g v1.0.42/go.mod h1:42qDedgz/0fhlWOd0JRToKzvVO9JT9ci8JxTafwqAlw=
-gitlab.com/x0xO/http v1.0.3 h1:3hsfCnVUesNB/fHQtzPh/UD12u8aIf8Y0dnX9NI/06A=
-gitlab.com/x0xO/http v1.0.3/go.mod h1:m4q2F1bsyOu4lC875dRenBQyPKHzOIJ22+GgHImZ0Uk=
-gitlab.com/x0xO/http2 v1.0.5 h1:9gjs63Jufr1Cz38VYHpt6feKJ9pYrg/eeTvX862Weos=
-gitlab.com/x0xO/http2 v1.0.5/go.mod h1:7cONsiN56/CvZ2UKkZTzAr6fnZ+pwtQg6i8Y4K3WnEE=
+gitlab.com/x0xO/http v1.0.5 h1:7szXBUile/os0Rm9LGMOPGHiri0OCBCvNxFKpAUQf4Y=
+gitlab.com/x0xO/http v1.0.5/go.mod h1:U6w0lIr0qbImhP9h/bT1XbtImt4B8QxlfnL3fkn75Qk=
+gitlab.com/x0xO/http2 v1.0.7 h1:jjRIlgwswPZIMt5HfrSPxOY7uXaqv89pQd6tpH5ugaU=
+gitlab.com/x0xO/http2 v1.0.7/go.mod h1:fL3VOWdWnB3q3OkRzlsq1eAwA8inpFvjA9AANOARwFk=
 golang.org/x/crypto v0.21.0 h1:X31++rzVUdKhX5sWmSOFZxx8UW/ldWx55cbf08iNAMA=
 golang.org/x/crypto v0.21.0/go.mod h1:0BP7YvVV9gBbVKyeTG0Gyn+gZm94bibOW5BjDEYAOMs=
 golang.org/x/net v0.22.0 h1:9sGLhx7iRIHEiX0oAJ3MRZMUCElJgy7Br1nO+AMN3Tc=
