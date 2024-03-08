@@ -155,7 +155,7 @@ func (req *Request) SetHeaders(headers any) *Request {
 		h.Iter().ForEach(func(header, data string) { req.request.Header.Set(header, data) })
 
 	default:
-		panic("use map[string]string or g.MapOrd[string, string] for ordered headers")
+		panic("use http.Header, map[string]string or g.MapOrd[string, string] for ordered headers")
 	}
 
 	return req
@@ -180,7 +180,7 @@ func (req *Request) AddHeaders(headers any) *Request {
 		h = req.orderHeaders(h)
 		h.Iter().ForEach(func(header, data string) { req.request.Header.Add(header, data) })
 	default:
-		panic("use map[string]string or *g.MapOrd[string, string] for ordered headers")
+		panic("use http.Header, map[string]string or g.MapOrd[string, string] for ordered headers")
 	}
 
 	return req

@@ -18,9 +18,10 @@ func main() {
 	URL := "https://httpbingo.org/headers"
 
 	h1 := map[string]string{"Referer": "Hell"}
-	h2 := map[string]string{"Referer": "Paradise"}
+	// h2 := map[string]string{"Referer": "Paradise"}
 
-	req := surf.NewClient().Get(URL).SetHeaders(h1).AddHeaders(h2)
+	req := surf.NewClient().Get(URL).SetHeaders(h1) //.AddHeaders(h2)
+	req.GetRequest().Header.Add("Referer", "Paradise")
 
 	r, err := req.Do()
 	if err != nil {

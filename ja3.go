@@ -96,10 +96,8 @@ func (j *ja3) setOptions() *Options {
 // getSpec determines the ClientHelloSpec to be used for the TLS connection.
 //
 // The ClientHelloSpec is selected based on the following order of precedence:
-// 1. If a custom JA3 string is set (via SetHelloStr), it attempts to convert this string to a
-// ClientHelloSpec.
-// 2. If a custom ClientHelloID is set (via SetHelloID), it attempts to convert
-// this ID to a ClientHelloSpec.
+// 1. If a custom JA3 string is set (via SetHelloStr), it attempts to convert this string to a ClientHelloSpec.
+// 2. If a custom ClientHelloID is set (via SetHelloID), it attempts to convert this ID to a ClientHelloSpec.
 // 3. If none of the above conditions are met, it returns the currently set ClientHelloSpec.
 //
 // This method returns the selected ClientHelloSpec along with an error value. If an error occurs

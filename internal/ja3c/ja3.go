@@ -591,7 +591,10 @@ func createPointFormats(points []string) (utls.TLSExtension, error) {
 	return &utls.SupportedPointsExtension{SupportedPoints: supportedPoints}, nil
 }
 
-func createExtensions(extensions []string, tlsExtension, curvesExtension, pointExtension utls.TLSExtension) ([]utls.TLSExtension, error) {
+func createExtensions(
+	extensions []string,
+	tlsExtension, curvesExtension, pointExtension utls.TLSExtension,
+) ([]utls.TLSExtension, error) {
 	var allExtensions []utls.TLSExtension
 
 	for i, extension := range extensions {

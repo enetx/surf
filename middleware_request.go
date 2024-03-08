@@ -13,9 +13,9 @@ import (
 
 // default user-agent for surf.
 func defaultUserAgentMW(req *Request) error {
-	if req.GetRequest().Header.Get(header.USER_AGENT) == "" {
+	if headers := req.GetRequest().Header; headers.Get(header.USER_AGENT) == "" {
 		// Set the default user-agent header.
-		req.SetHeaders(map[string]string{header.USER_AGENT: _userAgent})
+		headers.Set(header.USER_AGENT, _userAgent)
 	}
 
 	return nil
@@ -37,7 +37,7 @@ func userAgentMW(req *Request, userAgent any) error {
 		return fmt.Errorf("unsupported user agent type")
 	}
 
-	req.SetHeaders(map[string]string{header.USER_AGENT: ua})
+	req.GetRequest().Header.Set(header.USER_AGENT, ua)
 
 	return nil
 }
@@ -75,7 +75,7 @@ func remoteAddrMW(req *Request) error {
 // bearerAuthMW adds a Bearer token to the Authorization header of the given request.
 func bearerAuthMW(req *Request, authentication string) error {
 	if authentication != "" {
-		req.AddHeaders(map[string]string{header.AUTHORIZATION: "Bearer " + authentication})
+		req.GetRequest().Header.Add(header.AUTHORIZATION, "Bearer "+authentication)
 	}
 
 	return nil
@@ -127,7 +127,7 @@ func basicAuthMW(req *Request, authentication any) error {
 // contentTypeMW sets the Content-Type header for the given HTTP request.
 func contentTypeMW(req *Request, contentType string) error {
 	if contentType != "" {
-		req.SetHeaders(map[string]string{header.CONTENT_TYPE: contentType})
+		req.GetRequest().Header.Set(header.CONTENT_TYPE, contentType)
 	}
 
 	return nil

@@ -32,8 +32,7 @@ func newRoundTripper(ja3 *ja3, transport http.RoundTripper) http.RoundTripper {
 	rt.transport = transport
 
 	if rt.ja3.opt.session {
-		// work only with firefox
-		// rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
+		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
 	}
 
 	return rt
@@ -122,7 +121,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, err
 	}
 
-	// spec = ja3c.ProcessSpec(spec)
+	spec = ja3c.ProcessSpec(spec)
 
 	if rt.ja3.opt.forseHTTP1 {
 		ja3c.SetAlpnProtocolToHTTP1(&spec)
@@ -132,7 +131,10 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		ServerName:         host,
 		InsecureSkipVerify: true,
 		OmitEmptyPsk:       true,
-		ClientSessionCache: rt.clientSessionCache,
+	}
+
+	if supportsSession(spec) {
+		config.ClientSessionCache = rt.clientSessionCache
 	}
 
 	conn := utls.UClient(rawConn, config, utls.HelloCustom)
@@ -230,4 +232,14 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	}
 
 	return t
+}
+
+func supportsSession(spec utls.ClientHelloSpec) bool {
+	for _, ext := range spec.Extensions {
+		if _, ok := ext.(*utls.UtlsPreSharedKeyExtension); ok {
+			return true
+		}
+	}
+
+	return false
 }

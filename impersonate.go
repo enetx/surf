@@ -178,8 +178,8 @@ func (im *impersonate) FireFox() *Options {
 		Set(header.SEC_FETCH_DEST, "document").
 		Set(header.SEC_FETCH_MODE, "navigate").
 		Set(header.SEC_FETCH_SITE, "none").
-		Set(header.SEC_FETCH_USER, "?1").
-		Set(header.TE, "trailers")
+		Set(header.SEC_FETCH_USER, "?1")
+		// Set(header.TE, "trailers")
 
 	return im.setOptions(headers)
 }
