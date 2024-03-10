@@ -20,8 +20,8 @@ github.com/quic-go/quic-go v0.40.1 h1:X3AGzUNFs0jVuO3esAGnTfvdgvL4fq655WaOi1snv1
 github.com/quic-go/quic-go v0.40.1/go.mod h1:PeN7kuVJ4xZbxSv/4OX6S1USOX8MJvydwpTx31vx60c=
 github.com/refraction-networking/utls v1.6.3 h1:MFOfRN35sSx6K5AZNIoESsBuBxS2LCgRilRIdHb6fDc=
 github.com/refraction-networking/utls v1.6.3/go.mod h1:yil9+7qSl+gBwJqztoQseO6Pr3h62pQoY1lXiNR/FPs=
-gitlab.com/x0xO/g v1.0.42 h1:0qFyp8C6Jm3psl6xr2E4HIjt5ihCokvwc1MupaS9Nt0=
-gitlab.com/x0xO/g v1.0.42/go.mod h1:42qDedgz/0fhlWOd0JRToKzvVO9JT9ci8JxTafwqAlw=
+gitlab.com/x0xO/g v1.0.47 h1:aF4YKnl5XMPMpiOX8dHs1XJduekItu1vGkPIgg1PRIw=
+gitlab.com/x0xO/g v1.0.47/go.mod h1:42qDedgz/0fhlWOd0JRToKzvVO9JT9ci8JxTafwqAlw=
 gitlab.com/x0xO/http v1.0.5 h1:7szXBUile/os0Rm9LGMOPGHiri0OCBCvNxFKpAUQf4Y=
 gitlab.com/x0xO/http v1.0.5/go.mod h1:U6w0lIr0qbImhP9h/bT1XbtImt4B8QxlfnL3fkn75Qk=
 gitlab.com/x0xO/http2 v1.0.7 h1:jjRIlgwswPZIMt5HfrSPxOY7uXaqv89pQd6tpH5ugaU=

@@ -25,11 +25,11 @@ func (h headers) Contains(header string, patterns any) bool {
 					return true
 				}
 			case []string:
-				if v.ContainsAny(g.TransformSlice(ps, g.NewString).Iter().Map(g.String.Lower).Collect()...) {
+				if v.ContainsAny(g.MapSlice(ps, g.NewString).Iter().Map(g.String.Lower).Collect()...) {
 					return true
 				}
 			case []*regexp.Regexp:
-				hs := g.TransformSlice(ps, func(r *regexp.Regexp) g.String { return g.String(r.String()) })
+				hs := g.MapSlice(ps, func(r *regexp.Regexp) g.String { return g.String(r.String()) })
 				if v.ContainsRegexpAny(hs...).Ok() {
 					return true
 				}
