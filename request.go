@@ -153,7 +153,6 @@ func (req *Request) SetHeaders(headers any) *Request {
 	case g.MapOrd[string, string]:
 		h = req.orderHeaders(h)
 		h.Iter().ForEach(func(header, data string) { req.request.Header.Set(header, data) })
-
 	default:
 		panic("use http.Header, map[string]string or g.MapOrd[string, string] for ordered headers")
 	}
@@ -187,18 +186,19 @@ func (req *Request) AddHeaders(headers any) *Request {
 }
 
 func (req *Request) orderHeaders(h g.MapOrd[string, string]) g.MapOrd[string, string] {
-	fh := func(h string) bool { return []rune(h)[0] != ':' }
-	fph := func(h string) bool { return !fh(h) }
-
 	req.headersKeys.AddUniqueInPlace(h.Iter().Keys().Map(strings.ToLower).Collect()...)
 
-	if ho := req.headersKeys.Iter().Filter(fh).Collect(); !ho.Empty() {
-		req.request.Header[http.HeaderOrderKey] = ho
+	fn := func(header string) bool { return header[0] != ':' }
+
+	headers, pheaders := req.headersKeys.Iter().Partition(fn)
+
+	if headers.NotEmpty() {
+		req.request.Header[http.HeaderOrderKey] = headers
 	}
 
-	if pho := req.headersKeys.Iter().Filter(fph).Collect(); !pho.Empty() {
-		req.request.Header[http.PHeaderOrderKey] = pho
+	if pheaders.NotEmpty() {
+		req.request.Header[http.PHeaderOrderKey] = pheaders
 	}
 
-	return h.Iter().Filter(func(header, data string) bool { return fh(header) && len(data) != 0 }).Collect()
+	return h.Iter().Filter(func(header, data string) bool { return fn(header) && len(data) != 0 }).Collect()
 }
