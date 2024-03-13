@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"gitlab.com/x0xO/surf"
@@ -10,14 +11,14 @@ func main() {
 	// http2.VerboseLogs = true // http2 logs
 
 	// url := "https://www.moscowbooks.ru"
-	url := "https://tls.peet.ws/api/all"
-	// url := "https://chat.openai.com/api/auth/csrf"
+	// url := "https://tls.peet.ws/api/all"
+	url := "https://chat.openai.com/api/auth/csrf"
 	// url := "https://chat.openai.com/auth/login"
 
 	opt := surf.NewOptions()
 
 	opt.
-		// Proxy("http://127.0.0.1:18080")
+		// Proxy("http://127.0.0.1:2080")
 		Proxy("socks5://127.0.0.1:2080")
 
 	opt.Impersonate().
@@ -28,6 +29,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println(r.Time)
 
 	r.Debug().Request().Response(true).Print()
 }

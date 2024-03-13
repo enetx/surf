@@ -7,8 +7,8 @@ import (
 
 	utls "github.com/refraction-networking/utls"
 	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/surf/internal/connectproxy"
 	"gitlab.com/x0xO/surf/internal/ja3c"
+	"gitlab.com/x0xO/surf/pkg/connectproxy"
 )
 
 // https://lwthiker.com/networks/2022/06/17/tls-fingerprinting.html

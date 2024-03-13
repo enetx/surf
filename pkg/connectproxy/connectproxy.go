@@ -5,7 +5,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -18,6 +17,18 @@ import (
 	"golang.org/x/net/proxy"
 )
 
+type (
+	ErrProxyURL      struct{ Msg string }
+	ErrProxyStatus   struct{ Msg string }
+	ErrPasswordEmpty struct{ Msg string }
+	ErrProxyEmpty    struct{}
+)
+
+func (e *ErrProxyURL) Error() string      { return fmt.Sprintf("bad proxy url: %s", e.Msg) }
+func (e *ErrProxyStatus) Error() string   { return fmt.Sprintf("proxy response status: %s", e.Msg) }
+func (e *ErrPasswordEmpty) Error() string { return fmt.Sprintf("password is empty: %s", e.Msg) }
+func (e *ErrProxyEmpty) Error() string    { return "proxy is not set" }
+
 type proxyDialer struct {
 	ProxyURL      *url.URL
 	DefaultHeader http.Header
@@ -27,7 +38,7 @@ type proxyDialer struct {
 
 	// overridden DialTLS allows user to control establishment of TLS connection
 	// MUST return connection with completed Handshake, and NegotiatedProtocol
-	DialTLS func(network string, address string) (net.Conn, string, error)
+	DialTLS func(network, address string) (net.Conn, string, error)
 
 	h2Mu   sync.Mutex
 	h2Conn *http2.ClientConn
@@ -41,8 +52,6 @@ const (
 	schemeHTTPS = "https"
 	socks5      = "socks5"
 	socks5H     = "socks5h"
-
-	invalidProxy = "invalid proxy `%s`, %s"
 )
 
 func NewDialer(proxy string) (*proxyDialer, error) {
@@ -52,12 +61,12 @@ func NewDialer(proxy string) (*proxyDialer, error) {
 	}
 
 	if parsed.Host == "" {
-		return nil, fmt.Errorf(invalidProxy, proxy, "make sure to specify full url like http(s)://username:password@ip:port")
+		return nil, &ErrProxyURL{proxy}
 	}
 
 	switch parsed.Scheme {
 	case "":
-		return nil, fmt.Errorf(invalidProxy, proxy, "empty scheme")
+		return nil, &ErrProxyURL{proxy}
 	case schemeHTTP:
 		if parsed.Port() == "" {
 			parsed.Host = net.JoinHostPort(parsed.Host, "80")
@@ -71,7 +80,7 @@ func NewDialer(proxy string) (*proxyDialer, error) {
 			parsed.Host = net.JoinHostPort(parsed.Host, "1080")
 		}
 	default:
-		return nil, fmt.Errorf(invalidProxy, proxy, "scheme "+parsed.Scheme+" is not supported")
+		return nil, &ErrProxyURL{proxy}
 	}
 
 	proxyDialer := &proxyDialer{
@@ -83,7 +92,7 @@ func NewDialer(proxy string) (*proxyDialer, error) {
 		if parsed.User.Username() != "" {
 			password, ok := parsed.User.Password()
 			if !ok {
-				return nil, fmt.Errorf(invalidProxy, proxy, "password is empty")
+				return nil, &ErrPasswordEmpty{proxy}
 			}
 
 			auth := parsed.User.Username() + ":" + password
@@ -120,7 +129,7 @@ func (c *proxyDialer) connectHTTP1(req *http.Request, conn net.Conn) error {
 
 	if resp.StatusCode != http.StatusOK {
 		_ = conn.Close()
-		return fmt.Errorf("proxy error : %s", resp.Status)
+		return &ErrProxyStatus{resp.Status}
 	}
 
 	return nil
@@ -141,7 +150,7 @@ func (c *proxyDialer) connectHTTP2(req *http.Request, conn net.Conn, h2clientCon
 
 	if resp.StatusCode != http.StatusOK {
 		_ = conn.Close()
-		return nil, fmt.Errorf("proxy error : %s", resp.Status)
+		return nil, &ErrProxyStatus{resp.Status}
 	}
 
 	return newHTTP2Conn(conn, pw, resp.Body), nil
@@ -149,7 +158,7 @@ func (c *proxyDialer) connectHTTP2(req *http.Request, conn net.Conn, h2clientCon
 
 func (c *proxyDialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
 	if c.ProxyURL == nil {
-		return nil, errors.New("proxy is not set")
+		return nil, &ErrProxyEmpty{}
 	}
 
 	if strings.HasPrefix(c.ProxyURL.Scheme, "socks") {
@@ -203,12 +212,7 @@ func (c *proxyDialer) DialContext(ctx context.Context, network, address string) 
 		return nil, err
 	}
 
-	proxyConn, err := c.connect(req, rawConn, negotiatedProtocol)
-	if err != nil {
-		return nil, err
-	}
-
-	return proxyConn, nil
+	return c.connect(req, rawConn, negotiatedProtocol)
 }
 
 func (c *proxyDialer) initProxyConn(ctx context.Context, network string) (net.Conn, string, error) {
@@ -253,7 +257,7 @@ func (c *proxyDialer) initProxyConn(ctx context.Context, network string) (net.Co
 			rawConn = tlsConn
 		}
 	default:
-		return nil, "", errors.New("scheme " + c.ProxyURL.Scheme + " is not supported")
+		return nil, "", &ErrProxyURL{c.ProxyURL.String()}
 	}
 
 	return rawConn, negotiatedProtocol, err
