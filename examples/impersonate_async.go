@@ -20,6 +20,7 @@ func main() {
 	urls = append(urls, "https://dzen.ru")
 
 	cli := surf.NewClient().SetOptions(opt)
+	defer cli.CloseIdleConnections()
 
 	var wg sync.WaitGroup
 
@@ -41,8 +42,6 @@ func main() {
 	}
 
 	wg.Wait()
-
-	cli.CloseIdleConnections()
 
 	fmt.Println("FINISH")
 }

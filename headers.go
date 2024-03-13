@@ -30,7 +30,7 @@ func (h headers) Contains(header string, patterns any) bool {
 				}
 			case []*regexp.Regexp:
 				hs := g.MapSlice(ps, func(r *regexp.Regexp) g.String { return g.String(r.String()) })
-				if v.ContainsRegexpAny(hs...).Ok() {
+				if r := v.ContainsRegexpAny(hs...); r.IsOk() && r.Ok() {
 					return true
 				}
 			}
