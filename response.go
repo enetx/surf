@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"time"
 
-	"gitlab.com/x0xO/http"
+	"github.com/enetx/http"
 )
 
 // Response represents a custom response structure.

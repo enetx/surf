@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"gitlab.com/x0xO/surf"
-	"gitlab.com/x0xO/surf/header"
+	"github.com/enetx/surf"
+	"github.com/enetx/surf/header"
 )
 
 func main() {

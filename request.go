@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/surf/header"
-	"gitlab.com/x0xO/surf/internal/drainbody"
+	"github.com/enetx/g"
+	"github.com/enetx/http"
+	"github.com/enetx/surf/header"
+	"github.com/enetx/surf/internal/drainbody"
 )
 
 // Request is a struct that holds information about an HTTP request.

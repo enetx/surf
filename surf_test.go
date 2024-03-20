@@ -13,13 +13,14 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/http/httptest"
-	"gitlab.com/x0xO/http2"
-	"gitlab.com/x0xO/http2/h2c"
+	"github.com/enetx/surf"
+
+	"github.com/enetx/http"
+	"github.com/enetx/http/httptest"
+	"github.com/enetx/http2"
+	"github.com/enetx/http2/h2c"
 
 	"github.com/andybalholm/brotli"
-	"gitlab.com/x0xO/surf"
 )
 
 func TestH2C(t *testing.T) {

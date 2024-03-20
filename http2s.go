@@ -1,8 +1,8 @@
 package surf
 
 import (
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/http2"
+	"github.com/enetx/http"
+	"github.com/enetx/http2"
 )
 
 // http2s represents HTTP/2 settings for configuring an Options object.

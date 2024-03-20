@@ -3,8 +3,8 @@ package surf
 import (
 	"regexp"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http"
+	"github.com/enetx/g"
+	"github.com/enetx/http"
 )
 
 // cookies represents a list of HTTP cookies.

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gitlab.com/x0xO/surf"
+	"github.com/enetx/surf"
 )
 
 func main() {

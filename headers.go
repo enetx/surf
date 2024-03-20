@@ -4,8 +4,8 @@ import (
 	"net/textproto"
 	"regexp"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http"
+	"github.com/enetx/g"
+	"github.com/enetx/http"
 )
 
 // headers represents a collection of HTTP headers.
@@ -25,11 +25,11 @@ func (h headers) Contains(header string, patterns any) bool {
 					return true
 				}
 			case []string:
-				if v.ContainsAny(g.MapSlice(ps, g.NewString).Iter().Map(g.String.Lower).Collect()...) {
+				if v.ContainsAny(g.SliceMap(ps, g.NewString).Iter().Map(g.String.Lower).Collect()...) {
 					return true
 				}
 			case []*regexp.Regexp:
-				hs := g.MapSlice(ps, func(r *regexp.Regexp) g.String { return g.String(r.String()) })
+				hs := g.SliceMap(ps, func(r *regexp.Regexp) g.String { return g.String(r.String()) })
 				if r := v.ContainsRegexpAny(hs...); r.IsOk() && r.Ok() {
 					return true
 				}

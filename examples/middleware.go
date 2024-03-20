@@ -7,8 +7,8 @@ import (
 	"net"
 	"net/url"
 
-	"gitlab.com/x0xO/http/cookiejar"
-	"gitlab.com/x0xO/surf"
+	"github.com/enetx/http/cookiejar"
+	"github.com/enetx/surf"
 )
 
 func main() {

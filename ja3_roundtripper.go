@@ -9,9 +9,9 @@ import (
 	"strings"
 	"sync"
 
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/http2"
-	"gitlab.com/x0xO/surf/internal/ja3c"
+	"github.com/enetx/http"
+	"github.com/enetx/http2"
+	"github.com/enetx/surf/internal/ja3c"
 
 	utls "github.com/refraction-networking/utls"
 )

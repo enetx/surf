@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/surf"
+	"github.com/enetx/g"
+	"github.com/enetx/surf"
 )
 
 func main() {

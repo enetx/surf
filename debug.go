@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http/httputil"
+	"github.com/enetx/g"
+	"github.com/enetx/http/httputil"
 )
 
 // debug is a struct that holds debugging information for an HTTP response.

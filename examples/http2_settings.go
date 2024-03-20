@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http2"
-	"gitlab.com/x0xO/surf"
+	"github.com/enetx/g"
+	"github.com/enetx/http2"
+	"github.com/enetx/surf"
 )
 
 func main() {

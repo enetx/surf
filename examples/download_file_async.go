@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.com/x0xO/surf"
+	"github.com/enetx/surf"
 )
 
 func main() {
@@ -68,7 +68,7 @@ func main() {
 			}
 
 			r, err := surf.NewClient().
-				SetOptions(surf.NewOptions().Retry(10, time.Second * 2)).
+				SetOptions(surf.NewOptions().Retry(10, time.Second*2)).
 				Get(dURL).
 				AddHeaders(headers).
 				Do()

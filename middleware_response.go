@@ -7,8 +7,8 @@ import (
 	"io"
 
 	"github.com/andybalholm/brotli"
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/surf/header"
+	"github.com/enetx/http"
+	"github.com/enetx/surf/header"
 )
 
 func closeIdleConnectionsMW(r *Response) error { r.cli.CloseIdleConnections(); return nil }

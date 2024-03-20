@@ -17,9 +17,9 @@ import (
 	"strings"
 	"sync"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/surf/header"
+	"github.com/enetx/g"
+	"github.com/enetx/http"
+	"github.com/enetx/surf/header"
 )
 
 // Client struct provides a customizable HTTP client with configurable options for making requests,

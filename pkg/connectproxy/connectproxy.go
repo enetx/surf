@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/http2"
+	"github.com/enetx/http"
+	"github.com/enetx/http2"
 	"golang.org/x/net/proxy"
 )
 

@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/enetx/surf"
 	tls "github.com/refraction-networking/utls"
 	"github.com/refraction-networking/utls/dicttls"
-	"gitlab.com/x0xO/surf"
 )
 
 func main() {

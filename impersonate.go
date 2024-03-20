@@ -1,9 +1,9 @@
 package surf
 
 import (
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http2"
-	"gitlab.com/x0xO/surf/header"
+	"github.com/enetx/g"
+	"github.com/enetx/http2"
+	"github.com/enetx/surf/header"
 )
 
 type impersonate struct{ opt *Options }
@@ -72,7 +72,7 @@ func (im *impersonate) Chrome() *Options {
 	return im.setOptions(headers)
 }
 
-// Firefox impersonates Firefox browser v.123.
+// Firefox impersonates Firefox browser v.124.
 func (im *impersonate) FireFox() *Options {
 	priorityFrames := []http2.PriorityFrame{
 		{
@@ -169,7 +169,7 @@ func (im *impersonate) FireFox() *Options {
 		Set(":authority", "").
 		Set(":scheme", "").
 		Set(header.COOKIE, "").
-		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0").
+		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0").
 		Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8").
 		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5").
 		Set(header.ACCEPT_ENCODING, "gzip, deflate, br").

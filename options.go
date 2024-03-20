@@ -5,8 +5,8 @@ import (
 	"net"
 	"time"
 
-	"gitlab.com/x0xO/g"
-	"gitlab.com/x0xO/http"
+	"github.com/enetx/g"
+	"github.com/enetx/http"
 )
 
 type Options struct {

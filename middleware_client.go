@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"time"
 
-	"gitlab.com/x0xO/http"
-	"gitlab.com/x0xO/http/cookiejar"
-	"gitlab.com/x0xO/http2"
+	"github.com/enetx/http"
+	"github.com/enetx/http/cookiejar"
+	"github.com/enetx/http2"
 )
 
 // default dialer for surf.

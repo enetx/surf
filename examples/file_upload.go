@@ -1,6 +1,6 @@
 package main
 
-import "gitlab.com/x0xO/surf"
+import "github.com/enetx/surf"
 
 func main() {
 	URL := "https://httpbingo.org/anything"

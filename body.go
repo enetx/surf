@@ -7,7 +7,7 @@ import (
 	"math"
 	"regexp"
 
-	"gitlab.com/x0xO/g"
+	"github.com/enetx/g"
 	"golang.org/x/net/html/charset"
 )
 

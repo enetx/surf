@@ -7,8 +7,8 @@ import (
 	"net/textproto"
 	"strings"
 
-	"gitlab.com/x0xO/http/httptrace"
-	"gitlab.com/x0xO/surf/header"
+	"github.com/enetx/http/httptrace"
+	"github.com/enetx/surf/header"
 )
 
 // default user-agent for surf.
