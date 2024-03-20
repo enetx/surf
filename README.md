@@ -5,6 +5,7 @@
 # 🤖👋 Surf: makes HTTP fun and easy!
 [![Go Reference](https://pkg.go.dev/badge/github.com/enetx/surf.svg)](https://pkg.go.dev/github.com/enetx/surf)
 [![Go Report Card](https://goreportcard.com/badge/github.com/enetx/surf)](https://goreportcard.com/report/github.com/enetx/surf)
+[![Go](https://github.com/enetx/surf/actions/workflows/go.yml/badge.svg)](https://github.com/enetx/surf/actions/workflows/go.yml)
 
 Surf is a fun, user-friendly, and lightweight Go library that allows you to interact with HTTP services as if you were chatting with them face-to-face! 😄
 Imagine if you could make HTTP requests by simply asking a server politely, and receiving responses as if you were having a delightful conversation with a friend. That's the essence of surf!

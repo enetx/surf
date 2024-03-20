@@ -14,7 +14,7 @@ type Options struct {
 	dialer                   *net.Dialer                                // Custom network dialer.
 	checkRedirect            func(*http.Request, []*http.Request) error // Redirect policy.
 	http2s                   *http2s                                    // HTTP2 settings.
-	retryCodes               g.Slice[int]                               // Codes for retry attemps.
+	retryCodes               g.Slice[int]                               // Codes for retry attempts.
 	cliMW                    g.MapOrd[int, clientMiddleware]            // Client-level middlewares.
 	reqMW                    []requestMiddleware                        // Request-level middlewares.
 	respMW                   []responseMiddleware                       // Response-level middlewares.
