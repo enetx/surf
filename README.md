@@ -11,10 +11,11 @@ Surf is a fun, user-friendly, and lightweight Go library that allows you to inte
 Imagine if you could make HTTP requests by simply asking a server politely, and receiving responses as if you were having a delightful conversation with a friend. That's the essence of surf!
 
 ## 🌟 Features
-1. 💬 **Simple and expressive:** surf's API is designed to make your code look like a conversation, making it easier to read and understand.
-3. 💾 **Caching and streaming:** Efficiently cache response bodies and stream data on the fly, like a superhero saving the world from slow internet connections.
-4. 📉 **Limit and deflate:** Limit the amount of data you receive, and decompress it on the fly, giving you more control over your HTTP interactions.
-5. 🎩 **Flexible:** Customize headers, query parameters, timeouts, and more, for a truly tailor-made experience.
+1. 💬 **Simple and Expressive:** Surf's API is designed to make your code look like a conversation, making it easier to read and understand.
+2. 💾 **Caching and Streaming:** Efficiently cache response bodies and stream data on the fly, like a superhero saving the world from slow internet connections.
+3. 📉 **Limit and Deflate:** Limit the amount of data you receive and decompress it on the fly, giving you more control over your HTTP interactions.
+4. 🎩 **Flexible:** Customize headers, query parameters, timeouts, and more for a truly tailor-made experience.
+5. 🔍 **Browser Impersonation:** Mimic various browsers such as Chrome, Firefox, and others, with a wide range of possible fingerprints for enhanced privacy and compatibility.
 
 ## 💻 Example
 Here's a fun and friendly example of how surf makes HTTP requests look like a conversation:
