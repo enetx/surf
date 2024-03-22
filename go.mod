@@ -4,9 +4,9 @@ go 1.22
 
 require (
 	github.com/andybalholm/brotli v1.1.0
-	github.com/enetx/g v1.0.55
-	github.com/enetx/http v1.0.6
-	github.com/enetx/http2 v1.0.8
+	github.com/enetx/g v1.0.56
+	github.com/enetx/http v1.0.7
+	github.com/enetx/http2 v1.0.9
 	github.com/refraction-networking/utls v1.6.3
 	golang.org/x/net v0.22.0
 )

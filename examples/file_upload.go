@@ -1,6 +1,9 @@
 package main
 
-import "github.com/enetx/surf"
+import (
+	// "github.com/enetx/g"
+	"github.com/enetx/surf"
+)
 
 func main() {
 	URL := "https://httpbingo.org/anything"
@@ -13,7 +16,7 @@ func main() {
 
 	// with multipart data
 	multipartValues := map[string]string{"some": "values"}
-	// multipartValues := hg.HMapOf[string, string]("some", "values")
+	// multipartValues := g.Map[string, string]{"some": "values"}
 
 	// with file path
 	// surf.NewClient().FileUpload(URL, "filefield", "/path/to/file.txt", multipartValues).Do()
