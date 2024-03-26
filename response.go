@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/enetx/http"
+	"github.com/enetx/surf/header"
 )
 
 // Response represents a custom response structure.
@@ -17,13 +18,12 @@ type Response struct {
 	Body          *body          // Response body.
 	request       *Request       // Corresponding request.
 	Headers       headers        // Response headers.
-	Status        string         // HTTP status string.
 	UserAgent     string         // User agent string.
 	Proto         string         // HTTP protocol version.
 	Cookies       cookies        // Response cookies.
 	Time          time.Duration  // Total time taken for the response.
 	ContentLength int64          // Length of the response content.
-	StatusCode    int            // HTTP status code.
+	StatusCode                   // HTTP status code.
 	Attempts      int            // Number of attempts made.
 }
 
@@ -32,6 +32,9 @@ func (resp Response) GetResponse() *http.Response { return resp.response }
 
 // Referer returns the referer of the response.
 func (resp Response) Referer() string { return resp.response.Request.Referer() }
+
+// Location returns the location of the response.
+func (resp Response) Location() string { return resp.Headers.Get(header.LOCATION) }
 
 // GetCookies returns the cookies from the response for the given URL.
 func (resp Response) GetCookies(rawURL string) []*http.Cookie { return resp.getCookies(rawURL) }

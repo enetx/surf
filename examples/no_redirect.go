@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/enetx/surf"
-	"github.com/enetx/surf/header"
 )
 
 func main() {
@@ -12,8 +11,10 @@ func main() {
 
 	r, _ := surf.NewClient().SetOptions(opt).Get("http://google.com").Do()
 
-	for r.StatusCode != 200 {
-		fmt.Println(r.StatusCode, "->", r.Headers.Get(header.LOCATION))
-		r, _ = r.Get(r.Headers.Get(header.LOCATION)).Do()
+	for r.StatusCode.IsRedirection() {
+		fmt.Println(r.StatusCode, "->", r.Location())
+		r, _ = r.Get(r.Location()).Do()
 	}
+
+	fmt.Println(r.StatusCode, r.StatusCode.Text())
 }
