@@ -30,8 +30,8 @@ import (
 )
 
 func main() {
-	resp, err := surf.NewClient().Get("https://api.example.com/jokes/random").Do() // A simple GET request
-	if err != nil { log.Fatal(err) }
+	resp := surf.NewClient().Get("https://api.example.com/jokes/random").Do() // A simple GET request
+	if r.IsErr() { log.Fatal(r.Err()) }
 
 	joke := struct {
 		ID     int    `json:"id"`
@@ -39,7 +39,7 @@ func main() {
 		Punch  string `json:"punch"`
 	}{}
 
-	resp.Body.JSON(&joke)
+	resp.Ok().Body.JSON(&joke)
 
 	fmt.Println("Joke of the day:")
 	fmt.Printf("%s\n%s\n", joke.Setup, joke.Punch)

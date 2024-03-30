@@ -25,7 +25,7 @@ func main() {
 	// url.QueryEscape("Hellö Wörld@Golang")
 	data := "custname=root&custtel=999999999&custemail=some@email.com"
 
-	r, _ := surf.NewClient().Post(url, data).Do()
+	r := surf.NewClient().Post(url, data).Do().Unwrap()
 
 	var post Post
 
@@ -47,7 +47,7 @@ func main() {
 		Set("custtel", "88888888").
 		Set("custemail", "rest@gmail.com")
 
-	r, _ = surf.NewClient().Post(url, mapData).Do()
+	r = surf.NewClient().Post(url, mapData).Do().Unwrap()
 
 	r.Body.JSON(&post)
 

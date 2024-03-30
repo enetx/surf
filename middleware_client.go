@@ -68,7 +68,7 @@ func disableCompressionMW(client *Client) {
 }
 
 // interfaceAddrMW configures the client's local address for dialing based on the provided
-// options.
+// settings.
 func interfaceAddrMW(client *Client, address string) error {
 	if address != "" {
 		ip, err := net.ResolveTCPAddr("tcp", address+":0")
@@ -82,26 +82,25 @@ func interfaceAddrMW(client *Client, address string) error {
 	return nil
 }
 
-// timeoutMW configures the client's timeout setting based on the provided options.
+// timeoutMW configures the client's timeout setting.
 func timeoutMW(client *Client, timeout time.Duration) error {
 	client.GetClient().Timeout = timeout
 	return nil
 }
 
-// redirectPolicyMW configures the client's redirect policy based on the
-// provided options.
+// redirectPolicyMW configures the client's redirect policy.
 func redirectPolicyMW(client *Client) {
-	opt := client.opt
+	builder := client.builder
 	maxRedirects := _maxRedirects
 
-	if opt != nil {
-		if opt.checkRedirect != nil {
-			client.GetClient().CheckRedirect = opt.checkRedirect
+	if builder != nil {
+		if builder.checkRedirect != nil {
+			client.GetClient().CheckRedirect = builder.checkRedirect
 			return
 		}
 
-		if opt.maxRedirects != 0 {
-			maxRedirects = opt.maxRedirects
+		if builder.maxRedirects != 0 {
+			maxRedirects = builder.maxRedirects
 		}
 	}
 
@@ -110,8 +109,8 @@ func redirectPolicyMW(client *Client) {
 			return http.ErrUseLastResponse
 		}
 
-		if opt != nil {
-			if opt.followOnlyHostRedirects {
+		if builder != nil {
+			if builder.followOnlyHostRedirects {
 				newHost := req.URL.Host
 				oldHost := via[0].Host
 
@@ -124,7 +123,7 @@ func redirectPolicyMW(client *Client) {
 				}
 			}
 
-			if opt.forwardHeadersOnRedirect {
+			if builder.forwardHeadersOnRedirect {
 				for key, val := range via[0].Header {
 					req.Header[key] = val
 				}
@@ -150,7 +149,7 @@ func dnsMW(client *Client, dns string) {
 func dnsTLSMW(client *Client, resolver *net.Resolver) { client.GetDialer().Resolver = resolver }
 
 // configureUnixSocket sets the DialContext function for the client's HTTP transport to use
-// a Unix domain socket if the unixDomainSocket option is set.
+// a Unix domain socket.
 func unixDomainSocketMW(client *Client, unixDomainSocket string) {
 	if unixDomainSocket == "" {
 		return
@@ -171,10 +170,9 @@ func unixDomainSocketMW(client *Client, unixDomainSocket string) {
 	}
 }
 
-// proxyMW configures the request's proxy settings based on the provided
-// proxy options. It supports single or multiple proxy options.
+// proxyMW configures the request's proxy settings.
 func proxyMW(client *Client, proxys any) {
-	if client.opt.ja3 {
+	if client.builder.ja3 {
 		return
 	}
 
@@ -202,12 +200,12 @@ func h2cMW(client *Client) {
 	t2.DisableCompression = client.GetTransport().(*http.Transport).DisableCompression
 	t2.IdleConnTimeout = client.transport.(*http.Transport).IdleConnTimeout
 
-	t2.DialTLSContext = func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
+	t2.DialTLSContext = func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
 		return net.Dial(network, addr)
 	}
 
-	if client.opt.http2s != nil {
-		h := client.opt.http2s
+	if client.builder.http2s != nil {
+		h := client.builder.http2s
 
 		appendSetting := func(id http2.SettingID, val uint32) {
 			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {

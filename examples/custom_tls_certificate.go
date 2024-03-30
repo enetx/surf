@@ -45,13 +45,10 @@ PB0KuEzBx1LQzkE8M0MToiGLsR2iK7x1KsWqbf7+5Y2Zqm5qmOfDm+71WnmIprnU
 	tc.InsecureSkipVerify = false
 	tc.RootCAs = rootCAs
 
-	r, err := cli.
-		// SetOptions(surf.NewOptions().Proxy("http://localhost:8080")).
-		Get("google.com").
-		Do()
-	if err != nil {
-		log.Fatal(err)
+	r := cli.Get("google.com").Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.String())
+	fmt.Println(r.Ok().Body.String())
 }

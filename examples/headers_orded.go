@@ -23,12 +23,17 @@ func main() {
 		Set("3", "3").
 		Set("4", "4")
 
-	opt := surf.NewOptions().UserAgent("root")
+	r := surf.NewClient().
+		Builder().
+		UserAgent("root").
+		Build().
+		Get(url).
+		SetHeaders(orderedHeaders).
+		Do()
 
-	r, err := surf.NewClient().SetOptions(opt).Get(url).SetHeaders(orderedHeaders).Do()
-	if err != nil {
-		log.Fatal(err)
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	r.Debug().Request(true).Response(true).Print()
+	r.Ok().Debug().Request(true).Response(true).Print()
 }

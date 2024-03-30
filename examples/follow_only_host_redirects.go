@@ -8,15 +8,17 @@ import (
 )
 
 func main() {
-	opt := surf.NewOptions().FollowOnlyHostRedirects()
-
-	r, err := surf.NewClient().SetOptions(opt).
+	r := surf.NewClient().
+		Builder().
+		FollowOnlyHostRedirects().
+		Build().
 		Get("google.com").
 		// Get("www.google.com").
 		Do()
-	if err != nil {
-		log.Fatal(err)
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.String())
+	fmt.Println(r.Ok().Body.String())
 }

@@ -8,13 +8,16 @@ import (
 )
 
 func main() {
-	opt := surf.NewOptions()
-	opt.InterfaceAddr("127.0.0.1") // network adapter ip address
+	r := surf.NewClient().
+		Builder().
+		InterfaceAddr("127.0.0.1"). // network adapter ip address
+		Build().
+		Get("http://myip.dnsomatic.com").
+		Do()
 
-	r, err := surf.NewClient().SetOptions(opt).Get("http://myip.dnsomatic.com").Do()
-	if err != nil {
-		log.Fatal(err)
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.String())
+	fmt.Println(r.Ok().Body.String())
 }

@@ -7,12 +7,12 @@ import (
 )
 
 func main() {
-	URL := "https://httpbingo.org/get"
+	url := "https://httpbingo.org/get"
 
 	cli := surf.NewClient()
-	req := cli.Get(URL)
+	req := cli.Get(url)
 
-	resp, _ := req.Do()
+	resp := req.Do().Unwrap()
 
 	fmt.Println(resp.StatusCode)
 	fmt.Println(resp.Body.String())

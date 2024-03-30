@@ -15,25 +15,25 @@ func main() {
 
 	URL := "https://httpbingo.org/basic-auth/root/passwd"
 
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().BasicAuth("root:passwd")).
-		Get(URL).
-		Do()
-		// r, err := surf.NewClient().
-		// 	SetOptions(surf.NewOptions().BasicAuth([]string{"root", "passwd"})).
-		// 	Get(URL).
-		// 	Do()
-		// r, err := surf.NewClient().
-		// 	SetOptions(surf.NewOptions().BasicAuth(map[string]string{"root": "passwd"})).
-		// 	Get(URL).
-		// 	Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().
+		Builder().BasicAuth("root:passwd").Build().
+		Get(URL).Do()
+	// r = surf.NewClient().
+	// 	Builder().BasicAuth([]string{"root", "passwd"}).Build().
+	// 	Get(URL).
+	// 	Do()
+	// r = surf.NewClient().
+	// 	Builder().BasicAuth(map[string]string{"root": "passwd"}).Build().
+	// 	Get(URL).
+	// 	Do()
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	var ba basicAuth
 
-	r.Body.JSON(&ba)
+	r.Ok().Body.JSON(&ba)
 
 	fmt.Printf("authorized: %v, user: %s", ba.Authorized, ba.User)
 }

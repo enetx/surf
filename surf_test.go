@@ -37,13 +37,13 @@ func TestH2C(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().H2C()).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().H2C().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("Hello HTTP/2.0 http == true") {
+	if !r.Ok().Body.Contains("Hello HTTP/2.0 http == true") {
 		t.Error()
 	}
 }
@@ -78,16 +78,18 @@ func TestUnixDomainSocket(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().UnixDomainSocket(socketPath)).
+	r := surf.NewClient().Builder().
+		UnixDomainSocket(socketPath).
+		Build().
 		Get("unix").
 		Do()
-	if err != nil {
-		t.Error(err)
+
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("unix domain socket") {
+	if !r.Ok().Body.Contains("unix domain socket") {
 		t.Error()
 	}
 }
@@ -103,16 +105,18 @@ func TestContenType(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().ContentType("secret/content-type")).
+	r := surf.NewClient().Builder().
+		ContentType("secret/content-type").
+		Build().
 		Get(ts.URL).
 		Do()
-	if err != nil {
-		t.Error(err)
+
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("secret/content-type") {
+	if !r.Ok().Body.Contains("secret/content-type") {
 		t.Error()
 	}
 }
@@ -128,13 +132,13 @@ func TestDisableKeepAlive(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().DisableKeepAlive()).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().DisableKeepAlive().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("close") {
+	if !r.Ok().Body.Contains("close") {
 		t.Error()
 	}
 }
@@ -156,17 +160,18 @@ func TestMultipart(t *testing.T) {
 		}
 		w.Write(buff.Bytes())
 	}))
+
 	defer ts.Close()
 
 	multipartData := map[string]string{some: values}
 
-	r, err := surf.NewClient().Multipart(ts.URL, multipartData).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Multipart(ts.URL, multipartData).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if r.Body.String() != values {
+	if r.Ok().Body.String() != values {
 		t.Error()
 	}
 }
@@ -188,28 +193,31 @@ func TestFileUpload(t *testing.T) {
 		io.Copy(&buff, file)
 		w.Write(buff.Bytes())
 	}))
+
 	defer ts.Close()
 
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().CacheBody()).
+	r := surf.NewClient().Builder().
+		CacheBody().Build().
 		FileUpload(ts.URL, "file", "info.txt", "justfile").
 		Do()
-	if err != nil {
-		t.Error(err)
+
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
 	multipartValues := map[string]string{"some": "values"}
 
-	r2, err := surf.NewClient().
+	r2 := surf.NewClient().
 		FileUpload(ts.URL, "file", "info.txt", "multipart", multipartValues).
 		Do()
-	if err != nil {
-		t.Error(err)
+
+	if r2.IsErr() {
+		t.Error(r2.Err())
 		return
 	}
 
-	if r.Body.String() != "justfile" || r2.Body.String() != "valuesmultipart" {
+	if r.Ok().Body.String() != "justfile" || r2.Ok().Body.String() != "valuesmultipart" {
 		t.Error()
 	}
 }
@@ -226,15 +234,16 @@ func TestDeflate(t *testing.T) {
 		w.Header().Set("Content-Encoding", "deflate")
 		w.Write(buf.Bytes())
 	}))
+
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().CacheBody()).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().CacheBody().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") || !r.Body.Contains([]byte("OK")) {
+	if !r.Ok().Body.Contains("OK") || !r.Ok().Body.Contains([]byte("OK")) {
 		t.Error()
 	}
 }
@@ -251,15 +260,16 @@ func TestGzip(t *testing.T) {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Write(buf.Bytes())
 	}))
+
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().CacheBody()).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().CacheBody().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") || !r.Body.Contains([]byte("OK")) {
+	if !r.Ok().Body.Contains("OK") || !r.Ok().Body.Contains([]byte("OK")) {
 		t.Error()
 	}
 }
@@ -276,15 +286,16 @@ func TestBrotli(t *testing.T) {
 		w.Header().Set("Content-Encoding", "br")
 		w.Write(buf.Bytes())
 	}))
+
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().CacheBody()).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().CacheBody().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") || !r.Body.Contains([]byte("OK")) {
+	if !r.Ok().Body.Contains("OK") || !r.Ok().Body.Contains([]byte("OK")) {
 		t.Error()
 	}
 }
@@ -295,15 +306,16 @@ func TestBody(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		io.WriteString(w, "OK")
 	}))
+
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().CacheBody()).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().CacheBody().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") || !r.Body.Contains([]byte("OK")) {
+	if !r.Ok().Body.Contains("OK") || !r.Ok().Body.Contains([]byte("OK")) {
 		t.Error()
 	}
 }
@@ -315,15 +327,21 @@ func TestTimeOut(t *testing.T) {
 		time.Sleep(time.Nanosecond)
 		io.WriteString(w, "OK")
 	}))
+
 	defer ts.Close()
 
-	_, err := surf.NewClient().
-		SetOptions(surf.NewOptions().Timeout(time.Microsecond)).
+	err := surf.NewClient().
+		Builder().Timeout(time.Microsecond).Build().
+		Get(ts.URL).
+		Do().
+		Err()
+
+	r := surf.NewClient().
+		Builder().Timeout(time.Second).Build().
 		Get(ts.URL).
 		Do()
-	r, _ := surf.NewClient().SetOptions(surf.NewOptions().Timeout(time.Second)).Get(ts.URL).Do()
 
-	if err == nil || !r.Body.Contains("OK") {
+	if err == nil || !r.Ok().Body.Contains("OK") {
 		t.Error()
 	}
 }
@@ -343,23 +361,24 @@ func TestSession(t *testing.T) {
 
 		http.SetCookie(w, &cookie)
 	}))
+
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().Session()).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().Session().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	r.Body.Close()
+	r.Ok().Body.Close()
 
-	r, err = r.Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r = r.Ok().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	cookies := r.GetCookies(ts.URL)
+	cookies := r.Ok().GetCookies(ts.URL)
 
 	if !reflect.DeepEqual(cookies, []*http.Cookie{{Name: "username", Value: "toor"}}) {
 		t.Error()
@@ -387,21 +406,31 @@ func TestBearerAuth(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().BearerAuth("good")).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().
+		BearerAuth("good").
+		Build().
+		Get(ts.URL).Do()
+
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
-	defer r.Body.Close()
 
-	r2, err := surf.NewClient().SetOptions(surf.NewOptions().BearerAuth("bad")).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	defer r.Ok().Body.Close()
+
+	r2 := surf.NewClient().Builder().
+		BearerAuth("bad").
+		Build().
+		Get(ts.URL).Do()
+
+	if r2.IsErr() {
+		t.Error(r2.Err())
 		return
 	}
-	defer r2.Body.Close()
 
-	if r.StatusCode != http.StatusOK || r2.StatusCode != http.StatusUnauthorized {
+	defer r2.Ok().Body.Close()
+
+	if r.Ok().StatusCode != http.StatusOK || r2.Ok().StatusCode != http.StatusUnauthorized {
 		t.Error()
 	}
 }
@@ -426,27 +455,32 @@ func TestBasicAuth(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().BasicAuth("good:password")).
+	r := surf.NewClient().Builder().
+		BasicAuth("good:password").
+		Build().
 		Get(ts.URL).
 		Do()
-	if err != nil {
-		t.Error(err)
+
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
-	defer r.Body.Close()
 
-	r2, err := surf.NewClient().
-		SetOptions(surf.NewOptions().BasicAuth("bad:password")).
+	defer r.Ok().Body.Close()
+
+	r2 := surf.NewClient().Builder().
+		BasicAuth("bad:password").
+		Build().
 		Get(ts.URL).
 		Do()
-	if err != nil {
-		t.Error(err)
+	if r2.IsErr() {
+		t.Error(r2.Err())
 		return
 	}
-	defer r2.Body.Close()
 
-	if r.StatusCode != http.StatusOK || r2.StatusCode != http.StatusUnauthorized {
+	defer r2.Ok().Body.Close()
+
+	if r.Ok().StatusCode != http.StatusOK || r2.Ok().StatusCode != http.StatusUnauthorized {
 		t.Error()
 	}
 }
@@ -465,13 +499,13 @@ func TestCookies(t *testing.T) {
 
 	c1 := &http.Cookie{Name: "root", Value: "cookie"}
 
-	r, err := surf.NewClient().Get(ts.URL).AddCookies(c1).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Get(ts.URL).AddCookies(c1).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") {
+	if !r.Ok().Body.Contains("OK") {
 		t.Error()
 	}
 }
@@ -486,13 +520,13 @@ func TestUserAgent(t *testing.T) {
 
 	agent := "Hi from surf"
 
-	r, err := surf.NewClient().SetOptions(surf.NewOptions().UserAgent(agent)).Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Builder().UserAgent(agent).Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains(agent) {
+	if !r.Ok().Body.Contains(agent) {
 		t.Error()
 	}
 }
@@ -510,13 +544,13 @@ func TestHeaders(t *testing.T) {
 
 	headers := map[string]string{"some": "header"}
 
-	r, err := surf.NewClient().Get(ts.URL).AddHeaders(headers).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Get(ts.URL).AddHeaders(headers).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") {
+	if !r.Ok().Body.Contains("OK") {
 		t.Error()
 	}
 }
@@ -533,13 +567,13 @@ func TestHTTP2(t *testing.T) {
 
 	defer ts.Close()
 
-	r, err := surf.NewClient().Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("Hello, HTTP/2.0") {
+	if !r.Ok().Body.Contains("Hello, HTTP/2.0") {
 		t.Error()
 	}
 }
@@ -552,13 +586,13 @@ func TestGet(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	r, err := surf.NewClient().Get(ts.URL).Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") {
+	if !r.Ok().Body.Contains("OK") {
 		t.Error()
 	}
 }
@@ -573,13 +607,13 @@ func TestPost(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	r, err := surf.NewClient().Post(ts.URL, "test=data").Do()
-	if err != nil {
-		t.Error(err)
+	r := surf.NewClient().Post(ts.URL, "test=data").Do()
+	if r.IsErr() {
+		t.Error(r.Err())
 		return
 	}
 
-	if !r.Body.Contains("OK") {
+	if !r.Ok().Body.Contains("OK") {
 		t.Error()
 	}
 }

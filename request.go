@@ -16,9 +16,9 @@ import (
 // Request is a struct that holds information about an HTTP request.
 type Request struct {
 	request     *http.Request   // The underlying http.Request.
-	client      *Client         // The associated client for the request.
-	writeErr    *error          // An error encountered during writing.
-	error       error           // A general error associated with the request.
+	cli         *Client         // The associated client for the request.
+	werr        *error          // An error encountered during writing.
+	err         error           // A general error associated with the request.
 	remoteAddr  net.Addr        // Remote network address.
 	body        io.ReadCloser   // Request body.
 	headersKeys g.Slice[string] // Order headers.
@@ -28,26 +28,19 @@ type Request struct {
 func (req *Request) GetRequest() *http.Request { return req.request }
 
 // Do performs the HTTP request and returns a Response object or an error if the request failed.
-func (req *Request) Do() (*Response, error) {
-	if req.error != nil {
-		return nil, req.error
+func (req *Request) Do() g.Result[*Response] {
+	if req.err != nil {
+		return g.Err[*Response](req.err)
 	}
 
-	if err := req.client.applyReqMW(req); err != nil {
-		return nil, err
-	}
-
-	opt := req.client.opt
-	if opt != nil {
-		if err := opt.applyReqMW(req); err != nil {
-			return nil, err
-		}
+	if err := req.cli.applyReqMW(req); err != nil {
+		return g.Err[*Response](err)
 	}
 
 	if req.request.Method != http.MethodHead {
-		req.body, req.request.Body, req.error = drainbody.DrainBody(req.request.Body)
-		if req.error != nil {
-			return nil, req.error
+		req.body, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
+		if req.err != nil {
+			return g.Err[*Response](req.err)
 		}
 	}
 
@@ -58,30 +51,32 @@ func (req *Request) Do() (*Response, error) {
 	)
 
 	start := time.Now()
-	cli := req.client.cli
+	cli := req.cli.cli
+
+	builder := req.cli.builder
 
 retry:
 	resp, err = cli.Do(req.request)
 	if err != nil {
-		return nil, err
+		return g.Err[*Response](err)
 	}
 
-	if opt != nil && opt.retryMax != 0 && attempts < opt.retryMax && opt.retryCodes.NotEmpty() &&
-		opt.retryCodes.Contains(resp.StatusCode) {
+	if builder != nil && builder.retryMax != 0 && attempts < builder.retryMax && builder.retryCodes.NotEmpty() &&
+		builder.retryCodes.Contains(resp.StatusCode) {
 		attempts++
 
-		time.Sleep(opt.retryWait)
+		time.Sleep(builder.retryWait)
 		goto retry
 	}
 
-	if req.writeErr != nil && (*req.writeErr).Error() != "" {
-		return nil, *req.writeErr
+	if req.werr != nil && (*req.werr).Error() != "" {
+		return g.Err[*Response](*req.werr)
 	}
 
 	response := &Response{
 		Attempts:      attempts,
 		Time:          time.Since(start),
-		Client:        req.client,
+		Client:        req.cli,
 		ContentLength: resp.ContentLength,
 		Cookies:       resp.Cookies(),
 		Headers:       headers(resp.Header),
@@ -97,23 +92,17 @@ retry:
 	if req.request.Method != http.MethodHead {
 		response.Body = &body{
 			Reader:      resp.Body,
-			cache:       opt != nil && opt.cacheBody,
+			cache:       builder != nil && builder.cacheBody,
 			contentType: resp.Header.Get(header.CONTENT_TYPE),
 			limit:       -1,
 		}
 	}
 
-	if err := req.client.applyRespMW(response); err != nil {
-		return nil, err
+	if err := req.cli.applyRespMW(response); err != nil {
+		return g.Err[*Response](err)
 	}
 
-	if opt != nil {
-		if err := opt.applyRespMW(response); err != nil {
-			return nil, err
-		}
-	}
-
-	return response, nil
+	return g.Ok(response)
 }
 
 // WithContext associates the provided context with the request.

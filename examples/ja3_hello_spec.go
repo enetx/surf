@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/enetx/surf"
 	tls "github.com/refraction-networking/utls"
@@ -129,19 +130,21 @@ func main() {
 		},
 	}
 
-	opt := surf.NewOptions().JA3().SetHelloSpec(spec)
-
-	r, err := surf.NewClient().SetOptions(opt).
+	r := surf.NewClient().
+		Builder().
+		JA3().
+		SetHelloSpec(spec).
+		Build().
 		Get("https://tls.peet.ws/api/clean").
 		Do()
-	if err != nil {
-		fmt.Println(err)
-		return
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	var obj Ja3
 
-	r.Body.JSON(&obj)
+	r.Ok().Body.JSON(&obj)
 
 	fmt.Println(obj.Ja3Hash)
 	fmt.Println(obj.Ja3)

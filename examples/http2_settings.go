@@ -11,8 +11,6 @@ import (
 func main() {
 	url := "https://tls.peet.ws/api/all"
 
-	opt := surf.NewOptions()
-
 	priorityFrames := []http2.PriorityFrame{
 		{
 			FrameHeader: http2.FrameHeader{StreamID: 3},
@@ -32,7 +30,10 @@ func main() {
 		},
 	}
 
-	opt.HTTP2Settings().
+	cli := surf.NewClient().
+		Builder().
+		JA3().Chrome87().
+		HTTP2Settings().
 		EnablePush(1).
 		MaxConcurrentStreams(1000).
 		MaxFrameSize(16384).
@@ -45,9 +46,8 @@ func main() {
 			StreamDep: 0,
 		}).
 		PriorityFrames(priorityFrames).
-		Set()
-
-	opt.JA3().Chrome87()
+		Set().
+		Build()
 
 	headers := g.NewMapOrd[string, string]()
 	headers.
@@ -68,12 +68,10 @@ func main() {
 		Set("User-Agent", "").
 		Set("Accept-Language", "en-US,en;q=0.9")
 
-	r, err := surf.NewClient().SetOptions(opt).Get(url).
-		SetHeaders(headers).
-		Do()
-	if err != nil {
-		log.Fatal(err)
+	r := cli.Get(url).SetHeaders(headers).Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	r.Debug().Request(true).Response(true).Print()
+	r.Ok().Debug().Request(true).Response(true).Print()
 }

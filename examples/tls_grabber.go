@@ -2,16 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/enetx/surf"
 )
 
 func main() {
-	r, err := surf.NewClient().Get("https://google.com").Do()
-	if err != nil {
-		log.Fatal(err)
-	}
+	r := surf.NewClient().Get("https://google.com").Do().Unwrap()
 
 	fmt.Println(r.TLSGrabber().CommonName)
 	fmt.Println(r.TLSGrabber().DNSNames)

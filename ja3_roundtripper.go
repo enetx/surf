@@ -31,7 +31,7 @@ func newRoundTripper(ja3 *ja3, transport http.RoundTripper) http.RoundTripper {
 	rt.ja3 = ja3
 	rt.transport = transport
 
-	if rt.ja3.opt.session {
+	if rt.ja3.builder.session {
 		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
 	}
 
@@ -123,7 +123,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 	spec = ja3c.ProcessSpec(spec)
 
-	if rt.ja3.opt.forseHTTP1 {
+	if rt.ja3.builder.forseHTTP1 {
 		ja3c.SetAlpnProtocolToHTTP1(&spec)
 	}
 
@@ -193,8 +193,8 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	t.IdleConnTimeout = rt.transport.(*http.Transport).IdleConnTimeout
 	t.TLSClientConfig = rt.transport.(*http.Transport).TLSClientConfig
 
-	if rt.ja3.opt.http2s != nil {
-		h := rt.ja3.opt.http2s
+	if rt.ja3.builder.http2s != nil {
+		h := rt.ja3.builder.http2s
 
 		appendSetting := func(id http2.SettingID, val uint32) {
 			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {

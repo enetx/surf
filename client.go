@@ -22,51 +22,72 @@ import (
 	"github.com/enetx/surf/header"
 )
 
-// Client struct provides a customizable HTTP client with configurable options for making requests,
-// handling connections, and managing TLS settings.
+// Client struct provides a customizable HTTP client.
 type Client struct {
-	cli       *http.Client         // Standard HTTP client.
-	dialer    *net.Dialer          // Network dialer.
-	opt       *Options             // Client options.
-	transport http.RoundTripper    // HTTP transport settings.
-	tlsConfig *tls.Config          // TLS configuration.
-	reqMW     []requestMiddleware  // Request middleware functions.
-	respMW    []responseMiddleware // Response middleware functions.
+	cli       *http.Client            // Standard HTTP client.
+	dialer    *net.Dialer             // Network dialer.
+	builder   *builder                // Client builder.
+	transport http.RoundTripper       // HTTP transport settings.
+	tlsConfig *tls.Config             // TLS configuration.
+	reqMWs    []func(*Request) error  // Request middleware functions.
+	respMWs   []func(*Response) error // Response middleware functions.
 }
 
 // NewClient creates a new Client with default settings.
 func NewClient() *Client {
 	return new(Client).
-		ClientMiddleware(defaultDialerMW).
-		ClientMiddleware(defaultTLSConfigMW).
-		ClientMiddleware(defaultTransportMW).
-		ClientMiddleware(defaultClientMW).
-		ClientMiddleware(redirectPolicyMW).
-		RequestMiddleware(defaultUserAgentMW).
-		RequestMiddleware(got101ResponseMW).
-		ResponseMiddleware(webSocketUpgradeErrorMW).
-		ResponseMiddleware(decodeBodyMW)
+		applyCliMW(defaultDialerMW).
+		applyCliMW(defaultTLSConfigMW).
+		applyCliMW(defaultTransportMW).
+		applyCliMW(defaultClientMW).
+		applyCliMW(redirectPolicyMW).
+		addReqMW(defaultUserAgentMW).
+		addReqMW(got101ResponseMW).
+		addRespWM(webSocketUpgradeErrorMW).
+		addRespWM(decodeBodyMW)
 }
 
-// ClientMiddleware add a client middleware.
-func (c *Client) ClientMiddleware(m clientMiddleware) *Client { m(c); return c }
-
-// RequestMiddleware add a request middleware which hooks before request sent.
-func (c *Client) RequestMiddleware(m requestMiddleware) *Client {
-	c.reqMW = append(c.reqMW, m)
+// addReqMW add a request middleware which hooks before request sent.
+func (c *Client) addReqMW(m func(*Request) error) *Client {
+	c.reqMWs = append(c.reqMWs, m)
 	return c
 }
 
-// ResponseMiddleware add a response middleware which hooks after response received.
-func (c *Client) ResponseMiddleware(m responseMiddleware) *Client {
-	c.respMW = append(c.respMW, m)
+// addRespWM add a response middleware which hooks after response received.
+func (c *Client) addRespWM(m func(*Response) error) *Client {
+	c.respMWs = append(c.respMWs, m)
 	return c
+}
+
+// applyCliMW applies a client middleware.
+func (c *Client) applyCliMW(m func(*Client)) *Client { m(c); return c }
+
+// applyReqMW applies request middlewares to the Client's request.
+func (c *Client) applyReqMW(req *Request) error {
+	for _, m := range c.reqMWs {
+		if err := m(req); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// applyRespMW applies response middlewares to the Client's response.
+func (c *Client) applyRespMW(resp *Response) error {
+	for _, m := range c.respMWs {
+		if err := m(resp); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // CloseIdleConnections removes all entries from the cached transports.
 // Specifically used when Singleton is enabled for JA3 or Impersonate functionalities.
 func (c *Client) CloseIdleConnections() {
-	if c.opt == nil || !c.opt.singleton {
+	if c.builder == nil || !c.builder.singleton {
 		return
 	}
 
@@ -85,18 +106,10 @@ func (c *Client) GetTransport() http.RoundTripper { return c.transport }
 // GetTLSConfig returns the tls.Config used by the Client.
 func (c *Client) GetTLSConfig() *tls.Config { return c.tlsConfig }
 
-// SetOptions sets the provided options for the client and returns the updated client.
-// It configures various settings like HTTP2, sessions, keep-alive, dial TLS, resolver,
-// interface address, timeout, and redirect policy.
-func (c *Client) SetOptions(opt *Options) *Client {
-	c.opt = opt
-	c.opt.dialer = c.dialer
-
-	// sorting client middleware by priority
-	c.opt.cliMW.SortBy(func(a, b g.Pair[int, clientMiddleware]) bool { return a.Key < b.Key })
-	c.opt.cliMW.Iter().ForEach(func(_ int, m clientMiddleware) { c.ClientMiddleware(m) })
-
-	return c
+// Builder creates a new client builder instance with default values
+func (c *Client) Builder() *builder {
+	c.builder = &builder{cli: c, cliMWs: g.NewMapOrd[int, func(*Client)]()}
+	return c.builder
 }
 
 // Raw creates a new HTTP request using the provided raw data and scheme.
@@ -107,14 +120,14 @@ func (c *Client) Raw(raw, scheme string) *Request {
 
 	req, err := http.ReadRequest(bufio.NewReader(g.String(raw).TrimSpace().Add("\n\n").Reader()))
 	if err != nil {
-		request.error = err
+		request.err = err
 		return request
 	}
 
 	req.RequestURI, req.URL.Scheme, req.URL.Host = "", scheme, req.Host
 
 	request.request = req
-	request.client = c
+	request.cli = c
 
 	return request
 }
@@ -194,7 +207,7 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath string, data ...any) *Re
 	if reader == nil {
 		file, err = os.Open(filePath)
 		if err != nil {
-			request.error = err
+			request.err = err
 			return request
 		}
 
@@ -234,15 +247,15 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath string, data ...any) *Re
 
 	req, err := http.NewRequest(http.MethodPost, rawURL, bodyReader)
 	if err != nil {
-		request.error = err
+		request.err = err
 		return request
 	}
 
 	req.Header.Set(header.CONTENT_TYPE, formWriter.FormDataContentType())
 
 	request.request = req
-	request.client = c
-	request.writeErr = &writeErr
+	request.cli = c
+	request.werr = &writeErr
 
 	return request
 }
@@ -259,31 +272,31 @@ func (c *Client) Multipart(rawURL string, multipartValues map[string]string) *Re
 	for field, value := range multipartValues {
 		formWriter, err := writer.CreateFormField(field)
 		if err != nil {
-			request.error = err
+			request.err = err
 			return request
 		}
 
 		if _, err := io.Copy(formWriter, strings.NewReader(value)); err != nil {
-			request.error = err
+			request.err = err
 			return request
 		}
 	}
 
 	if err := writer.Close(); err != nil {
-		request.error = err
+		request.err = err
 		return request
 	}
 
 	req, err := http.NewRequest(http.MethodPost, rawURL, body)
 	if err != nil {
-		request.error = err
+		request.err = err
 		return request
 	}
 
 	req.Header.Set(header.CONTENT_TYPE, writer.FormDataContentType())
 
 	request.request = req
-	request.client = c
+	request.cli = c
 
 	return request
 }
@@ -329,13 +342,13 @@ func (c *Client) buildRequest(rawURL, methodType string, data any) *Request {
 
 	body, contentType, err := buildBody(data)
 	if err != nil {
-		request.error = err
+		request.err = err
 		return request
 	}
 
 	req, err := http.NewRequest(methodType, rawURL, body)
 	if err != nil {
-		request.error = err
+		request.err = err
 		return request
 	}
 
@@ -344,7 +357,7 @@ func (c *Client) buildRequest(rawURL, methodType string, data any) *Request {
 	}
 
 	request.request = req
-	request.client = c
+	request.cli = c
 
 	return request
 }

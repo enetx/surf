@@ -10,13 +10,13 @@ import (
 )
 
 func main() {
-	r, err := surf.NewClient().Get("https://httpbingo.org/stream/10").Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().Get("https://httpbingo.org/stream/10").Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	for {
-		line, err := r.Body.Stream().ReadString('\n')
+		line, err := r.Ok().Body.Stream().ReadString('\n')
 		if err == io.EOF {
 			break
 		}
@@ -33,7 +33,7 @@ func main() {
 	// buffer := make([]byte, 4096)
 
 	// for {
-	// 	n, err := r.Body.Stream().Read(buffer)
+	// 	n, err := r.Ok().Body.Stream().Read(buffer)
 	// 	bytesRead += n
 
 	// 	if err == io.EOF {

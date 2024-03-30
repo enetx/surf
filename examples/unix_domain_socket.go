@@ -8,12 +8,16 @@ import (
 )
 
 func main() {
-	opt := surf.NewOptions().UnixDomainSocket("/tmp/surf_echo.sock")
+	r := surf.NewClient().
+		Builder().
+		UnixDomainSocket("/tmp/surf_echo.sock").
+		Build().
+		Get("unix").
+		Do()
 
-	r, err := surf.NewClient().SetOptions(opt).Get("unix").Do()
-	if err != nil {
-		log.Fatal(err)
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.String())
+	fmt.Println(r.Ok().Body.String())
 }

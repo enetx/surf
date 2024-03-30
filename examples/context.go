@@ -17,10 +17,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
 	defer cancel()
 
-	resp, err := req.WithContext(ctx).Do()
-	if err != nil {
-		log.Fatal(err)
+	resp := req.WithContext(ctx).Do()
+	if resp.IsErr() {
+		log.Fatal(resp.Err())
 	}
 
-	log.Println(resp.Body.String())
+	log.Println(resp.Ok().Body.String())
 }

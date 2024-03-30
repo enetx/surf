@@ -7,13 +7,16 @@ import (
 )
 
 func main() {
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().DisableKeepAlive()).
+	r := surf.NewClient().
+		Builder().
+		DisableKeepAlive().
+		Build().
 		Get("http://www.keycdn.com").
 		Do()
-	if err != nil {
-		log.Fatal(err)
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	r.Debug().Response().Print() // Connection: close
+	r.Ok().Debug().Response().Print() // Connection: close
 }

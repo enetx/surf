@@ -8,18 +8,20 @@ import (
 )
 
 func main() {
-	opt := surf.NewOptions()
+	r := surf.NewClient().
+		Builder().
+		// DNS("127.0.0.1:53").   // local dns
+		DNS("1.1.1.1:53").     // cloudflare dns
+		// DNS("127.0.0.1:9053"). // tor dns
+		// DNS("8.8.8.8:53").     // google dns
+		// DNS("9.9.9.9:53").     // quad9 dns
+		Build().
+		Get("http://httpbingo.org/get").
+		Do()
 
-	// opt.DNS("127.0.0.1:53") // local dns
-	opt.DNS("1.1.1.1:53") // cloudflare dns
-	// opt.DNS("127.0.0.1:9053") // tor dns
-	// opt.DNS("8.8.8.8:53") // google dns
-	// opt.DNS("9.9.9.9:53") // quad9 dns
-
-	r, err := surf.NewClient().SetOptions(opt).Get("http://httpbingo.org/get").Do()
-	if err != nil {
-		log.Fatal(err)
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.String())
+	fmt.Println(r.Ok().Body.String())
 }

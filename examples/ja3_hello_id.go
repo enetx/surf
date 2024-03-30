@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/enetx/surf"
 )
@@ -12,21 +12,15 @@ func main() {
 	url := "https://tls.peet.ws/api/all"
 	// url := "http://tools.scrapfly.io/api/fp/anything"
 
-	opt := surf.NewOptions()
-	// opt.ForceHTTP1()
+	cli := surf.NewClient().
+		Builder().
+		JA3().Chrome87().
+		Build()
 
-	opt.JA3().Chrome87()
-
-	// opt.Proxy("socks5://127.0.0.1:9050")
-	// opt.Proxy("http://127.0.0.1:8080")
-
-	cli := surf.NewClient().SetOptions(opt)
-
-	r, err := cli.Get(url).Do()
-	if err != nil {
-		fmt.Println(err)
-		return
+	r := cli.Get(url).Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	r.Debug().Request(true).Response(true).Print()
+	r.Ok().Debug().Request(true).Response(true).Print()
 }

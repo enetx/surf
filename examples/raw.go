@@ -14,10 +14,10 @@ Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/w
 Accept-Encoding: gzip, deflate
 Connection: close`
 
-	r, err := surf.NewClient().Raw(raw, "http").Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().Raw(raw, "http").Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	r.Body.String().Print()
+	r.Ok().Body.String().Print()
 }

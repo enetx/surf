@@ -12,23 +12,25 @@ import (
 )
 
 func main() {
-	URL := "https://yahoo.com"
+	url := "https://yahoo.com"
 
 	cli := surf.NewClient().
-		ClientMiddleware(jar).
-		ClientMiddleware(dns).
-		RequestMiddleware(baseURL).
-		RequestMiddleware(ua)
+		Builder().
+		With(jar).
+		With(dns).
+		With(baseURL).
+		With(ua).
+		Build()
 
-	r, err := cli.Get(URL).Do()
-	if err != nil {
-		log.Fatal(err)
+	r := cli.Get(url).Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	defer r.Body.Close()
+	defer r.Ok().Body.Close()
 
-	fmt.Println(r.URL)
-	fmt.Println(r.UserAgent)
+	fmt.Println(r.Ok().URL)
+	fmt.Println(r.Ok().UserAgent)
 }
 
 func dns(client *surf.Client) {

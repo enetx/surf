@@ -13,7 +13,7 @@ func main() {
 	// client custom settings
 	cli.GetClient().Timeout = time.Nanosecond
 
-	_, err := cli.Get("https://google.com").Do()
+	err := cli.Get("https://google.com").Do().Err()
 	if err != nil {
 		log.Fatal(err)
 	}

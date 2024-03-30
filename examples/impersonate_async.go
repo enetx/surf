@@ -2,24 +2,25 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/enetx/surf"
 )
 
 func main() {
-	opt := surf.NewOptions()
-	opt.Singleton() // for reuse client
-
-	opt.Impersonate().Chrome()
-
 	var urls []string
 
 	urls = append(urls, "https://tls.peet.ws/api/all")
 	urls = append(urls, "https://www.google.com")
 	urls = append(urls, "https://dzen.ru")
 
-	cli := surf.NewClient().SetOptions(opt)
+	cli := surf.NewClient().
+		Builder().
+		Singleton(). // for reuse client
+		Impersonate().Chrome().
+		Build()
+
 	defer cli.CloseIdleConnections()
 
 	var wg sync.WaitGroup
@@ -30,13 +31,12 @@ func main() {
 		go func(url string) {
 			defer wg.Done()
 
-			r, err := cli.Get(url).Do()
-			if err != nil {
-				fmt.Println(err)
-				return
+			r := cli.Get(url).Do()
+			if r.IsErr() {
+				log.Fatal(r.Err())
 			}
 
-			r.Debug().Response().Print()
+			r.Ok().Debug().Response().Print()
 			fmt.Println()
 		}(url)
 	}

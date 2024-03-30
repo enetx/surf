@@ -14,10 +14,10 @@ import (
 
 // https://lwthiker.com/networks/2022/06/17/tls-fingerprinting.html
 type ja3 struct {
-	spec utls.ClientHelloSpec
-	id   utls.ClientHelloID
-	opt  *Options
-	str  string
+	spec    utls.ClientHelloSpec
+	id      utls.ClientHelloID
+	builder *builder
+	str     string
 }
 
 // SetHelloStr sets a custom JA3 string for the TLS connection.
@@ -31,9 +31,9 @@ type ja3 struct {
 // Example usage:
 //
 //	JA3.SetHelloStr("customJA3")
-func (j *ja3) SetHelloStr(str string) *Options {
+func (j *ja3) SetHelloStr(str string) *builder {
 	j.str = str
-	return j.setOptions()
+	return j.build()
 }
 
 // SetHelloID sets a ClientHelloID for the TLS connection.
@@ -47,9 +47,9 @@ func (j *ja3) SetHelloStr(str string) *Options {
 // Example usage:
 //
 //	JA3.SetHelloID(utls.HelloChrome_Auto)
-func (j *ja3) SetHelloID(id utls.ClientHelloID) *Options {
+func (j *ja3) SetHelloID(id utls.ClientHelloID) *builder {
 	j.id = id
-	return j.setOptions()
+	return j.build()
 }
 
 // SetHelloSpec sets a custom ClientHelloSpec for the TLS connection.
@@ -63,20 +63,20 @@ func (j *ja3) SetHelloID(id utls.ClientHelloID) *Options {
 // Example usage:
 //
 //	JA3.SetHelloSpec(spec)
-func (j *ja3) SetHelloSpec(spec utls.ClientHelloSpec) *Options {
+func (j *ja3) SetHelloSpec(spec utls.ClientHelloSpec) *builder {
 	j.spec = spec
-	return j.setOptions()
+	return j.build()
 }
 
-func (j *ja3) setOptions() *Options {
-	return j.opt.addcliMW(0, func(c *Client) {
-		if !j.opt.singleton {
-			j.opt.addrespMW(closeIdleConnectionsMW)
+func (j *ja3) build() *builder {
+	return j.builder.addCliMW(0, func(c *Client) {
+		if !j.builder.singleton {
+			j.builder.addRespMW(closeIdleConnectionsMW)
 		}
 
-		if j.opt.proxy != nil {
+		if j.builder.proxy != nil {
 			var tp string
-			switch p := j.opt.proxy.(type) {
+			switch p := j.builder.proxy.(type) {
 			case string:
 				tp = p
 			case []string:
@@ -114,38 +114,38 @@ func (j *ja3) getSpec() (utls.ClientHelloSpec, error) {
 	return j.spec, nil
 }
 
-func (j *ja3) Android() *Options          { return j.SetHelloID(utls.HelloAndroid_11_OkHttp) }
-func (j *ja3) Chrome() *Options           { return j.SetHelloID(utls.HelloChrome_Auto) }
-func (j *ja3) Chrome58() *Options         { return j.SetHelloID(utls.HelloChrome_58) }
-func (j *ja3) Chrome62() *Options         { return j.SetHelloID(utls.HelloChrome_62) }
-func (j *ja3) Chrome70() *Options         { return j.SetHelloID(utls.HelloChrome_70) }
-func (j *ja3) Chrome72() *Options         { return j.SetHelloID(utls.HelloChrome_72) }
-func (j *ja3) Chrome83() *Options         { return j.SetHelloID(utls.HelloChrome_83) }
-func (j *ja3) Chrome87() *Options         { return j.SetHelloID(utls.HelloChrome_87) }
-func (j *ja3) Chrome96() *Options         { return j.SetHelloID(utls.HelloChrome_96) }
-func (j *ja3) Chrome100() *Options        { return j.SetHelloID(utls.HelloChrome_100) }
-func (j *ja3) Chrome102() *Options        { return j.SetHelloID(utls.HelloChrome_102) }
-func (j *ja3) Chrome106() *Options        { return j.SetHelloID(utls.HelloChrome_106_Shuffle) }
-func (j *ja3) Chrome120() *Options        { return j.SetHelloID(utls.HelloChrome_120) }
-func (j *ja3) Chrome120PQ() *Options      { return j.SetHelloID(utls.HelloChrome_120_PQ) }
-func (j *ja3) Edge() *Options             { return j.SetHelloID(utls.HelloEdge_85) }
-func (j *ja3) Edge85() *Options           { return j.SetHelloID(utls.HelloEdge_85) }
-func (j *ja3) Edge106() *Options          { return j.SetHelloID(utls.HelloEdge_106) }
-func (j *ja3) Firefox() *Options          { return j.SetHelloID(utls.HelloFirefox_Auto) }
-func (j *ja3) Firefox55() *Options        { return j.SetHelloID(utls.HelloFirefox_55) }
-func (j *ja3) Firefox56() *Options        { return j.SetHelloID(utls.HelloFirefox_56) }
-func (j *ja3) Firefox63() *Options        { return j.SetHelloID(utls.HelloFirefox_63) }
-func (j *ja3) Firefox65() *Options        { return j.SetHelloID(utls.HelloFirefox_65) }
-func (j *ja3) Firefox99() *Options        { return j.SetHelloID(utls.HelloFirefox_99) }
-func (j *ja3) Firefox102() *Options       { return j.SetHelloID(utls.HelloFirefox_102) }
-func (j *ja3) Firefox105() *Options       { return j.SetHelloID(utls.HelloFirefox_105) }
-func (j *ja3) Firefox120() *Options       { return j.SetHelloID(utls.HelloFirefox_120) }
-func (j *ja3) IOS() *Options              { return j.SetHelloID(utls.HelloIOS_Auto) }
-func (j *ja3) IOS11() *Options            { return j.SetHelloID(utls.HelloIOS_11_1) }
-func (j *ja3) IOS12() *Options            { return j.SetHelloID(utls.HelloIOS_12_1) }
-func (j *ja3) IOS13() *Options            { return j.SetHelloID(utls.HelloIOS_13) }
-func (j *ja3) IOS14() *Options            { return j.SetHelloID(utls.HelloIOS_14) }
-func (j *ja3) Randomized() *Options       { return j.SetHelloID(utls.HelloRandomized) }
-func (j *ja3) RandomizedALPN() *Options   { return j.SetHelloID(utls.HelloRandomizedALPN) }
-func (j *ja3) RandomizedNoALPN() *Options { return j.SetHelloID(utls.HelloRandomizedNoALPN) }
-func (j *ja3) Safari() *Options           { return j.SetHelloID(utls.HelloSafari_Auto) }
+func (j *ja3) Android() *builder          { return j.SetHelloID(utls.HelloAndroid_11_OkHttp) }
+func (j *ja3) Chrome() *builder           { return j.SetHelloID(utls.HelloChrome_Auto) }
+func (j *ja3) Chrome58() *builder         { return j.SetHelloID(utls.HelloChrome_58) }
+func (j *ja3) Chrome62() *builder         { return j.SetHelloID(utls.HelloChrome_62) }
+func (j *ja3) Chrome70() *builder         { return j.SetHelloID(utls.HelloChrome_70) }
+func (j *ja3) Chrome72() *builder         { return j.SetHelloID(utls.HelloChrome_72) }
+func (j *ja3) Chrome83() *builder         { return j.SetHelloID(utls.HelloChrome_83) }
+func (j *ja3) Chrome87() *builder         { return j.SetHelloID(utls.HelloChrome_87) }
+func (j *ja3) Chrome96() *builder         { return j.SetHelloID(utls.HelloChrome_96) }
+func (j *ja3) Chrome100() *builder        { return j.SetHelloID(utls.HelloChrome_100) }
+func (j *ja3) Chrome102() *builder        { return j.SetHelloID(utls.HelloChrome_102) }
+func (j *ja3) Chrome106() *builder        { return j.SetHelloID(utls.HelloChrome_106_Shuffle) }
+func (j *ja3) Chrome120() *builder        { return j.SetHelloID(utls.HelloChrome_120) }
+func (j *ja3) Chrome120PQ() *builder      { return j.SetHelloID(utls.HelloChrome_120_PQ) }
+func (j *ja3) Edge() *builder             { return j.SetHelloID(utls.HelloEdge_85) }
+func (j *ja3) Edge85() *builder           { return j.SetHelloID(utls.HelloEdge_85) }
+func (j *ja3) Edge106() *builder          { return j.SetHelloID(utls.HelloEdge_106) }
+func (j *ja3) Firefox() *builder          { return j.SetHelloID(utls.HelloFirefox_Auto) }
+func (j *ja3) Firefox55() *builder        { return j.SetHelloID(utls.HelloFirefox_55) }
+func (j *ja3) Firefox56() *builder        { return j.SetHelloID(utls.HelloFirefox_56) }
+func (j *ja3) Firefox63() *builder        { return j.SetHelloID(utls.HelloFirefox_63) }
+func (j *ja3) Firefox65() *builder        { return j.SetHelloID(utls.HelloFirefox_65) }
+func (j *ja3) Firefox99() *builder        { return j.SetHelloID(utls.HelloFirefox_99) }
+func (j *ja3) Firefox102() *builder       { return j.SetHelloID(utls.HelloFirefox_102) }
+func (j *ja3) Firefox105() *builder       { return j.SetHelloID(utls.HelloFirefox_105) }
+func (j *ja3) Firefox120() *builder       { return j.SetHelloID(utls.HelloFirefox_120) }
+func (j *ja3) IOS() *builder              { return j.SetHelloID(utls.HelloIOS_Auto) }
+func (j *ja3) IOS11() *builder            { return j.SetHelloID(utls.HelloIOS_11_1) }
+func (j *ja3) IOS12() *builder            { return j.SetHelloID(utls.HelloIOS_12_1) }
+func (j *ja3) IOS13() *builder            { return j.SetHelloID(utls.HelloIOS_13) }
+func (j *ja3) IOS14() *builder            { return j.SetHelloID(utls.HelloIOS_14) }
+func (j *ja3) Randomized() *builder       { return j.SetHelloID(utls.HelloRandomized) }
+func (j *ja3) RandomizedALPN() *builder   { return j.SetHelloID(utls.HelloRandomizedALPN) }
+func (j *ja3) RandomizedNoALPN() *builder { return j.SetHelloID(utls.HelloRandomizedNoALPN) }
+func (j *ja3) Safari() *builder           { return j.SetHelloID(utls.HelloSafari_Auto) }

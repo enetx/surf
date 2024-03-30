@@ -14,16 +14,20 @@ func main() {
 		} `json:"headers"`
 	}
 
-	opt := surf.NewOptions().ContentType("secret/content-type")
+	r := surf.NewClient().
+		Builder().
+		ContentType("secret/content-type").
+		Build().
+		Get("https://httpbingo.org/get").
+		Do()
 
-	r, err := surf.NewClient().SetOptions(opt).Get("https://httpbingo.org/get").Do()
-	if err != nil {
-		log.Fatal(err)
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	var contentType ContentType
 
-	r.Body.JSON(&contentType)
+	r.Ok().Body.JSON(&contentType)
 
 	fmt.Println(contentType.Headers.ContentType)
 }

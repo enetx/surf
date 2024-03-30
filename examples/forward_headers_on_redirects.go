@@ -8,16 +8,17 @@ import (
 )
 
 func main() {
-	opt := surf.NewOptions().ForwardHeadersOnRedirect()
-
-	r, err := surf.NewClient().
-		SetOptions(opt).
+	r := surf.NewClient().
+		Builder().
+		ForwardHeadersOnRedirect().
+		Build().
 		Get("google.com").
 		AddHeaders(map[string]string{"Referer": "surf.xoxo"}).
 		Do()
-	if err != nil {
-		log.Fatal(err)
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Referer())
+	fmt.Println(r.Ok().Referer())
 }

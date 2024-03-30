@@ -14,18 +14,22 @@ func main() {
 		} `json:"headers"`
 	}
 
-	URL := "https://httpbingo.org/headers"
+	url := "https://httpbingo.org/headers"
 
-	opt := surf.NewOptions().BasicAuth("root:toor").BearerAuth("bearer").CacheBody()
+	cli := surf.NewClient().Builder().
+		BasicAuth("root:toor").
+		BearerAuth("bearer").
+		CacheBody().
+		Build()
 
-	r, err := surf.NewClient().SetOptions(opt).Get(URL).Do()
-	if err != nil {
-		log.Fatal(err)
+	r := cli.Get(url).Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	var headers Headers
 
-	r.Body.JSON(&headers)
+	r.Ok().Body.JSON(&headers)
 
 	fmt.Println(headers.Headers.Authorization)
 }

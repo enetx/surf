@@ -14,20 +14,22 @@ func main() {
 	c1 := &http.Cookie{Name: "root1", Value: "cookie1"}
 	c2 := &http.Cookie{Name: "root2", Value: "cookie2"}
 
-	r, _ := surf.NewClient().
-		SetOptions(surf.NewOptions().Session()).
+	r := surf.NewClient().
+		Builder().
+		Session().
+		Build().
 		Get(URL).
 		AddCookies(c1, c2).
 		Do()
 
-	r.Debug().Request().Response(true).Print()
+	r.Ok().Debug().Request().Response(true).Print()
 
 	// set cookie after first request
-	r.SetCookies(URL, []*http.Cookie{{Name: "root", Value: "cookie"}})
+	r.Ok().SetCookies(URL, []*http.Cookie{{Name: "root", Value: "cookie"}})
 
-	r, _ = r.Get(URL).Do()
-	r.Debug().Request().Response(true).Print()
+	r = r.Ok().Get(URL).Do()
+	r.Ok().Debug().Request().Response(true).Print()
 
-	fmt.Println(r.GetCookies(URL)) // request url cookies
-	fmt.Println(r.Cookies)
+	fmt.Println(r.Ok().GetCookies(URL)) // request url cookies
+	fmt.Println(r.Ok().Cookies)
 }

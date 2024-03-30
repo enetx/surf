@@ -11,18 +11,18 @@ import (
 func main() {
 	dURL := "https://jsoncompare.org/LearningContainer/SampleFiles/Video/MP4/Sample-Video-File-For-Testing.mp4"
 
-	r, err := surf.NewClient().Get(dURL).Do()
+	r := surf.NewClient().Get(dURL).Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
+	}
+
+	url, err := url.ParseRequestURI(dURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	URL, err := url.ParseRequestURI(dURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	r.Body.Dump(path.Base(URL.Path))
+	r.Ok().Body.Dump(path.Base(url.Path))
 
 	// or
-	// r.Body.Dump("/home/user/some_file.zip")
+	// r.Ok().Body.Dump("/home/user/some_file.zip")
 }

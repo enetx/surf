@@ -14,13 +14,11 @@ func main() {
 	url := "juliogroup.uk" // 101 proxy
 	// url := "bompreco.cloud" // 101 websocket
 
-	opt := surf.NewOptions()
-
-	r, err := surf.NewClient().SetOptions(opt).Get(url).Do()
-	if err != nil {
-		fmt.Println(err)
+	r := surf.NewClient().Get(url).Do()
+	if r.IsErr() {
+		fmt.Println(r.Err())
 		return
 	}
 
-	r.Debug().Request(true).Response().Print()
+	r.Ok().Debug().Request(true).Response().Print()
 }

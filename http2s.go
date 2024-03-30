@@ -5,10 +5,10 @@ import (
 	"github.com/enetx/http2"
 )
 
-// http2s represents HTTP/2 settings for configuring an Options object.
+// http2s represents HTTP/2 settings.
 // https://lwthiker.com/networks/2022/06/17/http2-fingerprinting.html
 type http2s struct {
-	opt                  *Options
+	builder              *builder
 	priorityFrames       []http2.PriorityFrame
 	priorityParam        http2.PriorityParam
 	headerTableSize      uint32
@@ -76,15 +76,14 @@ func (h *http2s) PriorityFrames(priorityFrames []http2.PriorityFrame) *http2s {
 	return h
 }
 
-// Set applies the accumulated HTTP/2 settings to the Options object.
+// Set applies the accumulated HTTP/2 settings.
 // It configures the HTTP/2 settings for the surf client.
-// It returns the Options object with the applied settings.
-func (h *http2s) Set() *Options {
-	if h.opt.forseHTTP1 {
-		return h.opt
+func (h *http2s) Set() *builder {
+	if h.builder.forseHTTP1 {
+		return h.builder
 	}
 
-	return h.opt.addcliMW(0, func(c *Client) {
+	return h.builder.addCliMW(0, func(c *Client) {
 		t1, ok := c.GetTransport().(*http.Transport)
 		if !ok {
 			return

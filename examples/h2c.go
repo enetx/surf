@@ -15,15 +15,13 @@ func main() {
 
 	go H2CServerUpgrade()
 
-	opt := surf.NewOptions().H2C()
-
-	r, err := surf.NewClient().SetOptions(opt).Get("http://localhost:1010").Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().Builder().H2C().Build().Get("http://localhost:1010").Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	fmt.Println()
-	r.Debug().Request(true).Response(true).Print()
+	r.Ok().Debug().Request(true).Response(true).Print()
 }
 
 func H2CServerUpgrade() {

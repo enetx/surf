@@ -17,7 +17,7 @@ func main() {
 		"your-message":            "message",
 	}
 
-	r, _ := surf.NewClient().Multipart("http://google.com", multipartData).Do()
+	r := surf.NewClient().Multipart("http://google.com", multipartData).Do().Unwrap()
 	r.Debug().Request(true).Print()
 	r.Body.Close()
 }

@@ -14,7 +14,7 @@ func main() {
 	// transport custom settings
 	cli.GetTransport().(*http.Transport).TLSHandshakeTimeout = time.Nanosecond
 
-	_, err := cli.Get("https://google.com").Do()
+	err := cli.Get("https://google.com").Do().Err()
 	if err != nil {
 		log.Fatal(err)
 	}

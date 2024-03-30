@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/enetx/surf"
 )
 
 func main() {
 	// to get remote server ip address
-	opt := surf.NewOptions().GetRemoteAddress()
+	cli := surf.NewClient().Builder().GetRemoteAddress().Build()
 
-	r, err := surf.NewClient().SetOptions(opt).Get("ya.ru").Do()
-	if err != nil {
-		log.Fatal(err)
+	r := cli.Get("ya.ru").Do()
+	if r.IsErr() {
+		fmt.Println(r.Err())
+		return
 	}
 
-	fmt.Println(r.RemoteAddress())
+	fmt.Println(r.Ok().RemoteAddress())
 }

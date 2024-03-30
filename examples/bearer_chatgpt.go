@@ -61,17 +61,20 @@ func Completions(msg string) (string, error) {
 		BestOf:           5,
 	}
 
-	opt := surf.NewOptions().BearerAuth(APIKEY)
+	r := surf.NewClient().
+		Builder().
+		BearerAuth(APIKEY).
+		Build().
+		Post(BASEURL+"completions", requestBody).
+		Do()
 
-	r, err := surf.NewClient().SetOptions(opt).Post(BASEURL+"completions", requestBody).Do()
-	if err != nil {
-		return "", err
+	if r.IsErr() {
+		return "", r.Err()
 	}
 
 	var gptResponseBody ChatGPTResponseBody
 
-	err = r.Body.JSON(&gptResponseBody)
-	if err != nil {
+	if err := r.Ok().Body.JSON(&gptResponseBody); err != nil {
 		return "", err
 	}
 

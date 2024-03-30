@@ -17,15 +17,15 @@ func main() {
 		headers `json:"headers"`
 	}
 
-	r, err := surf.NewClient().Get("http://httpbingo.org/get").Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().Get("http://httpbingo.org/get").Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	var get Get
 
-	r.Body.JSON(&get)
+	r.Ok().Body.JSON(&get)
 
 	fmt.Println(get.headers.UserAgent.Get(0))
-	fmt.Println(r.UserAgent)
+	fmt.Println(r.Ok().UserAgent)
 }

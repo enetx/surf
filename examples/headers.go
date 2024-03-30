@@ -15,26 +15,26 @@ func main() {
 		} `json:"headers"`
 	}
 
-	URL := "https://httpbingo.org/headers"
+	url := "https://httpbingo.org/headers"
 
 	h1 := map[string]string{"Referer": "Hell"}
 	// h2 := map[string]string{"Referer": "Paradise"}
 
-	req := surf.NewClient().Get(URL).SetHeaders(h1) //.AddHeaders(h2)
+	req := surf.NewClient().Get(url).SetHeaders(h1) //.AddHeaders(h2)
 	req.GetRequest().Header.Add("Referer", "Paradise")
 
-	r, err := req.Do()
-	if err != nil {
-		log.Fatal(err)
+	r := req.Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
 	var headers Headers
 
-	r.Body.JSON(&headers)
+	r.Ok().Body.JSON(&headers)
 
 	fmt.Println(headers.Headers.Referer)
-	fmt.Println(r.Referer()) // return first only
+	fmt.Println(r.Ok().Referer()) // return first only
 
-	fmt.Println(r.Headers)
-	fmt.Println(r.Headers.Values("date"))
+	fmt.Println(r.Ok().Headers)
+	fmt.Println(r.Ok().Headers.Values("date"))
 }

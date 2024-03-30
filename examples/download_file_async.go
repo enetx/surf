@@ -19,16 +19,16 @@ import (
 func main() {
 	dURL := "https://jsoncompare.org/LearningContainer/SampleFiles/Video/MP4/Sample-Video-File-For-Testing.mp4"
 
-	r, err := surf.NewClient().Head(dURL).Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().Head(dURL).Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	if r.Headers.Get("Accept-Ranges") != "bytes" {
+	if r.Ok().Headers.Get("Accept-Ranges") != "bytes" {
 		log.Fatal("Doesn't support header 'Accept-Ranges'.")
 	}
 
-	fileSize, err := strconv.Atoi(r.Headers.Get("Content-Length"))
+	fileSize, err := strconv.Atoi(r.Ok().Headers.Get("Content-Length"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,13 +67,16 @@ func main() {
 				"Range": "bytes=" + strconv.Itoa(min) + "-" + strconv.Itoa(max-1),
 			}
 
-			r, err := surf.NewClient().
-				SetOptions(surf.NewOptions().Retry(10, time.Second*2)).
+			r := surf.NewClient().
+				Builder().
+				Retry(10, time.Second*2).
+				Build().
 				Get(dURL).
 				AddHeaders(headers).
 				Do()
-			if err != nil {
-				setWriteErr(err)
+
+			if r.IsErr() {
+				setWriteErr(r.Err())
 				return
 			}
 
@@ -83,7 +86,7 @@ func main() {
 				return
 			}
 
-			err = r.Body.Dump(tmpFile.Name())
+			err = r.Ok().Body.Dump(tmpFile.Name())
 			if err != nil {
 				setWriteErr(err)
 				return

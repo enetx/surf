@@ -8,15 +8,16 @@ import (
 )
 
 func main() {
-	r, err := surf.NewClient().
-		// SetOptions(surf.NewOptions().ForceHTTP1()).
+	r := surf.NewClient().
+		// Builder().ForceHTTP1().Build().
 		Get("https://tls.peet.ws/api/all").
 		Do()
-	if err != nil {
-		log.Fatal(err)
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Proto)
+	fmt.Println(r.Ok().Proto)
 
-	r.Debug().Request().Response(true).Print()
+	r.Ok().Debug().Request().Response(true).Print()
 }

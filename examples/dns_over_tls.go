@@ -8,27 +8,28 @@ import (
 )
 
 func main() {
-	opt := surf.NewOptions()
+	r := surf.NewClient().
+		Builder().
+		DNSOverTLS().
+		Google().
+		// Switch().
+		// Cloudflare().
+		// LibreDNS().
+		// Quad9().
+		// AdGuard().
+		// CIRAShield().
+		// Ali().
+		// Quad101().
+		// SB().
+		// Forge().
+		// AddProvider("dns.provider.com", "0.0.0.0:853", "2.2.2.2:853"). // custom dns provider
+		Build().
+		Get("https://tls.peet.ws/api/all").
+		Do()
 
-	opt.DNSOverTLS().Google()
-	// opt.DNSOverTLS().Switch()
-	// opt.DNSOverTLS().Cloudflare()
-	// opt.DNSOverTLS().LibreDNS()
-	// opt.DNSOverTLS().Quad9()
-	// opt.DNSOverTLS().AdGuard()
-	// opt.DNSOverTLS().CIRAShield()
-	// opt.DNSOverTLS().Ali()
-	// opt.DNSOverTLS().Quad101()
-	// opt.DNSOverTLS().SB()
-	// opt.DNSOverTLS().Forge()
-
-	// custom dns provider
-	// opt.DNSOverTLS().AddProvider("dns.provider.com", "0.0.0.0:853", "2.2.2.2:853")
-
-	r, err := surf.NewClient().SetOptions(opt).Get("https://tls.peet.ws/api/all").Do()
-	if err != nil {
-		log.Fatal(err)
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.String())
+	fmt.Println(r.Ok().Body.String())
 }

@@ -8,10 +8,10 @@ import (
 )
 
 func main() {
-	r, err := surf.NewClient().Get("http://httpbingo.org/get").Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().Get("http://httpbingo.org/get").Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.Limit(10).String())
+	fmt.Println(r.Ok().Body.Limit(10).String())
 }

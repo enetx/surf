@@ -11,27 +11,26 @@ func main() {
 	// http2.VerboseLogs = true // http2 logs
 
 	// url := "https://www.moscowbooks.ru"
-	// url := "https://tls.peet.ws/api/all"
-	url := "https://chat.openai.com/api/auth/csrf"
+	url := "https://tls.peet.ws/api/all"
+	// url := "https://chat.openai.com/api/auth/csrf"
 	// url := "https://chat.openai.com/auth/login"
 	// url := "https://www.facebook.com"
 
-	opt := surf.NewOptions()
+	r := surf.NewClient().
+		Builder().
+		// Proxy("http://127.0.0.1:2080").
+		// Proxy("socks5://127.0.0.1:2080").
+		Impersonate().
+		Chrome().
+		Build().
+		Get(url).
+		Do()
 
-	opt.
-		// Proxy("http://127.0.0.1:2080")
-		Proxy("socks5://127.0.0.1:2080")
-
-	opt.Impersonate().
-		// Chrome()
-		FireFox()
-
-	r, err := surf.NewClient().SetOptions(opt).Get(url).Do()
-	if err != nil {
-		log.Fatal(err)
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Time)
+	fmt.Println(r.Ok().Time)
 
-	r.Debug().Request().Response(true).Print()
+	r.Ok().Debug().Request().Response(true).Print()
 }

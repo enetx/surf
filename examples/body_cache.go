@@ -8,14 +8,17 @@ import (
 )
 
 func main() {
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().CacheBody()).
+	r := surf.NewClient().
+		Builder().
+		CacheBody().
+		Build().
 		Get("http://httpbingo.org/get").
 		Do()
-	if err != nil {
-		log.Fatal(err)
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.Limit(10).String())
-	fmt.Println(r.Body.String()) // print cached body
+	fmt.Println(r.Ok().Body.Limit(10).String())
+	fmt.Println(r.Ok().Body.String()) // print cached body
 }

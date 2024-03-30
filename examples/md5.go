@@ -8,10 +8,10 @@ import (
 )
 
 func main() {
-	r, err := surf.NewClient().Get("http://google.com").Do()
-	if err != nil {
-		log.Fatal(err)
+	r := surf.NewClient().Get("http://google.com").Do()
+	if r.IsErr() {
+		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Body.MD5())
+	fmt.Println(r.Ok().Body.MD5())
 }

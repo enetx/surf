@@ -13,29 +13,33 @@ func main() {
 		IP    string `json:"IP"`
 	}
 
-	URL := "https://check.torproject.org/api/ip"
+	url := "https://check.torproject.org/api/ip"
 
 	// for random select proxy from slice
-	r, err := surf.NewClient().
-		SetOptions(surf.NewOptions().Proxy([]string{
+	r := surf.NewClient().
+		Builder().
+		Proxy([]string{
 			"socks5://127.0.0.1:9050",
 			"socks5://127.0.0.1:9050",
-		})).
-		Get(URL).
+		}).
+		Build().
+		Get(url).
 		Do()
-		// r, err := surf.NewClient().
-		// 	SetOptions(surf.NewOptions().Proxy("http://127.0.0.1:8080")).
-		// 	Get(URL).
-		// 	Do()
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	// fmt.Println(r.Body)
+	// r := surf.NewClient().
+	// 	Builder().
+	// 	Proxy("http://127.0.0.1:8080").
+	// 	Build().
+	// 	Get(url).
+	// 	Do()
+
+	if r.IsErr() {
+		log.Fatal(r.Err())
+	}
 
 	var proxy Proxy
 
-	r.Body.JSON(&proxy)
+	r.Ok().Body.JSON(&proxy)
 
 	fmt.Printf("is tor: %v, ip: %s", proxy.ISTor, proxy.IP)
 }

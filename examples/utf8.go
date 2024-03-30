@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	r, _ := surf.NewClient().Get("https://httpbingo.org/encoding/utf8").Do()
+	r := surf.NewClient().Get("https://httpbingo.org/encoding/utf8").Do().Unwrap()
 	fmt.Println(r.Body.String())
 
-	r, _ = surf.NewClient().Get("http://vk.com").Do()
+	r = surf.NewClient().Get("http://vk.com").Do().Unwrap()
 	fmt.Println(r.Body.UTF8())
 }
