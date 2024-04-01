@@ -36,6 +36,8 @@ func main() {
 				log.Fatal(r.Err())
 			}
 
+			defer r.Ok().Release()
+
 			r.Ok().Debug().Response().Print()
 			fmt.Println()
 		}(url)

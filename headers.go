@@ -8,14 +8,14 @@ import (
 	"github.com/enetx/http"
 )
 
-// headers represents a collection of HTTP headers.
-type headers http.Header
+// Headers represents a collection of HTTP Headers.
+type Headers http.Header
 
 // Contains checks if the header contains any of the specified patterns.
 // It accepts a header name and a pattern (or list of patterns) and returns a boolean value
 // indicating whether any of the patterns are found in the header values.
 // The patterns can be a string, a slice of strings, or a slice of *regexp.Regexp.
-func (h headers) Contains(header string, patterns any) bool {
+func (h Headers) Contains(header string, patterns any) bool {
 	if h.Values(header) != nil {
 		for _, value := range h.Values(header) {
 			v := g.String(value).Lower()
@@ -42,8 +42,8 @@ func (h headers) Contains(header string, patterns any) bool {
 
 // Values returns the values associated with a specified header key.
 // It wraps the Values method from the textproto.MIMEHeader type.
-func (h headers) Values(key string) []string { return textproto.MIMEHeader(h).Values(key) }
+func (h Headers) Values(key string) []string { return textproto.MIMEHeader(h).Values(key) }
 
 // Get returns the first value associated with a specified header key.
 // It wraps the Get method from the textproto.MIMEHeader type.
-func (h headers) Get(key string) string { return textproto.MIMEHeader(h).Get(key) }
+func (h Headers) Get(key string) string { return textproto.MIMEHeader(h).Get(key) }

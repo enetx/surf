@@ -15,16 +15,49 @@ type Response struct {
 	remoteAddr    net.Addr       // Remote network address.
 	URL           *url.URL       // URL of the response.
 	response      *http.Response // Underlying http.Response.
-	Body          *body          // Response body.
+	Body          *Body          // Response body.
 	request       *Request       // Corresponding request.
-	Headers       headers        // Response headers.
+	Headers       Headers        // Response headers.
 	UserAgent     string         // User agent string.
 	Proto         string         // HTTP protocol version.
-	Cookies       cookies        // Response cookies.
+	Cookies       Cookies        // Response cookies.
 	Time          time.Duration  // Total time taken for the response.
 	ContentLength int64          // Length of the response content.
-	StatusCode                   // HTTP status code.
+	StatusCode    StatusCode     // HTTP status code.
 	Attempts      int            // Number of attempts made.
+}
+
+// newResponse creates a new Response instance from the response pool.
+func newResponse() *Response { return responsePool.Get().(*Response) }
+
+// Release releases the Response object back to the response pool.
+func (resp *Response) Release() {
+	resp.reset()
+	responsePool.Put(resp)
+}
+
+// reset resets the fields of the Response instance to their default values or nil.
+func (resp *Response) reset() {
+	// Release and reset the body
+	resp.Body.release()
+	resp.Body = nil
+
+	// Release and reset the request
+	resp.request.release()
+	resp.request = nil
+
+	// Reset other fields
+	resp.remoteAddr = nil
+	resp.URL = nil
+	resp.response = nil
+	resp.Headers = nil
+	resp.UserAgent = ""
+	resp.Proto = ""
+	resp.Cookies = nil
+	resp.Time = 0
+	resp.ContentLength = 0
+	resp.StatusCode = 0
+	resp.Attempts = 0
 }
 
 // GetResponse returns the underlying http.Response of the custom response.

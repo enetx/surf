@@ -24,6 +24,25 @@ type Request struct {
 	headersKeys g.Slice[string] // Order headers.
 }
 
+// newRequest creates a new Request instance from the request pool.
+func newRequest() *Request { return requestPool.Get().(*Request) }
+
+// release releases the Request instance back to the request pool.
+func (req *Request) release() {
+	req.reset()
+	requestPool.Put(req)
+}
+
+// reset resets the fields of the Request instance to their default values or nil.
+func (req *Request) reset() {
+	req.request = nil
+	req.werr = nil
+	req.err = nil
+	req.remoteAddr = nil
+	req.body = nil
+	req.headersKeys = nil
+}
+
 // GetRequest returns the underlying http.Request of the custom request.
 func (req *Request) GetRequest() *http.Request { return req.request }
 
@@ -79,7 +98,7 @@ retry:
 		Client:        req.cli,
 		ContentLength: resp.ContentLength,
 		Cookies:       resp.Cookies(),
-		Headers:       headers(resp.Header),
+		Headers:       Headers(resp.Header),
 		Proto:         resp.Proto,
 		StatusCode:    StatusCode(resp.StatusCode),
 		URL:           resp.Request.URL,
@@ -90,12 +109,11 @@ retry:
 	}
 
 	if req.request.Method != http.MethodHead {
-		response.Body = &body{
-			Reader:      resp.Body,
-			cache:       builder != nil && builder.cacheBody,
-			contentType: resp.Header.Get(header.CONTENT_TYPE),
-			limit:       -1,
-		}
+		response.Body = newBody()
+		response.Body.Reader = resp.Body
+		response.Body.cache = builder != nil && builder.cacheBody
+		response.Body.contentType = resp.Header.Get(header.CONTENT_TYPE)
+		response.Body.limit = -1
 	}
 
 	if err := req.cli.applyRespMW(response); err != nil {

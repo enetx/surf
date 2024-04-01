@@ -116,7 +116,7 @@ func (c *Client) Builder() *builder {
 // The raw parameter should contain the raw HTTP request data as a string.
 // The scheme parameter specifies the scheme (e.g., http, https) for the request.
 func (c *Client) Raw(raw, scheme string) *Request {
-	request := new(Request)
+	request := newRequest()
 
 	req, err := http.ReadRequest(bufio.NewReader(g.String(raw).TrimSpace().Add("\n\n").Reader()))
 	if err != nil {
@@ -202,7 +202,7 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath string, data ...any) *Re
 		}
 	}
 
-	request := new(Request)
+	request := newRequest()
 
 	if reader == nil {
 		file, err = os.Open(filePath)
@@ -267,7 +267,7 @@ func (c *Client) Multipart(rawURL string, multipartValues map[string]string) *Re
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
 
-	request := new(Request)
+	request := newRequest()
 
 	for field, value := range multipartValues {
 		formWriter, err := writer.CreateFormField(field)
@@ -338,7 +338,7 @@ func (c *Client) setCookies(rawURL string, cookies []*http.Cookie) error {
 func (c *Client) buildRequest(rawURL, methodType string, data any) *Request {
 	rawURL = urlFormatter(rawURL)
 
-	request := new(Request)
+	request := newRequest()
 
 	body, contentType, err := buildBody(data)
 	if err != nil {

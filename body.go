@@ -11,8 +11,8 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-// body represents the content and properties of an HTTP response body.
-type body struct {
+// Body represents the content and properties of an HTTP response Body.
+type Body struct {
 	Reader      io.ReadCloser // ReadCloser for accessing the body content.
 	contentType string        // Content type of the body.
 	content     g.Bytes       // Content of the body as Bytes.
@@ -20,17 +20,35 @@ type body struct {
 	cache       bool          // Indicates if the body is cacheable.
 }
 
+// newBody returns a pointer to a new body instance.
+func newBody() *Body { return bodyPool.Get().(*Body) }
+
+// release releases the body back to the pool for reuse.
+func (b *Body) release() {
+	b.reset()
+	bodyPool.Put(b)
+}
+
+// reset resets the body's fields to their default values.
+func (b *Body) reset() {
+	b.Reader = nil
+	b.contentType = ""
+	b.content = nil
+	b.limit = 0
+	b.cache = false
+}
+
 // MD5 returns the MD5 hash of the body's content as a HString.
-func (b *body) MD5() g.String { return b.String().Hash().MD5() }
+func (b *Body) MD5() g.String { return b.String().Hash().MD5() }
 
 // XML decodes the body's content as XML into the provided data structure.
-func (b *body) XML(data any) error { return b.String().Dec().XML(data).Err() }
+func (b *Body) XML(data any) error { return b.String().Dec().XML(data).Err() }
 
 // JSON decodes the body's content as JSON into the provided data structure.
-func (b *body) JSON(data any) error { return b.String().Dec().JSON(data).Err() }
+func (b *Body) JSON(data any) error { return b.String().Dec().JSON(data).Err() }
 
 // Stream returns the body's bufio.Reader for streaming the content.
-func (b *body) Stream() *bufio.Reader {
+func (b *Body) Stream() *bufio.Reader {
 	if b == nil || b.Reader == nil {
 		return nil
 	}
@@ -39,10 +57,10 @@ func (b *body) Stream() *bufio.Reader {
 }
 
 // String returns the body's content as a g.String.
-func (b *body) String() g.String { return b.Bytes().ToString() }
+func (b *Body) String() g.String { return b.Bytes().ToString() }
 
 // Limit sets the body's size limit and returns the modified body.
-func (b *body) Limit(limit int64) *body {
+func (b *Body) Limit(limit int64) *Body {
 	if b != nil {
 		b.limit = limit
 	}
@@ -51,7 +69,7 @@ func (b *body) Limit(limit int64) *body {
 }
 
 // Close closes the body and returns any error encountered.
-func (b *body) Close() error {
+func (b *Body) Close() error {
 	if b == nil || b.Reader == nil {
 		return errors.New("cannot close: body is empty or contains no content")
 	}
@@ -64,7 +82,7 @@ func (b *body) Close() error {
 }
 
 // UTF8 converts the body's content to UTF-8 encoding and returns it as a string.
-func (b *body) UTF8() g.String {
+func (b *Body) UTF8() g.String {
 	if b == nil {
 		return ""
 	}
@@ -83,7 +101,7 @@ func (b *body) UTF8() g.String {
 }
 
 // Bytes returns the body's content as a byte slice.
-func (b *body) Bytes() g.Bytes {
+func (b *Body) Bytes() g.Bytes {
 	if b == nil {
 		return nil
 	}
@@ -117,7 +135,7 @@ func (b *body) Bytes() g.Bytes {
 }
 
 // Dump dumps the body's content to a file with the given filename.
-func (b *body) Dump(filename string) error {
+func (b *Body) Dump(filename string) error {
 	if b == nil || b.Reader == nil {
 		return errors.New("cannot dump: body is empty or contains no content")
 	}
@@ -129,7 +147,7 @@ func (b *body) Dump(filename string) error {
 
 // Contains checks if the body's content contains the provided pattern (byte slice, string, or
 // *regexp.Regexp) and returns a boolean.
-func (b *body) Contains(pattern any) bool {
+func (b *Body) Contains(pattern any) bool {
 	switch p := pattern.(type) {
 	case []byte:
 		return b.Bytes().Lower().Contains(g.Bytes(p).Lower())
