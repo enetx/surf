@@ -13,14 +13,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/enetx/g"
 	"github.com/enetx/surf"
 
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
 	"github.com/enetx/http2"
 	"github.com/enetx/http2/h2c"
-
-	"github.com/andybalholm/brotli"
 )
 
 func TestH2C(t *testing.T) {
@@ -278,13 +277,8 @@ func TestBrotli(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		buf := &bytes.Buffer{}
-		w2 := brotli.NewWriter(buf)
-		w2.Write([]byte("OK"))
-		w2.Close()
-
 		w.Header().Set("Content-Encoding", "br")
-		w.Write(buf.Bytes())
+		w.Write(g.NewString("OK").Comp().Brotli().ToBytes())
 	}))
 
 	defer ts.Close()
@@ -296,6 +290,27 @@ func TestBrotli(t *testing.T) {
 	}
 
 	if !r.Ok().Body.Contains("OK") || !r.Ok().Body.Contains([]byte("OK")) {
+		t.Error()
+	}
+}
+
+func TestZstd(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Encoding", "zstd")
+		w.Write(g.NewString("hello from zstd").Comp().Zstd().ToBytes())
+	}))
+
+	defer ts.Close()
+
+	r := surf.NewClient().Builder().CacheBody().Build().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
+		return
+	}
+
+	if !r.Ok().Body.Contains("hello from zstd") || !r.Ok().Body.Contains([]byte("hello from zstd")) {
 		t.Error()
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/andybalholm/brotli"
 	"github.com/enetx/http"
 	"github.com/enetx/surf/header"
+	"github.com/klauspost/compress/zstd"
 )
 
 func closeIdleConnectionsMW(r *Response) error { r.cli.CloseIdleConnections(); return nil }
@@ -42,6 +43,13 @@ func decodeBodyMW(r *Response) error {
 		reader, err = gzip.NewReader(r.Body.Reader)
 	case "br":
 		reader = io.NopCloser(brotli.NewReader(r.Body.Reader))
+	case "zstd":
+		decoder, err := zstd.NewReader(r.Body.Reader)
+		if err != nil {
+			return err
+		}
+
+		reader = decoder.IOReadCloser()
 	}
 
 	if err == nil && reader != nil {

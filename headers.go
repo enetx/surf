@@ -47,3 +47,6 @@ func (h Headers) Values(key string) []string { return textproto.MIMEHeader(h).Va
 // Get returns the first value associated with a specified header key.
 // It wraps the Get method from the textproto.MIMEHeader type.
 func (h Headers) Get(key string) string { return textproto.MIMEHeader(h).Get(key) }
+
+// Clone returns a copy of Headers or nil if Headers is nil.
+func (h Headers) Clone() Headers { return Headers(http.Header(h).Clone()) }

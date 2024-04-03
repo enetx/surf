@@ -8,7 +8,7 @@ import (
 
 type impersonate struct{ builder *builder }
 
-// Chrome impersonates Chrome browser v.122.
+// Chrome impersonates Chrome browser v.123.
 func (im *impersonate) Chrome() *builder {
 	// "ja3_hash": random,
 	// "ja4": "t13d1516h2_8daaf6152771_b1ff8ab2d16f",
@@ -34,17 +34,17 @@ func (im *impersonate) Chrome() *builder {
 	//   ":authority: tls.peet.ws",
 	//   ":scheme: https",
 	//   ":path: /api/all",
-	//   "sec-ch-ua: \\\"Chromium\\\";v=\\\"122\\\", \\\"Not(A:Brand\\\";v=\\\"24\\\", \\\"Google Chrome\\\";v=\\\"122\\",
+	//   "sec-ch-ua: \\\"Google Chrome\\\";v=\\\"123\\\", \\\"Not:A-Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"123\\",
 	//   "sec-ch-ua-mobile: ?0",
 	//   "sec-ch-ua-platform: \\\"Windows\\",
 	//   "upgrade-insecure-requests: 1",
-	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
 	//   "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
 	//   "sec-fetch-site: none",
 	//   "sec-fetch-mode: navigate",
 	//   "sec-fetch-user: ?1",
 	//   "sec-fetch-dest: document",
-	//   "accept-encoding: gzip, deflate, br",
+	//   "accept-encoding: gzip, deflate, br, zstd",
 	//   "accept-language: en-US,en;q=0.9"
 	// ],
 
@@ -55,19 +55,19 @@ func (im *impersonate) Chrome() *builder {
 		Set(":scheme", "").
 		Set(":path", "").
 		Set(header.COOKIE, "").
-		Set(header.SEC_CH_UA, `"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"`).
+		Set(header.SEC_CH_UA, `"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"`).
 		Set(header.SEC_CH_UA_MOBILE, "?0").
 		Set(header.SEC_CH_UA_PLATFORM, `"Windows"`).
 		// Set(header.DNT, "1").
 		Set(header.UPGRADE_INSECURE_REQUESTS, "1").
-		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36").
+		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36").
 		Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7").
 		Set(header.SEC_FETCH_SITE, "none").
 		Set(header.SEC_FETCH_MODE, "navigate").
 		Set(header.SEC_FETCH_USER, "?1").
 		Set(header.SEC_FETCH_DEST, "document").
 		Set(header.REFERER, "").
-		Set(header.ACCEPT_ENCODING, "gzip, deflate, br").
+		Set(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd").
 		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
 
 	return im.setOptions(headers)
