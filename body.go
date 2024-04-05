@@ -8,6 +8,7 @@ import (
 	"regexp"
 
 	"github.com/enetx/g"
+	"github.com/enetx/surf/pkg/sse"
 	"golang.org/x/net/html/charset"
 )
 
@@ -55,6 +56,11 @@ func (b *Body) Stream() *bufio.Reader {
 
 	return bufio.NewReader(b.Reader)
 }
+
+// SSE reads the body's content as Server-Sent Events (SSE) and calls the provided function for each event.
+// It expects the function to take an *sse.Event pointer as its argument and return a boolean value.
+// If the function returns false, the SSE reading stops.
+func (b *Body) SSE(fn func(event *sse.Event) bool) error { return sse.Read(b.Stream(), fn) }
 
 // String returns the body's content as a g.String.
 func (b *Body) String() g.String { return b.Bytes().ToString() }
