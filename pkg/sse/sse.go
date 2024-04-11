@@ -54,7 +54,7 @@ func (e *Event) Skip() bool {
 func (e *Event) Done() bool { return e.Data.Eq("[DONE]") }
 
 // Read reads Server-Sent Events (SSE) from the provided reader and calls the provided function for each event.
-func Read(reader io.Reader, fn func(event *Event) bool) (err error) {
+func Read(reader io.Reader, fn func(event *Event) bool) error {
 	var event Event
 
 	scanner := bufio.NewScanner(reader)

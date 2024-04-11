@@ -15,12 +15,43 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/surf"
+	"github.com/enetx/surf/pkg/sse"
 
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
 	"github.com/enetx/http2"
 	"github.com/enetx/http2/h2c"
 )
+
+func TestSSE(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		fmt.Fprintf(w, "data: event 1\n\n")
+		fmt.Fprintf(w, "data: event 2\n\n")
+		fmt.Fprintf(w, "data: event 3\n\n")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	r := surf.NewClient().Get(ts.URL).Do()
+	if r.IsErr() {
+		t.Error(r.Err())
+		return
+	}
+
+	var i int
+
+	r.Ok().Body.SSE(func(event *sse.Event) bool {
+		i++
+		if !event.Data.Eq(g.Sprintf("event %d", i)) {
+			t.Errorf("unexpected event data: got %s", event.Data)
+		}
+		return true
+	})
+}
 
 func TestH2C(t *testing.T) {
 	t.Parallel()
