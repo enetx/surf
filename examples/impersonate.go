@@ -12,8 +12,7 @@ func main() {
 
 	// url := "https://www.moscowbooks.ru"
 	url := "https://tls.peet.ws/api/all"
-	// url := "https://chat.openai.com/api/auth/csrf"
-	// url := "https://chat.openai.com/auth/login"
+	// url := "https://mozilla-modern.badssl.com/"
 	// url := "https://www.facebook.com"
 
 	r := surf.NewClient().
@@ -21,8 +20,8 @@ func main() {
 		// Proxy("http://127.0.0.1:2080").
 		// Proxy("socks5://127.0.0.1:2080").
 		Impersonate().
-		// FireFox().
-		Chrome().
+		FireFox().
+		// Chrome().
 		Build().
 		Get(url).
 		Do()
