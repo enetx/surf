@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/enetx/g"
+	"github.com/enetx/g/cmp"
 	"github.com/enetx/http"
 )
 
@@ -32,7 +33,7 @@ type builder struct {
 // interface address, timeout, and redirect policy.
 func (b *builder) Build() *Client {
 	// sorting client middleware by priority
-	b.cliMWs.SortBy(func(a, b g.Pair[int, func(*Client)]) bool { return a.Key < b.Key })
+	b.cliMWs.SortBy(func(a, b g.Pair[int, func(*Client)]) cmp.Ordered { return cmp.Cmp(a.Key, b.Key) })
 	b.cliMWs.Iter().ForEach(func(_ int, m func(*Client)) { b.cli.applyCliMW(m) })
 
 	return b.cli
