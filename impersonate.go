@@ -73,7 +73,7 @@ func (im *impersonate) Chrome() *builder {
 	return im.setOptions(headers)
 }
 
-// Firefox impersonates Firefox browser v.124.
+// Firefox impersonates Firefox browser v.125.
 func (im *impersonate) FireFox() *builder {
 	priorityFrames := []http2.PriorityFrame{
 		{
@@ -151,7 +151,7 @@ func (im *impersonate) FireFox() *builder {
 	//   ":path: /api/all",
 	//   ":authority: tls.peet.ws",
 	//   ":scheme: https",
-	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
+	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
 	//   "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
 	//   "accept-language: en-US,en;q=0.5",
 	//   "accept-encoding: gzip, deflate, br",
@@ -170,7 +170,7 @@ func (im *impersonate) FireFox() *builder {
 		Set(":authority", "").
 		Set(":scheme", "").
 		Set(header.COOKIE, "").
-		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0").
+		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0").
 		Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8").
 		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5").
 		Set(header.ACCEPT_ENCODING, "gzip, deflate, br").

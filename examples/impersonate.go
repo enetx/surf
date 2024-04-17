@@ -20,8 +20,8 @@ func main() {
 		// Proxy("http://127.0.0.1:2080").
 		// Proxy("socks5://127.0.0.1:2080").
 		Impersonate().
-		FireFox().
-		// Chrome().
+		// FireFox().
+		Chrome().
 		Build().
 		Get(url).
 		Do()
