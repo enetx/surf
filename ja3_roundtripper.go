@@ -121,8 +121,6 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, err
 	}
 
-	spec = ja3c.ProcessSpec(spec)
-
 	if rt.ja3.builder.forseHTTP1 {
 		ja3c.SetAlpnProtocolToHTTP1(&spec)
 	}
@@ -138,7 +136,6 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 	}
 
 	conn := utls.UClient(rawConn, config, utls.HelloCustom)
-
 	if err = conn.ApplyPreset(&spec); err != nil {
 		_ = conn.Close()
 		return nil, err

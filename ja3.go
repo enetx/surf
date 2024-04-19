@@ -106,7 +106,11 @@ func (j *ja3) build() *builder {
 func (j *ja3) getSpec() (utls.ClientHelloSpec, error) {
 	switch {
 	case j.str != "":
-		return ja3c.CreateSpecWithStr(j.str)
+		spec, err := ja3c.CreateSpecWithStr(j.str)
+		if err != nil {
+			return utls.ClientHelloSpec{}, err
+		}
+		return ja3c.ProcessSpec(spec), nil
 	case !j.id.IsSet():
 		return utls.UTLSIdToSpec(j.id)
 	}

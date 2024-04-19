@@ -51,6 +51,7 @@ const (
 	MAX_FORWARDS                        = "max-forwards"
 	ORIGIN                              = "origin"
 	PRAGMA                              = "pragma"
+	PRIORITY                            = "priority"
 	PROXY_AUTHENTICATE                  = "proxy-authenticate"
 	PROXY_AUTHORIZATION                 = "proxy-authorization"
 	PUBLIC_KEY_PINS                     = "public-key-pins"

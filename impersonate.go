@@ -8,14 +8,15 @@ import (
 
 type impersonate struct{ builder *builder }
 
-// Chrome impersonates Chrome browser v.123.
+// Chrome impersonates Chrome browser v.124.
 func (im *impersonate) Chrome() *builder {
 	// "ja3_hash": random,
 	// "ja4": "t13d1516h2_8daaf6152771_b1ff8ab2d16f",
-	// "peetprint_hash": "8ad9325e12f531d2983b78860de7b0ec",
+	// "peetprint_hash": "b8ce945a4d9a7a9b5b6132e3658fe033", PQ
+	// "peetprint_hash": "8ad9325e12f531d2983b78860de7b0ec", no PQ
 	// "akamai_fingerprint_hash": "90224459f8bf70b7d0a8797eb916dbc9",
 
-	im.builder.JA3().Chrome().
+	im.builder.JA3().Chrome120PQ().
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		EnablePush(0).
@@ -34,18 +35,19 @@ func (im *impersonate) Chrome() *builder {
 	//   ":authority: tls.peet.ws",
 	//   ":scheme: https",
 	//   ":path: /api/all",
-	//   "sec-ch-ua: \\\"Google Chrome\\\";v=\\\"123\\\", \\\"Not:A-Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"123\\",
+	//   "sec-ch-ua: \\\"Chromium\\\";v=\\\"124\\\", \\\"Google Chrome\\\";v=\\\"124\\\", \\\"Not-A.Brand\\\";v=\\\"99\\",
 	//   "sec-ch-ua-mobile: ?0",
 	//   "sec-ch-ua-platform: \\\"Windows\\",
 	//   "upgrade-insecure-requests: 1",
-	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 	//   "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
 	//   "sec-fetch-site: none",
 	//   "sec-fetch-mode: navigate",
 	//   "sec-fetch-user: ?1",
 	//   "sec-fetch-dest: document",
 	//   "accept-encoding: gzip, deflate, br, zstd",
-	//   "accept-language: en-US,en;q=0.9"
+	//   "accept-language: en-US,en;q=0.9",
+	//   "priority: u=0, i"
 	// ],
 
 	headers := g.NewMapOrd[string, string]()
@@ -55,12 +57,11 @@ func (im *impersonate) Chrome() *builder {
 		Set(":scheme", "").
 		Set(":path", "").
 		Set(header.COOKIE, "").
-		Set(header.SEC_CH_UA, `"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"`).
+		Set(header.SEC_CH_UA, `"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"`).
 		Set(header.SEC_CH_UA_MOBILE, "?0").
 		Set(header.SEC_CH_UA_PLATFORM, `"Windows"`).
-		// Set(header.DNT, "1").
 		Set(header.UPGRADE_INSECURE_REQUESTS, "1").
-		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36").
+		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36").
 		Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7").
 		Set(header.SEC_FETCH_SITE, "none").
 		Set(header.SEC_FETCH_MODE, "navigate").
@@ -68,7 +69,8 @@ func (im *impersonate) Chrome() *builder {
 		Set(header.SEC_FETCH_DEST, "document").
 		Set(header.REFERER, "").
 		Set(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd").
-		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
+		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9").
+		Set(header.PRIORITY, "u=0, i")
 
 	return im.setOptions(headers)
 }
