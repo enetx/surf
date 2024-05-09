@@ -128,9 +128,9 @@ func (im *impersonate) FireFox() *builder {
 		},
 	}
 
-	// "ja3_hash": "ed3d2cb3d86125377f5a4d48e431af48",
-	// "ja4": "t13d1713h2_5b57614c22b0_0429eda30173",
-	// "peetprint_hash": "618e6b31ed28ba8b6ecd19f29fc8de50",
+	// "ja3_hash": "b5001237acdf006056b409cc433726b0",
+	// "ja4": "t13d1715h2_5b57614c22b0_93c746dc12af",
+	// "peetprint_hash": "b9c611f928c8c1f20c414a48c66abf27",
 	// "akamai_fingerprint_hash": "fd4f649c50a64e33cc9e2407055bafbe",
 
 	im.builder.JA3().Firefox().
