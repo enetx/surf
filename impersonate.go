@@ -153,15 +153,16 @@ func (im *impersonate) FireFox() *builder {
 	//   ":path: /api/all",
 	//   ":authority: tls.peet.ws",
 	//   ":scheme: https",
-	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
+	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
 	//   "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
 	//   "accept-language: en-US,en;q=0.5",
-	//   "accept-encoding: gzip, deflate, br",
+	//   "accept-encoding: gzip, deflate, br, zstd",
 	//   "upgrade-insecure-requests: 1",
 	//   "sec-fetch-dest: document",
 	//   "sec-fetch-mode: navigate",
 	//   "sec-fetch-site: none",
 	//   "sec-fetch-user: ?1",
+	//   "priority: u=1",
 	//   "te: trailers"
 	// ],
 
@@ -172,16 +173,17 @@ func (im *impersonate) FireFox() *builder {
 		Set(":authority", "").
 		Set(":scheme", "").
 		Set(header.COOKIE, "").
-		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0").
+		Set(header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0").
 		Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8").
 		Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5").
-		Set(header.ACCEPT_ENCODING, "gzip, deflate, br").
+		Set(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd").
 		Set(header.REFERER, "").
 		Set(header.UPGRADE_INSECURE_REQUESTS, "1").
 		Set(header.SEC_FETCH_DEST, "document").
 		Set(header.SEC_FETCH_MODE, "navigate").
 		Set(header.SEC_FETCH_SITE, "none").
-		Set(header.SEC_FETCH_USER, "?1")
+		Set(header.SEC_FETCH_USER, "?1").
+		Set(header.PRIORITY, "u=1")
 		// Set(header.TE, "trailers")
 
 	return im.setOptions(headers)

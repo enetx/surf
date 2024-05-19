@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/andybalholm/brotli v1.1.0
-	github.com/enetx/g v1.0.77
+	github.com/enetx/g v1.0.80
 	github.com/enetx/http v1.0.9
 	github.com/enetx/http2 v1.0.11
 	github.com/klauspost/compress v1.17.8

@@ -18,7 +18,9 @@ func main() {
 	cli := surf.NewClient().
 		Builder().
 		Singleton(). // for reuse client
-		Impersonate().Chrome().
+		Impersonate().
+		// Chrome().
+		FireFox().
 		Build()
 
 	defer cli.CloseIdleConnections()
