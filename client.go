@@ -118,7 +118,7 @@ func (c *Client) Builder() *builder {
 func (c *Client) Raw(raw, scheme string) *Request {
 	request := newRequest()
 
-	req, err := http.ReadRequest(bufio.NewReader(g.String(raw).TrimSpace().Append("\n\n").Reader()))
+	req, err := http.ReadRequest(bufio.NewReader(g.String(raw).Trim().Append("\n\n").Reader()))
 	if err != nil {
 		request.err = err
 		return request

@@ -309,7 +309,7 @@ func TestBrotli(t *testing.T) {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Encoding", "br")
-		w.Write(g.NewString("OK").Comp().Brotli().ToBytes())
+		w.Write(g.NewString("OK").Comp().Brotli().Bytes())
 	}))
 
 	defer ts.Close()
@@ -330,7 +330,7 @@ func TestZstd(t *testing.T) {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Encoding", "zstd")
-		w.Write(g.NewString("hello from zstd").Comp().Zstd().ToBytes())
+		w.Write(g.NewString("hello from zstd").Comp().Zstd().Bytes())
 	}))
 
 	defer ts.Close()

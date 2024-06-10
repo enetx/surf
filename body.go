@@ -63,7 +63,7 @@ func (b *Body) Stream() *bufio.Reader {
 func (b *Body) SSE(fn func(event *sse.Event) bool) error { return sse.Read(b.Stream(), fn) }
 
 // String returns the body's content as a g.String.
-func (b *Body) String() g.String { return b.Bytes().ToString() }
+func (b *Body) String() g.String { return b.Bytes().String() }
 
 // Limit sets the body's size limit and returns the modified body.
 func (b *Body) Limit(limit int64) *Body {

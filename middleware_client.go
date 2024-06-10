@@ -11,6 +11,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/cookiejar"
 	"github.com/enetx/http2"
+	"golang.org/x/net/publicsuffix"
 )
 
 // default dialer for surf.
@@ -53,7 +54,7 @@ func forseHTTP1MW(client *Client) {
 // It initializes a new cookie jar and sets up the TLS configuration
 // to manage client sessions efficiently.
 func sessionMW(client *Client) {
-	client.GetClient().Jar, _ = cookiejar.New(nil)
+	client.GetClient().Jar, _ = cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	client.GetTLSConfig().ClientSessionCache = tls.NewLRUClientSessionCache(0)
 }
 

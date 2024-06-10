@@ -25,9 +25,9 @@ func (e *Event) reset() {
 
 // parse parses the event data based on the event type.
 func (e *Event) parse(t, data g.String) {
-	data = data.TrimSpace()
+	data = data.Trim()
 
-	switch t.TrimSpace() {
+	switch t.Trim() {
 	case "event":
 		e.Event = data
 	case "id":

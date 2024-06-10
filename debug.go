@@ -32,12 +32,12 @@ func (d *debug) Request(verbos ...bool) *debug {
 		_, _ = fmt.Fprint(&d.print, "\n")
 	}
 
-	_, _ = fmt.Fprintf(&d.print, "%s\n", g.Bytes(body).TrimSpace())
+	_, _ = fmt.Fprintf(&d.print, "%s\n", g.Bytes(body).Trim())
 
 	if len(verbos) != 0 && verbos[0] && d.resp.request.body != nil {
 		if bytes, err := io.ReadAll(d.resp.request.body); err == nil {
-			reqBody := g.NewBytes(bytes).TrimSpace()
-			_, _ = fmt.Fprint(&d.print, reqBody.ToString().Format("\n%s\n").Std())
+			reqBody := g.NewBytes(bytes).Trim()
+			_, _ = fmt.Fprint(&d.print, reqBody.String().Format("\n%s\n").Std())
 		}
 	}
 
@@ -55,10 +55,10 @@ func (d *debug) Response(verbos ...bool) *debug {
 		_, _ = fmt.Fprint(&d.print, "\n")
 	}
 
-	_, _ = fmt.Fprint(&d.print, g.Bytes(body).TrimSpace().ToString())
+	_, _ = fmt.Fprint(&d.print, g.Bytes(body).Trim().String())
 
 	if len(verbos) != 0 && verbos[0] && d.resp.Body != nil {
-		_, _ = fmt.Fprint(&d.print, d.resp.Body.String().TrimSpace().Prepend("\n\n"))
+		_, _ = fmt.Fprint(&d.print, d.resp.Body.String().Trim().Prepend("\n\n"))
 	}
 
 	return d
