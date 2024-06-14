@@ -490,7 +490,7 @@ func detectAnnotatedDataType(data any) string {
 // urlFormatter accepts a raw URL string and formats it to ensure it has an "http://" or "https://"
 // prefix.
 func urlFormatter(rawURL string) string {
-	_url := g.String(rawURL).Trim(".")
+	_url := g.String(rawURL).TrimSet(".")
 
 	if !_url.StartsWith("http://", "https://") {
 		_url = _url.Prepend("http://")
