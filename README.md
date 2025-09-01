@@ -4,11 +4,10 @@
 
 <h1>Surf - Advanced HTTP Client for Go</h1>
 
-  <a href="https://pkg.go.dev/github.com/enetx/surf"><img src="https://pkg.go.dev/badge/github.com/enetx/surf.svg" alt="Go Reference"></a>
-  <a href="https://goreportcard.com/report/github.com/enetx/surf"><img src="https://goreportcard.com/badge/github.com/enetx/surf" alt="Go Report Card"></a>
-  <a href="https://github.com/enetx/surf/actions/workflows/go.yml"><img src="https://github.com/enetx/surf/actions/workflows/go.yml/badge.svg" alt="Go"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white" alt="Go Version">
+[![Go Reference](https://pkg.go.dev/badge/github.com/enetx/surf.svg)](https://pkg.go.dev/github.com/enetx/surf)
+[![Go Report Card](https://goreportcard.com/badge/github.com/enetx/surf)](https://goreportcard.com/report/github.com/enetx/surf)
+[![Go](https://github.com/enetx/surf/actions/workflows/go.yml/badge.svg)](https://github.com/enetx/surf/actions/workflows/go.yml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/enetx/surf)
 
 <p>Surf is a powerful, feature-rich HTTP client library for Go that makes working with HTTP requests intuitive and enjoyable. With advanced features like browser impersonation, JA3/JA4 fingerprinting, and comprehensive middleware support, Surf provides everything you need for modern web interactions.</p>
 
