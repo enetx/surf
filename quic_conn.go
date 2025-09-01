@@ -1,48 +1,123 @@
 package surf
 
-import "net"
+import (
+	"io"
+	"net"
+	"sync"
+	"time"
+)
 
-// quicPacketConn wraps a net.Conn to implement net.PacketConn interface needed by QUIC.
-// This wrapper is used for SOCKS5 UDP proxy connections that need to work with QUIC.
-type quicPacketConn struct {
-	net.Conn
+// quicPacketConnRaw is a net.PacketConn adapter over a connected UDP relay (e.g., a SOCKS5
+// UDP associate tunnel created by wzshiming/socks5). The relay itself performs the SOCKS5
+// UDP encapsulation/decapsulation, so this adapter passes raw datagrams through as-is.
+// It maintains a best-effort "remote" address used for QUIC path semantics.
+type quicPacketConnRaw struct {
+	conn       net.Conn
 	remoteAddr net.Addr
+	mu         sync.RWMutex
 }
 
-// ReadFrom implements net.PacketConn interface.
-// All data is read from the underlying connection and attributed to the remote address.
-func (qpc *quicPacketConn) ReadFrom(p []byte) (int, net.Addr, error) {
-	n, err := qpc.Conn.Read(p)
-	return n, qpc.remoteAddr, err
+// Compile-time interface assertion.
+var _ net.PacketConn = (*quicPacketConnRaw)(nil)
+
+// newQUICPacketConn returns a PacketConn that forwards raw datagrams over the provided
+// connected UDP relay. The remoteAddr is used as the initial peer address returned
+// from ReadFrom and as a fallback when the relay does not expose the real peer address.
+func newQUICPacketConn(conn net.Conn, remoteAddr net.Addr) net.PacketConn {
+	return &quicPacketConnRaw{conn: conn, remoteAddr: remoteAddr}
 }
 
-// WriteTo implements net.PacketConn interface.
-// All data is written to the underlying connection, ignoring the provided address
-// since SOCKS5 proxy handles routing.
-func (qpc *quicPacketConn) WriteTo(p []byte, _ net.Addr) (int, error) {
-	return qpc.Conn.Write(p)
+// ReadFrom reads a single datagram from the relay into p. It attributes the packet
+// to the last known peer address (if any), or to the relay's remote address as a fallback.
+// It returns the number of bytes copied into p, the attributed source address, and an error, if any.
+func (q *quicPacketConnRaw) ReadFrom(p []byte) (int, net.Addr, error) {
+	n, err := q.conn.Read(p)
+	return n, q.remoteAddrOrRelay(), err
 }
 
-// SetReadBuffer sets the read buffer size if the underlying connection supports it.
-func (qpc *quicPacketConn) SetReadBuffer(bytes int) error {
-	if udpConn, ok := qpc.Conn.(*net.UDPConn); ok {
-		return udpConn.SetReadBuffer(bytes)
+// WriteTo writes the datagram p to the relay. If addr is non-nil, it becomes the new
+// best-known peer address, used for subsequent ReadFrom attributions and QUIC path semantics.
+// The relay handles any required UDP encapsulation; p must be the raw payload.
+func (q *quicPacketConnRaw) WriteTo(p []byte, addr net.Addr) (int, error) {
+	if ua, ok := addr.(*net.UDPAddr); ok && ua != nil {
+		q.mu.Lock()
+		q.remoteAddr = ua
+		q.mu.Unlock()
 	}
+
+	n, err := q.conn.Write(p)
+	if err != nil {
+		return 0, err
+	}
+
+	if n != len(p) {
+		return 0, io.ErrShortWrite
+	}
+
+	return n, nil
+}
+
+// remoteAddrOrRelay returns the best-known peer address if available, otherwise
+// the relay's remote address. This is used to attribute datagrams for QUIC path logic.
+func (q *quicPacketConnRaw) remoteAddrOrRelay() net.Addr {
+	q.mu.RLock()
+	ra := q.remoteAddr
+	q.mu.RUnlock()
+
+	if ra != nil {
+		return ra
+	}
+
+	return q.conn.RemoteAddr()
+}
+
+// Close closes the underlying relay connection.
+func (q *quicPacketConnRaw) Close() error { return q.conn.Close() }
+
+// LocalAddr returns the local address of the underlying relay connection.
+func (q *quicPacketConnRaw) LocalAddr() net.Addr { return q.conn.LocalAddr() }
+
+// SetDeadline sets both read and write deadlines on the underlying relay connection.
+func (q *quicPacketConnRaw) SetDeadline(t time.Time) error { return q.conn.SetDeadline(t) }
+
+// SetReadDeadline sets the read deadline on the underlying relay connection.
+func (q *quicPacketConnRaw) SetReadDeadline(t time.Time) error { return q.conn.SetReadDeadline(t) }
+
+// SetWriteDeadline sets the write deadline on the underlying relay connection.
+func (q *quicPacketConnRaw) SetWriteDeadline(t time.Time) error {
+	return q.conn.SetWriteDeadline(t)
+}
+
+// SetReadBuffer attempts to configure the UDP read buffer size on the underlying
+// connection if it exposes such an option (e.g., *net.UDPConn). It is a best-effort
+// operation and returns nil when unsupported.
+func (q *quicPacketConnRaw) SetReadBuffer(n int) error {
+	if u, ok := q.conn.(*net.UDPConn); ok {
+		return u.SetReadBuffer(n)
+	}
+
+	// Optional: support other conns that expose SetReadBuffer(int) error
+	type rb interface{ SetReadBuffer(int) error }
+	if u, ok := q.conn.(rb); ok {
+		return u.SetReadBuffer(n)
+	}
+
 	return nil
 }
 
-// SetWriteBuffer sets the write buffer size if the underlying connection supports it.
-func (qpc *quicPacketConn) SetWriteBuffer(bytes int) error {
-	if udpConn, ok := qpc.Conn.(*net.UDPConn); ok {
-		return udpConn.SetWriteBuffer(bytes)
+// SetWriteBuffer attempts to configure the UDP write buffer size on the underlying
+// connection if it exposes such an option (e.g., *net.UDPConn). It is a best-effort
+// operation and returns nil when unsupported.
+func (q *quicPacketConnRaw) SetWriteBuffer(n int) error {
+	if u, ok := q.conn.(*net.UDPConn); ok {
+		return u.SetWriteBuffer(n)
 	}
-	return nil
-}
 
-// newQUICPacketConn creates a new QUIC packet connection wrapper.
-func newQUICPacketConn(conn net.Conn, remoteAddr net.Addr) *quicPacketConn {
-	return &quicPacketConn{
-		Conn:       conn,
-		remoteAddr: remoteAddr,
+	// Optional: support other conns that expose SetWriteBuffer(int) error
+	type wb interface{ SetWriteBuffer(int) error }
+	if u, ok := q.conn.(wb); ok {
+		return u.SetWriteBuffer(n)
 	}
+
+	return nil
 }

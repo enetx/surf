@@ -11,6 +11,10 @@ func main() {
 	// Example 1: Chrome HTTP/3 fingerprint
 	fmt.Println("=== Chrome HTTP/3 Example ===")
 	chromeClient := surf.NewClient().Builder().
+		// DNS("127.0.0.1:53").
+		// DNS("1.0.0.1:53").
+		// Proxy("socks5://127.0.0.1:2080").
+		// Proxy("http://127.0.0.1:2080").
 		Impersonate().Chrome().HTTP3().
 		Build()
 
@@ -25,8 +29,6 @@ func main() {
 	case r.IsErr():
 		log.Printf("Chrome H3 request failed: %v", r.Err())
 	}
-
-	// g.String(r.Ok().RemoteAddress().String()).Println()
 
 	r.Ok().Debug().Request(true).Response().Print()
 
