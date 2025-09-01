@@ -12,7 +12,10 @@ import (
 	"github.com/klauspost/compress/zstd"
 )
 
-func closeIdleConnectionsMW(r *Response) error { r.cli.CloseIdleConnections(); return nil }
+func closeIdleConnectionsMW(r *Response) error {
+	r.cli.CloseIdleConnections()
+	return nil
+}
 
 func webSocketUpgradeErrorMW(r *Response) error {
 	if r.StatusCode == http.StatusSwitchingProtocols && r.Headers.Get(header.UPGRADE) == "websocket" {

@@ -74,6 +74,10 @@ func (h *HTTP3Settings) Set() *Builder {
 	}
 
 	return h.builder.addCliMW(func(c *Client) {
+		if !h.builder.singleton {
+			h.builder.addRespMW(closeIdleConnectionsMW, 0)
+		}
+
 		quicSpec := h.getQUICSpec()
 		if quicSpec.IsNone() {
 			return
