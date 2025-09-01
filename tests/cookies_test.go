@@ -343,3 +343,104 @@ func TestCookiesSpecialChars(t *testing.T) {
 		t.Error("expected special cookie to have a value")
 	}
 }
+
+func TestCookiesContainsEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		// Set cookies with various edge cases
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "",
+			Value: "empty-name",
+		})
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "empty-value",
+			Value: "",
+		})
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "normal",
+			Value: "normal-value",
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Test Contains with empty string
+	containsEmpty := cookies.Contains("")
+	t.Logf("Contains empty string: %v", containsEmpty)
+
+	// Test Contains with normal cookie
+	if !cookies.Contains("normal") {
+		t.Error("expected normal cookie to be present")
+	}
+
+	// Test Contains with empty value cookie
+	if !cookies.Contains("empty-value") {
+		t.Error("expected empty-value cookie to be present")
+	}
+
+	// Test Contains with nil/empty cookies slice
+	var emptyCookies surf.Cookies
+	if emptyCookies.Contains("any") {
+		t.Error("expected empty cookies to not contain any cookie")
+	}
+}
+
+func TestCookiesMultipleSameName(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		// Set multiple cookies with same name but different paths
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "duplicate",
+			Value: "value1",
+			Path:  "/",
+		})
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "duplicate",
+			Value: "value2",
+			Path:  "/api",
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Contains should return true if at least one cookie with the name exists
+	if !cookies.Contains("duplicate") {
+		t.Error("expected duplicate cookie to be present")
+	}
+
+	// Count how many cookies with name "duplicate" exist
+	count := 0
+	for _, cookie := range cookies {
+		if cookie.Name == "duplicate" {
+			count++
+		}
+	}
+
+	if count < 1 {
+		t.Error("expected at least one duplicate cookie")
+	}
+}

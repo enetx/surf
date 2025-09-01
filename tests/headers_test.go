@@ -243,3 +243,158 @@ func TestHeadersMultipleValues(t *testing.T) {
 		t.Error("expected X-Multi header to have value")
 	}
 }
+
+func TestHeadersContainsEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("X-Custom", "value with spaces")
+		w.Header().Set("Empty-Header", "")
+		w.Header().Add("Multi-Value", "part1,part2,part3")
+		w.Header().Add("Multi-Value", "part4")
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	headers := resp.Ok().Headers
+
+	// Test partial matching
+	if !headers.Contains("Content-Type", "application/json") {
+		t.Error("expected Contains to work with partial matches")
+	}
+
+	// Test exact matching
+	if !headers.Contains("Content-Type", "application/json; charset=utf-8") {
+		t.Error("expected Contains to work with exact matches")
+	}
+
+	// Test with spaces
+	if !headers.Contains("X-Custom", "value with spaces") {
+		t.Error("expected Contains to work with values containing spaces")
+	}
+
+	// Test empty value
+	if !headers.Contains("Empty-Header", "") {
+		t.Error("expected Contains to work with empty values")
+	}
+
+	// Test case sensitivity of values (may be case insensitive)
+	containsUpper := headers.Contains("Content-Type", "APPLICATION/JSON")
+	t.Logf("Contains with uppercase value: %v", containsUpper)
+
+	// Test non-matching value
+	if headers.Contains("Content-Type", "text/plain") {
+		t.Error("expected Contains to return false for non-matching values")
+	}
+
+	// Test with nil/empty headers
+	var emptyHeaders surf.Headers
+	if emptyHeaders.Contains("any", "value") {
+		t.Error("expected empty headers to not contain any header")
+	}
+}
+
+func TestHeadersContainsWithCommaValues(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		w.Header().Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9")
+		w.Header().Set("Accept-Language", "en-US,en;q=0.9,ru;q=0.8")
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	headers := resp.Ok().Headers
+
+	// Test Contains with comma-separated values
+	if !headers.Contains("Accept", "text/html") {
+		t.Error("expected Contains to find text/html in Accept header")
+	}
+
+	if !headers.Contains("Accept", "application/xml") {
+		t.Error("expected Contains to find application/xml in Accept header")
+	}
+
+	if !headers.Contains("Accept-Language", "en-US") {
+		t.Error("expected Contains to find en-US in Accept-Language header")
+	}
+
+	if !headers.Contains("Cache-Control", "no-cache") {
+		t.Error("expected Contains to find no-cache in Cache-Control header")
+	}
+
+	if !headers.Contains("Cache-Control", "must-revalidate") {
+		t.Error("expected Contains to find must-revalidate in Cache-Control header")
+	}
+
+	// Test non-existing values
+	if headers.Contains("Accept", "text/plain") {
+		t.Error("expected Contains to return false for non-existing value")
+	}
+}
+
+func TestHeadersContainsSpecialChars(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		w.Header().Set("X-Special", "value with 特殊字符 and émojis 🚀")
+		w.Header().Set("X-Quotes", `"quoted value"`)
+		w.Header().Set("X-Semicolon", "key=value; boundary=something")
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	headers := resp.Ok().Headers
+
+	// Test special characters
+	if !headers.Contains("X-Special", "特殊字符") {
+		t.Error("expected Contains to work with unicode characters")
+	}
+
+	if !headers.Contains("X-Special", "🚀") {
+		t.Error("expected Contains to work with emojis")
+	}
+
+	// Test quoted values
+	if !headers.Contains("X-Quotes", "quoted value") {
+		t.Error("expected Contains to work with quoted values")
+	}
+
+	// Test semicolon-separated values
+	if !headers.Contains("X-Semicolon", "key=value") {
+		t.Error("expected Contains to work with semicolon-separated values")
+	}
+
+	if !headers.Contains("X-Semicolon", "boundary=something") {
+		t.Error("expected Contains to find boundary in semicolon-separated header")
+	}
+}

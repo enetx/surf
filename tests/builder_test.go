@@ -309,10 +309,10 @@ func TestBuilderProxy(t *testing.T) {
 		name  string
 		proxy any
 	}{
-		{"string proxy", "http://proxy.example.com:8080"},
-		{"g.String proxy", g.String("http://proxy.example.com:8080")},
-		{"slice proxy", []string{"http://proxy1.example.com:8080", "http://proxy2.example.com:8080"}},
-		{"g.Slice proxy", g.SliceOf("http://proxy1.example.com:8080", "http://proxy2.example.com:8080")},
+		{"string proxy", "http://localhost:8080"},
+		{"g.String proxy", g.String("http://localhost:8080")},
+		{"slice proxy", []string{"http://localhost:8081", "http://localhost:8082"}},
+		{"g.Slice proxy", g.SliceOf("http://localhost:8081", "http://localhost:8082")},
 	}
 
 	for _, tt := range tests {

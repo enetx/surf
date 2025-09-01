@@ -400,3 +400,341 @@ func TestMiddlewareResponseDecodeBodyUnknownEncoding(t *testing.T) {
 		t.Errorf("expected body %q, got %q", originalData, body.Std())
 	}
 }
+
+func TestMiddlewareResponseDecodeBodyMultipleEncodings(t *testing.T) {
+	t.Parallel()
+
+	originalData := "This data has multiple encodings"
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		// Multiple encoding headers (should handle gracefully)
+		w.Header().Set("Content-Encoding", "gzip, deflate")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, originalData)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	// Should handle or pass through gracefully
+	body := resp.Ok().Body.String()
+	if body.Std() != originalData {
+		t.Errorf("expected body %q, got %q", originalData, body.Std())
+	}
+}
+
+func TestMiddlewareResponseDecodeBodyCaseInsensitiveEncoding(t *testing.T) {
+	t.Parallel()
+
+	originalData := "This is test data for case insensitive gzip"
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		// Create gzip compressed response
+		var buf bytes.Buffer
+		gz := gzip.NewWriter(&buf)
+		gz.Write([]byte(originalData))
+		gz.Close()
+
+		// Use uppercase encoding header
+		w.Header().Set("Content-Encoding", "GZIP")
+		w.WriteHeader(http.StatusOK)
+		w.Write(buf.Bytes())
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	// Should handle case-insensitive encoding
+	body := resp.Ok().Body.String()
+	if body.Std() != originalData {
+		t.Errorf("expected decompressed body %q, got %q", originalData, body.Std())
+	}
+}
+
+func TestMiddlewareResponseDecodeBodyLargeData(t *testing.T) {
+	t.Parallel()
+
+	// Create large data to test compression handling with bigger payloads
+	originalData := strings.Repeat("This is test data for large compressed content. ", 1000)
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		// Create gzip compressed response
+		var buf bytes.Buffer
+		gz := gzip.NewWriter(&buf)
+		gz.Write([]byte(originalData))
+		gz.Close()
+
+		w.Header().Set("Content-Encoding", "gzip")
+		w.WriteHeader(http.StatusOK)
+		w.Write(buf.Bytes())
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.String()
+	if body.Std() != originalData {
+		t.Error("large gzip decompression failed")
+	}
+
+	if len(body.Std()) != len(originalData) {
+		t.Errorf("expected decompressed body length %d, got %d", len(originalData), len(body.Std()))
+	}
+}
+
+func TestMiddlewareResponseHeaderPreservation(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("X-Custom-Header", "test-value")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"test": "data"}`)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	response := resp.Ok()
+
+	// Verify headers are preserved through middleware
+	if response.Headers.Get("X-Custom-Header") != "test-value" {
+		t.Error("X-Custom-Header not preserved")
+	}
+
+	if response.Headers.Get("Content-Type") != "application/json" {
+		t.Error("Content-Type not preserved")
+	}
+
+	if response.Headers.Get("Cache-Control") != "no-cache" {
+		t.Error("Cache-Control not preserved")
+	}
+}
+
+func TestMiddlewareResponseChaining(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		// Create gzip compressed response with multiple characteristics
+		originalData := `{"message": "middleware chaining test"}`
+		var buf bytes.Buffer
+		gz := gzip.NewWriter(&buf)
+		gz.Write([]byte(originalData))
+		gz.Close()
+
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("X-Test-Chain", "middleware")
+		w.WriteHeader(http.StatusOK)
+		w.Write(buf.Bytes())
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	middlewareExecuted := false
+
+	client := surf.NewClient().Builder().
+		With(func(resp *surf.Response) error {
+			middlewareExecuted = true
+			// Verify we can access response properties in middleware
+			if resp.StatusCode != http.StatusOK {
+				t.Errorf("expected status 200 in middleware, got %d", resp.StatusCode)
+			}
+			if resp.Headers.Get("X-Test-Chain") != "middleware" {
+				t.Error("header not accessible in middleware")
+			}
+			return nil
+		}).
+		Build()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !middlewareExecuted {
+		t.Error("custom middleware was not executed")
+	}
+
+	// Verify decompression still works with custom middleware
+	body := resp.Ok().Body.String()
+	if !body.Contains("middleware chaining test") {
+		t.Error("body decompression failed with middleware chaining")
+	}
+}
+
+func TestMiddlewareResponseWithErrors(t *testing.T) {
+	t.Parallel()
+
+	middlewareError := false
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "server error")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		With(func(resp *surf.Response) error {
+			middlewareError = true
+			// Middleware should be called even for error responses
+			if resp.StatusCode != http.StatusInternalServerError {
+				t.Errorf("expected status 500 in middleware, got %d", resp.StatusCode)
+			}
+			return nil
+		}).
+		Build()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !middlewareError {
+		t.Error("middleware was not called for error response")
+	}
+
+	if resp.Ok().StatusCode != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", resp.Ok().StatusCode)
+	}
+}
+
+func TestMiddlewareResponseBodyCache(t *testing.T) {
+	t.Parallel()
+
+	originalData := "This is cached body data"
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, originalData)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Test with body caching enabled
+	client := surf.NewClient().Builder().CacheBody().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	response := resp.Ok()
+
+	// Read body multiple times to test caching
+	body1 := response.Body.String()
+	body2 := response.Body.String()
+
+	if body1.Std() != originalData || body2.Std() != originalData {
+		t.Error("body caching not working properly")
+	}
+
+	if body1 != body2 {
+		t.Error("cached bodies should be identical")
+	}
+}
+
+func TestMiddlewareResponseNilBody(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		// No body content
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+
+	// HEAD request should have nil body
+	resp := client.Head(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	response := resp.Ok()
+
+	// Middleware should handle nil body gracefully
+	if response.Body != nil {
+		t.Error("expected nil body for HEAD request")
+	}
+}
+
+func TestMiddlewareResponseCompressionMiddleware(t *testing.T) {
+	t.Parallel()
+
+	originalData := "This is test data for compression middleware test"
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		// Create gzip compressed response
+		var buf bytes.Buffer
+		gz := gzip.NewWriter(&buf)
+		gz.Write([]byte(originalData))
+		gz.Close()
+
+		w.Header().Set("Content-Encoding", "gzip")
+		w.WriteHeader(http.StatusOK)
+		w.Write(buf.Bytes())
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Test standard compression handling
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	// Response should be automatically decompressed by middleware
+	body := resp.Ok().Body.String()
+	if body.Std() != originalData {
+		t.Error("automatic decompression by middleware failed")
+	}
+
+	// Content-Encoding header may be removed after decompression (implementation detail)
+	// The important thing is that the body was properly decompressed
+}

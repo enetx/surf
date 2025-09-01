@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	ehttp "github.com/enetx/http"
 	"github.com/enetx/http/httptest"
@@ -296,5 +297,104 @@ func TestAdapterRedirectHandling(t *testing.T) {
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected final status 200, got %d", resp.StatusCode)
+	}
+}
+
+func TestAdapterSetCookiesEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, r *ehttp.Request) {
+		cookies := r.Cookies()
+		for _, cookie := range cookies {
+			if cookie.Name == "test-cookie" && cookie.Value == "test-value" {
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, "cookie received")
+				return
+			}
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "no cookie")
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().Session().Build()
+	stdClient := client.Std()
+
+	// Test SetCookies functionality through the adapter
+	u, _ := url.Parse(ts.URL)
+
+	// Set cookies manually on the jar
+	testCookies := []*http.Cookie{
+		{Name: "test-cookie", Value: "test-value", Path: "/"},
+		{Name: "another-cookie", Value: "another-value", Path: "/"},
+	}
+
+	stdClient.Jar.SetCookies(u, testCookies)
+
+	// Make request and verify cookies are sent
+	resp, err := stdClient.Get(ts.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected status 200 (cookie received), got %d", resp.StatusCode)
+	}
+
+	// Verify cookies are in jar
+	retrievedCookies := stdClient.Jar.Cookies(u)
+	if len(retrievedCookies) < 2 {
+		t.Errorf("expected at least 2 cookies, got %d", len(retrievedCookies))
+	}
+}
+
+func TestAdapterErrorHandling(t *testing.T) {
+	t.Parallel()
+
+	client := surf.NewClient()
+	stdClient := client.Std()
+
+	// Test with invalid URL
+	_, err := stdClient.Get("invalid://url with spaces")
+	if err == nil {
+		t.Error("expected error for invalid URL")
+	}
+
+	// Test RoundTrip with nil request - this will panic as expected by Go's http.RoundTripper interface
+	// We'll test that the panic is recovered
+	func() {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("expected panic for nil request")
+			}
+		}()
+		stdClient.Transport.RoundTrip(nil)
+	}()
+}
+
+func TestAdapterTimeoutHandling(t *testing.T) {
+	t.Parallel()
+
+	// Slow handler that takes longer than timeout
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		time.Sleep(200 * time.Millisecond) // Short enough for test but longer than client timeout
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "slow response")
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Timeout(50 * time.Millisecond). // Very short timeout
+		Build()
+	stdClient := client.Std()
+
+	_, err := stdClient.Get(ts.URL)
+	if err == nil {
+		t.Error("expected timeout error")
 	}
 }

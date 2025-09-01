@@ -8,6 +8,7 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
+	"github.com/enetx/http/httptrace"
 	"github.com/enetx/surf"
 )
 
@@ -48,6 +49,138 @@ func TestMiddlewareRequestUserAgent(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		userAgent := r.Header.Get("User-Agent")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{"user-agent": "%s"}`, userAgent)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	t.Run("g.String type", func(t *testing.T) {
+		client := surf.NewClient().Builder().UserAgent(g.String("gString-UserAgent/1.0")).Build()
+		resp := client.Get(g.String(ts.URL)).Do()
+
+		if resp.IsErr() {
+			t.Fatal(resp.Err())
+		}
+
+		body := resp.Ok().Body.String()
+		if !strings.Contains(body.Std(), "gString-UserAgent/1.0") {
+			t.Error("expected g.String user agent in response")
+		}
+	})
+
+	t.Run("[]string slice", func(t *testing.T) {
+		userAgents := []string{"Agent1/1.0", "Agent2/1.0", "Agent3/1.0"}
+		client := surf.NewClient().Builder().UserAgent(userAgents).Build()
+
+		// Make multiple requests to test random selection
+		foundAgents := make(map[string]bool)
+		for i := 0; i < 10; i++ {
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body.String()
+			for _, agent := range userAgents {
+				if strings.Contains(body.Std(), agent) {
+					foundAgents[agent] = true
+					break
+				}
+			}
+		}
+
+		if len(foundAgents) == 0 {
+			t.Error("no user agents from slice were used")
+		}
+	})
+
+	t.Run("g.Slice[string] type", func(t *testing.T) {
+		userAgents := g.SliceOf("gSliceAgent1/1.0", "gSliceAgent2/1.0")
+		client := surf.NewClient().Builder().UserAgent(userAgents).Build()
+		resp := client.Get(g.String(ts.URL)).Do()
+
+		if resp.IsErr() {
+			t.Fatal(resp.Err())
+		}
+
+		body := resp.Ok().Body.String()
+		hasAgent := strings.Contains(body.Std(), "gSliceAgent1/1.0") ||
+			strings.Contains(body.Std(), "gSliceAgent2/1.0")
+		if !hasAgent {
+			t.Error("expected g.Slice[string] user agent in response")
+		}
+	})
+
+	t.Run("g.Slice[g.String] type", func(t *testing.T) {
+		userAgents := g.SliceOf(g.String("gStringSliceAgent1/1.0"), g.String("gStringSliceAgent2/1.0"))
+		client := surf.NewClient().Builder().UserAgent(userAgents).Build()
+		resp := client.Get(g.String(ts.URL)).Do()
+
+		if resp.IsErr() {
+			t.Fatal(resp.Err())
+		}
+
+		body := resp.Ok().Body.String()
+		hasAgent := strings.Contains(body.Std(), "gStringSliceAgent1/1.0") ||
+			strings.Contains(body.Std(), "gStringSliceAgent2/1.0")
+		if !hasAgent {
+			t.Error("expected g.Slice[g.String] user agent in response")
+		}
+	})
+}
+
+func TestMiddlewareRequestUserAgentErrors(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	t.Run("empty []string slice", func(t *testing.T) {
+		client := surf.NewClient().Builder().UserAgent([]string{}).Build()
+		resp := client.Get(g.String(ts.URL)).Do()
+
+		if resp.IsOk() {
+			t.Error("expected error for empty string slice")
+		}
+	})
+
+	t.Run("empty g.Slice[string]", func(t *testing.T) {
+		client := surf.NewClient().Builder().UserAgent(g.Slice[string]{}).Build()
+		resp := client.Get(g.String(ts.URL)).Do()
+
+		if resp.IsOk() {
+			t.Error("expected error for empty g.Slice[string]")
+		}
+	})
+
+	t.Run("empty g.Slice[g.String]", func(t *testing.T) {
+		client := surf.NewClient().Builder().UserAgent(g.Slice[g.String]{}).Build()
+		resp := client.Get(g.String(ts.URL)).Do()
+
+		if resp.IsOk() {
+			t.Error("expected error for empty g.Slice[g.String]")
+		}
+	})
+
+	t.Run("invalid type", func(t *testing.T) {
+		client := surf.NewClient().Builder().UserAgent(123).Build()
+		resp := client.Get(g.String(ts.URL)).Do()
+
+		if resp.IsOk() {
+			t.Error("expected error for invalid type")
+		}
+	})
 }
 
 func TestMiddlewareRequestBearerAuth(t *testing.T) {
@@ -241,6 +374,180 @@ func TestMiddlewareRequestGot101Response(t *testing.T) {
 		if resp2.Ok().StatusCode == http.StatusSwitchingProtocols {
 			t.Log("Got 101 Switching Protocols as expected")
 		}
+	}
+}
+
+func TestMiddlewareRequestGot101ResponseEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	// The got101ResponseMW sets up a client trace that only triggers
+	// the Got1xxResponse callback in specific HTTP transport scenarios.
+	// Most standard HTTP servers won't trigger this callback directly.
+
+	// Test that the middleware can be applied without error
+	client := surf.NewClient()
+
+	// Simple test to verify the middleware doesn't break normal requests
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "success")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatalf("middleware should not interfere with normal requests: %v", resp.Err())
+	}
+
+	if resp.Ok().StatusCode != http.StatusOK {
+		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
+	}
+
+	body := resp.Ok().Body.String()
+	if body.Std() != "success" {
+		t.Errorf("expected body 'success', got %s", body.Std())
+	}
+}
+
+func TestMiddlewareRequestGot101ResponseMiddlewareIntegration(t *testing.T) {
+	t.Parallel()
+
+	// Test the middleware by doing a request with a mock server that fails fast
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "test")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	req := client.Get(g.String(ts.URL))
+
+	// Do the request to trigger middleware application
+	resp := req.Do()
+	if resp.IsErr() {
+		t.Fatalf("unexpected error: %v", resp.Err())
+	}
+
+	// Now check that the trace was set up (after middleware was applied)
+	trace := httptrace.ContextClientTrace(req.GetRequest().Context())
+	if trace == nil {
+		t.Fatal("expected client trace to be set by middleware")
+	}
+
+	// The Got1xxResponse callback should be set by got101ResponseMW
+	if trace.Got1xxResponse == nil {
+		t.Fatal("expected Got1xxResponse callback to be set by got101ResponseMW")
+	}
+
+	// Test the callback behavior directly
+	testCases := []struct {
+		name        string
+		statusCode  int
+		expectError bool
+	}{
+		{"Status 100 Continue", 100, false},
+		{"Status 101 Switching Protocols", 101, true},
+		{"Status 102 Processing", 102, false},
+		{"Status 103 Early Hints", 103, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := trace.Got1xxResponse(tc.statusCode, nil)
+
+			if tc.expectError {
+				if err == nil {
+					t.Errorf("expected error for status %d", tc.statusCode)
+				} else {
+					// Verify it's the correct error type
+					if _, ok := err.(*surf.Err101ResponseCode); !ok {
+						t.Errorf("expected Err101ResponseCode, got %T", err)
+					}
+					// Verify error message contains request details
+					errMsg := err.Error()
+					if !strings.Contains(errMsg, "GET") {
+						t.Errorf("expected error message to contain method, got: %s", errMsg)
+					}
+				}
+			} else {
+				if err != nil {
+					t.Errorf("expected no error for status %d, got: %v", tc.statusCode, err)
+				}
+			}
+		})
+	}
+}
+
+func TestMiddlewareRequestGot101ResponseWithDifferentMethods(t *testing.T) {
+	t.Parallel()
+
+	// Test the middleware by creating a simple handler that just returns OK
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+
+	testCases := []struct {
+		name   string
+		method string
+	}{
+		{"GET method", "GET"},
+		{"POST method", "POST"},
+		{"PUT method", "PUT"},
+		{"DELETE method", "DELETE"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var req *surf.Request
+
+			switch tc.method {
+			case "GET":
+				req = client.Get(g.String(ts.URL))
+			case "POST":
+				req = client.Post(g.String(ts.URL), g.String("test data"))
+			case "PUT":
+				req = client.Put(g.String(ts.URL), g.String("test data"))
+			case "DELETE":
+				req = client.Delete(g.String(ts.URL))
+			}
+
+			// Execute the request to apply middleware
+			resp := req.Do()
+			if resp.IsErr() {
+				t.Fatalf("unexpected error: %v", resp.Err())
+			}
+
+			// Extract and test the client trace callback
+			trace := httptrace.ContextClientTrace(req.GetRequest().Context())
+			if trace == nil || trace.Got1xxResponse == nil {
+				t.Fatal("expected Got1xxResponse callback to be set by middleware")
+			}
+
+			// Test that 101 status code triggers error with correct message
+			err := trace.Got1xxResponse(101, nil)
+			if err == nil {
+				t.Error("expected error for 101 response")
+			} else {
+				errMsg := err.Error()
+				if !strings.Contains(errMsg, tc.method) {
+					t.Errorf("expected error message to contain method %s, got: %s", tc.method, errMsg)
+				}
+				if !strings.Contains(errMsg, ts.URL) {
+					t.Errorf("expected error message to contain URL %s, got: %s", ts.URL, errMsg)
+				}
+			}
+		})
 	}
 }
 

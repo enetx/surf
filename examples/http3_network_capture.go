@@ -43,7 +43,6 @@ func testWithCapture(name string, clientFactory func() *surf.Client) {
 	fmt.Printf("Testing %s fingerprint (packet capture ready):\n", name)
 
 	client := clientFactory()
-	defer client.CloseIdleConnections()
 
 	if !client.IsHTTP3() {
 		fmt.Printf("HTTP/3 not enabled\n")
@@ -73,7 +72,7 @@ func testWithCapture(name string, clientFactory func() *surf.Client) {
 			localAddr, localAddr)
 	}
 
-	fmt.Printf("🕒 Sleeping 3 seconds for packet capture...\n")
+	fmt.Printf("Sleeping 3 seconds for packet capture...\n")
 	time.Sleep(3 * time.Second)
 	fmt.Println()
 }
@@ -84,8 +83,10 @@ func getLocalAddress() string {
 	if err != nil {
 		return ""
 	}
+
 	defer conn.Close()
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
 	return localAddr.IP.String()
 }

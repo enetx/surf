@@ -98,8 +98,70 @@ func TestBodyMD5(t *testing.T) {
 	// Test MD5()
 	md5 := body.MD5()
 	// MD5 of "hello" is "5d41402abc4b2a76b9719d911017c592"
-	if md5 != "5d41402abc4b2a76b9719d911017c592" {
-		t.Errorf("expected MD5 '5d41402abc4b2a76b9719d911017c592', got %s", md5)
+	expected := "5d41402abc4b2a76b9719d911017c592"
+	if md5.Std() != expected {
+		t.Errorf("expected MD5 %s, got %s", expected, md5.Std())
+	}
+}
+
+func TestBodyMD5EdgeCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		content  string
+		expected string
+	}{
+		{
+			"Empty string",
+			"",
+			"d41d8cd98f00b204e9800998ecf8427e",
+		},
+		{
+			"Single character",
+			"a",
+			"0cc175b9c0f1b6a831c399e269772661",
+		},
+		{
+			"Unicode content",
+			"🦄🌈",
+			"b0507043024f253bba6562cd35600423",
+		},
+		{
+			"JSON content",
+			`{"key": "value"}`,
+			"88bac95f31528d13a072c05f2a1cf371",
+		},
+		{
+			"Large content",
+			strings.Repeat("x", 10000),
+			"b567fcb68d8555227123ab87e255872e",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, tc.content)
+			}
+
+			ts := httptest.NewServer(http.HandlerFunc(handler))
+			defer ts.Close()
+
+			client := surf.NewClient()
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body
+			md5 := body.MD5()
+
+			if md5.Std() != tc.expected {
+				t.Errorf("MD5 for %s: expected %s, got %s", tc.name, tc.expected, md5.Std())
+			}
+		})
 	}
 }
 
@@ -735,5 +797,458 @@ func TestBodyInvalidXML(t *testing.T) {
 	err := body.XML(&result)
 	if err == nil {
 		t.Error("expected error for invalid XML")
+	}
+}
+
+func TestBodyXMLEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name        string
+		xmlContent  string
+		expectError bool
+	}{
+		{
+			"Empty XML",
+			"",
+			true,
+		},
+		{
+			"Simple XML",
+			`<root><name>test</name><value>42</value></root>`,
+			false,
+		},
+		{
+			"XML with namespaces",
+			`<root xmlns="http://localhost"><name>test</name></root>`,
+			false,
+		},
+		{
+			"XML with CDATA",
+			`<root><name><![CDATA[test data]]></name></root>`,
+			false,
+		},
+		{
+			"Malformed XML",
+			`<root><name>test</root>`, // Missing closing tag
+			true,
+		},
+		{
+			"XML with attributes",
+			`<root id="1"><name attr="value">test</name></root>`,
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/xml")
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, tc.xmlContent)
+			}
+
+			ts := httptest.NewServer(http.HandlerFunc(handler))
+			defer ts.Close()
+
+			client := surf.NewClient()
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body
+
+			var result struct {
+				XMLName xml.Name `xml:"root"`
+				Name    string   `xml:"name"`
+				Value   int      `xml:"value"`
+			}
+
+			err := body.XML(&result)
+			if tc.expectError && err == nil {
+				t.Errorf("expected error for %s but got none", tc.name)
+			}
+			if !tc.expectError && err != nil {
+				t.Errorf("unexpected error for %s: %v", tc.name, err)
+			}
+		})
+	}
+}
+
+func TestBodyJSONEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name        string
+		jsonContent string
+		expectError bool
+	}{
+		{
+			"Empty JSON object",
+			`{}`,
+			false,
+		},
+		{
+			"Empty JSON array",
+			`[]`,
+			false,
+		},
+		{
+			"Null JSON",
+			`null`,
+			false,
+		},
+		{
+			"JSON with unicode",
+			`{"name": "🦄", "emoji": "🌈"}`,
+			false,
+		},
+		{
+			"Nested JSON",
+			`{"user": {"name": "test", "details": {"age": 30}}}`,
+			false,
+		},
+		{
+			"JSON with escaped characters",
+			`{"path": "C:\\Program Files\\test", "quote": "He said \"hello\""}`,
+			false,
+		},
+		{
+			"Invalid JSON - missing quote",
+			`{"name: "test"}`,
+			true,
+		},
+		{
+			"Invalid JSON - trailing comma",
+			`{"name": "test",}`,
+			true,
+		},
+		{
+			"Empty string",
+			``,
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, tc.jsonContent)
+			}
+
+			ts := httptest.NewServer(http.HandlerFunc(handler))
+			defer ts.Close()
+
+			client := surf.NewClient()
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body
+
+			var result any
+			err := body.JSON(&result)
+			if tc.expectError && err == nil {
+				t.Errorf("expected error for %s but got none", tc.name)
+			}
+			if !tc.expectError && err != nil {
+				t.Errorf("unexpected error for %s: %v", tc.name, err)
+			}
+		})
+	}
+}
+
+func TestBodyStreamingEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		content  string
+		expected []string
+	}{
+		{
+			"Single line",
+			"single line",
+			[]string{"single line"},
+		},
+		{
+			"Empty lines",
+			"line1\n\nline3\n",
+			[]string{"line1", "", "line3"},
+		},
+		{
+			"Windows line endings",
+			"line1\r\nline2\r\n",
+			[]string{"line1", "line2"},
+		},
+		{
+			"Mixed line endings",
+			"line1\nline2\r\nline3\r",
+			[]string{"line1", "line2", "line3"},
+		},
+		{
+			"Long lines",
+			strings.Repeat("x", 10000) + "\n" + strings.Repeat("y", 5000),
+			[]string{strings.Repeat("x", 10000), strings.Repeat("y", 5000)},
+		},
+		{
+			"Unicode content",
+			"🦄 line\n🌈 rainbow",
+			[]string{"🦄 line", "🌈 rainbow"},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, tc.content)
+			}
+
+			ts := httptest.NewServer(http.HandlerFunc(handler))
+			defer ts.Close()
+
+			client := surf.NewClient()
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body
+			reader := body.Stream()
+			if reader == nil {
+				t.Fatal("Stream() returned nil")
+			}
+
+			scanner := bufio.NewScanner(reader)
+			var lines []string
+			for scanner.Scan() {
+				lines = append(lines, scanner.Text())
+			}
+
+			if err := scanner.Err(); err != nil {
+				t.Fatalf("scanner error: %v", err)
+			}
+
+			if len(lines) != len(tc.expected) {
+				t.Errorf("expected %d lines, got %d", len(tc.expected), len(lines))
+				return
+			}
+
+			for i, line := range lines {
+				if line != tc.expected[i] {
+					t.Errorf("line %d: expected %q, got %q", i, tc.expected[i], line)
+				}
+			}
+		})
+	}
+}
+
+func TestBodySSEEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		sseData  string
+		expected []string
+	}{
+		{
+			"Simple events",
+			"data: event1\n\ndata: event2\n\n",
+			[]string{"event1", "event2"},
+		},
+		{
+			"Events with empty data",
+			"data: \n\ndata: content\n\n",
+			[]string{"", "content"},
+		},
+		{
+			"Multiline data",
+			"data: line1\ndata: line2\n\ndata: single\n\n",
+			[]string{"line2", "single"},
+		},
+		{
+			"Events with IDs",
+			"id: 1\ndata: event1\n\nid: 2\ndata: event2\n\n",
+			[]string{"event1", "event2"},
+		},
+		{
+			"Events with event types",
+			"event: message\ndata: content1\n\nevent: update\ndata: content2\n\n",
+			[]string{"content1", "content2"},
+		},
+		{
+			"Comments ignored",
+			": this is a comment\ndata: content\n\n",
+			[]string{"content"},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/event-stream")
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, tc.sseData)
+			}
+
+			ts := httptest.NewServer(http.HandlerFunc(handler))
+			defer ts.Close()
+
+			client := surf.NewClient()
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body
+			var events []string
+			err := body.SSE(func(event *sse.Event) bool {
+				events = append(events, event.Data.Std())
+				return true // Continue reading
+			})
+
+			if err != nil && err != io.EOF {
+				t.Fatalf("SSE error: %v", err)
+			}
+
+			if len(events) != len(tc.expected) {
+				t.Errorf("expected %d events, got %d", len(tc.expected), len(events))
+				return
+			}
+
+			for i, event := range events {
+				if event != tc.expected[i] {
+					t.Errorf("event %d: expected %q, got %q", i, tc.expected[i], event)
+				}
+			}
+		})
+	}
+}
+
+func TestBodyLimitEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name        string
+		contentSize int
+		limit       int64
+		expectedLen int
+	}{
+		{
+			"Limit larger than content",
+			100,
+			200,
+			100,
+		},
+		{
+			"Limit equal to content",
+			100,
+			100,
+			100,
+		},
+		{
+			"Limit smaller than content",
+			100,
+			50,
+			50,
+		},
+		{
+			"Zero limit",
+			100,
+			0,
+			0,
+		},
+		{
+			"Negative limit (should be treated as no limit)",
+			100,
+			-1,
+			100,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			content := strings.Repeat("x", tc.contentSize)
+			handler := func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, content)
+			}
+
+			ts := httptest.NewServer(http.HandlerFunc(handler))
+			defer ts.Close()
+
+			client := surf.NewClient()
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body.Limit(tc.limit)
+			result := body.Bytes()
+
+			if len(result) != tc.expectedLen {
+				t.Errorf("expected %d bytes, got %d", tc.expectedLen, len(result))
+			}
+		})
+	}
+}
+
+func TestBodyContainsEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "Hello 🌍 World! Test Content 123")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().CacheBody().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body
+
+	testCases := []struct {
+		name     string
+		pattern  any
+		expected bool
+	}{
+		{"Empty string", "", true},
+		{"Unicode emoji", "🌍", true},
+		{"Case sensitive", "hello", true},
+		{"Case sensitive uppercase", "HELLO", true},
+		{"Numbers", "123", true},
+		{"Exclamation", "!", true},
+		{"Start of string", "Hello", true},
+		{"End of string", "123", true},
+		{"Multiple words", "World! Test", true},
+		{"Non-existent", "xyz", false},
+		{"g.String type", g.String("World"), true},
+		{"[]byte type", []byte("Content"), true},
+		{"g.Bytes type", g.Bytes("Test"), true},
+		{"Regex match", regexp.MustCompile(`Hello.*World`), true},
+		{"Regex no match", regexp.MustCompile(`^World`), false},
+		{"Complex regex", regexp.MustCompile(`\d+$`), true}, // Ends with digits
+		{"Invalid type", 123, false},
+		{"Float type", 1.23, false},
+		{"Boolean type", true, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := body.Contains(tc.pattern)
+			if result != tc.expected {
+				t.Errorf("Contains(%v): expected %v, got %v", tc.pattern, tc.expected, result)
+			}
+		})
 	}
 }

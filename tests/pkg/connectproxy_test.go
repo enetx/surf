@@ -17,15 +17,15 @@ func TestNewDialerValidProxies(t *testing.T) {
 		proxyURL string
 		wantErr  bool
 	}{
-		{"HTTP proxy", "http://proxy.example.com:8080", false},
-		{"HTTP proxy with auth", "http://user:pass@proxy.example.com:8080", false},
-		{"HTTPS proxy", "https://secure-proxy.example.com:443", false},
-		{"HTTPS proxy with port", "https://secure-proxy.example.com:8443", false},
-		{"SOCKS5 proxy", "socks5://proxy.example.com:1080", false},
-		{"SOCKS5H proxy", "socks5h://proxy.example.com:1080", false},
-		{"HTTP proxy no port", "http://proxy.example.com", false},
-		{"HTTPS proxy no port", "https://proxy.example.com", false},
-		{"SOCKS5 proxy no port", "socks5://proxy.example.com", false},
+		{"HTTP proxy", "http://localhost:8080", false},
+		{"HTTP proxy with auth", "http://user:pass@localhost:8080", false},
+		{"HTTPS proxy", "https://secure-localhost:443", false},
+		{"HTTPS proxy with port", "https://secure-localhost:8443", false},
+		{"SOCKS5 proxy", "socks5://localhost:1080", false},
+		{"SOCKS5H proxy", "socks5h://localhost:1080", false},
+		{"HTTP proxy no port", "http://localhost", false},
+		{"HTTPS proxy no port", "https://localhost", false},
+		{"SOCKS5 proxy no port", "socks5://localhost", false},
 	}
 
 	for _, tc := range testCases {
@@ -60,11 +60,11 @@ func TestNewDialerInvalidProxies(t *testing.T) {
 	}{
 		{"empty proxy", "", "bad proxy url"},
 		{"invalid URL", "::invalid::", "bad proxy url"},
-		{"missing scheme", "proxy.example.com:8080", "bad proxy url"},
-		{"unsupported scheme", "ftp://proxy.example.com:8080", "bad proxy url"},
+		{"missing scheme", "localhost:8080", "bad proxy url"},
+		{"unsupported scheme", "ftp://localhost:8080", "bad proxy url"},
 		{"missing host", "http://", "bad proxy url"},
-		{"HTTP with username no password", "http://user@proxy.example.com:8080", "password is empty"},
-		{"HTTPS with username no password", "https://user@proxy.example.com:8080", "password is empty"},
+		{"HTTP with username no password", "http://user@localhost:8080", "password is empty"},
+		{"HTTPS with username no password", "https://user@localhost:8080", "password is empty"},
 	}
 
 	for _, tc := range testCases {
@@ -95,10 +95,10 @@ func TestNewDialerDefaultPorts(t *testing.T) {
 		proxyURL    string
 		expectedURL string
 	}{
-		{"HTTP default port", "http://proxy.example.com", "http://proxy.example.com:80"},
-		{"HTTPS default port", "https://proxy.example.com", "https://proxy.example.com:443"},
-		{"SOCKS5 default port", "socks5://proxy.example.com", "socks5://proxy.example.com:1080"},
-		{"SOCKS5H default port", "socks5h://proxy.example.com", "socks5h://proxy.example.com:1080"},
+		{"HTTP default port", "http://localhost", "http://localhost:80"},
+		{"HTTPS default port", "https://localhost", "https://localhost:443"},
+		{"SOCKS5 default port", "socks5://localhost", "socks5://localhost:1080"},
+		{"SOCKS5H default port", "socks5h://localhost", "socks5h://localhost:1080"},
 	}
 
 	for _, tc := range testCases {
@@ -121,7 +121,7 @@ func TestNewDialerDefaultPorts(t *testing.T) {
 func TestNewDialerWithAuth(t *testing.T) {
 	t.Parallel()
 
-	proxyURL := "http://testuser:testpass@proxy.example.com:8080"
+	proxyURL := "http://testuser:testpass@localhost:8080"
 
 	dialer, err := connectproxy.NewDialer(proxyURL)
 	if err != nil {
@@ -261,7 +261,7 @@ func TestDialerEdgeCases(t *testing.T) {
 	}
 
 	// Test with special characters in auth
-	dialer, err = connectproxy.NewDialer("http://user%20name:pass%40word@proxy.example.com:8080")
+	dialer, err = connectproxy.NewDialer("http://user%20name:pass%40word@localhost:8080")
 	if err != nil {
 		t.Errorf("proxy with encoded auth should be valid: %v", err)
 	}
@@ -270,7 +270,7 @@ func TestDialerEdgeCases(t *testing.T) {
 	}
 
 	// Test with non-standard port
-	dialer, err = connectproxy.NewDialer("http://proxy.example.com:3128")
+	dialer, err = connectproxy.NewDialer("http://localhost:3128")
 	if err != nil {
 		t.Errorf("proxy with custom port should be valid: %v", err)
 	}
@@ -286,9 +286,9 @@ func TestSOCKS5Proxy(t *testing.T) {
 		name     string
 		proxyURL string
 	}{
-		{"SOCKS5", "socks5://proxy.example.com:1080"},
-		{"SOCKS5H", "socks5h://proxy.example.com:1080"},
-		{"SOCKS5 with auth", "socks5://user:pass@proxy.example.com:1080"},
+		{"SOCKS5", "socks5://localhost:1080"},
+		{"SOCKS5H", "socks5h://localhost:1080"},
+		{"SOCKS5 with auth", "socks5://user:pass@localhost:1080"},
 	}
 
 	for _, tc := range testCases {
@@ -382,7 +382,7 @@ func TestDialerBasicDial(t *testing.T) {
 	}
 
 	// Test basic Dial method (which calls DialContext internally)
-	conn, err := dialer.Dial("tcp", "example.com:80")
+	conn, err := dialer.Dial("tcp", "localhost:80")
 	if err == nil {
 		if conn != nil {
 			conn.Close()
@@ -400,7 +400,7 @@ func TestProxyDialerHTTPSWithTLS(t *testing.T) {
 	t.Parallel()
 
 	// Test HTTPS proxy URL parsing and creation
-	proxyURL := "https://proxy.example.com:8443"
+	proxyURL := "https://localhost:8443"
 
 	dialer, err := connectproxy.NewDialer(proxyURL)
 	if err != nil {
@@ -421,7 +421,7 @@ func TestProxyDialerHTTPSWithTLS(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
 
-	_, err = dialer.DialContext(ctx, "tcp", "example.com:80")
+	_, err = dialer.DialContext(ctx, "tcp", "localhost:80")
 
 	// Should have called our custom DialTLS
 	if !customDialTLSCalled {
@@ -448,7 +448,7 @@ func TestHTTP2ConnMethods(t *testing.T) {
 func TestProxyDialerCustomDialer(t *testing.T) {
 	t.Parallel()
 
-	proxyURL := "http://proxy.example.com:8080"
+	proxyURL := "http://localhost:8080"
 
 	dialer, err := connectproxy.NewDialer(proxyURL)
 	if err != nil {
@@ -463,7 +463,7 @@ func TestProxyDialerCustomDialer(t *testing.T) {
 	ctx := context.Background()
 
 	// This should use our custom dialer (which will timeout quickly)
-	_, err = dialer.DialContext(ctx, "tcp", "example.com:80")
+	_, err = dialer.DialContext(ctx, "tcp", "localhost:80")
 
 	// Should get some error (connection refused, timeout, etc.)
 	if err == nil {
@@ -482,19 +482,19 @@ func TestProxyURLEdgeCases(t *testing.T) {
 	}{
 		{
 			name:      "no scheme",
-			proxyURL:  "proxy.example.com:8080",
+			proxyURL:  "localhost:8080",
 			shouldErr: true,
 			errType:   "bad proxy url",
 		},
 		{
 			name:      "empty scheme",
-			proxyURL:  "://proxy.example.com:8080",
+			proxyURL:  "://localhost:8080",
 			shouldErr: true,
 			errType:   "protocol scheme",
 		},
 		{
 			name:      "unsupported scheme",
-			proxyURL:  "telnet://proxy.example.com:8080",
+			proxyURL:  "telnet://localhost:8080",
 			shouldErr: true,
 			errType:   "bad proxy url",
 		},
@@ -505,7 +505,7 @@ func TestProxyURLEdgeCases(t *testing.T) {
 		},
 		{
 			name:      "valid with path",
-			proxyURL:  "http://proxy.example.com:8080/path",
+			proxyURL:  "http://localhost:8080/path",
 			shouldErr: false,
 		},
 	}

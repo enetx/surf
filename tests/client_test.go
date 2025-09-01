@@ -426,6 +426,93 @@ func TestClientMultipart(t *testing.T) {
 	}
 }
 
+func TestClientMultipartEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
+			t.Fatal(err)
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+
+	// Test with empty multipart data
+	emptyData := g.NewMapOrd[g.String, g.String](0)
+	resp := client.Multipart(g.String(ts.URL), emptyData).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	// Test with special characters in field names and values
+	specialData := g.NewMapOrd[g.String, g.String](3)
+	specialData.Set("field with spaces", "value with spaces")
+	specialData.Set("field_with_unicode", "value with 特殊字符 🚀")
+	specialData.Set("empty_field", "")
+
+	resp = client.Multipart(g.String(ts.URL), specialData).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
+func TestClientMultipartWithCustomBoundary(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		contentType := r.Header.Get("Content-Type")
+		if !strings.Contains(contentType, "multipart/form-data") {
+			t.Errorf("expected multipart/form-data content type, got %s", contentType)
+		}
+		if !strings.Contains(contentType, "boundary=") {
+			t.Error("expected boundary in content type")
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Boundary(func() g.String { return "custom-boundary-123" }).
+		Build()
+
+	data := g.NewMapOrd[g.String, g.String](1)
+	data.Set("test_field", "test_value")
+
+	resp := client.Multipart(g.String(ts.URL), data).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
+func TestClientMultipartInvalidURL(t *testing.T) {
+	t.Parallel()
+
+	client := surf.NewClient()
+
+	data := g.NewMapOrd[g.String, g.String](1)
+	data.Set("field", "value")
+
+	// Test with invalid URL
+	resp := client.Multipart("invalid://url with spaces", data).Do()
+	if resp.IsOk() {
+		t.Error("expected error for invalid URL")
+	}
+}
+
 func TestClientFileUpload(t *testing.T) {
 	t.Parallel()
 

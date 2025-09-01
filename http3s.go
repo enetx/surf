@@ -14,6 +14,7 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http3"
+	"github.com/enetx/surf/pkg/quicconn"
 	"github.com/quic-go/quic-go"
 	uquic "github.com/refraction-networking/uquic"
 	"github.com/wzshiming/socks5"
@@ -288,7 +289,7 @@ func (ut *uquicTransport) dialSOCKS5(
 	}
 
 	// Wrap connection for QUIC compatibility
-	packetConn := newQUICPacketConn(conn, remoteAddr)
+	packetConn := quicconn.New(conn, remoteAddr)
 
 	// Establish QUIC connection through the proxy
 	c, err := quic.Dial(ctx, packetConn, remoteAddr, tlsConfig, cfg)
