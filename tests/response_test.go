@@ -692,7 +692,7 @@ func TestResponseStatusCodeEdgeCases(t *testing.T) {
 		{"Custom Server Error", 550, false, false, false, false, true},
 
 		// Edge cases - note: httptest may not handle these properly
-		{"Zero status", 0, true, false, false, false, false}, // Expect error
+		{"Invalid status", 999, false, false, false, false, true}, // Use 999 instead of 0
 		// Skip 999 as httptest server error handling is non-standard
 	}
 

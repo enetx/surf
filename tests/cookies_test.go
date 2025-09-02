@@ -3,6 +3,7 @@ package surf_test
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"testing"
 	"time"
 
@@ -442,5 +443,347 @@ func TestCookiesMultipleSameName(t *testing.T) {
 
 	if count < 1 {
 		t.Error("expected at least one duplicate cookie")
+	}
+}
+
+func TestCookiesContainsMethod(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "test-cookie",
+			Value: "test-value",
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().Session().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Test Contains with string
+	if !cookies.Contains("test-cookie") {
+		t.Error("expected Contains to work with string pattern")
+	}
+
+	// Test Contains with g.String
+	if !cookies.Contains(g.String("test-cookie")) {
+		t.Error("expected Contains to work with g.String pattern")
+	}
+
+	// Test Contains with non-existent cookie
+	if cookies.Contains("non-existent") {
+		t.Error("expected Contains to return false for non-existent cookie")
+	}
+}
+
+func TestCookiesContainsRegexp(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "session-id",
+			Value: "abc123def",
+		})
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "user-pref",
+			Value: "dark-theme",
+		})
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "auth-token",
+			Value: "bearer-xyz789",
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().Session().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Test Contains with regexp for session ID pattern
+	sessionPattern, err := regexp.Compile(`session-id=[a-z0-9]+`)
+	if err != nil {
+		t.Fatalf("failed to compile regexp: %v", err)
+	}
+
+	if !cookies.Contains(sessionPattern) {
+		t.Error("expected Contains to match session-id pattern with regexp")
+	}
+
+	// Test Contains with regexp for auth token
+	authPattern, err := regexp.Compile(`auth-token=bearer-[a-z0-9]+`)
+	if err != nil {
+		t.Fatalf("failed to compile auth regexp: %v", err)
+	}
+
+	if !cookies.Contains(authPattern) {
+		t.Error("expected Contains to match auth-token pattern with regexp")
+	}
+
+	// Test Contains with regexp that doesn't match
+	noMatchPattern, err := regexp.Compile(`admin-session=[0-9]+`)
+	if err != nil {
+		t.Fatalf("failed to compile no-match regexp: %v", err)
+	}
+
+	if cookies.Contains(noMatchPattern) {
+		t.Error("expected Contains to return false for non-matching regexp")
+	}
+
+	// Test with case-insensitive regexp
+	caseInsensitivePattern, err := regexp.Compile(`(?i)USER-PREF=.*THEME`)
+	if err != nil {
+		t.Fatalf("failed to compile case-insensitive regexp: %v", err)
+	}
+
+	if !cookies.Contains(caseInsensitivePattern) {
+		t.Error("expected Contains to match case-insensitive pattern")
+	}
+}
+
+func TestCookiesContainsPatternTypes(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "TestCookie",
+			Value: "TestValue",
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().Session().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Test case sensitivity - cookies.Contains() makes everything lowercase
+	if !cookies.Contains("testcookie") {
+		t.Error("expected Contains to work case-insensitively with string")
+	}
+
+	if !cookies.Contains("TESTCOOKIE") {
+		t.Error("expected Contains to work case-insensitively with uppercase string")
+	}
+
+	// Test with g.String case sensitivity
+	if !cookies.Contains(g.String("testvalue")) {
+		t.Error("expected Contains to work case-insensitively with g.String")
+	}
+
+	if !cookies.Contains(g.String("TESTVALUE")) {
+		t.Error("expected Contains to work case-insensitively with uppercase g.String")
+	}
+}
+
+func TestCookiesContainsEmptyAndNil(t *testing.T) {
+	t.Parallel()
+
+	// Test with empty cookies
+	var emptyCookies surf.Cookies
+
+	if emptyCookies.Contains("any-pattern") {
+		t.Error("expected Contains to return false for empty cookies")
+	}
+
+	if emptyCookies.Contains(g.String("any-pattern")) {
+		t.Error("expected Contains to return false for empty cookies with g.String")
+	}
+
+	pattern, _ := regexp.Compile(`.*`)
+	if emptyCookies.Contains(pattern) {
+		t.Error("expected Contains to return false for empty cookies with regexp")
+	}
+
+	// Note: We can't test nil cookies pointer since (*Cookies).Contains
+	// expects a non-nil receiver - this would require changing the method signature
+}
+
+func TestCookiesContainsPartialMatches(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:     "complex-cookie",
+			Value:    "complex-value-with-dashes",
+			Path:     "/api/v1",
+			Domain:   "example.com",
+			Secure:   true,
+			HttpOnly: true,
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().Session().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Test partial matches in cookie name
+	if !cookies.Contains("complex") {
+		t.Error("expected Contains to find partial match in cookie name")
+	}
+
+	// Test partial matches in cookie value
+	if !cookies.Contains("complex-value") {
+		t.Error("expected Contains to find partial match in cookie value")
+	}
+
+	// Test partial matches in cookie attributes (path, domain, etc.)
+	if !cookies.Contains("/api") {
+		t.Error("expected Contains to find partial match in cookie path")
+	}
+
+	if !cookies.Contains("example.com") {
+		t.Error("expected Contains to find partial match in cookie domain")
+	}
+
+	// Test cookie flags
+	if !cookies.Contains("secure") {
+		t.Error("expected Contains to find secure flag in cookie string")
+	}
+
+	if !cookies.Contains("httponly") {
+		t.Error("expected Contains to find httponly flag in cookie string")
+	}
+}
+
+func TestCookiesContainsComplexRegexp(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "jwt-token",
+			Value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.payload.signature",
+		})
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "timestamp",
+			Value: "1640995200",
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().Session().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Test JWT token pattern - based on other tests, Contains() matches against cookie name or value
+	// First test if the cookie name exists
+	if !cookies.Contains("jwt-token") {
+		t.Error("expected jwt-token cookie to be present")
+	}
+
+	// Test JWT token value pattern with regex (cookies.Contains() makes everything lowercase)
+	jwtPattern, err := regexp.Compile(`eyj.*signature`)
+	if err != nil {
+		t.Fatalf("failed to compile JWT regexp: %v", err)
+	}
+
+	if !cookies.Contains(jwtPattern) {
+		t.Error("expected Contains to match JWT token value pattern")
+	}
+
+	// Test timestamp pattern (Unix timestamp)
+	timestampPattern, err := regexp.Compile(`\d{10}`)
+	if err != nil {
+		t.Fatalf("failed to compile timestamp regexp: %v", err)
+	}
+
+	if !cookies.Contains(timestampPattern) {
+		t.Error("expected Contains to match timestamp pattern")
+	}
+
+	// Test complex pattern that combines multiple parts
+	combinedPattern, err := regexp.Compile(`(jwt-token|1640995200)`)
+	if err != nil {
+		t.Fatalf("failed to compile combined regexp: %v", err)
+	}
+
+	if !cookies.Contains(combinedPattern) {
+		t.Error("expected Contains to match combined pattern")
+	}
+}
+
+func TestCookiesContainsUnsupportedTypes(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
+		ehttp.SetCookie(w, &ehttp.Cookie{
+			Name:  "test",
+			Value: "value",
+		})
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().Session().Build()
+	resp := client.Get(g.String(ts.URL)).Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	cookies := resp.Ok().Cookies
+
+	// Test with unsupported types - should return false
+	if cookies.Contains(123) {
+		t.Error("expected Contains to return false for int type")
+	}
+
+	if cookies.Contains([]string{"test"}) {
+		t.Error("expected Contains to return false for slice type")
+	}
+
+	if cookies.Contains(map[string]string{"test": "value"}) {
+		t.Error("expected Contains to return false for map type")
+	}
+
+	if cookies.Contains(true) {
+		t.Error("expected Contains to return false for bool type")
+	}
+
+	// Test with nil pattern
+	if cookies.Contains(nil) {
+		t.Error("expected Contains to return false for nil pattern")
 	}
 }

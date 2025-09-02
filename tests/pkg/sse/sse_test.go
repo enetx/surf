@@ -1,4 +1,4 @@
-package pkg_test
+package sse_test
 
 import (
 	"fmt"

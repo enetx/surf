@@ -360,3 +360,207 @@ func TestRoundTripperErrorHandling(t *testing.T) {
 		t.Logf("Got error (may be network-related): %v", resp.Err())
 	}
 }
+
+func TestJAHTTP2Transport(t *testing.T) {
+	t.Parallel()
+
+	// Test JA3 with HTTP/2 transport configuration
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"protocol": "http2"}`)
+	}
+
+	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Test with Chrome HTTP/2 configuration
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		HTTP2Settings().
+		HeaderTableSize(65536).
+		Set().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be created with JA3 and HTTP2 settings")
+	}
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Logf("HTTP2 transport test error (expected with httptest): %v", resp.Err())
+	} else {
+		httpResp := resp.Ok().GetResponse()
+		t.Logf("Protocol: %s", httpResp.Proto)
+	}
+}
+
+func TestJATransportBuilding(t *testing.T) {
+	t.Parallel()
+
+	// Test various JA3 transport building scenarios
+	testCases := []struct {
+		name         string
+		configureJA  func() *surf.Client
+		expectClient bool
+	}{
+		{
+			name: "Chrome with HTTP2 disabled",
+			configureJA: func() *surf.Client {
+				return surf.NewClient().Builder().
+					JA().Chrome131().
+					ForceHTTP1().
+					Build()
+			},
+			expectClient: true,
+		},
+		{
+			name: "Firefox with custom timeout",
+			configureJA: func() *surf.Client {
+				return surf.NewClient().Builder().
+					JA().Firefox131().
+					Timeout(5 * time.Second).
+					Build()
+			},
+			expectClient: true,
+		},
+		{
+			name: "Chrome with SOCKS5 proxy",
+			configureJA: func() *surf.Client {
+				return surf.NewClient().Builder().
+					JA().Chrome131().
+					Proxy("socks5://127.0.0.1:9999").
+					Build()
+			},
+			expectClient: true,
+		},
+		{
+			name: "Firefox with custom DNS",
+			configureJA: func() *surf.Client {
+				return surf.NewClient().Builder().
+					JA().Firefox131().
+					DNS("8.8.8.8:53").
+					Build()
+			},
+			expectClient: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			client := tc.configureJA()
+			if tc.expectClient {
+				if client == nil {
+					t.Errorf("expected client to be created for %s", tc.name)
+				}
+			} else {
+				if client != nil {
+					t.Errorf("expected client creation to fail for %s", tc.name)
+				}
+			}
+		})
+	}
+}
+
+func TestJATLSConfiguration(t *testing.T) {
+	t.Parallel()
+
+	// Test JA3 TLS configuration with various scenarios
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"tls": "configured"}`)
+	}
+
+	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Test with different TLS configurations
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be created")
+	}
+
+	// Test TLS connection with custom configuration
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Logf("TLS configuration test error (expected with self-signed cert): %v", resp.Err())
+	}
+
+	// Verify TLS config was applied (this tests the TLS config building)
+	tlsConfig := client.GetTLSConfig()
+	if tlsConfig == nil {
+		t.Error("expected TLS config to be set on JA3 client")
+	}
+}
+
+func TestJAConnectionPooling(t *testing.T) {
+	t.Parallel()
+
+	// Test connection pooling with JA3 transport
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"pool": "test"}`)
+	}
+
+	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be created")
+	}
+
+	// Make multiple requests to test connection pooling
+	for i := 0; i < 3; i++ {
+		resp := client.Get(g.String(ts.URL)).Do()
+		if resp.IsErr() {
+			t.Logf("Connection pooling test %d error: %v", i+1, resp.Err())
+		} else {
+			t.Logf("Connection pooling test %d successful", i+1)
+		}
+
+		// Small delay between requests
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	// Close idle connections
+	client.CloseIdleConnections()
+	t.Log("Connection pooling test completed")
+}
+
+func TestJAErrorHandling(t *testing.T) {
+	t.Parallel()
+
+	// Test JA3 error handling with various scenarios
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		Timeout(100 * time.Millisecond).
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be created")
+	}
+
+	// Test connection to non-existent host
+	resp := client.Get(g.String("https://non-existent-host.invalid")).Do()
+	if resp.IsErr() {
+		t.Logf("Expected DNS error: %v", resp.Err())
+	}
+
+	// Test connection timeout
+	resp2 := client.Get(g.String("https://127.0.0.1:65535")).Do()
+	if resp2.IsErr() {
+		t.Logf("Expected connection error: %v", resp2.Err())
+	}
+
+	// Test invalid URL
+	resp3 := client.Get(g.String("invalid://url")).Do()
+	if resp3.IsErr() {
+		t.Logf("Expected URL parsing error: %v", resp3.Err())
+	}
+}

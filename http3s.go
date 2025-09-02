@@ -288,8 +288,11 @@ func (ut *uquicTransport) dialSOCKS5(
 		remoteAddr = &net.UDPAddr{Port: p}
 	}
 
-	// Wrap connection for QUIC compatibility
-	packetConn := quicconn.New(conn, remoteAddr)
+	// wzshiming/socks5 relays datagrams as raw bytes (no RFC1928 header):
+	packetConn := quicconn.New(conn, remoteAddr, quicconn.EncapRaw)
+
+	// If your relay expects RFC1928 headers on the wire, switch to:
+	// packetConn := quicconn.New(conn, remoteAddr, quicconn.EncapSocks5)
 
 	// Establish QUIC connection through the proxy
 	c, err := quic.Dial(ctx, packetConn, remoteAddr, tlsConfig, cfg)

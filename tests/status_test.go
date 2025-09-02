@@ -308,3 +308,108 @@ func TestStatusCodeEdgeCases(t *testing.T) {
 		t.Error("expected 418 to not be success")
 	}
 }
+
+func TestStatusCodeDirectMethods(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		code            surf.StatusCode
+		isInformational bool
+		isSuccess       bool
+		isRedirection   bool
+		isClientError   bool
+		isServerError   bool
+		text            string
+	}{
+		{100, true, false, false, false, false, "Continue"},
+		{101, true, false, false, false, false, "Switching Protocols"},
+		{102, true, false, false, false, false, "Processing"},
+		{199, true, false, false, false, false, ""},
+		{200, false, true, false, false, false, "OK"},
+		{201, false, true, false, false, false, "Created"},
+		{204, false, true, false, false, false, "No Content"},
+		{299, false, true, false, false, false, ""},
+		{300, false, false, true, false, false, "Multiple Choices"},
+		{301, false, false, true, false, false, "Moved Permanently"},
+		{302, false, false, true, false, false, "Found"},
+		{399, false, false, true, false, false, ""},
+		{400, false, false, false, true, false, "Bad Request"},
+		{401, false, false, false, true, false, "Unauthorized"},
+		{404, false, false, false, true, false, "Not Found"},
+		{499, false, false, false, true, false, ""},
+		{500, false, false, false, false, true, "Internal Server Error"},
+		{502, false, false, false, false, true, "Bad Gateway"},
+		{503, false, false, false, false, true, "Service Unavailable"},
+		{599, false, false, false, false, true, ""},
+		{600, false, false, false, false, true, ""},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("StatusCode_%d", tc.code), func(t *testing.T) {
+			if tc.code.IsInformational() != tc.isInformational {
+				t.Errorf("IsInformational() for %d: expected %v, got %v", tc.code, tc.isInformational, tc.code.IsInformational())
+			}
+			if tc.code.IsSuccess() != tc.isSuccess {
+				t.Errorf("IsSuccess() for %d: expected %v, got %v", tc.code, tc.isSuccess, tc.code.IsSuccess())
+			}
+			if tc.code.IsRedirection() != tc.isRedirection {
+				t.Errorf("IsRedirection() for %d: expected %v, got %v", tc.code, tc.isRedirection, tc.code.IsRedirection())
+			}
+			if tc.code.IsClientError() != tc.isClientError {
+				t.Errorf("IsClientError() for %d: expected %v, got %v", tc.code, tc.isClientError, tc.code.IsClientError())
+			}
+			if tc.code.IsServerError() != tc.isServerError {
+				t.Errorf("IsServerError() for %d: expected %v, got %v", tc.code, tc.isServerError, tc.code.IsServerError())
+			}
+			if tc.code.Text() != tc.text {
+				t.Errorf("Text() for %d: expected %q, got %q", tc.code, tc.text, tc.code.Text())
+			}
+		})
+	}
+}
+
+func TestStatusCodeBoundaries(t *testing.T) {
+	t.Parallel()
+
+	// Test exact boundary values
+	boundaries := []struct {
+		code            surf.StatusCode
+		isInformational bool
+		isSuccess       bool
+		isRedirection   bool
+		isClientError   bool
+		isServerError   bool
+	}{
+		{99, false, false, false, false, false},
+		{100, true, false, false, false, false},
+		{199, true, false, false, false, false},
+		{200, false, true, false, false, false},
+		{299, false, true, false, false, false},
+		{300, false, false, true, false, false},
+		{399, false, false, true, false, false},
+		{400, false, false, false, true, false},
+		{499, false, false, false, true, false},
+		{500, false, false, false, false, true},
+		{999, false, false, false, false, true},
+	}
+
+	for _, b := range boundaries {
+		t.Run(fmt.Sprintf("Boundary_%d", b.code), func(t *testing.T) {
+			if b.code.IsInformational() != b.isInformational {
+				t.Errorf("IsInformational() for boundary %d: expected %v", b.code, b.isInformational)
+			}
+			if b.code.IsSuccess() != b.isSuccess {
+				t.Errorf("IsSuccess() for boundary %d: expected %v", b.code, b.isSuccess)
+			}
+			if b.code.IsRedirection() != b.isRedirection {
+				t.Errorf("IsRedirection() for boundary %d: expected %v", b.code, b.isRedirection)
+			}
+			if b.code.IsClientError() != b.isClientError {
+				t.Errorf("IsClientError() for boundary %d: expected %v", b.code, b.isClientError)
+			}
+			if b.code.IsServerError() != b.isServerError {
+				t.Errorf("IsServerError() for boundary %d: expected %v", b.code, b.isServerError)
+			}
+		})
+	}
+}

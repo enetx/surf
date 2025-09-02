@@ -743,3 +743,168 @@ func TestMiddlewareClientSingleton(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 }
+
+func TestMiddlewareClientDNSAdvanced(t *testing.T) {
+	t.Parallel()
+
+	// Test advanced DNS configurations
+	testCases := []struct {
+		name     string
+		dnsAddr  string
+		expected bool
+	}{
+		{"IPv4 DNS", "8.8.8.8:53", true},
+		{"IPv6 DNS", "[2001:4860:4860::8888]:53", true},
+		{"Localhost DNS", "127.0.0.1:53", true},
+		{"Invalid port", "8.8.8.8:99999", false},
+		{"Invalid IP", "999.999.999.999:53", false},
+		{"Missing port", "8.8.8.8", false},
+		{"Empty DNS", "", false},
+	}
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"dns": "configured"}`)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			client := surf.NewClient().Builder().DNS(g.String(tc.dnsAddr)).Build()
+
+			if tc.expected {
+				if client == nil {
+					t.Errorf("expected client to be created for %s", tc.name)
+					return
+				}
+
+				// Test request with custom DNS
+				resp := client.Get(g.String(ts.URL)).Do()
+				if resp.IsErr() {
+					t.Logf("DNS request error for %s (may be expected): %v", tc.name, resp.Err())
+				}
+			} else {
+				// Some invalid configurations may still create a client but fail later
+				if client != nil {
+					resp := client.Get(g.String(ts.URL)).Do()
+					if resp.IsErr() {
+						t.Logf("Expected DNS error for %s: %v", tc.name, resp.Err())
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestMiddlewareClientH2CErrorHandling(t *testing.T) {
+	t.Parallel()
+
+	// Test H2C error handling scenarios
+	client := surf.NewClient().Builder().H2C().Build()
+
+	if client == nil {
+		t.Fatal("expected H2C client to be created")
+	}
+
+	// Test connection to non-existent server
+	resp := client.Get(g.String("http://127.0.0.1:65535/nonexistent")).Do()
+	if resp.IsErr() {
+		t.Logf("Expected connection error: %v", resp.Err())
+	} else {
+		t.Error("expected error connecting to non-existent server")
+	}
+
+	// Test with invalid URL
+	resp2 := client.Get(g.String("invalid-url")).Do()
+	if resp2.IsErr() {
+		t.Logf("Expected URL parsing error: %v", resp2.Err())
+	} else {
+		t.Error("expected error with invalid URL")
+	}
+}
+
+func TestMiddlewareClientProxyAdvanced(t *testing.T) {
+	t.Parallel()
+
+	// Test advanced proxy configurations
+	testCases := []struct {
+		name      string
+		proxyURL  string
+		expectErr bool
+	}{
+		{"HTTP proxy", "http://127.0.0.1:8080", true},
+		{"HTTPS proxy", "https://127.0.0.1:8443", true},
+		{"SOCKS5 proxy", "socks5://127.0.0.1:1080", true},
+		{"Proxy with auth", "http://user:pass@127.0.0.1:8080", true},
+		{"Invalid proxy URL", "invalid://proxy", true},
+		{"Malformed URL", "not-a-url", true},
+	}
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"proxy": "test"}`)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			client := surf.NewClient().Builder().Proxy(tc.proxyURL).Build()
+
+			if tc.expectErr {
+				if client == nil {
+					t.Logf("Client creation failed for %s (may be expected)", tc.name)
+					return
+				}
+
+				// Test request through proxy (will likely fail due to unavailable proxy)
+				resp := client.Get(g.String(ts.URL)).Do()
+				if resp.IsErr() {
+					t.Logf("Expected proxy error for %s: %v", tc.name, resp.Err())
+				}
+			} else {
+				if client != nil {
+					t.Errorf("expected client creation to fail for %s", tc.name)
+				}
+			}
+		})
+	}
+}
+
+func TestMiddlewareClientComplexConfigurations(t *testing.T) {
+	t.Parallel()
+
+	// Test complex middleware combinations
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"complex": "config"}`)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Test combining multiple middlewares
+	client := surf.NewClient().Builder().
+		DNS("8.8.8.8:53").
+		Timeout(5 * time.Second).
+		DisableKeepAlive().
+		DisableCompression().
+		H2C().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client with complex configuration to be created")
+	}
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Logf("Complex configuration request error: %v", resp.Err())
+	} else {
+		if !resp.Ok().StatusCode.IsSuccess() {
+			t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+		}
+	}
+}
