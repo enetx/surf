@@ -54,7 +54,7 @@
 go get -u github.com/enetx/surf
 ```
 
-**Required Go version:** 1.25+
+**Required Go version:** 1.24+
 
 ## 🔄 Standard Library Compatibility
 

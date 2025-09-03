@@ -503,6 +503,11 @@ func isSOCKS5(proxyURL string) bool {
 	}
 
 	u, err := url.Parse(proxyURL)
+	if err != nil {
+		return false
+	}
 
-	return err == nil && u.Scheme == "socks5"
+	scheme := u.Scheme
+
+	return scheme == "socks5" || scheme == "socks5h"
 }
