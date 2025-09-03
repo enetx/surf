@@ -11,7 +11,9 @@ import (
 	"github.com/enetx/surf/header"
 )
 
-// default user-agent for surf.
+// defaultUserAgentMW sets the default User-Agent header for surf requests.
+// Only sets the header if no User-Agent is already present in the request.
+// Uses the predefined _userAgent constant as the default value.
 func defaultUserAgentMW(req *Request) error {
 	if headers := req.GetRequest().Header; headers.Get(header.USER_AGENT) == "" {
 		// Set the default user-agent header.
@@ -21,10 +23,12 @@ func defaultUserAgentMW(req *Request) error {
 	return nil
 }
 
-// userAgentMW sets the "User-Agent" header for the given Request. The userAgent parameter
-// can be a string or a slice of strings. If it is a slice, a random user agent is selected
-// from the slice. If the userAgent is not a string or a slice of strings, an error is returned.
-// The function updates the request headers with the selected or given user agent.
+// userAgentMW configures a custom User-Agent header for HTTP requests.
+// Supports various input types for flexibility:
+// - string or g.String: Uses the value directly
+// - []string or g.Slice[string]: Randomly selects from the slice (useful for rotation)
+// - g.Slice[g.String]: Randomly selects from g.String slice
+// Returns an error for unsupported types or empty slices.
 func userAgentMW(req *Request, userAgent any) error {
 	var ua string
 
@@ -57,8 +61,10 @@ func userAgentMW(req *Request, userAgent any) error {
 	return nil
 }
 
-// got101ResponseMW configures the request's context to handle 1xx responses.
-// It sets up a client trace for capturing 1xx responses and returns any error encountered.
+// got101ResponseMW configures request tracing to handle HTTP 101 Switching Protocols responses.
+// Sets up client trace callbacks to detect and handle protocol switching responses.
+// Returns an error specifically for HTTP 101 responses to allow special handling of protocol upgrades.
+// Other 1xx responses are ignored and allowed to proceed normally.
 func got101ResponseMW(req *Request) error {
 	req.WithContext(httptrace.WithClientTrace(req.GetRequest().Context(),
 		&httptrace.ClientTrace{
@@ -77,8 +83,10 @@ func got101ResponseMW(req *Request) error {
 	return nil
 }
 
-// remoteAddrMW configures the request's context to get the remote address
-// of the server if the 'remoteAddrMW' option is enabled.
+// remoteAddrMW configures request tracing to capture the remote server address.
+// Sets up client trace callbacks to extract and store the remote address
+// of the server connection for later access. This information can be useful
+// for logging, debugging, or connection analysis purposes.
 func remoteAddrMW(req *Request) error {
 	req.WithContext(httptrace.WithClientTrace(req.GetRequest().Context(),
 		&httptrace.ClientTrace{
@@ -89,7 +97,9 @@ func remoteAddrMW(req *Request) error {
 	return nil
 }
 
-// bearerAuthMW adds a Bearer token to the Authorization header of the given request.
+// bearerAuthMW configures Bearer token authentication for HTTP requests.
+// Adds an Authorization header with the Bearer token format if a token is provided.
+// Only sets the header if the token is not empty, allowing conditional authentication.
 func bearerAuthMW(req *Request, token g.String) error {
 	if token.NotEmpty() {
 		req.AddHeaders(g.Map[g.String, g.String]{header.AUTHORIZATION: "Bearer " + token})
@@ -98,7 +108,10 @@ func bearerAuthMW(req *Request, token g.String) error {
 	return nil
 }
 
-// basicAuthMW sets basic authentication for the request based on the client's options.
+// basicAuthMW configures HTTP Basic Authentication for requests.
+// Expects authentication string in "username:password" format.
+// Skips setting auth if Authorization header already exists.
+// Returns an error if username or password fields are empty.
 func basicAuthMW(req *Request, authentication g.String) error {
 	if req.GetRequest().Header.Get(header.AUTHORIZATION) != "" {
 		return nil
@@ -117,7 +130,9 @@ func basicAuthMW(req *Request, authentication g.String) error {
 	return nil
 }
 
-// contentTypeMW sets the Content-Type header for the given HTTP request.
+// contentTypeMW configures the Content-Type header for HTTP requests.
+// Sets the MIME type of the request body content to inform the server
+// how to interpret the request data. Returns an error if contentType is empty.
 func contentTypeMW(req *Request, contentType g.String) error {
 	if contentType.Empty() {
 		return fmt.Errorf("Content-Type is empty")

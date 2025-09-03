@@ -14,13 +14,15 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-// Body represents the content and properties of an HTTP response Body.
+// Body represents an HTTP response body with enhanced functionality and automatic caching.
+// Provides convenient methods for parsing common data formats (JSON, XML, text) and includes
+// features like automatic decompression, content caching, character set detection, and size limits.
 type Body struct {
-	Reader      io.ReadCloser // ReadCloser for accessing the body content.
-	contentType string        // Content type of the body.
-	content     g.Bytes       // Content of the body as Bytes.
-	limit       int64         // Maximum allowed size of the body.
-	cache       bool          // Indicates if the body is cacheable.
+	Reader      io.ReadCloser // ReadCloser for accessing the raw body content
+	contentType string        // MIME content type from Content-Type header
+	content     g.Bytes       // Cached body content (populated when cache is enabled)
+	limit       int64         // Maximum allowed body size in bytes (-1 for unlimited)
+	cache       bool          // Whether to cache the body content in memory for reuse
 }
 
 // MD5 returns the MD5 hash of the body's content as a HString.

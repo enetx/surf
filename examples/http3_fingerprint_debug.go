@@ -47,8 +47,14 @@ func main() {
 func inspectTransport(name string, client *surf.Client) {
 	fmt.Printf("=== %s Transport Inspection ===\n", name)
 
-	if !client.IsHTTP3() {
-		fmt.Printf("HTTP/3 not enabled\n")
+	if client == nil {
+		fmt.Printf("Client not created\n")
+		return
+	}
+
+	// Check if transport is configured
+	if client.GetTransport() == nil {
+		fmt.Printf("Transport not configured\n")
 		return
 	}
 

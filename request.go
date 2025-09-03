@@ -13,30 +13,42 @@ import (
 	"github.com/enetx/surf/internal/drainbody"
 )
 
-// Request is a struct that holds information about an HTTP request.
+// Request represents an HTTP request with additional surf-specific functionality.
+// It wraps the standard http.Request and provides enhanced features like middleware support,
+// retry capabilities, remote address tracking, and structured error handling.
 type Request struct {
-	request     *http.Request   // The underlying http.Request.
-	cli         *Client         // The associated client for the request.
-	werr        *error          // An error encountered during writing.
-	err         error           // A general error associated with the request.
-	remoteAddr  net.Addr        // Remote network address.
-	body        io.ReadCloser   // Request body.
-	headersKeys g.Slice[string] // Order headers.
+	request     *http.Request   // The underlying standard HTTP request
+	cli         *Client         // The associated surf client for this request
+	werr        *error          // Pointer to error encountered during request writing/preparation
+	err         error           // General error associated with the request (validation, setup, etc.)
+	remoteAddr  net.Addr        // Remote server address captured during connection
+	body        io.ReadCloser   // Request body reader (for retry support and body preservation)
+	headersKeys g.Slice[string] // Ordered list of header keys (preserves header order for fingerprinting)
 }
 
-// GetRequest returns the underlying http.Request of the custom request.
+// GetRequest returns the underlying standard http.Request.
+// Provides access to the wrapped HTTP request for advanced use cases.
 func (req *Request) GetRequest() *http.Request { return req.request }
 
-// Do performs the HTTP request and returns a Response object or an error if the request failed.
+// Do executes the HTTP request and returns a Response wrapped in a Result type.
+// This is the main method that performs the actual HTTP request with full surf functionality:
+// - Applies request middleware (authentication, headers, tracing, etc.)
+// - Preserves request body for potential retries
+// - Implements retry logic with configurable status codes and delays
+// - Measures request timing for performance analysis
+// - Handles request preparation errors and write errors
 func (req *Request) Do() g.Result[*Response] {
+	// Return early if request has preparation errors
 	if req.err != nil {
 		return g.Err[*Response](req.err)
 	}
 
+	// Apply all configured request middleware
 	if err := req.cli.applyReqMW(req); err != nil {
 		return g.Err[*Response](err)
 	}
 
+	// Preserve request body for retries (except HEAD requests which have no body)
 	if req.request.Method != http.MethodHead {
 		req.body, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
 		if req.err != nil {
@@ -55,12 +67,14 @@ func (req *Request) Do() g.Result[*Response] {
 
 	builder := req.cli.builder
 
+	// Execute request with retry logic
 retry:
 	resp, err = cli.Do(req.request)
 	if err != nil {
 		return g.Err[*Response](err)
 	}
 
+	// Check if retry is needed based on status code and retry configuration
 	if builder != nil && builder.retryMax != 0 && attempts < builder.retryMax && builder.retryCodes.NotEmpty() &&
 		builder.retryCodes.Contains(resp.StatusCode) {
 		attempts++
@@ -69,6 +83,7 @@ retry:
 		goto retry
 	}
 
+	// Check for write errors that occurred during request preparation
 	if req.werr != nil && *req.werr != nil {
 		return g.Err[*Response](*req.werr)
 	}
@@ -104,7 +119,9 @@ retry:
 	return g.Ok(response)
 }
 
-// WithContext associates the provided context with the request.
+// WithContext associates a context with the request for cancellation and deadlines.
+// The context can be used to cancel the request, set timeouts, or pass request-scoped values.
+// Returns the request for method chaining. If ctx is nil, the request is unchanged.
 func (req *Request) WithContext(ctx context.Context) *Request {
 	if ctx != nil {
 		req.request = req.request.WithContext(ctx)
@@ -113,7 +130,9 @@ func (req *Request) WithContext(ctx context.Context) *Request {
 	return req
 }
 
-// AddCookies adds cookies to the request.
+// AddCookies adds one or more HTTP cookies to the request.
+// Cookies are added to the request headers and will be sent with the HTTP request.
+// Returns the request for method chaining.
 func (req *Request) AddCookies(cookies ...*http.Cookie) *Request {
 	for _, cookie := range cookies {
 		req.request.AddCookie(cookie)
@@ -122,7 +141,12 @@ func (req *Request) AddCookies(cookies ...*http.Cookie) *Request {
 	return req
 }
 
-// SetHeaders sets headers for the request, replacing existing ones with the same name.
+// SetHeaders sets HTTP headers for the request, replacing any existing headers with the same name.
+// Supports multiple input formats:
+// - Two arguments: key, value (string or g.String)
+// - Single argument: http.Header, Headers, map types, or g.Map types
+// Maintains header order for fingerprinting purposes when using g.MapOrd.
+// Returns the request for method chaining.
 func (req *Request) SetHeaders(headers ...any) *Request {
 	if req.request == nil || headers == nil {
 		return req
@@ -133,7 +157,10 @@ func (req *Request) SetHeaders(headers ...any) *Request {
 	return req
 }
 
-// AddHeaders adds headers to the request, appending to any existing headers with the same name.
+// AddHeaders adds HTTP headers to the request, appending to any existing headers with the same name.
+// Unlike SetHeaders, this method preserves existing headers and adds new values.
+// Supports the same input formats as SetHeaders.
+// Returns the request for method chaining.
 func (req *Request) AddHeaders(headers ...any) *Request {
 	if req.request == nil || headers == nil {
 		return req
@@ -144,6 +171,9 @@ func (req *Request) AddHeaders(headers ...any) *Request {
 	return req
 }
 
+// applyHeaders is a helper function that processes various header input formats and applies them to an HTTP request.
+// It handles type checking, conversion, and delegation to the provided setOrAdd function for actual header manipulation.
+// Supports ordered header maps for fingerprinting and maintains compatibility with multiple map and header types.
 func applyHeaders(r *http.Request, rawHeaders []any, req *Request, setOrAdd func(h http.Header, key, value string)) {
 	if len(rawHeaders) >= 2 {
 		var key, value string
@@ -210,6 +240,11 @@ func applyHeaders(r *http.Request, rawHeaders []any, req *Request, setOrAdd func
 	}
 }
 
+// updateRequestHeaderOrder processes ordered headers for HTTP/2 and HTTP/3 fingerprinting.
+// It maintains the specific order of headers which is crucial for browser fingerprinting.
+// Separates regular headers from pseudo-headers (starting with ':') and sets the appropriate
+// header order keys for the transport layer to use. Returns a filtered map containing only
+// non-pseudo headers with non-empty values.
 func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[T, T] {
 	r.headersKeys.Push(h.Iter().
 		Keys().

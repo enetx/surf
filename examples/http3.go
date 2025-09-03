@@ -12,9 +12,9 @@ func main() {
 	fmt.Println("=== Chrome HTTP/3 Example ===")
 	chromeClient := surf.NewClient().Builder().
 		// DNS("127.0.0.1:53").
-		DNS("1.0.0.1:53").
-		Proxy("socks5://127.0.0.1:2080").
-		// Proxy("http://127.0.0.1:2080").
+		// DNS("1.0.0.1:53").
+		// Proxy("socks5://127.0.0.1:2080").
+		Proxy("http://127.0.0.1:2080").
 		Impersonate().Chrome().HTTP3().
 		Build()
 
@@ -35,6 +35,7 @@ func main() {
 	// Example 2: Firefox HTTP/3 fingerprint
 	fmt.Println("\n=== Firefox HTTP/3 Example ===")
 	firefoxClient := surf.NewClient().Builder().
+		Proxy("socks5://127.0.0.1:2080").
 		Impersonate().FireFox().HTTP3().
 		Build()
 
@@ -55,6 +56,7 @@ func main() {
 	// Example 3: Custom HTTP/3 configuration
 	fmt.Println("\n=== Custom HTTP/3 Configuration ===")
 	customClient := surf.NewClient().Builder().
+		Proxy("socks5://127.0.0.1:2080").
 		HTTP3Settings().
 		Firefox(). // Use built-in Firefox fingerprint
 		Set().
@@ -77,6 +79,7 @@ func main() {
 	// Example 4: HTTP/3 with TLS fingerprinting (JA3)
 	fmt.Println("\n=== HTTP/3 with JA3 Fingerprinting ===")
 	ja3Client := surf.NewClient().Builder().
+		Proxy("socks5://127.0.0.1:2080").
 		JA().Chrome131().               // TLS fingerprint
 		HTTP3Settings().Chrome().Set(). // HTTP/3 fingerprint
 		Build()

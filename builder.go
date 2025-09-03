@@ -10,34 +10,38 @@ import (
 	"github.com/enetx/http"
 )
 
+// browser represents the browser type being impersonated for fingerprinting.
 type browser int
 
 const (
-	unknown browser = iota
-	chrome
-	firefox
+	unknown browser = iota // No specific browser fingerprinting
+	chrome                 // Chrome browser fingerprinting
+	firefox                // Firefox browser fingerprinting
 )
 
+// Builder provides a fluent interface for configuring HTTP clients with various advanced features
+// including proxy settings, TLS fingerprinting, HTTP/2 and HTTP/3 support, retry logic,
+// redirect handling, and browser impersonation capabilities.
 type Builder struct {
-	cli                      *Client
-	proxy                    any                                        // Proxy configuration.
-	checkRedirect            func(*http.Request, []*http.Request) error // Redirect policy.
-	http2settings            *HTTP2Settings                             // HTTP2 settings.
-	http3settings            *HTTP3Settings                             // HTTP3 settings.
-	retryCodes               g.Slice[int]                               // Codes for retry attempts.
-	cliMWs                   g.MapOrd[func(*Client), int]               // Client-level middlewares.
-	retryWait                time.Duration                              // Wait time between retries.
-	retryMax                 int                                        // Maximum retry attempts.
-	maxRedirects             int                                        // Maximum number of redirects to follow.
-	forseHTTP1               bool                                       // Use HTTP/1.1.
-	cacheBody                bool                                       // Cache response bodies.
-	followOnlyHostRedirects  bool                                       // Follow redirects only to the same host.
-	forwardHeadersOnRedirect bool                                       // Forward headers on redirects.
-	ja                       bool                                       // Use JA.
-	session                  bool                                       // Use Session.
-	singleton                bool                                       // Use Singleton.
-	browser                  browser                                    // Current browser being impersonated.
-	http3                    bool                                       // Enable HTTP/3 with auto-detection.
+	cli                      *Client                                    // The client being configured
+	proxy                    any                                        // Proxy configuration (static string/slice or dynamic function)
+	checkRedirect            func(*http.Request, []*http.Request) error // Custom redirect policy function
+	http2settings            *HTTP2Settings                             // HTTP/2 specific settings
+	http3settings            *HTTP3Settings                             // HTTP/3 specific settings
+	retryCodes               g.Slice[int]                               // HTTP status codes that trigger retries
+	cliMWs                   g.MapOrd[func(*Client), int]               // Client-level middlewares with priorities
+	retryWait                time.Duration                              // Wait duration between retry attempts
+	retryMax                 int                                        // Maximum number of retry attempts
+	maxRedirects             int                                        // Maximum number of redirects to follow
+	forseHTTP1               bool                                       // Force HTTP/1.1 protocol usage
+	cacheBody                bool                                       // Enable response body caching
+	followOnlyHostRedirects  bool                                       // Only follow redirects within same host
+	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
+	ja                       bool                                       // Enable JA3 TLS fingerprinting
+	session                  bool                                       // Enable session/cookie management
+	singleton                bool                                       // Use singleton pattern for connection reuse
+	browser                  browser                                    // Browser type for fingerprinting
+	http3                    bool                                       // Enable HTTP/3 with automatic browser detection
 }
 
 // Build sets the provided settings for the client and returns the updated client.
@@ -216,6 +220,19 @@ func (b *Builder) InterfaceAddr(address g.String) *Builder {
 }
 
 // Proxy sets the proxy settings for the client.
+// Supports both static proxy configurations and dynamic proxy provider functions.
+//
+// Static proxy examples:
+//
+//	.Proxy("socks5://127.0.0.1:9050")
+//	.Proxy([]string{"socks5://proxy1", "http://proxy2"})
+//
+// Dynamic proxy example:
+//
+//	.Proxy(func() g.String {
+//	  // Your proxy rotation logic here
+//	  return "socks5://127.0.0.1:9050"
+//	})
 func (b *Builder) Proxy(proxy any) *Builder {
 	b.proxy = proxy
 	return b.addCliMW(func(client *Client) { proxyMW(client, proxy) }, 0)

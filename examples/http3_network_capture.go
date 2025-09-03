@@ -44,8 +44,8 @@ func testWithCapture(name string, clientFactory func() *surf.Client) {
 
 	client := clientFactory()
 
-	if !client.IsHTTP3() {
-		fmt.Printf("HTTP/3 not enabled\n")
+	if client == nil {
+		fmt.Printf("Failed to create client\n")
 		return
 	}
 

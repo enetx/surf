@@ -1,3 +1,5 @@
+// Package surf provides a comprehensive HTTP client library with advanced features
+// for web scraping, automation, and HTTP/3 support with various browser fingerprinting capabilities.
 package surf
 
 import (
@@ -24,19 +26,22 @@ import (
 	"github.com/enetx/surf/header"
 )
 
-// Client struct provides a customizable HTTP client.
+// Client represents a highly configurable HTTP client with middleware support,
+// advanced transport options (HTTP/1.1, HTTP/2, HTTP/3), proxy handling,
+// TLS fingerprinting, and comprehensive request/response processing capabilities.
 type Client struct {
-	cli       *http.Client                         // Standard HTTP client.
-	dialer    *net.Dialer                          // Network dialer.
-	builder   *Builder                             // Client builder.
-	transport http.RoundTripper                    // HTTP transport settings.
-	tlsConfig *tls.Config                          // TLS configuration.
-	reqMWs    g.MapOrd[func(*Request) error, int]  // Request middleware functions.
-	respMWs   g.MapOrd[func(*Response) error, int] // Response middleware functions.
-	boundary  func() g.String
+	cli       *http.Client                         // Standard HTTP client for actual requests
+	dialer    *net.Dialer                          // Network dialer with optional custom DNS resolver
+	builder   *Builder                             // Associated builder for configuration
+	transport http.RoundTripper                    // HTTP transport (can be HTTP/1.1, HTTP/2, or HTTP/3)
+	tlsConfig *tls.Config                          // TLS configuration for secure connections
+	reqMWs    g.MapOrd[func(*Request) error, int]  // Ordered request middleware functions with priorities
+	respMWs   g.MapOrd[func(*Response) error, int] // Ordered response middleware functions with priorities
+	boundary  func() g.String                      // Custom boundary generator for multipart requests
 }
 
-// NewClient creates a new Client with default settings.
+// NewClient creates a new Client with sensible default settings including
+// default dialer, TLS configuration, HTTP transport, and basic middleware.
 func NewClient() *Client {
 	cli := new(Client)
 
@@ -55,7 +60,8 @@ func NewClient() *Client {
 	return cli
 }
 
-// applyReqMW applies request middlewares to the Client's request.
+// applyReqMW applies all registered request middlewares to the given request in priority order.
+// Middlewares are sorted by priority before execution, and processing stops on first error.
 func (c *Client) applyReqMW(req *Request) (err error) {
 	c.reqMWs.SortByValue(cmp.Cmp)
 
@@ -71,7 +77,8 @@ func (c *Client) applyReqMW(req *Request) (err error) {
 	return err
 }
 
-// applyRespMW applies response middlewares to the Client's response.
+// applyRespMW applies all registered response middlewares to the given response in priority order.
+// Middlewares are sorted by priority before execution, and processing stops on first error.
 func (c *Client) applyRespMW(resp *Response) (err error) {
 	c.respMWs.SortByValue(cmp.Cmp)
 
@@ -106,16 +113,11 @@ func (c *Client) GetDialer() *net.Dialer { return c.dialer }
 // GetTransport returns the http.transport used by the Client.
 func (c *Client) GetTransport() http.RoundTripper { return c.transport }
 
-// IsHTTP3 returns true if the client is configured to use HTTP/3.
-func (c *Client) IsHTTP3() bool {
-	_, ok := c.transport.(*uquicTransport)
-	return ok
-}
-
 // GetTLSConfig returns the tls.Config used by the Client.
 func (c *Client) GetTLSConfig() *tls.Config { return c.tlsConfig }
 
-// Builder creates a new client builder instance with default values
+// Builder returns a new Builder instance associated with this client.
+// The builder allows for method chaining to configure various client options.
 func (c *Client) Builder() *Builder {
 	c.builder = &Builder{cli: c}
 	return c.builder
@@ -141,7 +143,8 @@ func (c *Client) Raw(raw, scheme g.String) *Request {
 	return request
 }
 
-// Get creates a new GET request.
+// Get creates a new HTTP GET request with the specified URL.
+// Optional data parameter can be provided for query parameters.
 func (c *Client) Get(rawURL g.String, data ...any) *Request {
 	if len(data) != 0 {
 		return c.buildRequest(rawURL, http.MethodGet, data[0])
@@ -150,7 +153,8 @@ func (c *Client) Get(rawURL g.String, data ...any) *Request {
 	return c.buildRequest(rawURL, http.MethodGet, nil)
 }
 
-// Delete creates a new DELETE request.
+// Delete creates a new HTTP DELETE request with the specified URL.
+// Optional data parameter can be provided for request body.
 func (c *Client) Delete(rawURL g.String, data ...any) *Request {
 	if len(data) != 0 {
 		return c.buildRequest(rawURL, http.MethodDelete, data[0])
@@ -159,27 +163,33 @@ func (c *Client) Delete(rawURL g.String, data ...any) *Request {
 	return c.buildRequest(rawURL, http.MethodDelete, nil)
 }
 
-// Head creates a new HEAD request.
+// Head creates a new HTTP HEAD request with the specified URL.
+// HEAD requests are identical to GET but only return response headers.
 func (c *Client) Head(rawURL g.String) *Request {
 	return c.buildRequest(rawURL, http.MethodHead, nil)
 }
 
-// Post creates a new POST request.
+// Post creates a new HTTP POST request with the specified URL and data.
+// Data can be of various types (string, map, struct) and will be encoded appropriately.
 func (c *Client) Post(rawURL g.String, data any) *Request {
 	return c.buildRequest(rawURL, http.MethodPost, data)
 }
 
-// Put creates a new PUT request.
+// Put creates a new HTTP PUT request with the specified URL and data.
+// PUT requests typically replace the entire resource at the specified URL.
 func (c *Client) Put(rawURL g.String, data any) *Request {
 	return c.buildRequest(rawURL, http.MethodPut, data)
 }
 
-// Patch creates a new PATCH request.
+// Patch creates a new HTTP PATCH request with the specified URL and data.
+// PATCH requests typically apply partial modifications to a resource.
 func (c *Client) Patch(rawURL g.String, data any) *Request {
 	return c.buildRequest(rawURL, http.MethodPatch, data)
 }
 
 // FileUpload creates a new multipart file upload request.
+// It uploads a file from filePath using the specified fieldName in the form.
+// Optional data can include additional form fields (g.MapOrd) or custom reader (io.Reader).
 func (c *Client) FileUpload(rawURL, fieldName, filePath g.String, data ...any) *Request {
 	sanitizedURL := sanitizeURL(rawURL)
 
@@ -298,7 +308,8 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath g.String, data ...any) *
 	return request
 }
 
-// Multipart creates a new multipart form data request.
+// Multipart creates a new multipart form data request with the specified form fields.
+// The multipartData map contains field names and their corresponding values.
 func (c *Client) Multipart(rawURL g.String, multipartData g.MapOrd[g.String, g.String]) *Request {
 	sanitizedURL := sanitizeURL(rawURL)
 

@@ -2,10 +2,24 @@ package surf
 
 import "fmt"
 
+// Custom error types for surf HTTP client operations.
+// These errors provide specific information about different failure scenarios
+// that can occur during HTTP requests and responses.
+
 type (
+	// ErrWebSocketUpgrade indicates that a request received a WebSocket upgrade response.
+	// This error is returned when the server responds with HTTP 101 Switching Protocols
+	// for WebSocket connections, which require special handling.
 	ErrWebSocketUpgrade struct{ Msg string }
-	ErrUserAgentType    struct{ Msg string }
-	Err101ResponseCode  struct{ Msg string }
+
+	// ErrUserAgentType indicates an invalid user agent type was provided.
+	// This error is returned when the user agent parameter is not of a supported type
+	// (string, g.String, slices, etc.).
+	ErrUserAgentType struct{ Msg string }
+
+	// Err101ResponseCode indicates a 101 Switching Protocols response was received.
+	// This error is used to handle HTTP 101 responses that require protocol upgrades.
+	Err101ResponseCode struct{ Msg string }
 )
 
 func (e *ErrWebSocketUpgrade) Error() string {

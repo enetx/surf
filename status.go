@@ -2,7 +2,8 @@ package surf
 
 import "net/http"
 
-// StatusCode represents an HTTP status code.
+// StatusCode represents an HTTP status code with convenient classification methods.
+// Extends the basic integer status code with methods to easily identify the response category.
 type StatusCode int
 
 // IsInformational returns true if the status code is in the informational range [100, 200].
