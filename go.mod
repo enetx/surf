@@ -1,13 +1,13 @@
 module github.com/enetx/surf
 
-go 1.25.0
+go 1.24
 
 require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/enetx/g v1.0.187
-	github.com/enetx/http v1.0.17
+	github.com/enetx/http v1.0.18
 	github.com/enetx/http2 v1.0.19
-	github.com/enetx/http3 v1.0.0
+	github.com/enetx/http3 v1.0.1
 	github.com/klauspost/compress v1.18.0
 	github.com/quic-go/quic-go v0.54.0
 	github.com/refraction-networking/uquic v0.0.6
