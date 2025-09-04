@@ -11,6 +11,7 @@ import (
 	_http "net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
@@ -97,8 +98,7 @@ func (h *HTTP3Settings) Set() *Builder {
 			tlsConfig:         tlsConfig,
 			dialer:            c.GetDialer(),
 			proxy:             h.builder.proxy,
-			cachedTransports:  g.NewMapSafe[string, *http3.Transport](),
-			fallbackTransport: c.GetTransport(), // Save original HTTP/2 transport for fallback
+			fallbackTransport: c.GetTransport(),
 		}
 
 		switch v := h.builder.proxy.(type) {
@@ -121,24 +121,17 @@ func (h *HTTP3Settings) Set() *Builder {
 // It provides HTTP/3 support with SOCKS5 proxy compatibility and automatic fallback to HTTP/2
 // for non-SOCKS5 proxies. The transport supports both static and dynamic proxy configurations.
 type uquicTransport struct {
-	quicSpec          uquic.QUICSpec                       // QUIC specification for fingerprinting
-	tlsConfig         *tls.Config                          // TLS configuration for QUIC connections
-	dialer            *net.Dialer                          // Network dialer (may contain custom DNS resolver)
-	proxy             any                                  // Proxy configuration (static or dynamic function)
-	staticProxy       string                               // Cached static proxy URL for performance
-	isDynamic         bool                                 // Flag indicating if proxy is dynamic (disables caching)
-	cachedTransports  *g.MapSafe[string, *http3.Transport] // Per-address HTTP/3 transport cache
-	fallbackTransport http.RoundTripper                    // HTTP/2 transport for non-SOCKS5 proxy fallback
+	quicSpec          uquic.QUICSpec    // QUIC specification for fingerprinting
+	tlsConfig         *tls.Config       // TLS configuration for QUIC connections
+	dialer            *net.Dialer       // Network dialer (may contain custom DNS resolver)
+	proxy             any               // Proxy configuration (static or dynamic function)
+	staticProxy       string            // Cached static proxy URL for performance
+	isDynamic         bool              // Flag indicating if proxy is dynamic (disables caching)
+	fallbackTransport http.RoundTripper // HTTP/2 transport for non-SOCKS5 proxy fallback
 }
 
-// CloseIdleConnections closes all idle HTTP/3 connections and clears the transport cache.
-// It also attempts to close idle connections on the fallback transport if available.
+// CloseIdleConnections attempts to close idle connections on the fallback transport if available.
 func (ut *uquicTransport) CloseIdleConnections() {
-	for k, h3 := range ut.cachedTransports.Iter() {
-		h3.CloseIdleConnections()
-		ut.cachedTransports.Delete(k)
-	}
-
 	if ut.fallbackTransport != nil {
 		if closer, ok := ut.fallbackTransport.(interface{ CloseIdleConnections() }); ok {
 			closer.CloseIdleConnections()
@@ -146,29 +139,9 @@ func (ut *uquicTransport) CloseIdleConnections() {
 	}
 }
 
-// defaultHTTPSPort is used when no port is specified in the URL.
-const defaultHTTPSPort = "443"
-
-// address builds host:port address from HTTP request, defaulting to port 443 for HTTPS if port is missing.
-func (ut *uquicTransport) address(req *http.Request) string {
-	host, port, err := net.SplitHostPort(req.URL.Host)
-	if err == nil {
-		return net.JoinHostPort(host, port)
-	}
-
-	return net.JoinHostPort(req.URL.Host, defaultHTTPSPort)
-}
-
 // createH3 returns per-address cached http3.Transport with proper Dial & SNI configuration.
 // Caching is disabled for dynamic proxy configurations to ensure proper proxy rotation.
-func (ut *uquicTransport) createH3(req *http.Request, addr, proxy string) *http3.Transport {
-	// Skip cache for dynamic proxy providers to ensure proxy rotation works correctly
-	if !ut.isDynamic {
-		if tr := ut.cachedTransports.Get(addr); tr.IsSome() {
-			return tr.Some()
-		}
-	}
-
+func (ut *uquicTransport) createH3(req *http.Request, proxy string) *http3.Transport {
 	h3 := &http3.Transport{TLSClientConfig: ut.tlsConfig}
 
 	if (ut.dialer != nil && ut.dialer.Resolver != nil) || proxy != "" {
@@ -197,43 +170,12 @@ func (ut *uquicTransport) createH3(req *http.Request, addr, proxy string) *http3
 		}
 	}
 
-	// Only cache transport if not using dynamic proxy provider
-	if !ut.isDynamic {
-		ut.cachedTransports.Set(addr, h3)
-	}
-
 	return h3
 }
 
-// resolveAddress resolves the host using custom DNS resolver if available.
-// Returns the original address if no custom DNS is configured.
-func (ut *uquicTransport) resolveAddress(ctx context.Context, address string) (string, error) {
-	if ut.dialer == nil || ut.dialer.Resolver == nil {
-		return address, nil
-	}
-
-	host, port, err := net.SplitHostPort(address)
-	if err != nil {
-		return "", err
-	}
-
-	ips, err := ut.dialer.Resolver.LookupIPAddr(ctx, host)
-	if err != nil {
-		return "", err
-	}
-
-	if len(ips) == 0 {
-		return "", &net.DNSError{Err: "no such host", Name: host}
-	}
-
-	ip := ips[rand.Intn(len(ips))].IP
-
-	return net.JoinHostPort(ip.String(), port), nil
-}
-
-// resolveStrict always resolves host:port to ip:port.
+// resolve always resolves host:port to ip:port.
 // Uses custom resolver when provided, otherwise the system resolver.
-func (ut *uquicTransport) resolveStrict(ctx context.Context, address string) (string, error) {
+func (ut *uquicTransport) resolve(ctx context.Context, address string) (string, error) {
 	host, port, err := net.SplitHostPort(address)
 	if err != nil {
 		return "", err
@@ -258,6 +200,36 @@ func (ut *uquicTransport) resolveStrict(ctx context.Context, address string) (st
 	return net.JoinHostPort(ip.String(), port), nil
 }
 
+const (
+	normalConnectionTimeout = 2 * time.Minute
+	proxyConnectionTimeout  = 3 * time.Minute
+)
+
+// connectionCleanup spawns a goroutine that closes packetConn when conn terminates
+// or after a timeout (2min for direct, 3min for proxy).
+func connectionCleanup(conn *quic.Conn, packetConn net.PacketConn, isProxy bool) {
+	timeout := normalConnectionTimeout
+	reason := "connection timeout"
+
+	if isProxy {
+		timeout = proxyConnectionTimeout
+		reason = "proxy timeout"
+	}
+
+	go func() {
+		timer := time.NewTimer(timeout)
+		defer timer.Stop()
+
+		select {
+		case <-conn.Context().Done():
+			_ = packetConn.Close()
+		case <-timer.C:
+			_ = packetConn.Close()
+			_ = conn.CloseWithError(0, reason)
+		}
+	}()
+}
+
 // dialSOCKS5 establishes a QUIC connection through a SOCKS5 proxy.
 // Uses custom DNS resolver if available before connecting through proxy.
 func (ut *uquicTransport) dialSOCKS5(
@@ -267,31 +239,26 @@ func (ut *uquicTransport) dialSOCKS5(
 	cfg *quic.Config,
 	proxy string,
 ) (*quic.Conn, error) {
-	// Resolve address using custom DNS if available
-	resolvedAddress, err := ut.resolveAddress(ctx, address)
+	resolvedAddress, err := ut.resolve(ctx, address)
 	if err != nil {
 		return nil, fmt.Errorf("socks5 resolve target: %w", err)
 	}
 
-	// Parse proxy URL
 	proxyURL, err := url.Parse(proxy)
 	if err != nil {
 		return nil, fmt.Errorf("socks5 parse proxy url: %w", err)
 	}
 
-	// Create SOCKS5 dialer with UDP support
 	dialer, err := socks5.NewDialer(proxyURL.String())
 	if err != nil {
 		return nil, fmt.Errorf("socks5 new dialer: %w", err)
 	}
 
-	// Dial through SOCKS5 proxy using UDP
 	conn, err := dialer.DialContext(ctx, "udp", resolvedAddress)
 	if err != nil {
 		return nil, fmt.Errorf("socks5 udp associate: %w", err)
 	}
 
-	// Create remote address for QUIC
 	host, portStr, err := net.SplitHostPort(resolvedAddress)
 	if err != nil {
 		_ = conn.Close()
@@ -317,18 +284,13 @@ func (ut *uquicTransport) dialSOCKS5(
 	// If your relay expects RFC1928 headers on the wire, switch to:
 	// packetConn := quicconn.New(conn, remoteAddr, quicconn.EncapSocks5)
 
-	// Establish QUIC connection through the proxy
 	c, err := quic.Dial(ctx, packetConn, remoteAddr, tlsConfig, cfg)
 	if err != nil {
 		_ = packetConn.Close()
 		return nil, fmt.Errorf("quic dial via socks5: %w", err)
 	}
 
-	// Auto-cleanup PacketConn when QUIC connection closes
-	go func() {
-		<-c.Context().Done()
-		_ = packetConn.Close()
-	}()
+	connectionCleanup(c, packetConn, true)
 
 	return c, nil
 }
@@ -340,8 +302,7 @@ func (ut *uquicTransport) dialDNS(
 	tlsConfig *tls.Config,
 	cfg *quic.Config,
 ) (*quic.Conn, error) {
-	// Always resolve (custom resolver if set, else system resolver)
-	resolvedAddress, err := ut.resolveStrict(ctx, address)
+	resolvedAddress, err := ut.resolve(ctx, address)
 	if err != nil {
 		return nil, fmt.Errorf("dns resolve: %w", err)
 	}
@@ -351,7 +312,6 @@ func (ut *uquicTransport) dialDNS(
 		return nil, fmt.Errorf("split host/port: %w", err)
 	}
 
-	// Strict port parsing
 	p, err := strconv.Atoi(port)
 	if err != nil || p <= 0 || p > 65535 {
 		return nil, fmt.Errorf("invalid port %q: %w", port, err)
@@ -362,7 +322,6 @@ func (ut *uquicTransport) dialDNS(
 		return nil, fmt.Errorf("invalid ip after resolve: %q", host)
 	}
 
-	// Create UDP connection
 	udpConn, err := net.ListenUDP("udp", nil)
 	if err != nil {
 		return nil, fmt.Errorf("listen udp: %w", err)
@@ -374,18 +333,13 @@ func (ut *uquicTransport) dialDNS(
 
 	targetAddr := &net.UDPAddr{IP: ip, Port: p}
 
-	// Dial QUIC
 	conn, err := quic.Dial(ctx, udpConn, targetAddr, tlsConfig, cfg)
 	if err != nil {
 		_ = udpConn.Close()
 		return nil, fmt.Errorf("quic dial: %w", err)
 	}
 
-	// Auto-cleanup PacketConn when QUIC connection closes
-	go func() {
-		<-conn.Context().Done()
-		_ = udpConn.Close()
-	}()
+	connectionCleanup(conn, udpConn, false)
 
 	return conn, nil
 }
@@ -439,8 +393,8 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	_req = _req.WithContext(req.Context())
 
-	addr := ut.address(req)
-	h3 := ut.createH3(req, addr, proxy)
+	h3 := ut.createH3(req, proxy)
+	defer h3.CloseIdleConnections()
 
 	_resp, err := h3.RoundTrip(_req)
 	if err != nil {
@@ -503,11 +457,6 @@ func isSOCKS5(proxyURL string) bool {
 	}
 
 	u, err := url.Parse(proxyURL)
-	if err != nil {
-		return false
-	}
 
-	scheme := u.Scheme
-
-	return scheme == "socks5" || scheme == "socks5h"
+	return err == nil && u.Scheme == "socks5"
 }
