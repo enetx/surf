@@ -20,9 +20,9 @@ func main() {
 	testWithCapture("Chrome", func() *surf.Client {
 		return surf.NewClient().
 			Builder().
-			HTTP3Settings().
+			Impersonate().
 			Chrome().
-			Set().
+			HTTP3().
 			Build()
 	})
 
@@ -32,9 +32,9 @@ func main() {
 	testWithCapture("Firefox", func() *surf.Client {
 		return surf.NewClient().
 			Builder().
-			HTTP3Settings().
-			Firefox().
-			Set().
+			Impersonate().
+			FireFox().
+			HTTP3().
 			Build()
 	})
 }
@@ -53,7 +53,8 @@ func testWithCapture(name string, clientFactory func() *surf.Client) {
 	fmt.Printf("Making request to trigger QUIC Initial packet...\n")
 
 	start := time.Now()
-	resp := client.Get("https://cloudflare.com/cdn-cgi/trace").Do()
+	resp := client.Get("https://cloudflare-quic.com/").Do()
+	// resp := client.Get("https://cloudflare.com/cdn-cgi/trace").Do()
 	duration := time.Since(start)
 
 	if resp.IsErr() {
@@ -77,8 +78,7 @@ func testWithCapture(name string, clientFactory func() *surf.Client) {
 	fmt.Println()
 }
 
-func getLocalAddress() string {
-	// Get local IP for Wireshark filtering
+func getLocalAddress() string { // Get local IP for Wireshark filtering
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		return ""

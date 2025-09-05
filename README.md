@@ -24,7 +24,7 @@
 ### 🔒 **Advanced TLS & Security**
 - **Custom JA3/JA4**: Configure precise TLS fingerprints with `HelloID` and `HelloSpec`
 - **HTTP/3 Support**: Full HTTP/3 over QUIC with browser-specific QUIC fingerprinting
-- **JA4QUIC Fingerprinting**: Advanced QUIC transport parameter fingerprinting for Chrome and Firefox
+- **JA4QUIC Fingerprinting (WIP)**: Advanced QUIC transport parameter fingerprinting for Chrome and Firefox
 - **HTTP/2 & HTTP/3**: Full HTTP/2 support with customizable settings (SETTINGS frame, window size, priority)
 - **Ordered Headers**: Browser-accurate header ordering for perfect fingerprint evasion
 - **Certificate Pinning**: Custom TLS certificate validation
@@ -292,12 +292,12 @@ client := surf.NewClient().
 ```
 
 **Key HTTP/3 Features:**
-- ✅ **QUIC Fingerprinting**: Chrome and Firefox QUIC transport parameter matching
+- ⚠️ **QUIC Fingerprinting (WIP)**: Chrome and Firefox QUIC transport parameter matching - incomplete implementation, work in progress
 - ✅ **Header Ordering**: Perfect browser-like header sequence preservation
 - ✅ **SOCKS5 UDP Support**: HTTP/3 works seamlessly over SOCKS5 UDP proxies
 - ✅ **Automatic Fallback**: Smart fallback to HTTP/2 when HTTP proxies are configured
 - ✅ **DNS Integration**: Custom DNS and DNS-over-TLS support
-- ✅ **JA4QUIC Support**: Advanced QUIC fingerprinting beyond basic JA3/JA4
+- ⚠️ **JA4QUIC Support (WIP)**: Advanced QUIC fingerprinting beyond basic JA3/JA4 - incomplete implementation
 - ✅ **Order Independence**: `HTTP3()` works regardless of call order
 
 ## 🔧 Advanced Configuration
@@ -413,13 +413,6 @@ client := surf.NewClient().
     DNS("8.8.8.8:53").              // Custom DNS resolver
     Proxy("socks5://proxy:1080").   // SOCKS5 UDP proxy
     HTTP3().                        // HTTP/3 over SOCKS5
-    Build()
-
-// SOCKS5H (hostname resolution via proxy)
-client := surf.NewClient().
-    Builder().
-    Proxy("socks5h://proxy:1080").  // Hostname resolved by proxy
-    HTTP3().
     Build()
 ```
 

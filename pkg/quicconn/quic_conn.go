@@ -33,15 +33,15 @@ import (
 // but neither an explicit addr nor defaultTarget are provided.
 var ErrDefaultTargetRequired = errors.New("defaultTarget required for QUIC/UDP")
 
-// udpEncapMode describes how UDP datagrams are encapsulated over the underlying
+// EncapMode describes how UDP datagrams are encapsulated over the underlying
 // net.Conn transport.
-type udpEncapMode int
+type EncapMode int
 
 const (
 	// EncapRaw forwards raw datagrams as-is. Use this when the component that
 	// created the underlying net.Conn already handles UDP encapsulation (e.g.,
 	// a SOCKS5 client that returns a UDP-capable net.Conn).
-	EncapRaw udpEncapMode = iota
+	EncapRaw EncapMode = iota
 
 	// EncapSocks5 wraps outgoing datagrams in RFC 1928 UDP ASSOCIATE headers and
 	// strips those headers on receive. Use this when you talk to a SOCKS5 UDP
@@ -58,7 +58,7 @@ const (
 // a peer address.
 type QuicPacketConn struct {
 	conn          net.Conn
-	mode          udpEncapMode
+	mode          EncapMode
 	defaultTarget *net.UDPAddr
 	readBuf       []byte
 	writeBuf      []byte
@@ -87,7 +87,7 @@ var _ net.PacketConn = (*QuicPacketConn)(nil)
 //
 // The returned value implements net.PacketConn and can be passed to QUIC dialers
 // (e.g., quic-go's quic.Dial).
-func New(conn net.Conn, defaultTarget *net.UDPAddr, mode udpEncapMode) *QuicPacketConn {
+func New(conn net.Conn, defaultTarget *net.UDPAddr, mode EncapMode) *QuicPacketConn {
 	if defaultTarget == nil && mode == EncapRaw {
 		panic("quicconn: defaultTarget is required for QUIC/UDP in EncapRaw mode")
 	}

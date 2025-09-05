@@ -14,6 +14,7 @@ func main() {
 		// DNS("127.0.0.1:53").
 		// DNS("1.0.0.1:53").
 		Proxy("socks5://127.0.0.1:2080").
+		// Proxy("socks5h://127.0.0.1:2080").
 		// Proxy("http://127.0.0.1:2080").
 		Impersonate().Chrome().HTTP3().
 		Build()
@@ -30,7 +31,7 @@ func main() {
 		log.Printf("Chrome H3 request failed: %v", r.Err())
 	}
 
-	r.Ok().Debug().Request(true).Response().Print()
+	// r.Ok().Debug().Request(true).Response().Print()
 
 	// Example 2: Firefox HTTP/3 fingerprint
 	fmt.Println("\n=== Firefox HTTP/3 Example ===")
@@ -51,7 +52,7 @@ func main() {
 		log.Printf("Firefox H3 request failed: %v", r.Err())
 	}
 
-	r.Ok().Debug().Request(true).Response().Print()
+	// r.Ok().Debug().Request(true).Response().Print()
 
 	// Example 3: Custom HTTP/3 configuration
 	fmt.Println("\n=== Custom HTTP/3 Configuration ===")
@@ -74,7 +75,7 @@ func main() {
 		log.Printf("Custom H3 request failed: %v", r.Err())
 	}
 
-	r.Ok().Debug().Request(true).Response().Print()
+	// r.Ok().Debug().Request(true).Response().Print()
 
 	// Example 4: HTTP/3 with TLS fingerprinting (JA3)
 	fmt.Println("\n=== HTTP/3 with JA3 Fingerprinting ===")
@@ -96,5 +97,5 @@ func main() {
 		log.Printf("JA3 + H3 request failed: %v", r.Err())
 	}
 
-	r.Ok().Debug().Request(true).Response().Print()
+	// r.Ok().Debug().Request(true).Response().Print()
 }
