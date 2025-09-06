@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
@@ -17,13 +16,31 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
-	"github.com/enetx/http3"
+	uhttp3 "github.com/enetx/uquic/http3"
+	utls "github.com/refraction-networking/utls"
 	"github.com/enetx/surf"
-	uquic "github.com/refraction-networking/uquic"
+	uquic "github.com/enetx/uquic"
 )
 
+// netHTTPResponseWriter adapts enetx/http.ResponseWriter to net/http.ResponseWriter
+type netHTTPResponseWriter struct {
+	w http.ResponseWriter
+}
+
+func (nw *netHTTPResponseWriter) Header() _http.Header {
+	return _http.Header(nw.w.Header())
+}
+
+func (nw *netHTTPResponseWriter) Write(data []byte) (int, error) {
+	return nw.w.Write(data)
+}
+
+func (nw *netHTTPResponseWriter) WriteHeader(statusCode int) {
+	nw.w.WriteHeader(statusCode)
+}
+
 // createHTTP3TestServer creates a local HTTP/3 test server with self-signed certificate
-func createHTTP3TestServer(handler _http.HandlerFunc) (*http3.Server, net.PacketConn, string, error) {
+func createHTTP3TestServer(handler _http.HandlerFunc) (*uhttp3.Server, net.PacketConn, string, error) {
 	// Generate self-signed certificate
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -48,7 +65,7 @@ func createHTTP3TestServer(handler _http.HandlerFunc) (*http3.Server, net.Packet
 		return nil, nil, "", err
 	}
 
-	cert := tls.Certificate{
+	cert := utls.Certificate{
 		Certificate: [][]byte{certDER},
 		PrivateKey:  priv,
 	}
@@ -60,14 +77,29 @@ func createHTTP3TestServer(handler _http.HandlerFunc) (*http3.Server, net.Packet
 	}
 
 	// Configure TLS for HTTP/3
-	tlsConf := &tls.Config{
-		Certificates: []tls.Certificate{cert},
+	tlsConf := &utls.Config{
+		Certificates: []utls.Certificate{cert},
+		NextProtos:   []string{"h3"},
 	}
-	http3.ConfigureTLSConfig(tlsConf)
 
-	// Create HTTP/3 server
-	server := &http3.Server{
-		Handler:   handler,
+	// Create HTTP/3 server with handler adapter
+	server := &uhttp3.Server{
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Adapt enetx/http types to net/http types for the handler
+			nw := &netHTTPResponseWriter{w: w}
+			nr := &_http.Request{
+				Method:     r.Method,
+				URL:        r.URL,
+				Proto:      r.Proto,
+				ProtoMajor: r.ProtoMajor,
+				ProtoMinor: r.ProtoMinor,
+				Header:     _http.Header(r.Header),
+				Body:       r.Body,
+				RemoteAddr: r.RemoteAddr,
+				RequestURI: r.RequestURI,
+			}
+			handler(nw, nr)
+		}),
 		TLSConfig: tlsConf,
 	}
 
@@ -93,10 +125,8 @@ func TestHTTP3SettingsChrome(t *testing.T) {
 
 	// Start server in goroutine
 	go func() {
-		err := server.Serve(conn)
-		if err != nil && err.Error() != "server closed" {
-			t.Logf("HTTP/3 server error: %v", err)
-		}
+		_ = server.Serve(conn)
+		// Note: Don't log from goroutine to avoid race conditions
 	}()
 
 	// Give server time to start
@@ -130,9 +160,7 @@ func TestHTTP3SettingsChrome(t *testing.T) {
 	}
 
 	// Shutdown server
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	server.Shutdown(ctx)
+	server.CloseGracefully(5 * time.Second)
 }
 
 func TestHTTP3SettingsFirefox(t *testing.T) {
@@ -153,10 +181,8 @@ func TestHTTP3SettingsFirefox(t *testing.T) {
 
 	// Start server in goroutine
 	go func() {
-		err := server.Serve(conn)
-		if err != nil && err.Error() != "server closed" {
-			t.Logf("HTTP/3 server error: %v", err)
-		}
+		_ = server.Serve(conn)
+		// Note: Don't log from goroutine to avoid race conditions
 	}()
 
 	// Give server time to start
@@ -190,9 +216,7 @@ func TestHTTP3SettingsFirefox(t *testing.T) {
 	}
 
 	// Shutdown server
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	server.Shutdown(ctx)
+	server.CloseGracefully(5 * time.Second)
 }
 
 func TestHTTP3SettingsSetQUICID(t *testing.T) {
@@ -948,10 +972,8 @@ func TestHTTP3MockRequests(t *testing.T) {
 
 	// Start server in goroutine
 	go func() {
-		err := server.Serve(conn)
-		if err != nil && err.Error() != "server closed" {
-			t.Logf("HTTP/3 mock server error: %v", err)
-		}
+		_ = server.Serve(conn)
+		// Note: Don't log from goroutine to avoid race conditions
 	}()
 
 	// Give server time to start
@@ -1018,9 +1040,7 @@ func TestHTTP3MockRequests(t *testing.T) {
 	})
 
 	// Shutdown server
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	server.Shutdown(ctx)
+	server.CloseGracefully(5 * time.Second)
 }
 
 // TestHTTP3RealRequests removed - all tests should work offline without external URLs
@@ -1091,10 +1111,8 @@ func TestHTTP3NetworkConditions(t *testing.T) {
 
 		// Start server in goroutine
 		go func() {
-			err := server.Serve(conn)
-			if err != nil && err.Error() != "server closed" {
-				t.Logf("HTTP/3 timeout server error: %v", err)
-			}
+			_ = server.Serve(conn)
+			// Note: Don't log from goroutine to avoid race conditions
 		}()
 
 		// Give server time to start
@@ -1115,9 +1133,7 @@ func TestHTTP3NetworkConditions(t *testing.T) {
 		}
 
 		// Shutdown server
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		server.Shutdown(ctx)
+		server.CloseGracefully(5 * time.Second)
 	})
 }
 

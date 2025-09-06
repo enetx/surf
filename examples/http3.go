@@ -13,7 +13,7 @@ func main() {
 	chromeClient := surf.NewClient().Builder().
 		// DNS("127.0.0.1:53").
 		// DNS("1.0.0.1:53").
-		Proxy("socks5://127.0.0.1:2080").
+		// Proxy("socks5://127.0.0.1:2080").
 		// Proxy("socks5h://127.0.0.1:2080").
 		// Proxy("http://127.0.0.1:2080").
 		Impersonate().Chrome().HTTP3().

@@ -23,8 +23,8 @@
 
 ### 🔒 **Advanced TLS & Security**
 - **Custom JA3/JA4**: Configure precise TLS fingerprints with `HelloID` and `HelloSpec`
-- **HTTP/3 Support**: Full HTTP/3 over QUIC with browser-specific QUIC fingerprinting
-- **JA4QUIC Fingerprinting (WIP)**: Advanced QUIC transport parameter fingerprinting for Chrome and Firefox
+- **HTTP/3 Support**: Full HTTP/3 over QUIC with complete browser-specific QUIC fingerprinting
+- **JA4QUIC Fingerprinting**: Complete QUIC transport parameter fingerprinting for Chrome and Firefox
 - **HTTP/2 & HTTP/3**: Full HTTP/2 support with customizable settings (SETTINGS frame, window size, priority)
 - **Ordered Headers**: Browser-accurate header ordering for perfect fingerprint evasion
 - **Certificate Pinning**: Custom TLS certificate validation
@@ -180,7 +180,7 @@ client := surf.NewClient().
     Build()
 ```
 
-## 🚀 HTTP/3 & QUIC Support
+## 🚀 HTTP/3 & Complete QUIC Fingerprinting
 
 ### Chrome HTTP/3 with Automatic Detection
 
@@ -244,14 +244,14 @@ client := surf.NewClient().
     Build()
 ```
 
-### HTTP/3 with JA3 Fingerprinting
+### HTTP/3 with Complete Fingerprinting
 
 ```go
 // Combine TLS fingerprinting with HTTP/3 QUIC fingerprinting
 client := surf.NewClient().
     Builder().
     JA().Chrome131().               // TLS fingerprint (JA3/JA4)
-    HTTP3Settings().Chrome().Set().  // QUIC fingerprint (JA4QUIC)
+    HTTP3Settings().Chrome().Set().  // Complete QUIC fingerprint (JA4QUIC)
     Build()
 
 resp := client.Get("https://cloudflare-quic.com/").Do()
@@ -292,12 +292,12 @@ client := surf.NewClient().
 ```
 
 **Key HTTP/3 Features:**
-- ⚠️ **QUIC Fingerprinting (WIP)**: Chrome and Firefox QUIC transport parameter matching - incomplete implementation, work in progress
+- ✅ **Complete QUIC Fingerprinting**: Full Chrome and Firefox QUIC transport parameter matching
 - ✅ **Header Ordering**: Perfect browser-like header sequence preservation
 - ✅ **SOCKS5 UDP Support**: HTTP/3 works seamlessly over SOCKS5 UDP proxies
 - ✅ **Automatic Fallback**: Smart fallback to HTTP/2 when HTTP proxies are configured
 - ✅ **DNS Integration**: Custom DNS and DNS-over-TLS support
-- ⚠️ **JA4QUIC Support (WIP)**: Advanced QUIC fingerprinting beyond basic JA3/JA4 - incomplete implementation
+- ✅ **JA4QUIC Support**: Advanced QUIC fingerprinting with Initial Packet + TLS ClientHello
 - ✅ **Order Independence**: `HTTP3()` works regardless of call order
 
 ## 🔧 Advanced Configuration
@@ -921,8 +921,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - Built with [enetx/http](https://github.com/enetx/http) for enhanced HTTP functionality
-- HTTP/3 support powered by [quic-go](https://github.com/quic-go/quic-go)
-- QUIC fingerprinting using [uQUIC](https://github.com/refraction-networking/uquic)
+- HTTP/3 support and complete QUIC fingerprinting powered by [uQUIC](https://github.com/enetx/uquic)
 - TLS fingerprinting powered by [uTLS](https://github.com/refraction-networking/utls)
 - Generic utilities from [enetx/g](https://github.com/enetx/g)
 
