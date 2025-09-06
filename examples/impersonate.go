@@ -17,8 +17,8 @@ func main() {
 	// url = "https://localhost"
 
 	// url = "https://www.moscowbooks.ru"
-	// url = "https://tls.peet.ws/api/all"
-	url = "https://chat.openai.com/api/auth/csrf"
+	url = "https://tls.peet.ws/api/all"
+	// url = "https://chat.openai.com/api/auth/csrf"
 	// url = "https://www.facebook.com"
 
 	r := surf.NewClient().
@@ -28,8 +28,8 @@ func main() {
 		Impersonate().
 		// IOS().
 		// Android().
-		FireFox().
-		// Chrome().
+		// FireFox().
+		Chrome().
 		Build().
 		Get(url).
 		Do()

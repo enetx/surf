@@ -56,9 +56,8 @@ func (im *Impersonate) Chrome() *Builder {
 	im.builder.browser = chrome
 
 	// "ja3_hash": random,
-	// "ja4": "t13d1516h2_8daaf6152771_b1ff8ab2d16f",
+	// "ja4": "t13d1516h2_8daaf6152771_923f26044972",
 	// "peetprint_hash": "7466733991096b3f4e6c0e79b0083559",
-	// "akamai_fingerprint": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
 	// "akamai_fingerprint_hash": "52d84b11737d980aef856699f885ca86",
 
 	im.builder.
@@ -253,9 +252,8 @@ func (im *Impersonate) FireFox() *Builder {
 	}
 
 	// "ja3_hash": "b5001237acdf006056b409cc433726b0",
-	// "ja4": "t13d1715h2_5b57614c22b0_93c746dc12af",
+	// "ja4": "t13d1715h2_5b57614c22b0_2764158f9823",
 	// "peetprint_hash": "b9c611f928c8c1f20c414a48c66abf27",
-	// "akamai_fingerprint": "1:65536;4:131072;5:16384|12517377|3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241|m,p,a,s",
 	// "akamai_fingerprint_hash": "3d9132023bf26a71d40fe766e5c24c9d",
 
 	im.builder.

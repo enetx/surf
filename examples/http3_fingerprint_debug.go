@@ -55,7 +55,7 @@ func buildChromeWithDNS() *surf.Client {
 func buildFirefoxWithProxy() *surf.Client {
 	return surf.NewClient().
 		Builder().
-		Proxy("socks5h://127.0.0.1:2080"). // важно: socks5h, чтобы не резолвить локально
+		Proxy("socks5h://127.0.0.1:2080").
 		Impersonate().FireFox().HTTP3().
 		// HTTP3Settings().Firefox().Set().
 		Build()
@@ -97,7 +97,7 @@ func testFingerprint(name string, client *surf.Client) {
 	fmt.Printf("  ClientTokenLength: %d\n", spec.InitialPacketSpec.ClientTokenLength)
 	fmt.Printf("  UDPDatagramMinSize: %d\n", spec.UDPDatagramMinSize)
 
-	// TLS ClientHello view (из спека, а не рантайма)
+	// TLS ClientHello view
 	if spec.ClientHelloSpec != nil {
 		fmt.Printf("TLS ClientHello Fingerprint:\n")
 		cs := spec.ClientHelloSpec.CipherSuites
@@ -190,9 +190,6 @@ func compareFingerprints() {
 	}
 }
 
-// --- helpers: reflection, hashing, output ---
-
-// Надёжно достаём *uquic.QUICSpec из поля транспорта surf (*uquicTransport.quicSpec)
 func getQUICSpecFromTransport(tr any) *uquic.QUICSpec {
 	v := reflect.ValueOf(tr)
 	if v.Kind() == reflect.Interface {
@@ -208,11 +205,10 @@ func getQUICSpecFromTransport(tr any) *uquic.QUICSpec {
 	if !f.IsValid() || f.IsNil() || f.Kind() != reflect.Ptr {
 		return nil
 	}
-	// f.Pointer() возвращает uintptr (адрес *QUICSpec)
+
 	return (*uquic.QUICSpec)(unsafe.Pointer(f.Pointer()))
 }
 
-// вытащить ALPN из tlsConfig.NextProtos, если есть
 func getTLSNextProtosFromTransport(tr any) []string {
 	v := reflect.ValueOf(tr)
 	if v.Kind() == reflect.Interface {
@@ -228,6 +224,7 @@ func getTLSNextProtosFromTransport(tr any) []string {
 	if !tf.IsValid() || tf.IsNil() {
 		return nil
 	}
+
 	// tls.Config is a struct pointer; field NextProtos []string
 	tc := tf.Elem()
 	np := tc.FieldByName("NextProtos")
@@ -244,7 +241,6 @@ func getTLSNextProtosFromTransport(tr any) []string {
 	return out
 }
 
-// Печатаем подсказки про DNS/Proxy, не ломая инкапсуляцию
 func printDNSAndProxyHints(tr any) {
 	v := reflect.ValueOf(tr)
 	if v.Kind() == reflect.Interface {
@@ -278,11 +274,9 @@ func printDNSAndProxyHints(tr any) {
 }
 
 func isSOCKS5Scheme(s string) bool {
-	// минимальная проверка схемы
 	return len(s) >= 8 && (s[:8] == "socks5://" || (len(s) >= 9 && s[:9] == "socks5h://"))
 }
 
-// Представление спека для стабильного хэша (без указателей/рантайма)
 type fpView struct {
 	// Initial
 	SrcConnIDLength        int    `json:"src_cidl"`
@@ -291,7 +285,7 @@ type fpView struct {
 	InitPacketNumber       uint64 `json:"pn"`
 	ClientTokenLength      int    `json:"ct_len"`
 	UDPDatagramMinSize     int    `json:"udp_min"`
-	// TLS ClientHello (только структура спека)
+	// TLS ClientHello
 	CipherSuites       []uint16 `json:"suites,omitempty"`
 	ExtensionsCount    int      `json:"ext_cnt,omitempty"`
 	CompressionMethods []uint8  `json:"compr,omitempty"`
@@ -314,7 +308,6 @@ func viewFromSpec(spec *uquic.QUICSpec) fpView {
 	return v
 }
 
-// Стабильный короткий хэш (первые 8 байт SHA-256 по JSON представлению спека)
 func calculateFingerprintHash(spec *uquic.QUICSpec) string {
 	v := viewFromSpec(spec)
 	b, _ := json.Marshal(v)
@@ -322,7 +315,6 @@ func calculateFingerprintHash(spec *uquic.QUICSpec) string {
 	return hex.EncodeToString(sum[:8]) // 16 hex chars
 }
 
-// (опционально) пример проверки: SNI должен быть FQDN, а не IP
 func isHostnameFQDN(host string) bool {
 	return host != "" && net.ParseIP(host) == nil
 }

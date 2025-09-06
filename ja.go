@@ -99,37 +99,35 @@ func (j *JA) build() *Builder {
 				} else {
 					c.GetTransport().(*http.Transport).DialContext = dialer.DialContext
 				}
+			} else {
+				// Dynamic proxy configuration - evaluate proxy per connection
+				c.GetTransport().(*http.Transport).DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+					var proxy string
 
-				return
-			}
-
-			// Dynamic proxy configuration - evaluate proxy per connection
-			c.GetTransport().(*http.Transport).DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-				var proxy string
-
-				switch v := j.builder.proxy.(type) {
-				case func() g.String:
-					proxy = v().Std()
-				case []string:
-					if len(v) > 0 {
-						proxy = v[rand.Intn(len(v))]
+					switch v := j.builder.proxy.(type) {
+					case func() g.String:
+						proxy = v().Std()
+					case []string:
+						if len(v) > 0 {
+							proxy = v[rand.Intn(len(v))]
+						}
+					case g.Slice[string]:
+						proxy = v.Random()
+					case g.Slice[g.String]:
+						proxy = v.Random().Std()
 					}
-				case g.Slice[string]:
-					proxy = v.Random()
-				case g.Slice[g.String]:
-					proxy = v.Random().Std()
-				}
 
-				if proxy == "" {
-					return c.GetDialer().DialContext(ctx, network, addr)
-				}
+					if proxy == "" {
+						return c.GetDialer().DialContext(ctx, network, addr)
+					}
 
-				dialer, err := connectproxy.NewDialer(proxy)
-				if err != nil {
-					return nil, fmt.Errorf("create proxy dialer for %s: %w", proxy, err)
-				}
+					dialer, err := connectproxy.NewDialer(proxy)
+					if err != nil {
+						return nil, fmt.Errorf("create proxy dialer for %s: %w", proxy, err)
+					}
 
-				return dialer.DialContext(ctx, network, addr)
+					return dialer.DialContext(ctx, network, addr)
+				}
 			}
 		}
 
