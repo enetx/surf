@@ -15,7 +15,7 @@ func main() {
 
 	cli := surf.NewClient().
 		Builder().
-		JA3().Chrome87().
+		JA().Chrome87().
 		Build()
 
 	r := cli.Get(url).Do()

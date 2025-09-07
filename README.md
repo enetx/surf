@@ -474,6 +474,7 @@ resp := surf.NewClient().
 ### Form Data
 
 ```go
+// Standard form data (field order not guaranteed)
 formData := map[string]string{
     "username": "john",
     "password": "secret",
@@ -481,6 +482,16 @@ formData := map[string]string{
 
 resp := surf.NewClient().
     Post("https://example.com/login", formData).
+    Do()
+
+// Ordered form data (preserves field insertion order)
+orderedForm := g.NewMapOrd[string, string]()
+orderedForm.Set("username", "john")
+orderedForm.Set("password", "secret")
+orderedForm.Set("remember_me", "true")
+
+resp := surf.NewClient().
+    Post("https://example.com/login", orderedForm).
     Do()
 ```
 

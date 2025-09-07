@@ -16,10 +16,10 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
-	uhttp3 "github.com/enetx/uquic/http3"
-	utls "github.com/refraction-networking/utls"
 	"github.com/enetx/surf"
 	uquic "github.com/enetx/uquic"
+	"github.com/enetx/uquic/http3"
+	utls "github.com/refraction-networking/utls"
 )
 
 // netHTTPResponseWriter adapts enetx/http.ResponseWriter to net/http.ResponseWriter
@@ -40,7 +40,7 @@ func (nw *netHTTPResponseWriter) WriteHeader(statusCode int) {
 }
 
 // createHTTP3TestServer creates a local HTTP/3 test server with self-signed certificate
-func createHTTP3TestServer(handler _http.HandlerFunc) (*uhttp3.Server, net.PacketConn, string, error) {
+func createHTTP3TestServer(handler _http.HandlerFunc) (*http3.Server, net.PacketConn, string, error) {
 	// Generate self-signed certificate
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -83,7 +83,7 @@ func createHTTP3TestServer(handler _http.HandlerFunc) (*uhttp3.Server, net.Packe
 	}
 
 	// Create HTTP/3 server with handler adapter
-	server := &uhttp3.Server{
+	server := &http3.Server{
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Adapt enetx/http types to net/http types for the handler
 			nw := &netHTTPResponseWriter{w: w}

@@ -449,6 +449,10 @@ func buildBody(data any) (io.Reader, string, error) {
 		return buildMapBody(d)
 	case g.Map[g.String, g.String]:
 		return buildMapBody(d)
+	case g.MapOrd[g.String, g.String]:
+		return buildMapOrdBody(d)
+	case g.MapOrd[string, string]:
+		return buildMapOrdBody(d)
 	default:
 		return buildAnnotatedBody(data)
 	}
@@ -509,6 +513,31 @@ func buildMapBody[T ~string, M ~map[T]T](m M) (io.Reader, string, error) {
 	}
 
 	reader := g.String(form.Encode()).Reader()
+
+	return reader, contentType, nil
+}
+
+// buildMapOrdBody takes an ordered map with string keys and values (g.MapOrd[T, T])
+// and returns an io.Reader, a content type string, and an error if any.
+// It encodes the map as an application/x-www-form-urlencoded string
+// and creates a strings.Reader from the result.
+//
+// This is useful for building HTTP POST request bodies while preserving field order.
+func buildMapOrdBody[T ~string](m g.MapOrd[T, T]) (io.Reader, string, error) {
+	contentType := "application/x-www-form-urlencoded"
+
+	var buf strings.Builder
+
+	m.Iter().ForEach(func(key, value T) {
+		if buf.Len() > 0 {
+			buf.WriteByte('&')
+		}
+		buf.WriteString(url.QueryEscape(string(key)))
+		buf.WriteByte('=')
+		buf.WriteString(url.QueryEscape(string(value)))
+	})
+
+	reader := strings.NewReader(buf.String())
 
 	return reader, contentType, nil
 }

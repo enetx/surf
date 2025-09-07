@@ -225,6 +225,52 @@ func TestClientPostWithData(t *testing.T) {
 				return nil
 			},
 		},
+		{
+			name: "g.MapOrd with sorted fields",
+			data: func() g.MapOrd[string, string] {
+				m := g.NewMapOrd[string, string]()
+				m.Set("zebra", "animal")
+				m.Set("apple", "fruit")
+				m.Set("book", "object")
+				m.Set("cat", "pet")
+				return m
+			}(),
+			contentType: "application/x-www-form-urlencoded",
+			validate: func(body []byte, ct string) error {
+				if !strings.Contains(ct, "application/x-www-form-urlencoded") {
+					return fmt.Errorf("expected form content-type, got %s", ct)
+				}
+				// Check that fields appear in insertion order
+				expectedOrder := "zebra=animal&apple=fruit&book=object&cat=pet"
+				if string(body) != expectedOrder {
+					return fmt.Errorf("expected fields in order %s, got %s", expectedOrder, string(body))
+				}
+				return nil
+			},
+		},
+		{
+			name: "g.MapOrd[g.String, g.String] with sorted fields",
+			data: func() g.MapOrd[g.String, g.String] {
+				m := g.NewMapOrd[g.String, g.String]()
+				m.Set("delta", "fourth")
+				m.Set("alpha", "first")
+				m.Set("charlie", "third")
+				m.Set("bravo", "second")
+				return m
+			}(),
+			contentType: "application/x-www-form-urlencoded",
+			validate: func(body []byte, ct string) error {
+				if !strings.Contains(ct, "application/x-www-form-urlencoded") {
+					return fmt.Errorf("expected form content-type, got %s", ct)
+				}
+				// Check that fields appear in insertion order
+				expectedOrder := "delta=fourth&alpha=first&charlie=third&bravo=second"
+				if string(body) != expectedOrder {
+					return fmt.Errorf("expected fields in order %s, got %s", expectedOrder, string(body))
+				}
+				return nil
+			},
+		},
 	}
 
 	for _, tt := range tests {

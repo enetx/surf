@@ -16,7 +16,7 @@ func main() {
 		} `json:"form"`
 	}
 
-	const url = "https://httpbingo.org/post"
+	const URL = "https://httpbingo.org/post"
 
 	// string post data
 	// note: don't forget to URL encode your query params if you use string post data!
@@ -25,7 +25,7 @@ func main() {
 	// url.QueryEscape("Hellö Wörld@Golang")
 	data := "custname=root&custtel=999999999&custemail=some@email.com"
 
-	r := surf.NewClient().Post(url, data).Do().Unwrap()
+	r := surf.NewClient().Post(URL, data).Do().Unwrap()
 
 	var post Post
 
@@ -42,12 +42,14 @@ func main() {
 	// 	"custemail": "rest@gmail.com",
 	// }
 
-	mapData := g.NewMap[string, string]()
+	mapData := g.NewMapOrd[string, string]()
 	mapData.Set("custname", "toor")
 	mapData.Set("custtel", "88888888")
 	mapData.Set("custemail", "rest@gmail.com")
 
-	r = surf.NewClient().Post(url, mapData).Do().Unwrap()
+	r = surf.NewClient().Post(URL, mapData).Do().Unwrap()
+
+	r.Debug().Request(true).Response().Print()
 
 	r.Body.JSON(&post)
 
