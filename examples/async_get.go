@@ -18,7 +18,7 @@ func main() {
 		Parallel(100).
 		ForEach(func(s g.String) {
 			if r := surf.NewClient().Get(s).Do(); r.IsOk() {
-				r.Ok().Body.Limit(10)
+				r.Ok().Body.Limit(10).String().Println()
 			}
 		})
 
@@ -31,8 +31,12 @@ func main() {
 	// 	Take(100).
 	// 	Collect()
 	//
-	// pool := g.NewPool[*surf.Response]().Limit(10)
-	// cli := surf.NewClient()
+	// pool := pool.New[*surf.Response]().Limit(10)
+	// cli := surf.NewClient().
+	// 	Builder().
+	// 	Impersonate().
+	// 	FireFox().
+	// 	Build()
 	//
 	// for _, URL := range urls {
 	// 	pool.Go(cli.Get(URL).Do)
@@ -43,7 +47,7 @@ func main() {
 	// 		r.Ok().Body.Limit(10).String().Print()
 	// 	}
 	// }
-
+	//
 	// elesped := time.Since(start)
 	// fmt.Printf("elesped: %v\n", elesped)
 }

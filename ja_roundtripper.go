@@ -124,13 +124,17 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 	}
 
 	config := &utls.Config{
-		ServerName:         host,
-		InsecureSkipVerify: true,
-		OmitEmptyPsk:       true,
+		ServerName:             host,
+		InsecureSkipVerify:     true,
+		SessionTicketsDisabled: true,
+		OmitEmptyPsk:           true,
 	}
 
-	if supportsSession(spec.Ok()) {
+	if supportsSession(spec.Ok()) && rt.clientSessionCache != nil {
 		config.ClientSessionCache = rt.clientSessionCache
+		config.PreferSkipResumptionOnNilExtension = true
+		config.SessionTicketsDisabled = false
+		config.OmitEmptyPsk = false
 	}
 
 	conn := utls.UClient(rawConn, config, utls.HelloCustom)
@@ -230,13 +234,23 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 }
 
 func supportsSession(spec utls.ClientHelloSpec) bool {
+	hasSessionTicket := false
+	hasPSK := false
+
 	for _, ext := range spec.Extensions {
-		if _, ok := ext.(*utls.UtlsPreSharedKeyExtension); ok {
-			return true
+		switch ext.(type) {
+		case *utls.SessionTicketExtension:
+			hasSessionTicket = true
+		case *utls.PSKKeyExchangeModesExtension:
+			hasPSK = true
+		case *utls.UtlsPreSharedKeyExtension:
+			hasPSK = true
 		}
 	}
 
-	return false
+	// TLS 1.2 SessionTicket
+	// TLS 1.3 PSK
+	return hasSessionTicket || hasPSK
 }
 
 // setAlpnProtocolToHTTP1 updates the ALPN protocols of the provided ClientHelloSpec to include

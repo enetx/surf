@@ -7,7 +7,7 @@ require (
 	github.com/enetx/g v1.0.187
 	github.com/enetx/http v1.0.18
 	github.com/enetx/http2 v1.0.19
-	github.com/enetx/uquic v0.0.0-20250906092512-e3e00fb51842
+	github.com/enetx/uquic v0.0.0-20250906183719-83acc1e455e9
 	github.com/klauspost/compress v1.18.0
 	github.com/refraction-networking/utls v1.8.0
 	github.com/wzshiming/socks5 v0.5.2
