@@ -17,13 +17,12 @@ import (
 // It wraps the standard http.Request and provides enhanced features like middleware support,
 // retry capabilities, remote address tracking, and structured error handling.
 type Request struct {
-	request     *http.Request   // The underlying standard HTTP request
-	cli         *Client         // The associated surf client for this request
-	werr        *error          // Pointer to error encountered during request writing/preparation
-	err         error           // General error associated with the request (validation, setup, etc.)
-	remoteAddr  net.Addr        // Remote server address captured during connection
-	body        io.ReadCloser   // Request body reader (for retry support and body preservation)
-	headersKeys g.Slice[string] // Ordered list of header keys (preserves header order for fingerprinting)
+	request    *http.Request // The underlying standard HTTP request
+	cli        *Client       // The associated surf client for this request
+	werr       *error        // Pointer to error encountered during request writing/preparation
+	err        error         // General error associated with the request (validation, setup, etc.)
+	remoteAddr net.Addr      // Remote server address captured during connection
+	body       io.ReadCloser // Request body reader (for retry support and body preservation)
 }
 
 // GetRequest returns the underlying standard http.Request.
@@ -152,7 +151,7 @@ func (req *Request) SetHeaders(headers ...any) *Request {
 		return req
 	}
 
-	applyHeaders(req.request, headers, req, func(h http.Header, k, v string) { h.Set(k, v) })
+	req.applyHeaders(headers, func(h http.Header, k, v string) { h.Set(k, v) })
 
 	return req
 }
@@ -166,7 +165,7 @@ func (req *Request) AddHeaders(headers ...any) *Request {
 		return req
 	}
 
-	applyHeaders(req.request, headers, req, func(h http.Header, k, v string) { h.Add(k, v) })
+	req.applyHeaders(headers, func(h http.Header, k, v string) { h.Add(k, v) })
 
 	return req
 }
@@ -174,7 +173,11 @@ func (req *Request) AddHeaders(headers ...any) *Request {
 // applyHeaders is a helper function that processes various header input formats and applies them to an HTTP request.
 // It handles type checking, conversion, and delegation to the provided setOrAdd function for actual header manipulation.
 // Supports ordered header maps for fingerprinting and maintains compatibility with multiple map and header types.
-func applyHeaders(r *http.Request, rawHeaders []any, req *Request, setOrAdd func(h http.Header, key, value string)) {
+func (req *Request) applyHeaders(
+	rawHeaders []any,
+	setOrAdd func(h http.Header, key, value string),
+) {
+	r := req.request
 	if len(rawHeaders) >= 2 {
 		var key, value string
 
@@ -246,13 +249,23 @@ func applyHeaders(r *http.Request, rawHeaders []any, req *Request, setOrAdd func
 // header order keys for the transport layer to use. Returns a filtered map containing only
 // non-pseudo headers with non-empty values.
 func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[T, T] {
-	r.headersKeys.Push(h.Iter().
+	hclone := h.Clone()
+
+	if r.cli.builder != nil {
+		switch r.cli.builder.browser {
+		case chrome:
+			chromeHeaders(&hclone, r.request.Method)
+		case firefox:
+			firefoxHeaders(&hclone, r.request.Method)
+		}
+	}
+
+	headersKeys := g.TransformSlice(hclone.Iter().
 		Keys().
 		Map(func(s T) T { return T(g.String(s).Lower()) }).
-		Collect().
-		ToStringSlice()...)
+		Collect(), func(t T) string { return string(t) })
 
-	headers, pheaders := r.headersKeys.Iter().Partition(func(v string) bool { return v[0] != ':' })
+	headers, pheaders := headersKeys.Iter().Partition(func(v string) bool { return v[0] != ':' })
 
 	if headers.NotEmpty() {
 		r.request.Header[http.HeaderOrderKey] = headers
@@ -262,7 +275,7 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 		r.request.Header[http.PHeaderOrderKey] = pheaders
 	}
 
-	return h.Iter().
+	return hclone.Iter().
 		Filter(func(header, data T) bool { return header[0] != ':' && len(data) != 0 }).
 		Collect()
 }

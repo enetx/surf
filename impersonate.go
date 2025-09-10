@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 
 	"github.com/enetx/g"
+	"github.com/enetx/g/cmp"
+	"github.com/enetx/http"
 	"github.com/enetx/http2"
 	"github.com/enetx/surf/header"
 )
@@ -58,6 +60,7 @@ func (im *Impersonate) Chrome() *Builder {
 	// "ja3_hash": random,
 	// "ja4": "t13d1516h2_8daaf6152771_923f26044972",
 	// "peetprint_hash": "7466733991096b3f4e6c0e79b0083559",
+	// "akamai_fingerprint": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
 	// "akamai_fingerprint_hash": "52d84b11737d980aef856699f885ca86",
 
 	im.builder.
@@ -148,51 +151,109 @@ func (im *Impersonate) Chrome() *Builder {
 				Weight:    255,
 			}).Set()
 
-	// "headers": [
-	//   ":method: GET",
-	//   ":authority: tls.peet.ws",
-	//   ":scheme: https",
-	//   ":path: /api/all",
-	//   "sec-ch-ua: \\\"Google Chrome\\\";v=\\\"131\\\", \\\"Chromium\\\";v=\\\"131\\\", \\\"Not_A Brand\\\";v=\\\"24\\",
-	//   "sec-ch-ua-mobile: ?0",
-	//   "sec-ch-ua-platform: \\\"Windows\\",
-	//   "upgrade-insecure-requests: 1",
-	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-	//   "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-	//   "sec-fetch-site: none",
-	//   "sec-fetch-mode: navigate",
-	//   "sec-fetch-user: ?1",
-	//   "sec-fetch-dest: document",
-	//   "accept-encoding: gzip, deflate, br, zstd",
-	//   "accept-language: en-US,en;q=0.9",
-	//   "priority: u=0, i"
-	// ],
-
 	headers := g.NewMapOrd[g.String, g.String]()
-	headers.Set(":method", "")
 	headers.Set(":authority", "")
-	headers.Set(":scheme", "")
+	headers.Set(":method", "")
 	headers.Set(":path", "")
+	headers.Set(":scheme", "")
+	headers.Set(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd")
+	headers.Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
+	headers.Set(header.AUTHORIZATION, "")
 	headers.Set(header.COOKIE, "")
+	headers.Set(header.ORIGIN, "")
+	headers.Set(header.REFERER, "")
 	headers.Set(header.SEC_CH_UA, chromeSecCHUA)
 	headers.Set(header.SEC_CH_UA_MOBILE, im.os.mobile())
 	headers.Set(header.SEC_CH_UA_PLATFORM, chromePlatform[im.os])
-	headers.Set(header.UPGRADE_INSECURE_REQUESTS, "1")
 	headers.Set(header.USER_AGENT, chromeUserAgent[im.os])
-	headers.Set(
-		header.ACCEPT,
-		"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-	)
-	headers.Set(header.SEC_FETCH_SITE, "none")
-	headers.Set(header.SEC_FETCH_MODE, "navigate")
-	headers.Set(header.SEC_FETCH_USER, "?1")
-	headers.Set(header.SEC_FETCH_DEST, "document")
-	headers.Set(header.REFERER, "")
-	headers.Set(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd")
-	headers.Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
-	headers.Set(header.PRIORITY, "u=0, i")
 
-	return im.setHeaders(headers)
+	return im.builder.SetHeaders(headers)
+}
+
+var chromeHeaderOrder = g.Map[string, g.Slice[string]]{
+	http.MethodGet: {
+		":method",
+		":authority",
+		":scheme",
+		":path",
+		header.PRAGMA,
+		header.CACHE_CONTROL,
+		header.SEC_CH_UA,
+		header.SEC_CH_UA_MOBILE,
+		header.SEC_CH_UA_PLATFORM,
+		header.AUTHORIZATION,
+		header.UPGRADE_INSECURE_REQUESTS,
+		header.USER_AGENT,
+		header.ACCEPT,
+		header.SEC_FETCH_SITE,
+		header.SEC_FETCH_MODE,
+		header.SEC_FETCH_USER,
+		header.SEC_FETCH_DEST,
+		header.REFERER,
+		header.ACCEPT_ENCODING,
+		header.ACCEPT_LANGUAGE,
+		header.COOKIE,
+		header.PRIORITY,
+	},
+
+	http.MethodPost: {
+		":method",
+		":authority",
+		":scheme",
+		":path",
+		header.CONTENT_LENGTH,
+		header.SEC_CH_UA_PLATFORM,
+		header.AUTHORIZATION,
+		header.USER_AGENT,
+		header.SEC_CH_UA,
+		header.CONTENT_TYPE,
+		header.SEC_CH_UA_MOBILE,
+		header.ACCEPT,
+		header.ORIGIN,
+		header.SEC_FETCH_SITE,
+		header.SEC_FETCH_MODE,
+		header.SEC_FETCH_DEST,
+		header.REFERER,
+		header.ACCEPT_ENCODING,
+		header.ACCEPT_LANGUAGE,
+		header.COOKIE,
+		header.PRIORITY,
+	},
+}
+
+func chromeHeaders[T ~string](headers *g.MapOrd[T, T], method string) {
+	switch method {
+	case http.MethodGet:
+		headers.Set(
+			header.ACCEPT,
+			"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+		)
+		headers.Set(header.PRIORITY, "u=0, i")
+		headers.Set(header.SEC_FETCH_DEST, "document")
+		headers.Set(header.SEC_FETCH_MODE, "navigate")
+		headers.Set(header.SEC_FETCH_SITE, "none")
+		headers.Set(header.SEC_FETCH_USER, "?1")
+		headers.Set(header.UPGRADE_INSECURE_REQUESTS, "1")
+	case http.MethodPost:
+		headers.Set(header.ACCEPT, "*/*")
+		headers.Set(header.CACHE_CONTROL, "no-cache")
+		headers.Set(header.CONTENT_TYPE, "")
+		headers.Set(header.PRAGMA, "no-cache")
+		headers.Set(header.PRIORITY, "u=1, i")
+		headers.Set(header.SEC_FETCH_DEST, "empty")
+		headers.Set(header.SEC_FETCH_MODE, "cors")
+		headers.Set(header.SEC_FETCH_SITE, "same-origin")
+	}
+
+	headers.SortByKey(func(a, b T) cmp.Ordering {
+		m := chromeHeaderOrder.Get(method).UnwrapOr(chromeHeaderOrder[http.MethodGet])
+
+		enum := m.Iter().Enumerate().Collect().Invert()
+		ida := enum.Get(string(a))
+		idb := enum.Get(string(b))
+
+		return ida.UnwrapOrDefault().Cmp(idb.UnwrapOrDefault())
+	})
 }
 
 // Firefox impersonates Firefox browser v.131.
@@ -252,8 +313,9 @@ func (im *Impersonate) FireFox() *Builder {
 	}
 
 	// "ja3_hash": "b5001237acdf006056b409cc433726b0",
-	// "ja4": "t13d1715h2_5b57614c22b0_2764158f9823",
+	// "ja4": "t13d1715h2_5b57614c22b0_93c746dc12af",
 	// "peetprint_hash": "b9c611f928c8c1f20c414a48c66abf27",
+	// "akamai_fingerprint": "1:65536;4:131072;5:16384|12517377|3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241|m,p,a,s",
 	// "akamai_fingerprint_hash": "3d9132023bf26a71d40fe766e5c24c9d",
 
 	im.builder.
@@ -306,48 +368,98 @@ func (im *Impersonate) FireFox() *Builder {
 		PriorityFrames(priorityFrames).
 		Set()
 
-	// "headers": [
-	//   ":method: GET",
-	//   ":path: /api/all",
-	//   ":authority: tls.peet.ws",
-	//   ":scheme: https",
-	//   "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0",
-	//   "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
-	//   "accept-language: en-US,en;q=0.5",
-	//   "accept-encoding: gzip, deflate, br, zstd",
-	//   "upgrade-insecure-requests: 1",
-	//   "sec-fetch-dest: document",
-	//   "sec-fetch-mode: navigate",
-	//   "sec-fetch-site: none",
-	//   "sec-fetch-user: ?1",
-	//   "priority: u=0, i"
-	// ],
-
 	headers := g.NewMapOrd[g.String, g.String]()
+	headers.Set(":authority", "")
 	headers.Set(":method", "")
 	headers.Set(":path", "")
-	headers.Set(":authority", "")
 	headers.Set(":scheme", "")
-	headers.Set(header.COOKIE, "")
-	headers.Set(header.USER_AGENT, firefoxUserAgent[im.os])
-	headers.Set(
-		header.ACCEPT,
-		"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
-	)
-	headers.Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
 	headers.Set(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd")
+	headers.Set(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
+	headers.Set(header.AUTHORIZATION, "")
+	headers.Set(header.COOKIE, "")
+	headers.Set(header.ORIGIN, "")
 	headers.Set(header.REFERER, "")
-	headers.Set(header.UPGRADE_INSECURE_REQUESTS, "1")
-	headers.Set(header.SEC_FETCH_DEST, "document")
-	headers.Set(header.SEC_FETCH_MODE, "navigate")
-	headers.Set(header.SEC_FETCH_SITE, "none")
-	headers.Set(header.SEC_FETCH_USER, "?1")
-	headers.Set(header.PRIORITY, "u=0, i")
-	// headers.Set(header.TE, "trailers")
+	headers.Set(header.USER_AGENT, firefoxUserAgent[im.os])
 
-	return im.setHeaders(headers)
+	return im.builder.SetHeaders(headers)
 }
 
-func (im *Impersonate) setHeaders(headers g.MapOrd[g.String, g.String]) *Builder {
-	return im.builder.SetHeaders(headers)
+var firefoxHeaderOrder = g.Map[string, g.Slice[string]]{
+	http.MethodGet: {
+		":method",
+		":path",
+		":authority",
+		":scheme",
+		header.USER_AGENT,
+		header.ACCEPT,
+		header.ACCEPT_LANGUAGE,
+		header.ACCEPT_ENCODING,
+		header.REFERER,
+		header.AUTHORIZATION,
+		header.COOKIE,
+		header.UPGRADE_INSECURE_REQUESTS,
+		header.SEC_FETCH_DEST,
+		header.SEC_FETCH_MODE,
+		header.SEC_FETCH_SITE,
+		header.SEC_FETCH_USER,
+		header.PRIORITY,
+	},
+
+	http.MethodPost: {
+		":method",
+		":path",
+		":authority",
+		":scheme",
+		header.USER_AGENT,
+		header.ACCEPT,
+		header.ACCEPT_LANGUAGE,
+		header.ACCEPT_ENCODING,
+		header.REFERER,
+		header.CONTENT_TYPE,
+		header.AUTHORIZATION,
+		header.CONTENT_LENGTH,
+		header.ORIGIN,
+		header.COOKIE,
+		header.SEC_FETCH_DEST,
+		header.SEC_FETCH_MODE,
+		header.SEC_FETCH_SITE,
+		header.PRIORITY,
+		header.PRAGMA,
+		header.CACHE_CONTROL,
+	},
+}
+
+func firefoxHeaders[T ~string](headers *g.MapOrd[T, T], method string) {
+	switch method {
+	case http.MethodGet:
+		headers.Set(
+			header.ACCEPT,
+			"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
+		)
+		headers.Set(header.PRIORITY, "u=0, i")
+		headers.Set(header.SEC_FETCH_DEST, "document")
+		headers.Set(header.SEC_FETCH_MODE, "navigate")
+		headers.Set(header.SEC_FETCH_SITE, "none")
+		headers.Set(header.SEC_FETCH_USER, "?1")
+		headers.Set(header.UPGRADE_INSECURE_REQUESTS, "1")
+	case http.MethodPost:
+		headers.Set(header.ACCEPT, "*/*")
+		headers.Set(header.CACHE_CONTROL, "no-cache")
+		headers.Set(header.CONTENT_TYPE, "")
+		headers.Set(header.PRAGMA, "no-cache")
+		headers.Set(header.PRIORITY, "u=1, i")
+		headers.Set(header.SEC_FETCH_DEST, "empty")
+		headers.Set(header.SEC_FETCH_MODE, "cors")
+		headers.Set(header.SEC_FETCH_SITE, "same-origin")
+	}
+
+	headers.SortByKey(func(a, b T) cmp.Ordering {
+		m := firefoxHeaderOrder.Get(method).UnwrapOr(firefoxHeaderOrder[http.MethodGet])
+
+		enum := m.Iter().Enumerate().Collect().Invert()
+		ida := enum.Get(string(a))
+		idb := enum.Get(string(b))
+
+		return ida.UnwrapOrDefault().Cmp(idb.UnwrapOrDefault())
+	})
 }

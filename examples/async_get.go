@@ -11,13 +11,21 @@ import (
 func main() {
 	start := time.Now()
 
+	cli := surf.NewClient().
+		Builder().
+		Singleton().
+		Session().
+		Impersonate().
+		FireFox().
+		Build()
+
 	g.SliceOf(g.String("https://httpbingo.org/get")).
 		Iter().
 		Cycle().
 		Take(100).
 		Parallel(100).
 		ForEach(func(s g.String) {
-			if r := surf.NewClient().Get(s).Do(); r.IsOk() {
+			if r := cli.Get(s).Do(); r.IsOk() {
 				r.Ok().Body.Limit(10).String().Println()
 			}
 		})

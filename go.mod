@@ -4,14 +4,14 @@ go 1.24.0
 
 require (
 	github.com/andybalholm/brotli v1.2.0
-	github.com/enetx/g v1.0.187
+	github.com/enetx/g v1.0.188
 	github.com/enetx/http v1.0.18
 	github.com/enetx/http2 v1.0.19
 	github.com/enetx/uquic v0.0.0-20250906183719-83acc1e455e9
 	github.com/klauspost/compress v1.18.0
 	github.com/refraction-networking/utls v1.8.0
 	github.com/wzshiming/socks5 v0.5.2
-	golang.org/x/net v0.43.0
+	golang.org/x/net v0.44.0
 )
 
 require (
@@ -26,11 +26,11 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/crypto v0.42.0 // indirect
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
 	golang.org/x/mod v0.27.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
 )
