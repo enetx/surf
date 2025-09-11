@@ -30,8 +30,8 @@ func main() {
 		Impersonate().
 		// IOS().
 		// Android().
-		FireFox().
-		// Chrome().
+		// FireFox().
+		Chrome().
 		Build()
 
 	r := cli.
