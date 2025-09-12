@@ -1,105 +1,71 @@
 package main
 
 import (
-	"time"
-
 	"github.com/enetx/g"
+	"github.com/enetx/g/cell"
+	"github.com/enetx/g/pool"
+	"github.com/enetx/g/ref"
 	"github.com/enetx/surf"
 )
 
-// ProxyRotator manages a list of proxy servers and rotates between them
-type ProxyRotator struct {
-	proxies g.Slice[g.String]
-	index   int
-}
-
-// NewProxyRotator creates a new proxy rotator with the given proxy list
-func NewProxyRotator[T ~string](proxies []T) *ProxyRotator {
-	return &ProxyRotator{
-		proxies: g.TransformSlice(proxies, g.NewString),
-		index:   0,
-	}
-}
-
-// Next returns the next proxy in rotation (round-robin)
-func (pr *ProxyRotator) Next() g.String {
-	if pr.proxies.Empty() {
-		return ""
-	}
-
-	proxy := pr.proxies[pr.index]
-	pr.index = (pr.index + 1) % len(pr.proxies)
-
-	return proxy
-}
-
-// Random returns a random proxy from the list
-func (pr *ProxyRotator) Random() g.String {
-	if pr.proxies.Empty() {
-		return ""
-	}
-
-	return pr.proxies.Random()
-}
-
 func main() {
-	// Initialize proxy rotator with multiple proxy servers
-	rotator := NewProxyRotator([]string{
-		"socks5://127.0.0.1:9050", // Tor proxy
-		"http://127.0.0.1:2080",   // HTTP proxy
-	})
+	// Create a slice of proxy server addresses
+	// SOCKS5 proxy on port 9050 (typically Tor)
+	// HTTP proxy on port 2080
+	proxies := g.SliceOf[g.String](
+		"socks5://127.0.0.1:9050",
+		"http://127.0.0.1:2080",
+	)
 
-	// Example 1: Round-robin proxy rotation
-	g.Println("=== Round-robin proxy rotation ===")
+	// Create a thread-safe cell containing a cyclic iterator over proxies
+	// This allows infinite round-robin iteration through the proxy list
+	guard := cell.New(ref.Of(proxies.Iter().Cycle()))
 
-	client := surf.NewClient().
+	// Build an HTTP client with custom configuration:
+	cli := surf.NewClient().
 		Builder().
-		Impersonate().Chrome().
-		Proxy(rotator.Next).
+		Singleton().            // Use a single client instance
+		Impersonate().Chrome(). // Impersonate Chrome browser (spoofs User-Agent and other headers)
+		Proxy(func() g.String { // Dynamic proxy selection function
+			return guard.Get().Next().Some() // Get the next proxy from the cyclic iterator
+		}).
 		Build()
 
-	for i := range 10 {
-		g.Print("Request {}: ", i+1)
+	// Defer closing idle connections when the program exits
+	defer cli.CloseIdleConnections()
 
-		r := client.Get("https://check.torproject.org/api/ip").Do()
-		if r.IsErr() {
-			g.Println("Error: {}", r.Err())
-			continue
-		}
+	// Create a slice with capacity for 10 URL strings
+	urls := g.NewSlice[g.String](10)
 
-		var result map[string]any
-		r.Ok().Body.JSON(&result)
+	// Fill the entire slice with the same URL for IP checking
+	// This API endpoint returns the current external IP address
+	urls.Fill("https://check.torproject.org/api/ip")
 
-		if ip, ok := result["IP"].(string); ok {
-			g.Println("IP: {}", ip)
-		}
+	// Create a goroutine pool for parallel HTTP requests
+	// Limit concurrent goroutines to 2 at a time
+	p := pool.New[*surf.Response]().Limit(2)
 
-		time.Sleep(1 * time.Second)
+	// Launch parallel GET requests for each URL in the pool
+	for _, URL := range urls {
+		p.Go(cli.Get(URL).Do) // Add task to the pool
 	}
 
-	// Example 2: Random proxy selection
-	g.Println("\n=== Random proxy selection ===")
-	client2 := surf.NewClient().
-		Builder().
-		Proxy(rotator.Random).
-		Build()
+	// Wait for all requests to complete and process the results
+	for r := range p.Wait().Iter() {
+		switch {
+		case r.IsOk(): // If the request succeeded
+			// Create a map to deserialize the JSON response
+			var result map[string]any
 
-	for i := range 10 {
-		g.Print("Request {}: ", i+1)
+			// Parse JSON from the response body
+			r.Ok().Body.JSON(&result)
 
-		r := client2.Get("https://check.torproject.org/api/ip").Do()
-		if r.IsErr() {
-			g.Println("Error: {}", r.Err())
-			continue
+			// Extract the IP address from the result
+			if ip, ok := result["IP"].(string); ok {
+				g.Println("IP: {}", ip) // Print the IP address
+			}
+		case r.IsErr(): // If an error occurred during the request
+			g.Println("{}", r.Err()) // Print the error information
 		}
-
-		var result map[string]any
-		r.Ok().Body.JSON(&result)
-
-		if ip, ok := result["IP"].(string); ok {
-			g.Println("IP: {}", ip)
-		}
-
-		time.Sleep(1 * time.Second)
 	}
 }
