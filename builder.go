@@ -14,9 +14,9 @@ import (
 type browser int
 
 const (
-	unknown browser = iota // No specific browser fingerprinting
-	chrome                 // Chrome browser fingerprinting
-	firefox                // Firefox browser fingerprinting
+	unknownBrowser browser = iota // No specific browser fingerprinting
+	chromeBrowser                 // Chrome browser fingerprinting
+	firefoxBrowser                // Firefox browser fingerprinting
 )
 
 // Builder provides a fluent interface for configuring HTTP clients with various advanced features
@@ -53,9 +53,9 @@ func (b *Builder) Build() *Client {
 		http3s := b.HTTP3Settings()
 
 		switch b.browser {
-		case chrome:
+		case chromeBrowser:
 			http3s.Chrome().Set()
-		case firefox:
+		case firefoxBrowser:
 			http3s.Firefox().Set()
 		default:
 			// Default to Chrome if no browser was detected

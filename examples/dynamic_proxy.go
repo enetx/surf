@@ -51,7 +51,7 @@ func main() {
 	}
 
 	// Wait for all requests to complete and process the results
-	for r := range p.Wait().Iter() {
+	for r := range p.Wait() {
 		switch {
 		case r.IsOk(): // If the request succeeded
 			// Create a map to deserialize the JSON response

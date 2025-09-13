@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/andybalholm/brotli v1.2.0
-	github.com/enetx/g v1.0.189
+	github.com/enetx/g v1.0.191
 	github.com/enetx/http v1.0.18
 	github.com/enetx/http2 v1.0.19
 	github.com/enetx/uquic v0.0.0-20250906183719-83acc1e455e9
@@ -16,7 +16,7 @@ require (
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
-	github.com/enetx/iter v0.0.0-20250912101218-d23c373ca166 // indirect
+	github.com/enetx/iter v0.0.0-20250912135656-f1583323588f // indirect
 	github.com/gaukas/clienthellod v0.4.2 // indirect
 	github.com/gaukas/godicttls v0.0.4 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect

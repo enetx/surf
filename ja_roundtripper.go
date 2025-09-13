@@ -96,8 +96,6 @@ func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, 
 }
 
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
-	// If we have the connection from when we determined the HTTPS
-	// cachedTransports to use, return that.
 	if value := rt.cachedConnections.Get(addr); value.IsSome() {
 		rt.cachedConnections.Delete(addr)
 		return value.Some(), nil

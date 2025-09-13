@@ -50,7 +50,7 @@ func main() {
 	// 	pool.Go(cli.Get(URL).Do)
 	// }
 	//
-	// for r := range pool.Wait().Iter() {
+	// for r := range pool.Wait() {
 	// 	if r.IsOk() {
 	// 		r.Ok().Body.Limit(10).String().Print()
 	// 	}

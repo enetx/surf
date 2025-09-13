@@ -8,7 +8,9 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
+	"github.com/enetx/surf/internal/specclone"
 	"github.com/enetx/surf/pkg/connectproxy"
+	"github.com/enetx/surf/profiles/firefox"
 
 	utls "github.com/refraction-networking/utls"
 )
@@ -149,7 +151,8 @@ func (j *JA) getSpec() g.Result[utls.ClientHelloSpec] {
 		return g.ResultOf(utls.UTLSIdToSpec(j.id))
 	}
 
-	return g.Ok(j.spec)
+	spec := specclone.Clone(&j.spec)
+	return g.Ok(*spec)
 }
 
 // Browser and application fingerprinting methods.
@@ -239,6 +242,15 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 
 // Firefox131 sets the JA3 fingerprint to mimic Firefox version 131.
 func (j *JA) Firefox131() *Builder { return j.SetHelloID(utls.HelloFirefox_120) }
+
+// FirefoxPrivate131 sets the JA3 fingerprint to mimic Firefox private version 131.
+func (j *JA) FirefoxPrivate131() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_131) }
+
+// Tor sets the JA3 fingerprint to mimic Tor Browser version 14.5.6.
+func (j *JA) Tor() *Builder { return j.SetHelloSpec(firefox.Tor) }
+
+// TorPrivate sets the JA3 fingerprint to mimic Tor Browser private version 14.5.6.
+func (j *JA) TorPrivate() *Builder { return j.SetHelloSpec(firefox.TorPrivate) }
 
 // IOS sets the JA3 fingerprint to mimic the latest iOS Safari browser (auto-detection).
 func (j *JA) IOS() *Builder { return j.SetHelloID(utls.HelloIOS_Auto) }

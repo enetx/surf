@@ -78,7 +78,7 @@ func main() {
 		})
 	}
 
-	result := pool.Wait()
+	result := pool.Wait().Collect()
 
 	if err := pool.Cause(); err != nil && !errors.Is(err, context.Canceled) {
 		log.Fatal(err)
