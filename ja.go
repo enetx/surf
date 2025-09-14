@@ -10,6 +10,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/surf/internal/specclone"
 	"github.com/enetx/surf/pkg/connectproxy"
+	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
 
 	utls "github.com/refraction-networking/utls"
@@ -202,7 +203,7 @@ func (j *JA) Chrome120() *Builder { return j.SetHelloID(utls.HelloChrome_120) }
 func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_PQ) }
 
 // Chrome131 sets the JA3 fingerprint to mimic Chrome version 131.
-func (j *JA) Chrome131() *Builder { return j.SetHelloID(utls.HelloChrome_131) }
+func (j *JA) Chrome131() *Builder { return j.SetHelloSpec(chrome.HelloChrome_131) }
 
 // Edge sets the JA3 fingerprint to mimic Microsoft Edge version 85.
 func (j *JA) Edge() *Builder { return j.SetHelloID(utls.HelloEdge_85) }

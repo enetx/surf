@@ -132,7 +132,6 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		config.ClientSessionCache = rt.clientSessionCache
 		config.PreferSkipResumptionOnNilExtension = true
 		config.SessionTicketsDisabled = false
-		config.OmitEmptyPsk = false
 	}
 
 	conn := utls.UClient(rawConn, config, utls.HelloCustom)
