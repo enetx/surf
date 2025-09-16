@@ -6,8 +6,6 @@ import (
 )
 
 var HelloFirefoxPrivate_131 = utls.ClientHelloSpec{
-	TLSVersMin: utls.VersionTLS12,
-	TLSVersMax: utls.VersionTLS13,
 	CipherSuites: []uint16{
 		utls.TLS_AES_128_GCM_SHA256,
 		utls.TLS_CHACHA20_POLY1305_SHA256,

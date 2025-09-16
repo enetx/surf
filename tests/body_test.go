@@ -1252,3 +1252,56 @@ func TestBodyContainsEdgeCases(t *testing.T) {
 		})
 	}
 }
+
+func TestBodyMD5Hash(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		content  string
+		expected string
+	}{
+		{"Simple text", "hello world", "5d41402abc4b2a76b9719d911017c592"},
+		{"Empty string", "", "d41d8cd98f00b204e9800998ecf8427e"},
+		{"Numbers", "123456", "e10adc3949ba59abbe56e057f20f883e"},
+		{"Unicode", "🦄🌈", ""}, // Will have some hash
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprint(w, tc.content)
+			}
+
+			ts := httptest.NewServer(http.HandlerFunc(handler))
+			defer ts.Close()
+
+			client := surf.NewClient()
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body
+			hash := body.MD5()
+
+			if hash.Std() == "" {
+				t.Error("expected MD5 hash to be generated")
+			}
+
+			// Test that hash has correct length (32 chars for MD5)
+			if len(hash.Std()) != 32 {
+				t.Errorf("expected MD5 hash length 32, got %d", len(hash.Std()))
+			}
+
+			// MD5 should contain only hex characters
+			for _, char := range hash.Std() {
+				if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f')) {
+					t.Errorf("MD5 hash should contain only hex characters, got %s", hash.Std())
+					break
+				}
+			}
+		})
+	}
+}

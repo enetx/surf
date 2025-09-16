@@ -38,6 +38,7 @@ type Client struct {
 	reqMWs    g.MapOrd[func(*Request) error, int]  // Ordered request middleware functions with priorities
 	respMWs   g.MapOrd[func(*Response) error, int] // Ordered response middleware functions with priorities
 	boundary  func() g.String                      // Custom boundary generator for multipart requests
+	mwMutex   sync.Mutex                           // Mutex for thread-safe middleware operations
 }
 
 // NewClient creates a new Client with sensible default settings including
@@ -63,7 +64,11 @@ func NewClient() *Client {
 // applyReqMW applies all registered request middlewares to the given request in priority order.
 // Middlewares are sorted by priority before execution, and processing stops on first error.
 func (c *Client) applyReqMW(req *Request) (err error) {
-	c.reqMWs.SortByValue(cmp.Cmp)
+	c.mwMutex.Lock()
+
+	if !c.reqMWs.IsSortedByValue(cmp.Cmp) {
+		c.reqMWs.SortByValue(cmp.Cmp)
+	}
 
 	c.reqMWs.Iter().
 		Keys().
@@ -74,13 +79,19 @@ func (c *Client) applyReqMW(req *Request) (err error) {
 			return true
 		})
 
+	c.mwMutex.Unlock()
+
 	return err
 }
 
 // applyRespMW applies all registered response middlewares to the given response in priority order.
 // Middlewares are sorted by priority before execution, and processing stops on first error.
 func (c *Client) applyRespMW(resp *Response) (err error) {
-	c.respMWs.SortByValue(cmp.Cmp)
+	c.mwMutex.Lock()
+
+	if !c.respMWs.IsSortedByValue(cmp.Cmp) {
+		c.respMWs.SortByValue(cmp.Cmp)
+	}
 
 	c.respMWs.Iter().
 		Keys().
@@ -90,6 +101,8 @@ func (c *Client) applyRespMW(resp *Response) (err error) {
 			}
 			return true
 		})
+
+	c.mwMutex.Unlock()
 
 	return err
 }

@@ -31,11 +31,11 @@ func main() {
 		Impersonate().
 		// Tor().
 		// FireFox().
-		// FireFoxPrivate().
+		FireFoxPrivate().
 		// IOS().
 		// Android().
 		// FireFox().
-		Chrome().
+		// Chrome().
 		Build()
 
 	r := cli.

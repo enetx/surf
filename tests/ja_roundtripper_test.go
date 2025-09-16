@@ -46,6 +46,81 @@ func TestRoundTripperTransportCaching(t *testing.T) {
 	}
 }
 
+func TestRoundTripperJAErrorHandling(t *testing.T) {
+	t.Parallel()
+
+	// Test error handling in JA roundtripper
+	tests := []struct {
+		name      string
+		url       string
+		expectErr bool
+	}{
+		{"Invalid URL", "not-a-valid-url", true},
+		{"Connection refused", "https://127.0.0.1:65535", true},
+		{"Invalid domain", "https://non-existent-domain-12345.invalid", true},
+	}
+
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		Build()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := client.Get(g.String(tt.url)).Do()
+			if tt.expectErr && !resp.IsErr() {
+				t.Log("Expected error but request succeeded")
+			}
+			if !tt.expectErr && resp.IsErr() {
+				t.Errorf("Unexpected error: %v", resp.Err())
+			}
+		})
+	}
+}
+
+func TestRoundTripperTLSConnectionFailure(t *testing.T) {
+	t.Parallel()
+
+	// Test TLS connection failure handling
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		Build()
+
+	// Try to connect to an invalid TLS endpoint
+	resp := client.Get(g.String("https://127.0.0.1:1")).Do()
+	if !resp.IsErr() {
+		t.Log("Expected TLS connection to fail")
+	}
+}
+
+func TestRoundTripperSessionCaching(t *testing.T) {
+	t.Parallel()
+
+	// Test session caching with JA roundtripper
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"session": "cached"}`)
+	}
+
+	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Session().
+		JA().Chrome131().
+		Build()
+
+	// Multiple requests should use session caching
+	for i := 0; i < 3; i++ {
+		resp := client.Get(g.String(ts.URL)).Do()
+		if resp.IsErr() {
+			t.Fatalf("Session cached request %d failed: %v", i, resp.Err())
+		}
+		if !resp.Ok().StatusCode.IsSuccess() {
+			t.Errorf("Request %d failed with status %d", i, resp.Ok().StatusCode)
+		}
+	}
+}
+
 func TestRoundTripperHTTPSchemeHandling(t *testing.T) {
 	t.Parallel()
 
@@ -562,5 +637,147 @@ func TestJAErrorHandling(t *testing.T) {
 	resp3 := client.Get(g.String("invalid://url")).Do()
 	if resp3.IsErr() {
 		t.Logf("Expected URL parsing error: %v", resp3.Err())
+	}
+}
+
+func TestJARoundtripperHTTP2Transport(t *testing.T) {
+	t.Parallel()
+
+	// Test JA roundtripper with HTTP/2 settings to exercise buildHTTP2Transport
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		HTTP2Settings().
+		HeaderTableSize(65536).
+		EnablePush(0).
+		InitialWindowSize(6291456).
+		MaxHeaderListSize(262144).
+		Set().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be built successfully")
+	}
+
+	// This should exercise buildHTTP2Transport function
+	if client.GetTransport() == nil {
+		t.Fatal("expected transport to be configured")
+	}
+
+	// Test request creation (exercises internal functions)
+	req := client.Get(g.String("https://httpbin.org/get"))
+	if req == nil {
+		t.Fatal("expected request to be created")
+	}
+
+	if req.GetRequest() == nil {
+		t.Fatal("expected HTTP request to be created")
+	}
+}
+
+func TestJARoundtripperTLSDialing(t *testing.T) {
+	t.Parallel()
+
+	// Test various TLS configurations to exercise dialTLSHTTP2 and dialTLS functions
+	tests := []struct {
+		name string
+		spec utls.ClientHelloID
+	}{
+		{"Chrome 131", utls.HelloChrome_131},
+		{"Chrome 120", utls.HelloChrome_120},
+		{"Firefox 102", utls.HelloFirefox_102},
+		{"Edge 106", utls.HelloEdge_106},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := surf.NewClient().Builder().
+				JA().SetHelloID(tt.spec).
+				Build()
+
+			if client == nil {
+				t.Fatal("expected client to be built successfully")
+			}
+
+			// Creating requests with HTTPS URLs will exercise TLS dialing functions
+			req := client.Get(g.String("https://example.com"))
+			if req == nil {
+				t.Fatal("expected request to be created")
+			}
+
+			// The TLS config should be properly set
+			if client.GetTLSConfig() == nil {
+				t.Fatal("expected TLS config to be set for JA3")
+			}
+		})
+	}
+}
+
+func TestJARoundtripperSessionCaching(t *testing.T) {
+	t.Parallel()
+
+	// Test session caching functionality
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		Session().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be built successfully")
+	}
+
+	// With sessions enabled, TLS config should have session cache
+	tlsConfig := client.GetTLSConfig()
+	if tlsConfig == nil {
+		t.Fatal("expected TLS config to be set")
+	}
+
+	if tlsConfig.ClientSessionCache == nil {
+		t.Error("expected session cache to be configured")
+	}
+
+	// Test that requests can be created
+	req := client.Get(g.String("https://httpbin.org/get"))
+	if req == nil {
+		t.Fatal("expected request to be created")
+	}
+}
+
+func TestJARoundtripperAddressParsing(t *testing.T) {
+	t.Parallel()
+
+	// Test address parsing function
+	tests := []struct {
+		name string
+		url  string
+	}{
+		{"HTTPS with explicit port", "https://example.com:443"},
+		{"HTTPS default port", "https://example.com"},
+		{"HTTP with custom port", "http://example.com:8080"},
+		{"Localhost HTTPS", "https://localhost:8443"},
+		{"IP address", "https://127.0.0.1:443"},
+		{"IPv6 address", "https://[::1]:443"},
+	}
+
+	client := surf.NewClient().Builder().
+		JA().Chrome131().
+		Build()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Creating requests exercises address parsing
+			req := client.Get(g.String(tt.url))
+			if req == nil {
+				t.Fatal("expected request to be created")
+			}
+
+			if req.GetRequest() == nil {
+				t.Fatal("expected HTTP request to be created")
+			}
+
+			// URL should be properly parsed
+			if req.GetRequest().URL == nil {
+				t.Fatal("expected URL to be parsed")
+			}
+		})
 	}
 }

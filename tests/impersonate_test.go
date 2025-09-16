@@ -640,3 +640,116 @@ func TestImpersonateChromeJA3Configuration(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 }
+
+func TestImpersonateFirefoxPrivate(t *testing.T) {
+	t.Parallel()
+
+	client := surf.NewClient().Builder().
+		Impersonate().FireFoxPrivate().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be built successfully")
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		userAgent := r.Header.Get("User-Agent")
+		fmt.Fprintf(w, `{"user-agent": "%s"}`, userAgent)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+
+	body := resp.Ok().Body.String()
+	if !strings.Contains(body.Std(), "Firefox") {
+		t.Error("expected Firefox user agent to be applied")
+	}
+}
+
+func TestImpersonateTor(t *testing.T) {
+	t.Parallel()
+
+	client := surf.NewClient().Builder().
+		Impersonate().Tor().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be built successfully")
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		userAgent := r.Header.Get("User-Agent")
+		fmt.Fprintf(w, `{"user-agent": "%s"}`, userAgent)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+
+	body := resp.Ok().Body.String()
+	// Tor browser is based on Firefox ESR
+	if !strings.Contains(body.Std(), "Firefox") {
+		t.Error("expected Firefox-based user agent for Tor")
+	}
+}
+
+func TestImpersonateTorPrivate(t *testing.T) {
+	t.Parallel()
+
+	client := surf.NewClient().Builder().
+		Impersonate().TorPrivate().
+		Build()
+
+	if client == nil {
+		t.Fatal("expected client to be built successfully")
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		userAgent := r.Header.Get("User-Agent")
+		fmt.Fprintf(w, `{"user-agent": "%s"}`, userAgent)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	req := client.Get(g.String(ts.URL))
+	resp := req.Do()
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+
+	body := resp.Ok().Body.String()
+	// Tor browser is based on Firefox ESR
+	if !strings.Contains(body.Std(), "Firefox") {
+		t.Error("expected Firefox-based user agent for Tor Private")
+	}
+}

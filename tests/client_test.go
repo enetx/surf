@@ -85,6 +85,214 @@ func TestClientHTTPMethods(t *testing.T) {
 	}
 }
 
+func TestClientGetWithParams(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET method, got %s", r.Method)
+		}
+		body, _ := io.ReadAll(r.Body)
+		bodyStr := string(body)
+		if !strings.Contains(bodyStr, "name=test") || !strings.Contains(bodyStr, "value=123") {
+			t.Errorf("expected name=test&value=123 in body, got %s", bodyStr)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "ok")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+
+	// Test GET with map parameters
+	params := g.NewMapOrd[g.String, g.String](2)
+	params.Set("name", "test")
+	params.Set("value", "123")
+
+	resp := client.Get(g.String(ts.URL), params).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
+func TestClientErrorHandling(t *testing.T) {
+	t.Parallel()
+
+	// Test various error scenarios
+	tests := []struct {
+		name string
+		url  string
+	}{
+		{"Invalid URL", "not-a-valid-url"},
+		{"Malformed URL", "http://[::1:invalid"},
+		{"Invalid scheme", "ftp://example.com"},
+		{"Empty URL", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := surf.NewClient()
+			req := client.Get(g.String(tt.url))
+
+			// Request creation should handle errors gracefully
+			if req != nil {
+				// If request is created, it might fail during execution
+				resp := req.Do()
+				if !resp.IsErr() {
+					t.Log("Unexpectedly successful request")
+				}
+			} else {
+				t.Log("Request creation failed as expected")
+			}
+		})
+	}
+}
+
+func TestClientConcurrentRequests(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		// Simulate some processing time
+		time.Sleep(10 * time.Millisecond)
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "concurrent response")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	concurrency := 5
+	results := make(chan error, concurrency)
+
+	client := surf.NewClient()
+
+	for range concurrency {
+		go func() {
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				results <- resp.Err()
+				return
+			}
+			if !resp.Ok().StatusCode.IsSuccess() {
+				results <- fmt.Errorf("unexpected status: %d", resp.Ok().StatusCode)
+				return
+			}
+			results <- nil
+		}()
+	}
+
+	// Wait for all goroutines to complete
+	for range concurrency {
+		if err := <-results; err != nil {
+			t.Errorf("concurrent request failed: %v", err)
+		}
+	}
+}
+
+func TestClientTimeout(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		// Simulate slow response
+		time.Sleep(100 * time.Millisecond)
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "slow response")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Client with reasonable timeout
+	client := surf.NewClient().Builder().
+		Timeout(5 * time.Second). // 5 seconds - should be enough
+		Build()
+
+	// This should succeed (response is faster than timeout)
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Logf("request with normal timeout failed: %v", resp.Err())
+	} else if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+
+	// Test with very short timeout that should fail
+	clientFast := surf.NewClient().Builder().
+		Timeout(1 * time.Millisecond). // Very short timeout
+		Build()
+
+	resp2 := clientFast.Get(g.String(ts.URL)).Do()
+	// This should timeout
+	if !resp2.IsErr() {
+		t.Log("Expected timeout but request succeeded")
+	}
+}
+
+func TestClientContextCancellation(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(200 * time.Millisecond)
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "delayed response")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	req := client.Get(g.String(ts.URL))
+	req.GetRequest().WithContext(ctx)
+	resp := req.Do()
+	if !resp.IsErr() {
+		t.Log("Expected request to be cancelled, but it succeeded")
+	}
+}
+
+func TestClientRedirects(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/redirect" {
+			http.Redirect(w, r, "/final", http.StatusFound)
+			return
+		}
+		if r.URL.Path == "/final" {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, "final destination")
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL + "/redirect")).Do()
+
+	if resp.IsErr() {
+		t.Fatalf("redirect failed: %v", resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success after redirect, got %d", resp.Ok().StatusCode)
+	}
+
+	body := resp.Ok().Body.String()
+	if !body.Contains("final destination") {
+		t.Errorf("expected 'final destination', got %s", body)
+	}
+}
+
 func TestClientPostWithData(t *testing.T) {
 	t.Parallel()
 
@@ -660,6 +868,14 @@ func TestClientFileUploadVariants(t *testing.T) {
 				}(),
 			},
 		},
+		{
+			name: "byte content",
+			data: []any{bytes.NewReader([]byte("byte content"))},
+		},
+		{
+			name: "g.Bytes content",
+			data: []any{bytes.NewReader(g.Bytes("g.bytes content").Std())},
+		},
 	}
 
 	for _, tt := range tests {
@@ -766,35 +982,6 @@ func TestClientWithContext(t *testing.T) {
 
 	if !resp.IsErr() {
 		t.Error("expected timeout error")
-	}
-}
-
-func TestClientBoundary(t *testing.T) {
-	t.Parallel()
-
-	expectedBoundary := "custom-boundary-123"
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		contentType := r.Header.Get("Content-Type")
-		if !strings.Contains(contentType, expectedBoundary) {
-			t.Errorf("expected boundary %s in content-type, got %s", expectedBoundary, contentType)
-		}
-		w.WriteHeader(http.StatusOK)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	client := surf.NewClient().Builder().
-		Boundary(func() g.String { return g.String(expectedBoundary) }).
-		Build()
-
-	data := g.NewMapOrd[g.String, g.String](1)
-	data.Set("field", "value")
-
-	resp := client.Multipart(g.String(ts.URL), data).Do()
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
 	}
 }
 

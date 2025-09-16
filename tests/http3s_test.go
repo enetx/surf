@@ -1137,7 +1137,7 @@ func TestHTTP3NetworkConditions(t *testing.T) {
 	})
 }
 
-func TestHTTP3DNSResolution(t *testing.T) {
+func TestHTTP3DOTResolution(t *testing.T) {
 	t.Parallel()
 
 	// Test DNS resolution functionality in HTTP3 transport

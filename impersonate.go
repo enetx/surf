@@ -49,7 +49,7 @@ func (im *Impersonate) IOS() *Impersonate {
 	return im
 }
 
-// Chrome impersonates Chrome browser v.131.
+// Chrome impersonates Chrome browser v131.
 func (im *Impersonate) Chrome() *Builder {
 	im.builder.browser = chromeBrowser
 
@@ -97,7 +97,7 @@ func (im *Impersonate) Chrome() *Builder {
 	return im.builder.SetHeaders(headers)
 }
 
-// FireFox impersonates Firefox browser v.131.
+// FireFox impersonates Firefox browser v131.
 func (im *Impersonate) FireFox() *Builder {
 	im.builder.browser = firefoxBrowser
 
@@ -143,7 +143,7 @@ func (im *Impersonate) FireFox() *Builder {
 	return im.builder.SetHeaders(headers)
 }
 
-// FireFoxPrivate impersonates Firefox private browser v.131.
+// FireFoxPrivate impersonates Firefox private browser v131.
 func (im *Impersonate) FireFoxPrivate() *Builder {
 	im.builder.browser = firefoxBrowser
 
@@ -189,7 +189,7 @@ func (im *Impersonate) FireFoxPrivate() *Builder {
 	return im.builder.SetHeaders(headers)
 }
 
-// Tor impersonates Firefox browser v.131.
+// Tor impersonates Tor browser v14.5.6.
 func (im *Impersonate) Tor() *Builder {
 	im.builder.browser = firefoxBrowser
 
@@ -235,7 +235,7 @@ func (im *Impersonate) Tor() *Builder {
 	return im.builder.SetHeaders(headers)
 }
 
-// FireFox impersonates Firefox browser v.131.
+// TorPrivate impersonates Tor private browser v14.5.6.
 func (im *Impersonate) TorPrivate() *Builder {
 	im.builder.browser = firefoxBrowser
 
