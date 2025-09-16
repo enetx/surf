@@ -74,7 +74,7 @@ func TestCookiesWithAttributes(t *testing.T) {
 			Name:     "secure-cookie",
 			Value:    "secure-value",
 			Path:     "/test",
-			Domain:   "example.com",
+			Domain:   "127.0.0.1",
 			Expires:  time.Now().Add(time.Hour),
 			Secure:   true,
 			HttpOnly: true,
@@ -121,8 +121,8 @@ func TestCookiesWithAttributes(t *testing.T) {
 		t.Errorf("expected cookie path to be /test, got %s", secureCookie.Path)
 	}
 
-	if secureCookie.Domain != "example.com" {
-		t.Errorf("expected cookie domain to be example.com, got %s", secureCookie.Domain)
+	if secureCookie.Domain != "127.0.0.1" {
+		t.Errorf("expected cookie domain to be 127.0.0.1, got %s", secureCookie.Domain)
 	}
 }
 
@@ -630,7 +630,7 @@ func TestCookiesContainsPartialMatches(t *testing.T) {
 			Name:     "complex-cookie",
 			Value:    "complex-value-with-dashes",
 			Path:     "/api/v1",
-			Domain:   "example.com",
+			Domain:   "127.0.0.1",
 			Secure:   true,
 			HttpOnly: true,
 		})
@@ -664,7 +664,7 @@ func TestCookiesContainsPartialMatches(t *testing.T) {
 		t.Error("expected Contains to find partial match in cookie path")
 	}
 
-	if !cookies.Contains("example.com") {
+	if !cookies.Contains("127.0.0.1") {
 		t.Error("expected Contains to find partial match in cookie domain")
 	}
 

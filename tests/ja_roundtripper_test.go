@@ -664,7 +664,7 @@ func TestJARoundtripperHTTP2Transport(t *testing.T) {
 	}
 
 	// Test request creation (exercises internal functions)
-	req := client.Get(g.String("https://httpbin.org/get"))
+	req := client.Get(g.String("https://127.0.0.1:8080/get"))
 	if req == nil {
 		t.Fatal("expected request to be created")
 	}
@@ -699,7 +699,7 @@ func TestJARoundtripperTLSDialing(t *testing.T) {
 			}
 
 			// Creating requests with HTTPS URLs will exercise TLS dialing functions
-			req := client.Get(g.String("https://example.com"))
+			req := client.Get(g.String("https://127.0.0.1:8080"))
 			if req == nil {
 				t.Fatal("expected request to be created")
 			}
@@ -736,7 +736,7 @@ func TestJARoundtripperSessionCaching(t *testing.T) {
 	}
 
 	// Test that requests can be created
-	req := client.Get(g.String("https://httpbin.org/get"))
+	req := client.Get(g.String("https://127.0.0.1:8080/get"))
 	if req == nil {
 		t.Fatal("expected request to be created")
 	}
@@ -750,9 +750,9 @@ func TestJARoundtripperAddressParsing(t *testing.T) {
 		name string
 		url  string
 	}{
-		{"HTTPS with explicit port", "https://example.com:443"},
-		{"HTTPS default port", "https://example.com"},
-		{"HTTP with custom port", "http://example.com:8080"},
+		{"HTTPS with explicit port", "https://127.0.0.1:443"},
+		{"HTTPS default port", "https://127.0.0.1"},
+		{"HTTP with custom port", "http://127.0.0.1:8080"},
 		{"Localhost HTTPS", "https://localhost:8443"},
 		{"IP address", "https://127.0.0.1:443"},
 		{"IPv6 address", "https://[::1]:443"},

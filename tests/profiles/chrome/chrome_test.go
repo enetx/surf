@@ -51,16 +51,16 @@ func TestHeaders_POST(t *testing.T) {
 		headers := g.NewMapOrd[string, string]()
 
 		headers.Set(":method", "POST")
-		headers.Set(":authority", "example.com")
+		headers.Set(":authority", "127.0.0.1")
 		headers.Set(":scheme", "https")
 		headers.Set(":path", "/api")
 		headers.Set(header.CONTENT_LENGTH, "100")
 		headers.Set(header.USER_AGENT, "Mozilla/5.0")
-		headers.Set(header.REFERER, "https://example.com")
+		headers.Set(header.REFERER, "https://127.0.0.1")
 		headers.Set(header.COOKIE, "session=abc")
 		headers.Set(header.ACCEPT_ENCODING, "gzip, deflate")
 		headers.Set(header.ACCEPT_LANGUAGE, "en-US")
-		headers.Set(header.ORIGIN, "https://example.com")
+		headers.Set(header.ORIGIN, "https://127.0.0.1")
 
 		chrome.Headers(&headers, http.MethodPost)
 

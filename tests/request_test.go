@@ -537,7 +537,7 @@ func TestRequestHeaderOrderWithPseudoHeaders(t *testing.T) {
 	// Test with ordered headers including pseudo headers
 	headers := g.NewMapOrd[g.String, g.String]()
 	headers.Set(":method", "GET")
-	headers.Set(":authority", "test.example.com")
+	headers.Set(":authority", "127.0.0.1")
 	headers.Set(":scheme", "https")
 	headers.Set(":path", "/test")
 	headers.Set("Custom-Header-1", "value1")

@@ -125,7 +125,7 @@ func TestDNSOverTLSCustomProvider(t *testing.T) {
 	client2 := surf.NewClient()
 	builder2 := client2.Builder()
 	dnsBuilder2 := builder2.DNSOverTLS()
-	builtClient2 := dnsBuilder2.AddProvider("custom1.example.com", "custom1.example.com:853").Build()
+	builtClient2 := dnsBuilder2.AddProvider("127.0.0.1", "127.0.0.1:853").Build()
 
 	if builtClient == nil {
 		t.Error("expected client with DNS provider to be non-nil")

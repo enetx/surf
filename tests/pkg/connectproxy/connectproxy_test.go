@@ -838,8 +838,8 @@ func TestProxyErrorTypes(t *testing.T) {
 		},
 		{
 			"ErrPasswordEmpty with URL",
-			&connectproxy.ErrPasswordEmpty{Msg: "https://user@proxy.example.com"},
-			"password is empty: https://user@proxy.example.com",
+			&connectproxy.ErrPasswordEmpty{Msg: "https://user@127.0.0.1"},
+			"password is empty: https://user@127.0.0.1",
 		},
 		{
 			"ErrProxyEmpty",
@@ -869,7 +869,7 @@ func TestProxySchemeHandling(t *testing.T) {
 	}{
 		{
 			"HTTP scheme with default port",
-			"http://proxy.example.com",
+			"http://127.0.0.1:8080",
 			false,
 			":80",
 		},
@@ -1042,7 +1042,7 @@ func TestHTTP2ConnectionHandling(t *testing.T) {
 	defer cancel()
 
 	// This will test the HTTP/2 code paths even though it fails
-	_, err = dialer.DialContext(ctx, "tcp", "example.com:443")
+	_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:443")
 	if err == nil {
 		t.Error("expected timeout error")
 	} else {
@@ -1064,8 +1064,8 @@ func TestProxyInitializationMethods(t *testing.T) {
 		proxyURL string
 		target   string
 	}{
-		{"HTTP proxy with auth", "http://user:pass@127.0.0.1:8080", "example.com:443"},
-		{"HTTPS proxy", "https://127.0.0.1:8443", "example.com:80"},
+		{"HTTP proxy with auth", "http://user:pass@127.0.0.1:8080", "127.0.0.1:443"},
+		{"HTTPS proxy", "https://127.0.0.1:8443", "127.0.0.1:80"},
 		{"HTTP proxy standard port", "http://127.0.0.1:3128", "target.com:8080"},
 	}
 
@@ -1103,7 +1103,7 @@ func TestProxyConnectionEstablishment(t *testing.T) {
 	defer cancel()
 
 	// This tests the connection establishment failure path
-	_, err = dialer.DialContext(ctx, "tcp", "example.com:443")
+	_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:443")
 	if err == nil {
 		t.Error("expected DNS resolution or connection error")
 	} else {
@@ -1160,7 +1160,7 @@ func TestProxyErrorMessageHandling(t *testing.T) {
 	defer cancel()
 
 	// This should get a 407 error
-	_, err = dialer.DialContext(ctx, "tcp", "example.com:443")
+	_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:443")
 	if err == nil {
 		t.Error("expected proxy authentication error")
 	} else {

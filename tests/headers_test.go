@@ -726,7 +726,7 @@ func TestHeadersContainsComplexRegexp(t *testing.T) {
 	handler := func(w ehttp.ResponseWriter, _ *ehttp.Request) {
 		w.Header().Set("Cache-Control", "max-age=3600, s-maxage=1800, public")
 		w.Header().Set("Set-Cookie", "sessionid=abc123; HttpOnly; Secure; SameSite=Strict")
-		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://cdn.example.com")
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://127.0.0.1:8080")
 		w.WriteHeader(http.StatusOK)
 	}
 
@@ -763,7 +763,7 @@ func TestHeadersContainsComplexRegexp(t *testing.T) {
 	}
 
 	// Test CSP source pattern
-	cspSourcePattern, err := regexp.Compile(`https://[a-z0-9.-]+\.com`)
+	cspSourcePattern, err := regexp.Compile(`https://127\.0\.0\.1:8080`)
 	if err != nil {
 		t.Fatalf("failed to compile CSP source regexp: %v", err)
 	}

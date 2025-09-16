@@ -171,20 +171,20 @@ func TestTLSDataStructure(t *testing.T) {
 
 	// Test TLSData structure initialization
 	tlsData := &surf.TLSData{
-		ExtensionServerName:      "example.com",
+		ExtensionServerName:      "127.0.0.1",
 		FingerprintSHA256:        "abcd1234",
 		FingerprintSHA256OpenSSL: "AB:CD:12:34",
 		TLSVersion:               "TLS13",
-		CommonName:               []string{"example.com"},
-		DNSNames:                 []string{"example.com", "www.example.com"},
-		Emails:                   []string{"admin@example.com"},
+		CommonName:               []string{"127.0.0.1"},
+		DNSNames:                 []string{"127.0.0.1", "localhost"},
+		Emails:                   []string{"admin@localhost"},
 		IssuerCommonName:         []string{"Test CA"},
 		IssuerOrg:                []string{"Test Organization"},
 		Organization:             []string{"Example Corp"},
 	}
 
-	if tlsData.ExtensionServerName != "example.com" {
-		t.Errorf("expected ServerName to be 'example.com', got %s", tlsData.ExtensionServerName)
+	if tlsData.ExtensionServerName != "127.0.0.1" {
+		t.Errorf("expected ServerName to be '127.0.0.1', got %s", tlsData.ExtensionServerName)
 	}
 
 	if len(tlsData.DNSNames) != 2 {
@@ -216,7 +216,7 @@ func TestTLSDataFields(t *testing.T) {
 	tlsData.Organization = append(tlsData.Organization, "Test Org")
 	tlsData.IssuerCommonName = append(tlsData.IssuerCommonName, "Test Issuer")
 	tlsData.IssuerOrg = append(tlsData.IssuerOrg, "Test Issuer Org")
-	tlsData.Emails = append(tlsData.Emails, "test@example.com")
+	tlsData.Emails = append(tlsData.Emails, "test@localhost")
 
 	// Verify assignments
 	if tlsData.ExtensionServerName != "test.com" {
@@ -243,7 +243,7 @@ func TestTLSDataFields(t *testing.T) {
 	if len(tlsData.IssuerOrg) != 1 || tlsData.IssuerOrg[0] != "Test Issuer Org" {
 		t.Error("IssuerOrg not set correctly")
 	}
-	if len(tlsData.Emails) != 1 || tlsData.Emails[0] != "test@example.com" {
+	if len(tlsData.Emails) != 1 || tlsData.Emails[0] != "test@localhost" {
 		t.Error("Emails not set correctly")
 	}
 }

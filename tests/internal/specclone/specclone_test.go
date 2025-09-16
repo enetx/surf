@@ -126,7 +126,7 @@ func TestSpecClone_CompressionMethods(t *testing.T) {
 func TestSpecClone_Extensions_SNI(t *testing.T) {
 	original := &utls.ClientHelloSpec{
 		Extensions: []utls.TLSExtension{
-			&utls.SNIExtension{ServerName: "example.com"},
+			&utls.SNIExtension{ServerName: "127.0.0.1"},
 		},
 	}
 
@@ -151,8 +151,8 @@ func TestSpecClone_Extensions_SNI(t *testing.T) {
 	if originalSNI.ServerName == clonedSNI.ServerName {
 		t.Error("SNI extensions not independent")
 	}
-	if "example.com" != clonedSNI.ServerName {
-		t.Errorf("Clone modified after original change: expected=example.com, got=%s", clonedSNI.ServerName)
+	if "127.0.0.1" != clonedSNI.ServerName {
+		t.Errorf("Clone modified after original change: expected=127.0.0.1, got=%s", clonedSNI.ServerName)
 	}
 }
 
@@ -203,7 +203,7 @@ func TestSpecClone_Extensions_ALPN(t *testing.T) {
 func TestSpecClone_Extensions_NilExtension(t *testing.T) {
 	original := &utls.ClientHelloSpec{
 		Extensions: []utls.TLSExtension{
-			&utls.SNIExtension{ServerName: "example.com"},
+			&utls.SNIExtension{ServerName: "127.0.0.1"},
 			nil,
 			&utls.ALPNExtension{AlpnProtocols: []string{"h2"}},
 		},
@@ -541,7 +541,7 @@ func BenchmarkSpecClone_Simple(b *testing.B) {
 		TLSVersMax:   0x0303,
 		CipherSuites: []uint16{0x1301, 0x1302, 0x1303},
 		Extensions: []utls.TLSExtension{
-			&utls.SNIExtension{ServerName: "example.com"},
+			&utls.SNIExtension{ServerName: "127.0.0.1"},
 			&utls.ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
 		},
 	}

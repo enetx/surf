@@ -131,7 +131,7 @@ func TestClientErrorHandling(t *testing.T) {
 	}{
 		{"Invalid URL", "not-a-valid-url"},
 		{"Malformed URL", "http://[::1:invalid"},
-		{"Invalid scheme", "ftp://example.com"},
+		{"Invalid scheme", "ftp://127.0.0.1"},
 		{"Empty URL", ""},
 	}
 

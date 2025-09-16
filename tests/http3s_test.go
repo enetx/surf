@@ -1016,7 +1016,7 @@ func TestHTTP3DNSIntegration(t *testing.T) {
 func TestHTTP3NetworkConditions(t *testing.T) {
 	t.Run("HTTP3 with unreachable proxy", func(t *testing.T) {
 		client := surf.NewClient().Builder().
-			Proxy("http://unreachable:8080").
+			Proxy("http://127.0.0.1:8080").
 			HTTP3Settings().Chrome().Set().
 			Build()
 
@@ -1112,7 +1112,7 @@ func TestHTTP3ProxyConfiguration(t *testing.T) {
 		proxyURL string
 	}{
 		{"HTTP proxy", "http://127.0.0.1:8080"},
-		{"HTTP proxy with domain", "http://proxy.example.com:8080"},
+		{"HTTP proxy with domain", "http://127.0.0.1:8081"},
 		{"HTTPS proxy", "https://127.0.0.1:8443"},
 		{"Invalid proxy", "invalid://proxy"},
 	}
@@ -1392,7 +1392,7 @@ func TestHTTP3FallbackBehavior(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		HTTP3Settings().Chrome().Set().
-		Proxy("http://non-socks-proxy.com:8080"). // Should trigger fallback
+		Proxy("http://127.0.0.1:8080"). // Should trigger fallback
 		Build()
 
 	if client == nil {
@@ -1425,7 +1425,7 @@ func TestHTTP3InternalFunctions(t *testing.T) {
 		},
 		{
 			name: "domain name",
-			url:  "https://httpbin.org",
+			url:  "https://127.0.0.1:8080",
 		},
 	}
 
@@ -1496,7 +1496,7 @@ func TestHTTP3WithSOCKS5Proxy(t *testing.T) {
 			}
 
 			// Creating request should exercise SOCKS5 parsing
-			req := client.Get(g.String("https://httpbin.org/get"))
+			req := client.Get(g.String("https://127.0.0.1:8080/get"))
 			if req == nil {
 				t.Fatal("expected request to be created")
 			}
@@ -1515,17 +1515,17 @@ func TestHTTP3AddressParsing(t *testing.T) {
 	}{
 		{
 			"Valid HTTPS with port",
-			"https://example.com:443",
+			"https://127.0.0.1:443",
 			true,
 		},
 		{
 			"Valid HTTPS default port",
-			"https://example.com",
+			"https://127.0.0.1",
 			true,
 		},
 		{
 			"Valid HTTP with custom port",
-			"http://example.com:8080",
+			"http://127.0.0.1:8080",
 			true,
 		},
 		{
@@ -1627,7 +1627,7 @@ func TestHTTP3UDPListener(t *testing.T) {
 			}
 
 			// Creating a request exercises UDP listener creation internally
-			req := client.Get(g.String("https://httpbin.org/get"))
+			req := client.Get(g.String("https://127.0.0.1:8080/get"))
 			if req == nil {
 				t.Fatal("expected request to be created")
 			}
@@ -1651,7 +1651,7 @@ func TestHTTP3ErrorHandling(t *testing.T) {
 		},
 		{
 			"Invalid port",
-			"https://example.com:99999",
+			"https://127.0.0.1:99999",
 		},
 		{
 			"Connection refused",

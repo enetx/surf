@@ -61,7 +61,7 @@ func TestMiddlewareProxyRotation(t *testing.T) {
 	proxies := []string{
 		"socks5://localhost:1080",
 		"socks5://localhost:1081",
-		"http://proxy.example.com:8080",
+		"http://127.0.0.1:8080",
 	}
 
 	client := surf.NewClient().Builder().
@@ -104,9 +104,9 @@ func TestMiddlewareProxySlice(t *testing.T) {
 
 	// Test g.Slice proxy configuration
 	proxies := g.SliceOf(
-		"socks5://proxy1.example.com:1080",
-		"socks5://proxy2.example.com:1080",
-		"http://proxy3.example.com:8080",
+		"socks5://127.0.0.1:1080",
+		"socks5://127.0.0.1:1081",
+		"http://127.0.0.1:8082",
 	)
 
 	client := surf.NewClient().Builder().
@@ -222,7 +222,7 @@ func TestMiddlewareProxyWithFallback(t *testing.T) {
 
 	// Test proxy with HTTP fallback behavior
 	client := surf.NewClient().Builder().
-		Proxy("http://non-socks-proxy.example.com:8080").
+		Proxy("http://127.0.0.1:8080").
 		HTTP3Settings().Chrome().Set().
 		Build()
 
@@ -440,27 +440,27 @@ func TestMiddlewareClientProxy(t *testing.T) {
 	}{
 		{
 			name:  "string proxy",
-			proxy: "http://proxy.example.com:8080",
+			proxy: "http://127.0.0.1:8080",
 		},
 		{
 			name:  "g.String proxy",
-			proxy: g.String("http://proxy.example.com:8080"),
+			proxy: g.String("http://127.0.0.1:8080"),
 		},
 		{
 			name:  "function proxy",
-			proxy: func() g.String { return g.String("http://proxy.example.com:8080") },
+			proxy: func() g.String { return g.String("http://127.0.0.1:8080") },
 		},
 		{
 			name:  "string slice proxy",
-			proxy: []string{"http://proxy1.example.com:8080", "http://proxy2.example.com:8080"},
+			proxy: []string{"http://127.0.0.1:8080", "http://127.0.0.1:8081"},
 		},
 		{
 			name:  "g.Slice[string] proxy",
-			proxy: g.SliceOf("http://proxy1.example.com:8080", "http://proxy2.example.com:8080"),
+			proxy: g.SliceOf("http://127.0.0.1:8080", "http://127.0.0.1:8081"),
 		},
 		{
 			name:  "g.Slice[g.String] proxy",
-			proxy: g.SliceOf(g.String("http://proxy1.example.com:8080"), g.String("http://proxy2.example.com:8080")),
+			proxy: g.SliceOf(g.String("http://127.0.0.1:8080"), g.String("http://127.0.0.1:8081")),
 		},
 		{
 			name:  "nil proxy",
