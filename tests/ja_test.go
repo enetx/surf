@@ -334,7 +334,7 @@ func TestJASetHelloSpec(t *testing.T) {
 	}
 }
 
-func TestJAFirefox131(t *testing.T) {
+func TestJAFirefox141(t *testing.T) {
 	t.Parallel()
 
 	handler := func(w http.ResponseWriter, _ *http.Request) {
@@ -346,7 +346,7 @@ func TestJAFirefox131(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Firefox131().
+		JA().Firefox141().
 		Build()
 
 	if client == nil {
@@ -417,7 +417,7 @@ func TestJAMultipleCalls(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome131().
-		JA().Firefox131().
+		JA().Firefox141().
 		Build()
 
 	if client == nil {

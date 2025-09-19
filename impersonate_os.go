@@ -32,11 +32,11 @@ var chromeUserAgent = map[ImpersonateOS]g.String{
 }
 
 var firefoxUserAgent = map[ImpersonateOS]g.String{
-	windows: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0",
-	macos:   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:131.0) Gecko/20100101 Firefox/131.0",
-	linux:   "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0",
-	android: "Mozilla/5.0 (Android 10; Mobile; rv:131.0) Gecko/134.0 Firefox/131.0",
-	ios:     "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/131.1 Mobile/15E148 Safari/605.1.15",
+	windows: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0",
+	macos:   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:141.0) Gecko/20100101 Firefox/141.0",
+	linux:   "Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0",
+	android: "Mozilla/5.0 (Android 10; Mobile; rv:141.0) Gecko/134.0 Firefox/141.0",
+	ios:     "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/141.1 Mobile/15E148 Safari/605.1.15",
 }
 
 var torUserAgent = map[ImpersonateOS]g.String{

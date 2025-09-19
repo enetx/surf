@@ -7,60 +7,8 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/g/cmp"
-	"github.com/enetx/http2"
 	"github.com/enetx/surf/header"
 )
-
-var PriorityFrames = []http2.PriorityFrame{
-	{
-		FrameHeader: http2.FrameHeader{StreamID: 3},
-		PriorityParam: http2.PriorityParam{
-			StreamDep: 0,
-			Exclusive: false,
-			Weight:    200,
-		},
-	},
-	{
-		FrameHeader: http2.FrameHeader{StreamID: 5},
-		PriorityParam: http2.PriorityParam{
-			StreamDep: 0,
-			Exclusive: false,
-			Weight:    100,
-		},
-	},
-	{
-		FrameHeader: http2.FrameHeader{StreamID: 7},
-		PriorityParam: http2.PriorityParam{
-			StreamDep: 0,
-			Exclusive: false,
-			Weight:    0,
-		},
-	},
-	{
-		FrameHeader: http2.FrameHeader{StreamID: 9},
-		PriorityParam: http2.PriorityParam{
-			StreamDep: 7,
-			Exclusive: false,
-			Weight:    0,
-		},
-	},
-	{
-		FrameHeader: http2.FrameHeader{StreamID: 11},
-		PriorityParam: http2.PriorityParam{
-			StreamDep: 3,
-			Exclusive: false,
-			Weight:    0,
-		},
-	},
-	{
-		FrameHeader: http2.FrameHeader{StreamID: 13},
-		PriorityParam: http2.PriorityParam{
-			StreamDep: 0,
-			Exclusive: false,
-			Weight:    240,
-		},
-	},
-}
 
 // Firefox implementation: https://github.com/mozilla/gecko-dev/blob/master/dom/html/HTMLFormSubmission.cpp#L355
 func Boundary() g.String {
@@ -154,10 +102,7 @@ func Headers[T ~string](headers *g.MapOrd[T, T], method string) {
 		headers.Set(header.SEC_FETCH_MODE, "cors")
 		headers.Set(header.SEC_FETCH_SITE, "same-origin")
 	default:
-		headers.Set(
-			header.ACCEPT,
-			"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
-		)
+		headers.Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 		headers.Set(header.PRIORITY, "u=0, i")
 		headers.Set(header.SEC_FETCH_DEST, "document")
 		headers.Set(header.SEC_FETCH_MODE, "navigate")

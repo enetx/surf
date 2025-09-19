@@ -16,8 +16,8 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
-// JA provides JA3 TLS fingerprinting capabilities for HTTP clients.
-// JA3 is a method for creating SSL/TLS client fingerprints to identify and classify malware
+// JA provides JA3/4 TLS fingerprinting capabilities for HTTP clients.
+// JA is a method for creating SSL/TLS client fingerprints to identify and classify malware
 // or other applications. This struct allows configuring various TLS ClientHello specifications
 // to mimic different browsers and applications for advanced HTTP client behavior.
 //
@@ -60,14 +60,14 @@ func (j *JA) SetHelloSpec(spec utls.ClientHelloSpec) *Builder {
 	return j.build()
 }
 
-// build applies JA3 TLS fingerprinting configuration to the HTTP client.
-// This method configures the client with custom TLS settings and proxy support for JA3 fingerprinting.
+// build applies JA3/4 TLS fingerprinting configuration to the HTTP client.
+// This method configures the client with custom TLS settings and proxy support for JA3/4 fingerprinting.
 //
 // The method performs several key operations:
-// 1. Skips configuration if HTTP/3 is being used (JA3 only works with HTTP/1.1 and HTTP/2)
+// 1. Skips configuration if HTTP/3 is being used (JA3/4 only works with HTTP/1.1 and HTTP/2)
 // 2. Adds connection cleanup middleware if not using singleton pattern
 // 3. Configures proxy settings for both static and dynamic proxy configurations
-// 4. Wraps the transport with a custom round tripper that implements JA3 fingerprinting
+// 4. Wraps the transport with a custom round tripper that implements JA3/4 fingerprinting
 //
 // Returns the builder instance for method chaining.
 func (j *JA) build() *Builder {
@@ -134,7 +134,7 @@ func (j *JA) build() *Builder {
 			}
 		}
 
-		// Wrap the transport with JA3 fingerprinting round tripper
+		// Wrap the transport with JA3/4 fingerprinting round tripper
 		c.GetClient().Transport = newRoundTripper(j, c.GetTransport())
 	}, 0)
 }
@@ -160,122 +160,122 @@ func (j *JA) getSpec() g.Result[utls.ClientHelloSpec] {
 // These methods provide convenient shortcuts to mimic various popular browsers and applications
 // by setting predefined ClientHelloID values that match their TLS fingerprints.
 
-// Android sets the JA3 fingerprint to mimic Android 11 OkHttp client.
+// Android sets  the JA3/4 fingerprint to mimic Android 11 OkHttp client.
 func (j *JA) Android() *Builder { return j.SetHelloID(utls.HelloAndroid_11_OkHttp) }
 
-// Chrome sets the JA3 fingerprint to mimic the latest Chrome browser (auto-detection).
+// Chrome sets  the JA3/4 fingerprint to mimic the latest Chrome browser (auto-detection).
 func (j *JA) Chrome() *Builder { return j.SetHelloID(utls.HelloChrome_Auto) }
 
-// Chrome58 sets the JA3 fingerprint to mimic Chrome version 58.
+// Chrome58 sets  the JA3/4 fingerprint to mimic Chrome version 58.
 func (j *JA) Chrome58() *Builder { return j.SetHelloID(utls.HelloChrome_58) }
 
-// Chrome62 sets the JA3 fingerprint to mimic Chrome version 62.
+// Chrome62 sets  the JA3/4 fingerprint to mimic Chrome version 62.
 func (j *JA) Chrome62() *Builder { return j.SetHelloID(utls.HelloChrome_62) }
 
-// Chrome70 sets the JA3 fingerprint to mimic Chrome version 70.
+// Chrome70 sets  the JA3/4 fingerprint to mimic Chrome version 70.
 func (j *JA) Chrome70() *Builder { return j.SetHelloID(utls.HelloChrome_70) }
 
-// Chrome72 sets the JA3 fingerprint to mimic Chrome version 72.
+// Chrome72 sets  the JA3/4 fingerprint to mimic Chrome version 72.
 func (j *JA) Chrome72() *Builder { return j.SetHelloID(utls.HelloChrome_72) }
 
-// Chrome83 sets the JA3 fingerprint to mimic Chrome version 83.
+// Chrome83 sets  the JA3/4 fingerprint to mimic Chrome version 83.
 func (j *JA) Chrome83() *Builder { return j.SetHelloID(utls.HelloChrome_83) }
 
-// Chrome87 sets the JA3 fingerprint to mimic Chrome version 87.
+// Chrome87 sets  the JA3/4 fingerprint to mimic Chrome version 87.
 func (j *JA) Chrome87() *Builder { return j.SetHelloID(utls.HelloChrome_87) }
 
-// Chrome96 sets the JA3 fingerprint to mimic Chrome version 96.
+// Chrome96 sets  the JA3/4 fingerprint to mimic Chrome version 96.
 func (j *JA) Chrome96() *Builder { return j.SetHelloID(utls.HelloChrome_96) }
 
-// Chrome100 sets the JA3 fingerprint to mimic Chrome version 100.
+// Chrome100 sets  the JA3/4 fingerprint to mimic Chrome version 100.
 func (j *JA) Chrome100() *Builder { return j.SetHelloID(utls.HelloChrome_100) }
 
-// Chrome102 sets the JA3 fingerprint to mimic Chrome version 102.
+// Chrome102 sets  the JA3/4 fingerprint to mimic Chrome version 102.
 func (j *JA) Chrome102() *Builder { return j.SetHelloID(utls.HelloChrome_102) }
 
-// Chrome106 sets the JA3 fingerprint to mimic Chrome version 106 with shuffled extensions.
+// Chrome106 sets  the JA3/4 fingerprint to mimic Chrome version 106 with shuffled extensions.
 func (j *JA) Chrome106() *Builder { return j.SetHelloID(utls.HelloChrome_106_Shuffle) }
 
-// Chrome120 sets the JA3 fingerprint to mimic Chrome version 120.
+// Chrome120 sets  the JA3/4 fingerprint to mimic Chrome version 120.
 func (j *JA) Chrome120() *Builder { return j.SetHelloID(utls.HelloChrome_120) }
 
-// Chrome120PQ sets the JA3 fingerprint to mimic Chrome version 120 with post-quantum cryptography support.
+// Chrome120PQ sets  the JA3/4 fingerprint to mimic Chrome version 120 with post-quantum cryptography support.
 func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_PQ) }
 
-// Chrome131 sets the JA3 fingerprint to mimic Chrome version 131.
+// Chrome131 sets  the JA3/4 fingerprint to mimic Chrome version 131.
 func (j *JA) Chrome131() *Builder { return j.SetHelloSpec(chrome.HelloChrome_131) }
 
-// Edge sets the JA3 fingerprint to mimic Microsoft Edge version 85.
+// Edge sets  the JA3/4 fingerprint to mimic Microsoft Edge version 85.
 func (j *JA) Edge() *Builder { return j.SetHelloID(utls.HelloEdge_85) }
 
-// Edge85 sets the JA3 fingerprint to mimic Microsoft Edge version 85.
+// Edge85 sets  the JA3/4 fingerprint to mimic Microsoft Edge version 85.
 func (j *JA) Edge85() *Builder { return j.SetHelloID(utls.HelloEdge_85) }
 
-// Edge106 sets the JA3 fingerprint to mimic Microsoft Edge version 106.
+// Edge106 sets  the JA3/4 fingerprint to mimic Microsoft Edge version 106.
 func (j *JA) Edge106() *Builder { return j.SetHelloID(utls.HelloEdge_106) }
 
-// Firefox sets the JA3 fingerprint to mimic the latest Firefox browser (auto-detection).
+// Firefox sets  the JA3/4 fingerprint to mimic the latest Firefox browser (auto-detection).
 func (j *JA) Firefox() *Builder { return j.SetHelloID(utls.HelloFirefox_Auto) }
 
-// Firefox55 sets the JA3 fingerprint to mimic Firefox version 55.
+// Firefox55 sets  the JA3/4 fingerprint to mimic Firefox version 55.
 func (j *JA) Firefox55() *Builder { return j.SetHelloID(utls.HelloFirefox_55) }
 
-// Firefox56 sets the JA3 fingerprint to mimic Firefox version 56.
+// Firefox56 sets  the JA3/4 fingerprint to mimic Firefox version 56.
 func (j *JA) Firefox56() *Builder { return j.SetHelloID(utls.HelloFirefox_56) }
 
-// Firefox63 sets the JA3 fingerprint to mimic Firefox version 63.
+// Firefox63 sets  the JA3/4 fingerprint to mimic Firefox version 63.
 func (j *JA) Firefox63() *Builder { return j.SetHelloID(utls.HelloFirefox_63) }
 
-// Firefox65 sets the JA3 fingerprint to mimic Firefox version 65.
+// Firefox65 sets  the JA3/4 fingerprint to mimic Firefox version 65.
 func (j *JA) Firefox65() *Builder { return j.SetHelloID(utls.HelloFirefox_65) }
 
-// Firefox99 sets the JA3 fingerprint to mimic Firefox version 99.
+// Firefox99 sets  the JA3/4 fingerprint to mimic Firefox version 99.
 func (j *JA) Firefox99() *Builder { return j.SetHelloID(utls.HelloFirefox_99) }
 
-// Firefox102 sets the JA3 fingerprint to mimic Firefox version 102.
+// Firefox102 sets  the JA3/4 fingerprint to mimic Firefox version 102.
 func (j *JA) Firefox102() *Builder { return j.SetHelloID(utls.HelloFirefox_102) }
 
-// Firefox105 sets the JA3 fingerprint to mimic Firefox version 105.
+// Firefox105 sets  the JA3/4 fingerprint to mimic Firefox version 105.
 func (j *JA) Firefox105() *Builder { return j.SetHelloID(utls.HelloFirefox_105) }
 
-// Firefox120 sets the JA3 fingerprint to mimic Firefox version 120.
+// Firefox120 sets  the JA3/4 fingerprint to mimic Firefox version 120.
 func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) }
 
-// Firefox131 sets the JA3 fingerprint to mimic Firefox version 131.
-func (j *JA) Firefox131() *Builder { return j.SetHelloID(utls.HelloFirefox_120) }
+// Firefox141 sets  the JA3/4 fingerprint to mimic Firefox version 141.
+func (j *JA) Firefox141() *Builder { return j.SetHelloID(utls.HelloFirefox_141) }
 
-// FirefoxPrivate131 sets the JA3 fingerprint to mimic Firefox private version 131.
-func (j *JA) FirefoxPrivate131() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_131) }
+// FirefoxPrivate141 sets  the JA3/4 fingerprint to mimic Firefox private version 141.
+func (j *JA) FirefoxPrivate141() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_141) }
 
-// Tor sets the JA3 fingerprint to mimic Tor Browser version 14.5.6.
+// Tor sets  the JA3/4 fingerprint to mimic Tor Browser version 14.5.6.
 func (j *JA) Tor() *Builder { return j.SetHelloSpec(firefox.Tor) }
 
-// TorPrivate sets the JA3 fingerprint to mimic Tor Browser private version 14.5.6.
+// TorPrivate sets  the JA3/4 fingerprint to mimic Tor Browser private version 14.5.6.
 func (j *JA) TorPrivate() *Builder { return j.SetHelloSpec(firefox.TorPrivate) }
 
-// IOS sets the JA3 fingerprint to mimic the latest iOS Safari browser (auto-detection).
+// IOS sets  the JA3/4 fingerprint to mimic the latest iOS Safari browser (auto-detection).
 func (j *JA) IOS() *Builder { return j.SetHelloID(utls.HelloIOS_Auto) }
 
-// IOS11 sets the JA3 fingerprint to mimic iOS 11.1 Safari.
+// IOS11 sets  the JA3/4 fingerprint to mimic iOS 11.1 Safari.
 func (j *JA) IOS11() *Builder { return j.SetHelloID(utls.HelloIOS_11_1) }
 
-// IOS12 sets the JA3 fingerprint to mimic iOS 12.1 Safari.
+// IOS12 sets  the JA3/4 fingerprint to mimic iOS 12.1 Safari.
 func (j *JA) IOS12() *Builder { return j.SetHelloID(utls.HelloIOS_12_1) }
 
-// IOS13 sets the JA3 fingerprint to mimic iOS 13 Safari.
+// IOS13 sets  the JA3/4 fingerprint to mimic iOS 13 Safari.
 func (j *JA) IOS13() *Builder { return j.SetHelloID(utls.HelloIOS_13) }
 
-// IOS14 sets the JA3 fingerprint to mimic iOS 14 Safari.
+// IOS14 sets  the JA3/4 fingerprint to mimic iOS 14 Safari.
 func (j *JA) IOS14() *Builder { return j.SetHelloID(utls.HelloIOS_14) }
 
-// Randomized sets a completely randomized JA3 fingerprint.
+// Randomized sets a completely randomized JA3/4 fingerprint.
 func (j *JA) Randomized() *Builder { return j.SetHelloID(utls.HelloRandomized) }
 
-// RandomizedALPN sets a randomized JA3 fingerprint with ALPN (Application-Layer Protocol Negotiation).
+// RandomizedALPN sets a randomized JA3/4 fingerprint with ALPN (Application-Layer Protocol Negotiation).
 func (j *JA) RandomizedALPN() *Builder { return j.SetHelloID(utls.HelloRandomizedALPN) }
 
-// RandomizedNoALPN sets a randomized JA3 fingerprint without ALPN.
+// RandomizedNoALPN sets a randomized JA3/4 fingerprint without ALPN.
 func (j *JA) RandomizedNoALPN() *Builder { return j.SetHelloID(utls.HelloRandomizedNoALPN) }
 
-// Safari sets the JA3 fingerprint to mimic the latest Safari browser (auto-detection).
+// Safari sets  the JA3/4 fingerprint to mimic the latest Safari browser (auto-detection).
 func (j *JA) Safari() *Builder { return j.SetHelloID(utls.HelloSafari_Auto) }

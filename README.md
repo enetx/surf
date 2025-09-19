@@ -15,7 +15,7 @@
 ## ✨ Key Features
 
 ### 🎭 **Browser Impersonation**
-- **Chrome & Firefox Support**: Accurately mimic Chrome v131 and Firefox v131 browser fingerprints
+- **Chrome & Firefox Support**: Accurately mimic Chrome v131 and Firefox v141 browser fingerprints
 - **Platform Diversity**: Impersonate Windows, macOS, Linux, Android, and iOS devices
 - **TLS Fingerprinting**: Full JA3/JA4 fingerprint customization for enhanced privacy
 - **Automatic Headers**: Proper header ordering and browser-specific values
@@ -156,7 +156,7 @@ client := surf.NewClient().
     Builder().
     Impersonate().
     RandomOS().      // Randomly selects Windows, macOS, Linux, Android, or iOS
-    FireFox().       // Latest Firefox v131
+    FireFox().       // Latest Firefox v141
     Build()
 ```
 
@@ -312,12 +312,6 @@ client := surf.NewClient().
     Chrome().     // Latest Chrome
     Build()
 
-// Available browser fingerprints:
-// Chrome: Chrome(), Chrome58(), Chrome70(), Chrome83(), Chrome96(), Chrome100(), Chrome102(), Chrome106(), Chrome120(), Chrome131()
-// Firefox: Firefox(), Firefox55(), Firefox63(), Firefox99(), Firefox102(), Firefox105(), Firefox120(), Firefox131()
-// Edge: Edge(), Edge85(), Edge106()
-// Safari: Safari()
-// Mobile: IOS(), IOS11(), IOS12(), IOS13(), IOS14(), Android()
 
 // Randomized fingerprints for evasion
 client := surf.NewClient().

@@ -30,8 +30,8 @@ func main() {
 		// Proxy("socks5://127.0.0.1:9050").
 		Impersonate().
 		// Tor().
-		// FireFox().
-		FireFoxPrivate().
+		FireFox().
+		// FireFoxPrivate().
 		// IOS().
 		// Android().
 		// FireFox().

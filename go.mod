@@ -2,13 +2,18 @@ module github.com/enetx/surf
 
 go 1.24.0
 
+replace (
+	github.com/refraction-networking/uquic => github.com/enetx/uquic v0.1.0
+	github.com/refraction-networking/utls => github.com/enetx/utls v0.1.0
+)
+
 require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/enetx/g v1.0.193
 	github.com/enetx/http v1.0.18
 	github.com/enetx/http2 v1.0.19
-	github.com/enetx/uquic v0.0.0-20250906183719-83acc1e455e9
 	github.com/klauspost/compress v1.18.0
+	github.com/refraction-networking/uquic v0.0.6
 	github.com/refraction-networking/utls v1.8.0
 	github.com/wzshiming/socks5 v0.5.2
 	golang.org/x/net v0.44.0
@@ -27,10 +32,11 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
-	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20250911091902-df9299821621 // indirect
+	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/time v0.13.0 // indirect
+	golang.org/x/tools v0.37.0 // indirect
 )
