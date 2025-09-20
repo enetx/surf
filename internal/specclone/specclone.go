@@ -278,6 +278,23 @@ func deepCloneExtension(ext utls.TLSExtension) utls.TLSExtension {
 		return &utls.SignatureAlgorithmsCertExtension{
 			SupportedSignatureAlgorithms: append([]utls.SignatureScheme{}, e.SupportedSignatureAlgorithms...),
 		}
+	case *utls.KeyShareExtensionExtended:
+		var keyShares []utls.KeyShare
+		if e.KeyShareExtension != nil {
+			keyShares = make([]utls.KeyShare, len(e.KeyShares))
+			for i, ks := range e.KeyShares {
+				keyShares[i] = utls.KeyShare{
+					Group: ks.Group,
+					Data:  append([]byte{}, ks.Data...),
+				}
+			}
+		}
+		return &utls.KeyShareExtensionExtended{
+			KeyShareExtension: &utls.KeyShareExtension{
+				KeyShares: keyShares,
+			},
+			HybridReuseKey: e.HybridReuseKey,
+		}
 	case *utls.KeyShareExtension:
 		keyShares := make([]utls.KeyShare, len(e.KeyShares))
 		for i, ks := range e.KeyShares {
@@ -286,7 +303,6 @@ func deepCloneExtension(ext utls.TLSExtension) utls.TLSExtension {
 				Data:  append([]byte{}, ks.Data...),
 			}
 		}
-
 		return &utls.KeyShareExtension{KeyShares: keyShares}
 	case *utls.QUICTransportParametersExtension:
 		return &utls.QUICTransportParametersExtension{
