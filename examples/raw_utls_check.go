@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 func testServer(serverAddr, serverName string) {

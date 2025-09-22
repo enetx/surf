@@ -39,7 +39,7 @@ import (
 	"reflect"
 	"unsafe"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // Clone creates a deep copy of a utls.ClientHelloSpec.

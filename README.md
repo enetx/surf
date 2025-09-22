@@ -927,7 +927,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [enetx/http](https://github.com/enetx/http) for enhanced HTTP functionality
 - HTTP/3 support and complete QUIC fingerprinting powered by [uQUIC](https://github.com/enetx/uquic)
-- TLS fingerprinting powered by [uTLS](https://github.com/refraction-networking/utls)
+- TLS fingerprinting powered by [uTLS](https://github.com/enetx/utls)
 - Generic utilities from [enetx/g](https://github.com/enetx/g)
 
 ## 📞 Support

@@ -1,8 +1,8 @@
 package firefox
 
 import (
-	utls "github.com/refraction-networking/utls"
-	"github.com/refraction-networking/utls/dicttls"
+	utls "github.com/enetx/utls"
+	"github.com/enetx/utls/dicttls"
 )
 
 var HelloFirefox_143 = utls.ClientHelloSpec{

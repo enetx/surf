@@ -17,9 +17,9 @@ import (
 	"github.com/enetx/g/ref"
 	"github.com/enetx/http"
 	"github.com/enetx/surf/pkg/quicconn"
-	uquic "github.com/refraction-networking/uquic"
-	"github.com/refraction-networking/uquic/http3"
-	utls "github.com/refraction-networking/utls"
+	uquic "github.com/enetx/uquic"
+	"github.com/enetx/uquic/http3"
+	utls "github.com/enetx/utls"
 	"github.com/wzshiming/socks5"
 )
 

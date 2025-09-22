@@ -14,7 +14,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http2"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 var errProtocolNegotiated = errors.New("protocol negotiated")

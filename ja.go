@@ -13,7 +13,7 @@ import (
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // JA provides JA3/4 TLS fingerprinting capabilities for HTTP clients.

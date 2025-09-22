@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/enetx/surf"
-	utls "github.com/refraction-networking/utls"
-	"github.com/refraction-networking/utls/dicttls"
+	utls "github.com/enetx/utls"
+	"github.com/enetx/utls/dicttls"
 )
 
 func main() {

@@ -8,7 +8,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
 	"github.com/enetx/surf"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 func TestJAChrome131(t *testing.T) {

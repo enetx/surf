@@ -10,7 +10,7 @@ import (
 	"unsafe"
 
 	"github.com/enetx/surf"
-	uquic "github.com/refraction-networking/uquic"
+	uquic "github.com/enetx/uquic"
 )
 
 func main() {
