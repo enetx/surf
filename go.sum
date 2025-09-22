@@ -14,8 +14,8 @@ github.com/enetx/iter v0.0.0-20250912135656-f1583323588f h1:GUW+4AWfECIEJ9oAxgEA
 github.com/enetx/iter v0.0.0-20250912135656-f1583323588f/go.mod h1:oMZN8hGLUpi7QBlMEUqailocNy0NFAO/7Lu+Nwh9HMM=
 github.com/enetx/uquic v0.1.0 h1:1+PGuCtxmHIn99TwrhR0tZEePtJmI92gL1P8hj/lg6I=
 github.com/enetx/uquic v0.1.0/go.mod h1:C5JSSN/lpLTZ7VoJjg48d1bS1WdQj/B26HWOb/SDDxs=
-github.com/enetx/utls v1.8.1 h1:F5hHgtjxJpF/25vc+tmRzTJw3VTn7l3JmKIQVTTJiMI=
-github.com/enetx/utls v1.8.1/go.mod h1:ZB2SalCoKPnNhnF6awHy967JUTelLgOgOirt9MlCFZ8=
+github.com/enetx/utls v1.8.1 h1:zJMTKg0qSrNZeneGkW+0gCzQ+lcfsgB/EXbXDHXDULk=
+github.com/enetx/utls v1.8.1/go.mod h1:Jb2SjS/eLZ/X72qh1XDhVaQKYU4vqllUhDOX8B8a8go=
 github.com/gaukas/clienthellod v0.4.2 h1:LPJ+LSeqt99pqeCV4C0cllk+pyWmERisP7w6qWr7eqE=
 github.com/gaukas/clienthellod v0.4.2/go.mod h1:M57+dsu0ZScvmdnNxaxsDPM46WhSEdPYAOdNgfL7IKA=
 github.com/gaukas/godicttls v0.0.4 h1:NlRaXb3J6hAnTmWdsEKb9bcSBD6BvcIjdGdeb0zfXbk=
