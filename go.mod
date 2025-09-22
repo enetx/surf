@@ -4,7 +4,7 @@ go 1.24.0
 
 replace (
 	github.com/refraction-networking/uquic => github.com/enetx/uquic v0.1.0
-	github.com/refraction-networking/utls => github.com/enetx/utls v0.1.0
+	github.com/refraction-networking/utls => github.com/enetx/utls v1.8.1
 )
 
 require (
