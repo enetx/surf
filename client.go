@@ -21,7 +21,6 @@ import (
 	"sync"
 
 	"github.com/enetx/g"
-	"github.com/enetx/g/cmp"
 	"github.com/enetx/http"
 	"github.com/enetx/surf/header"
 )
@@ -30,21 +29,24 @@ import (
 // advanced transport options (HTTP/1.1, HTTP/2, HTTP/3), proxy handling,
 // TLS fingerprinting, and comprehensive request/response processing capabilities.
 type Client struct {
-	cli       *http.Client                         // Standard HTTP client for actual requests
-	dialer    *net.Dialer                          // Network dialer with optional custom DNS resolver
-	builder   *Builder                             // Associated builder for configuration
-	transport http.RoundTripper                    // HTTP transport (can be HTTP/1.1, HTTP/2, or HTTP/3)
-	tlsConfig *tls.Config                          // TLS configuration for secure connections
-	reqMWs    g.MapOrd[func(*Request) error, int]  // Ordered request middleware functions with priorities
-	respMWs   g.MapOrd[func(*Response) error, int] // Ordered response middleware functions with priorities
-	boundary  func() g.String                      // Custom boundary generator for multipart requests
-	mwMutex   sync.Mutex                           // Mutex for thread-safe middleware operations
+	cli       *http.Client           // Standard HTTP client for actual requests
+	dialer    *net.Dialer            // Network dialer with optional custom DNS resolver
+	builder   *Builder               // Associated builder for configuration
+	transport http.RoundTripper      // HTTP transport (can be HTTP/1.1, HTTP/2, or HTTP/3)
+	tlsConfig *tls.Config            // TLS configuration for secure connections
+	reqMWs    *middleware[*Request]  // Priority-ordered request middleware
+	respMWs   *middleware[*Response] // Priority-ordered response middleware
+	boundary  func() g.String        // Custom boundary generator for multipart requests
+	mwMutex   sync.Mutex             // Mutex for thread-safe middleware operations
 }
 
 // NewClient creates a new Client with sensible default settings including
 // default dialer, TLS configuration, HTTP transport, and basic middleware.
 func NewClient() *Client {
-	cli := new(Client)
+	cli := &Client{
+		reqMWs:  newMiddleware[*Request](),
+		respMWs: newMiddleware[*Response](),
+	}
 
 	defaultDialerMW(cli)
 	defaultTLSConfigMW(cli)
@@ -52,59 +54,31 @@ func NewClient() *Client {
 	defaultClientMW(cli)
 	redirectPolicyMW(cli)
 
-	cli.reqMWs.Set(defaultUserAgentMW, 0)
-	cli.reqMWs.Set(got101ResponseMW, 0)
+	cli.reqMWs.add(0, defaultUserAgentMW)
+	cli.reqMWs.add(0, got101ResponseMW)
 
-	cli.respMWs.Set(webSocketUpgradeErrorMW, 0)
-	cli.respMWs.Set(decodeBodyMW, 0)
+	cli.respMWs.add(0, webSocketUpgradeErrorMW)
+	cli.respMWs.add(0, decodeBodyMW)
 
 	return cli
 }
 
 // applyReqMW applies all registered request middlewares to the given request in priority order.
 // Middlewares are sorted by priority before execution, and processing stops on first error.
-func (c *Client) applyReqMW(req *Request) (err error) {
+func (c *Client) applyReqMW(req *Request) error {
 	c.mwMutex.Lock()
+	defer c.mwMutex.Unlock()
 
-	if !c.reqMWs.IsSortedByValue(cmp.Cmp) {
-		c.reqMWs.SortByValue(cmp.Cmp)
-	}
-
-	c.reqMWs.Iter().
-		Keys().
-		Range(func(m func(*Request) error) bool {
-			if err = m(req); err != nil {
-				return false
-			}
-			return true
-		})
-
-	c.mwMutex.Unlock()
-
-	return err
+	return c.reqMWs.run(req)
 }
 
 // applyRespMW applies all registered response middlewares to the given response in priority order.
 // Middlewares are sorted by priority before execution, and processing stops on first error.
-func (c *Client) applyRespMW(resp *Response) (err error) {
+func (c *Client) applyRespMW(resp *Response) error {
 	c.mwMutex.Lock()
+	defer c.mwMutex.Unlock()
 
-	if !c.respMWs.IsSortedByValue(cmp.Cmp) {
-		c.respMWs.SortByValue(cmp.Cmp)
-	}
-
-	c.respMWs.Iter().
-		Keys().
-		Range(func(m func(*Response) error) bool {
-			if err = m(resp); err != nil {
-				return false
-			}
-			return true
-		})
-
-	c.mwMutex.Unlock()
-
-	return err
+	return c.respMWs.run(resp)
 }
 
 // CloseIdleConnections removes all entries from the cached transports.
@@ -132,7 +106,7 @@ func (c *Client) GetTLSConfig() *tls.Config { return c.tlsConfig }
 // Builder returns a new Builder instance associated with this client.
 // The builder allows for method chaining to configure various client options.
 func (c *Client) Builder() *Builder {
-	c.builder = &Builder{cli: c}
+	c.builder = &Builder{cli: c, cliMWs: newMiddleware[*Client]()}
 	return c.builder
 }
 

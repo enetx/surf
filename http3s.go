@@ -77,14 +77,14 @@ func (h *HTTP3Settings) Set() *Builder {
 		return h.builder
 	}
 
-	return h.builder.addCliMW(func(c *Client) {
+	return h.builder.addCliMW(func(c *Client) error {
 		if !h.builder.singleton {
 			h.builder.addRespMW(closeIdleConnectionsMW, 0)
 		}
 
 		quicSpec := h.getQUICSpec()
 		if quicSpec.IsNone() {
-			return
+			return nil
 		}
 
 		// Configure TLS with session cache if enabled
@@ -116,6 +116,8 @@ func (h *HTTP3Settings) Set() *Builder {
 
 		c.GetClient().Transport = transport
 		c.transport = transport
+
+		return nil
 	}, 0)
 }
 

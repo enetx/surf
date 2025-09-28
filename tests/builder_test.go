@@ -46,8 +46,9 @@ func TestBuilderWith(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		With(func(*surf.Client) {
+		With(func(*surf.Client) error {
 			clientMWCalled = true
+			return nil
 		}).
 		With(func(*surf.Request) error {
 			requestMWCalled = true

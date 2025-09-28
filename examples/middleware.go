@@ -34,7 +34,7 @@ func main() {
 	fmt.Println(r.Ok().UserAgent)
 }
 
-func dns(client *surf.Client) {
+func dns(client *surf.Client) error {
 	client.GetDialer().Resolver = &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, _, _ string) (net.Conn, error) {
@@ -42,9 +42,14 @@ func dns(client *surf.Client) {
 			return dialer.DialContext(ctx, "udp", "1.1.1.1:53")
 		},
 	}
+
+	return nil
 }
 
-func jar(client *surf.Client) { client.GetClient().Jar, _ = cookiejar.New(nil) }
+func jar(client *surf.Client) error {
+	client.GetClient().Jar, _ = cookiejar.New(nil)
+	return nil
+}
 
 func baseURL(req *surf.Request) error {
 	u, _ := url.Parse("http://google.com")

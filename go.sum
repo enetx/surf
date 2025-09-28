@@ -6,8 +6,8 @@ github.com/cloudflare/circl v1.3.3 h1:fE/Qz0QdIGqeWfnwq0RE0R7MI51s0M2E4Ga9kq5AEM
 github.com/cloudflare/circl v1.3.3/go.mod h1:5XYMA4rFBvNIrhs50XuiBJ15vF2pZn4nnUKZrLbUZFA=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/enetx/g v1.0.193 h1:QedMsc0+1b9PsGOrmPse6o37qhPa0URoI1iUucHzsiU=
-github.com/enetx/g v1.0.193/go.mod h1:B3YULbT/hAx9+p2Q8GHrsTmjjM19iz1Rcdz3Y9+kSg4=
+github.com/enetx/g v1.0.194 h1:lI/eicj+Qdcdt1xBUhaHv3M/ujN4v+WXYZDZYD1Dxuo=
+github.com/enetx/g v1.0.194/go.mod h1:B3YULbT/hAx9+p2Q8GHrsTmjjM19iz1Rcdz3Y9+kSg4=
 github.com/enetx/http v1.0.18 h1:KLRW6oxdFxVacvFvCn8JDF8Bb3fJbfeVMPFvfRgruC8=
 github.com/enetx/http v1.0.18/go.mod h1:kVkpPZcmYwZWFbGsdPIwow8CP6zeN8fj7tjPUrzY9Lo=
 github.com/enetx/http2 v1.0.19 h1:sy7f6HoPEOQi1wKrS+T6oY2DTTJkVjQJ/HwbIMoUIyo=

@@ -83,7 +83,7 @@ func (DNSOverTLS) resolver(serverName g.String, addresses ...g.String) *net.Reso
 // It configures a custom net.Resolver using the resolver method.
 func (dot *DNSOverTLS) AddProvider(serverName g.String, addresses ...g.String) *Builder {
 	resolver := dot.resolver(serverName, addresses...)
-	return dot.builder.addCliMW(func(client *Client) { dnsTLSMW(client, resolver) }, 0)
+	return dot.builder.addCliMW(func(client *Client) error { return dnsTLSMW(client, resolver) }, 0)
 }
 
 // dial returns a dial function that establishes a secure connection to a random DNS server address

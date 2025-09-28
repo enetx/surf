@@ -83,16 +83,16 @@ func (h *HTTP2Settings) Set() *Builder {
 		return h.builder
 	}
 
-	return h.builder.addCliMW(func(c *Client) {
+	return h.builder.addCliMW(func(c *Client) error {
 		t1, ok := c.GetTransport().(*http.Transport)
 		if !ok {
-			return
+			return nil
 		}
 
 		t1.ForceAttemptHTTP2 = true
 		t2, err := http2.ConfigureTransports(t1)
 		if err != nil {
-			return
+			return err
 		}
 
 		appendSetting := func(id http2.SettingID, val uint32) {
@@ -131,5 +131,7 @@ func (h *HTTP2Settings) Set() *Builder {
 
 		t1.H2transport = t2
 		c.transport = t1
+
+		return nil
 	}, 0)
 }

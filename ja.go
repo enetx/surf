@@ -71,10 +71,10 @@ func (j *JA) SetHelloSpec(spec utls.ClientHelloSpec) *Builder {
 //
 // Returns the builder instance for method chaining.
 func (j *JA) build() *Builder {
-	return j.builder.addCliMW(func(c *Client) {
+	return j.builder.addCliMW(func(c *Client) error {
 		// JA3 fingerprinting is not compatible with HTTP/3 - skip if HTTP/3 is used
 		if _, ok := c.GetTransport().(*uquicTransport); ok {
-			return
+			return nil
 		}
 
 		if !j.builder.singleton {
@@ -136,6 +136,8 @@ func (j *JA) build() *Builder {
 
 		// Wrap the transport with JA3/4 fingerprinting round tripper
 		c.GetClient().Transport = newRoundTripper(j, c.GetTransport())
+
+		return nil
 	}, 0)
 }
 

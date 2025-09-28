@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/enetx/g"
-	"github.com/enetx/g/cmp"
 	"github.com/enetx/http"
 )
 
@@ -29,7 +28,7 @@ type Builder struct {
 	http2settings            *HTTP2Settings                             // HTTP/2 specific settings
 	http3settings            *HTTP3Settings                             // HTTP/3 specific settings
 	retryCodes               g.Slice[int]                               // HTTP status codes that trigger retries
-	cliMWs                   g.MapOrd[func(*Client), int]               // Client-level middlewares with priorities
+	cliMWs                   *middleware[*Client]                       // Priority-ordered client middlewares
 	retryWait                time.Duration                              // Wait duration between retry attempts
 	retryMax                 int                                        // Maximum number of retry attempts
 	maxRedirects             int                                        // Maximum number of redirects to follow
@@ -63,26 +62,27 @@ func (b *Builder) Build() *Client {
 		}
 	}
 
-	// sort client middlewares by priority and apply each middleware to the Client
-	b.cliMWs.SortByValue(cmp.Cmp)
-	b.cliMWs.Iter().Keys().ForEach(func(m func(*Client)) { m(b.cli) })
+	// apply each middleware to the Client
+	b.cliMWs.run(b.cli)
 
 	return b.cli
 }
 
-// With adds middleware to the client.
-// It accepts various types of middleware functions and adds them to the client builder.
+// With registers middleware into the client builder with optional priority.
+//
+// It accepts one of the following middleware function types:
+//   - func(*surf.Client) error   — client middleware, modifies or initializes the client
+//   - func(*surf.Request) error  — request middleware, intercepts or transforms outgoing requests
+//   - func(*surf.Response) error — response middleware, intercepts or transforms incoming responses
 //
 // Parameters:
-//   - middleware: The middleware function to add. It can be one of the following types:
-//     1. func(*surf.Client): Client middleware function, which modifies the client itself.
-//     2. func(*surf.Request) error: Request middleware function, which intercepts and potentially modifies outgoing requests.
-//     3. func(*surf.Response) error: Response middleware function, which intercepts and potentially modifies incoming responses.
-//   - priority (optional): Priority of the middleware. Defaults to 0 if not provided.
+//   - middleware: A function matching one of the supported middleware types.
+//   - priority (optional): Integer priority level. Lower values run earlier. Defaults to 0.
 //
-// If the provided middleware is of an unsupported type, With panics with an error message indicating the invalid middleware type.
+// Middleware with the same priority are executed in order of insertion (FIFO).
+// If the middleware type is not recognized, With panics with an informative error.
 //
-// Example usage:
+// Example:
 //
 //	// Adding client middleware to modify client settings.
 //	.With(func(client *surf.Client) {
@@ -106,7 +106,7 @@ func (b *Builder) With(middleware any, priority ...int) *Builder {
 	p := g.Slice[int](priority).Get(0).UnwrapOrDefault()
 
 	switch v := middleware.(type) {
-	case func(*Client):
+	case func(*Client) error:
 		b.addCliMW(v, p)
 	case func(*Request) error:
 		b.addReqMW(v, p)
@@ -120,25 +120,25 @@ func (b *Builder) With(middleware any, priority ...int) *Builder {
 }
 
 // addCliMW adds a client middleware to the ClientBuilder.
-func (b *Builder) addCliMW(m func(*Client), priority int) *Builder {
-	b.cliMWs.Set(m, priority)
+func (b *Builder) addCliMW(m func(*Client) error, priority int) *Builder {
+	b.cliMWs.add(priority, m)
 	return b
 }
 
 // addReqMW adds a request middleware to the ClientBuilder.
 func (b *Builder) addReqMW(m func(*Request) error, priority int) *Builder {
-	b.cli.reqMWs.Set(m, priority)
+	b.cli.reqMWs.add(priority, m)
 	return b
 }
 
 // addRespMW adds a response middleware to the ClientBuilder.
 func (b *Builder) addRespMW(m func(*Response) error, priority int) *Builder {
-	b.cli.respMWs.Set(m, priority)
+	b.cli.respMWs.add(priority, m)
 	return b
 }
 
 func (b *Builder) Boundary(boundary func() g.String) *Builder {
-	return b.addCliMW(func(client *Client) { boundaryMW(client, boundary) }, 999)
+	return b.addCliMW(func(client *Client) error { return boundaryMW(client, boundary) }, 999)
 }
 
 // Singleton configures the client to use a singleton instance, ensuring there's only one client instance.
@@ -198,12 +198,12 @@ func (b *Builder) JA() *JA {
 // This allows the HTTP client to connect to the server using a Unix domain
 // socket instead of a traditional TCP/IP connection.
 func (b *Builder) UnixDomainSocket(socketPath g.String) *Builder {
-	return b.addCliMW(func(client *Client) { unixDomainSocketMW(client, socketPath) }, 0)
+	return b.addCliMW(func(client *Client) error { return unixDomainSocketMW(client, socketPath) }, 0)
 }
 
 // DNS sets the custom DNS resolver address.
 func (b *Builder) DNS(dns g.String) *Builder {
-	return b.addCliMW(func(client *Client) { dnsMW(client, dns) }, 0)
+	return b.addCliMW(func(client *Client) error { return dnsMW(client, dns) }, 0)
 }
 
 // DNSOverTLS configures the client to use DNS over TLS.
@@ -211,12 +211,12 @@ func (b *Builder) DNSOverTLS() *DNSOverTLS { return &DNSOverTLS{builder: b} }
 
 // Timeout sets the timeout duration for the client.
 func (b *Builder) Timeout(timeout time.Duration) *Builder {
-	return b.addCliMW(func(client *Client) { timeoutMW(client, timeout) }, 0)
+	return b.addCliMW(func(client *Client) error { return timeoutMW(client, timeout) }, 0)
 }
 
 // InterfaceAddr sets the network interface address for the client.
 func (b *Builder) InterfaceAddr(address g.String) *Builder {
-	return b.addCliMW(func(client *Client) { interfaceAddrMW(client, address) }, 0)
+	return b.addCliMW(func(client *Client) error { return interfaceAddrMW(client, address) }, 0)
 }
 
 // Proxy sets the proxy settings for the client.
@@ -235,7 +235,7 @@ func (b *Builder) InterfaceAddr(address g.String) *Builder {
 //	})
 func (b *Builder) Proxy(proxy any) *Builder {
 	b.proxy = proxy
-	return b.addCliMW(func(client *Client) { proxyMW(client, proxy) }, 0)
+	return b.addCliMW(func(client *Client) error { return proxyMW(client, proxy) }, 0)
 }
 
 // BasicAuth sets the basic authentication credentials for the client.
