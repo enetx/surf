@@ -85,8 +85,9 @@ func (b *Builder) Build() *Client {
 // Example:
 //
 //	// Adding client middleware to modify client settings.
-//	.With(func(client *surf.Client) {
+//	.With(func(client *surf.Client) error {
 //	    // Custom logic to modify the client settings.
+//	    return nil
 //	})
 //
 //	// Adding request middleware to intercept outgoing requests.
@@ -103,7 +104,7 @@ func (b *Builder) Build() *Client {
 //
 // Note: Ensure that middleware functions adhere to the specified function signatures to work correctly with the With method.
 func (b *Builder) With(middleware any, priority ...int) *Builder {
-	p := g.Slice[int](priority).Get(0).UnwrapOrDefault()
+	p := g.Int(g.Slice[int](priority).Get(0).UnwrapOrDefault())
 
 	switch v := middleware.(type) {
 	case func(*Client) error:
@@ -120,19 +121,19 @@ func (b *Builder) With(middleware any, priority ...int) *Builder {
 }
 
 // addCliMW adds a client middleware to the ClientBuilder.
-func (b *Builder) addCliMW(m func(*Client) error, priority int) *Builder {
+func (b *Builder) addCliMW(m func(*Client) error, priority g.Int) *Builder {
 	b.cliMWs.add(priority, m)
 	return b
 }
 
 // addReqMW adds a request middleware to the ClientBuilder.
-func (b *Builder) addReqMW(m func(*Request) error, priority int) *Builder {
+func (b *Builder) addReqMW(m func(*Request) error, priority g.Int) *Builder {
 	b.cli.reqMWs.add(priority, m)
 	return b
 }
 
 // addRespMW adds a response middleware to the ClientBuilder.
-func (b *Builder) addRespMW(m func(*Response) error, priority int) *Builder {
+func (b *Builder) addRespMW(m func(*Response) error, priority g.Int) *Builder {
 	b.cli.respMWs.add(priority, m)
 	return b
 }

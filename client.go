@@ -34,8 +34,8 @@ type Client struct {
 	builder   *Builder               // Associated builder for configuration
 	transport http.RoundTripper      // HTTP transport (can be HTTP/1.1, HTTP/2, or HTTP/3)
 	tlsConfig *tls.Config            // TLS configuration for secure connections
-	reqMWs    *middleware[*Request]  // Priority-ordered request middleware
-	respMWs   *middleware[*Response] // Priority-ordered response middleware
+	reqMWs    *middleware[*Request]  // Priority-ordered request middlewares
+	respMWs   *middleware[*Response] // Priority-ordered response middlewares
 	boundary  func() g.String        // Custom boundary generator for multipart requests
 	mwMutex   sync.Mutex             // Mutex for thread-safe middleware operations
 }
@@ -552,16 +552,27 @@ func buildAnnotatedBody(data any) (io.Reader, string, error) {
 // detectAnnotatedDataType takes data of any type and returns the data format as a string (either
 // "json" or "xml") by checking the struct tags.
 func detectAnnotatedDataType(data any) string {
-	value := reflect.ValueOf(data)
+	t := reflect.TypeOf(data)
+	if t == nil {
+		return ""
+	}
 
-	for i := range value.Type().NumField() {
-		field := value.Type().Field(i)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
 
-		if _, ok := field.Tag.Lookup("json"); ok {
+	if t.Kind() != reflect.Struct {
+		return ""
+	}
+
+	for i := range t.NumField() {
+		tag := t.Field(i).Tag
+
+		if _, ok := tag.Lookup("json"); ok {
 			return "json"
 		}
 
-		if _, ok := field.Tag.Lookup("xml"); ok {
+		if _, ok := tag.Lookup("xml"); ok {
 			return "xml"
 		}
 	}
