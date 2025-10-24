@@ -3,6 +3,7 @@ package surf
 import (
 	"context"
 	"fmt"
+	"math"
 	"math/rand"
 	"net"
 
@@ -138,7 +139,7 @@ func (j *JA) build() *Builder {
 		c.GetClient().Transport = newRoundTripper(j, c.GetTransport())
 
 		return nil
-	}, 0)
+	}, math.MaxInt)
 }
 
 // getSpec determines the ClientHelloSpec to be used for the TLS connection.
@@ -246,11 +247,11 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 // Firefox141 sets  the JA3/4 fingerprint to mimic Firefox version 141.
 func (j *JA) Firefox141() *Builder { return j.SetHelloID(utls.HelloFirefox_141) }
 
-// Firefox143 sets  the JA3/4 fingerprint to mimic Firefox version 143.
-func (j *JA) Firefox143() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_143) }
+// Firefox144 sets  the JA3/4 fingerprint to mimic Firefox version 143.
+func (j *JA) Firefox144() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_144) }
 
-// FirefoxPrivate143 sets  the JA3/4 fingerprint to mimic Firefox private version 143.
-func (j *JA) FirefoxPrivate143() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_143) }
+// FirefoxPrivate144 sets  the JA3/4 fingerprint to mimic Firefox private version 144.
+func (j *JA) FirefoxPrivate144() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_144) }
 
 // Tor sets  the JA3/4 fingerprint to mimic Tor Browser version 14.5.6.
 func (j *JA) Tor() *Builder { return j.SetHelloSpec(firefox.Tor) }

@@ -34,7 +34,7 @@ func newRoundTripper(ja *JA, transport http.RoundTripper) http.RoundTripper {
 	rt.cachedConnections = g.NewMapSafe[string, net.Conn]()
 	rt.cachedTransports = g.NewMapSafe[string, http.RoundTripper]()
 
-	if rt.ja.builder.session {
+	if ja.builder.cli.tlsConfig.ClientSessionCache != nil {
 		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
 	}
 

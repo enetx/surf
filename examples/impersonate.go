@@ -19,6 +19,7 @@ func main() {
 	// url = "https://nowsecure.nl"
 	// url = "https://www.moscowbooks.ru"
 	url = "https://tls.peet.ws/api/clean"
+	// url = "https://tls.peet.ws/api/all"
 	// url = "https://tls.browserleaks.com/json"
 	// url = "https://cloudflare.manfredi.io/test/"
 	// url = "https://chat.openai.com/api/auth/csrf"
