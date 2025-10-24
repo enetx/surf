@@ -128,7 +128,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		OmitEmptyPsk:           true,
 	}
 
-	if supportsSession(spec.Ok()) && rt.clientSessionCache != nil {
+	if supportsResumption(spec.Ok()) && rt.clientSessionCache != nil {
 		config.ClientSessionCache = rt.clientSessionCache
 		config.PreferSkipResumptionOnNilExtension = true
 		config.SessionTicketsDisabled = false
@@ -230,24 +230,34 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	return t
 }
 
-func supportsSession(spec utls.ClientHelloSpec) bool {
-	hasSessionTicket := false
-	hasPSK := false
+func supportsResumption(spec utls.ClientHelloSpec) bool {
+	var (
+		hasSessionTicket bool
+		hasPskModes      bool
+		hasPreSharedKey  bool // includes real and fake PSK extensions
+	)
 
 	for _, ext := range spec.Extensions {
 		switch ext.(type) {
 		case *utls.SessionTicketExtension:
 			hasSessionTicket = true
 		case *utls.PSKKeyExchangeModesExtension:
-			hasPSK = true
-		case *utls.UtlsPreSharedKeyExtension:
-			hasPSK = true
+			hasPskModes = true
+		case *utls.UtlsPreSharedKeyExtension, *utls.FakePreSharedKeyExtension:
+			hasPreSharedKey = true
 		}
 	}
 
-	// TLS 1.2 SessionTicket
-	// TLS 1.3 PSK
-	return hasSessionTicket || hasPSK
+	// If any TLS 1.3 PSK-related extensions are present,
+	// session resumption is considered valid only when all required
+	// TLS 1.3 resumption indicators are present simultaneously.
+	if hasPskModes || hasPreSharedKey {
+		return hasSessionTicket && hasPskModes && hasPreSharedKey
+	}
+
+	// Otherwise, fall back to TLS 1.2 semantics where the presence of
+	// SessionTicketExtension alone indicates support for session resumption.
+	return hasSessionTicket
 }
 
 // setAlpnProtocolToHTTP1 updates the ALPN protocols of the provided ClientHelloSpec to include

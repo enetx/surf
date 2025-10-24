@@ -247,7 +247,7 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 // Firefox141 sets  the JA3/4 fingerprint to mimic Firefox version 141.
 func (j *JA) Firefox141() *Builder { return j.SetHelloID(utls.HelloFirefox_141) }
 
-// Firefox144 sets  the JA3/4 fingerprint to mimic Firefox version 143.
+// Firefox144 sets  the JA3/4 fingerprint to mimic Firefox version 144.
 func (j *JA) Firefox144() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_144) }
 
 // FirefoxPrivate144 sets  the JA3/4 fingerprint to mimic Firefox private version 144.
