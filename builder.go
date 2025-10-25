@@ -37,7 +37,6 @@ type Builder struct {
 	followOnlyHostRedirects  bool                                       // Only follow redirects within same host
 	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
 	ja                       bool                                       // Enable JA3 TLS fingerprinting
-	session                  bool                                       // Enable session/cookie management
 	singleton                bool                                       // Use singleton pattern for connection reuse
 	browser                  browser                                    // Browser type for fingerprinting
 	http3                    bool                                       // Enable HTTP/3 with automatic browser detection
@@ -339,10 +338,7 @@ func (b *Builder) ForceHTTP1() *Builder {
 }
 
 // Session configures whether the client should maintain a session.
-func (b *Builder) Session() *Builder {
-	b.session = true
-	return b.addCliMW(sessionMW, 0)
-}
+func (b *Builder) Session() *Builder { return b.addCliMW(sessionMW, 0) }
 
 // MaxRedirects sets the maximum number of redirects the client should follow.
 func (b *Builder) MaxRedirects(maxRedirects int) *Builder {

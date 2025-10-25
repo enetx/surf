@@ -57,7 +57,7 @@ func main() {
 	cli := surf.NewClient().
 		Builder().
 		Boundary(b.String).
-		JA3().Chrome87().
+		JA().Chrome87().
 		HTTP2Settings().
 		EnablePush(1).
 		MaxConcurrentStreams(1000).

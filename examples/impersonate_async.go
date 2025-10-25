@@ -32,7 +32,7 @@ func main() {
 		p.Go(cli.Get(url).Do)
 	}
 
-	for r := range p.Wait().Iter() {
+	for r := range p.Wait() {
 		if r.IsErr() {
 			log.Fatal(r.Err())
 		}

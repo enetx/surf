@@ -143,7 +143,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 	if err = conn.HandshakeContext(ctx); err != nil {
 		_ = conn.Close()
 
-		if err.Error() == "tls: CurvePreferences includes unsupported curve" {
+		if strings.Contains(err.Error(), "CurvePreferences includes unsupported curve") {
 			return nil, fmt.Errorf("conn.HandshakeContext() error for tls 1.3 (please retry request): %+v", err)
 		}
 

@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"math"
 	"math/rand"
 	"net"
 	"net/url"
@@ -87,11 +88,7 @@ func (h *HTTP3Settings) Set() *Builder {
 			return nil
 		}
 
-		// Configure TLS with session cache if enabled
 		tlsConfig := c.tlsConfig.Clone()
-		if h.builder.session {
-			tlsConfig.ClientSessionCache = tls.NewLRUClientSessionCache(0)
-		}
 
 		transport := &uquicTransport{
 			quicSpec:          ref.Of(quicSpec.Some()),
@@ -118,7 +115,7 @@ func (h *HTTP3Settings) Set() *Builder {
 		c.transport = transport
 
 		return nil
-	}, 0)
+	}, math.MaxInt)
 }
 
 type connection struct {
