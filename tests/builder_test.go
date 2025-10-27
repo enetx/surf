@@ -228,7 +228,7 @@ func TestBuilderUnixDomainSocket(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		UnixDomainSocket("/tmp/test.sock").
+		UnixSocket("/tmp/test.sock").
 		Build()
 
 	if client == nil {

@@ -203,7 +203,7 @@ func TestMiddlewareUnixDomainSocket(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := surf.NewClient().Builder().
-				UnixDomainSocket(g.String(tt.path)).
+				UnixSocket(g.String(tt.path)).
 				Build()
 
 			if client == nil {
@@ -566,7 +566,7 @@ func TestMiddlewareClientUnixDomainSocket(t *testing.T) {
 	// Test Unix domain socket configuration
 	socket := "/tmp/test.sock"
 
-	client := surf.NewClient().Builder().UnixDomainSocket(g.String(socket)).Build()
+	client := surf.NewClient().Builder().UnixSocket(g.String(socket)).Build()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")

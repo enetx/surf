@@ -109,7 +109,7 @@ func TestUnixDomainSocket(t *testing.T) {
 	defer ts.Close()
 
 	r := surf.NewClient().Builder().
-		UnixDomainSocket(socketPath).
+		UnixSocket(socketPath).
 		Build().
 		Get("unix").
 		Do()
@@ -155,7 +155,7 @@ func TestUnixDomainSocket_WithLocalhostURL(t *testing.T) {
 
 	r := surf.NewClient().
 		Builder().
-		UnixDomainSocket(socketPath).
+		UnixSocket(socketPath).
 		Build().
 		Get("http://localhost/ping").
 		Do()
@@ -202,7 +202,7 @@ func TestUnixDomainSocket_WithCustomHost(t *testing.T) {
 
 	client := surf.NewClient().
 		Builder().
-		UnixDomainSocket(socketPath).
+		UnixSocket(socketPath).
 		Build()
 
 	r := client.

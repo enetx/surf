@@ -197,10 +197,10 @@ func dnsTLSMW(client *Client, resolver *net.Resolver) error {
 	return nil
 }
 
-// unixDomainSocketMW configures the client to connect via Unix domain sockets.
+// unixSocketMW configures the client to connect via Unix domain sockets.
 // Replaces the standard TCP connection with Unix socket communication,
 // useful for connecting to local services that expose Unix socket interfaces.
-func unixDomainSocketMW(client *Client, address g.String) error {
+func unixSocketMW(client *Client, address g.String) error {
 	if address.Empty() {
 		return nil
 	}

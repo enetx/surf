@@ -11,7 +11,7 @@ func main() {
 
 	r := surf.NewClient().
 		Builder().
-		UnixDomainSocket(socket).
+		UnixSocket(socket).
 		Build().
 		Get("http://localhost/v1.41/containers/json").
 		Do()
