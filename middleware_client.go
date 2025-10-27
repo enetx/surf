@@ -200,23 +200,13 @@ func dnsTLSMW(client *Client, resolver *net.Resolver) error {
 // unixDomainSocketMW configures the client to connect via Unix domain sockets.
 // Replaces the standard TCP connection with Unix socket communication,
 // useful for connecting to local services that expose Unix socket interfaces.
-func unixDomainSocketMW(client *Client, unixDomainSocket g.String) error {
-	if unixDomainSocket.Empty() {
+func unixDomainSocketMW(client *Client, address g.String) error {
+	if address.Empty() {
 		return nil
 	}
 
-	client.GetTransport().(*http.Transport).DialContext = func(_ context.Context, _, addr string) (net.Conn, error) {
-		host, _, err := net.SplitHostPort(addr)
-		if err != nil {
-			return nil, err
-		}
-
-		unixaddr, err := net.ResolveUnixAddr(host, unixDomainSocket.Std())
-		if err != nil {
-			return nil, err
-		}
-
-		return net.DialUnix(host, nil, unixaddr)
+	client.GetTransport().(*http.Transport).DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(ctx, "unix", address.Std())
 	}
 
 	return nil
@@ -238,7 +228,10 @@ func proxyMW(client *Client, proxys any) error {
 		return nil
 	}
 
-	transport := client.GetTransport().(*http.Transport)
+	transport, ok := client.GetTransport().(*http.Transport)
+	if !ok {
+		return fmt.Errorf("transport is not *http.Transport")
+	}
 
 	// Clear proxy if nil provided
 	if proxys == nil {

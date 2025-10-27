@@ -172,7 +172,7 @@ func (rt *roundtripper) address(req *http.Request) string {
 		return net.JoinHostPort(host, port)
 	}
 
-	return net.JoinHostPort(req.URL.Host, "443") // we can assume port is 443 at this point
+	return net.JoinHostPort(req.URL.Host, defaultHTTPSPort)
 }
 
 func (rt *roundtripper) buildHTTP1Transport() *http.Transport {

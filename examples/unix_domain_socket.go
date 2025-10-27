@@ -2,22 +2,19 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/enetx/surf"
 )
 
 func main() {
+	const socket = "/var/run/docker.sock"
+
 	r := surf.NewClient().
 		Builder().
-		UnixDomainSocket("/tmp/surf_echo.sock").
+		UnixDomainSocket(socket).
 		Build().
-		Get("unix").
+		Get("http://localhost/v1.41/containers/json").
 		Do()
 
-	if r.IsErr() {
-		log.Fatal(r.Err())
-	}
-
-	fmt.Println(r.Ok().Body.String())
+	fmt.Println(r.Unwrap().Body.String())
 }

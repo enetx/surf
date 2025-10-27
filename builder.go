@@ -197,8 +197,8 @@ func (b *Builder) JA() *JA {
 // UnixDomainSocket sets the path for a Unix domain socket.
 // This allows the HTTP client to connect to the server using a Unix domain
 // socket instead of a traditional TCP/IP connection.
-func (b *Builder) UnixDomainSocket(socketPath g.String) *Builder {
-	return b.addCliMW(func(client *Client) error { return unixDomainSocketMW(client, socketPath) }, 0)
+func (b *Builder) UnixDomainSocket(address g.String) *Builder {
+	return b.addCliMW(func(client *Client) error { return unixDomainSocketMW(client, address) }, 0)
 }
 
 // DNS sets the custom DNS resolver address.

@@ -124,6 +124,100 @@ func TestUnixDomainSocket(t *testing.T) {
 	}
 }
 
+func TestUnixDomainSocket_WithLocalhostURL(t *testing.T) {
+	t.Parallel()
+
+	const socketPath = "/tmp/surfecho_localhost.sock"
+	_ = os.Remove(socketPath)
+
+	ln, err := net.Listen("unix", socketPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		ln.Close()
+		_ = os.Remove(socketPath)
+	}()
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Host != "localhost" {
+			t.Fatalf("unexpected Host: %q", r.Host)
+		}
+		_, _ = w.Write([]byte("ok localhost"))
+	}))
+
+	ts.Listener.Close()
+	ts.Listener = ln
+	ts.Start()
+
+	defer ts.Close()
+
+	r := surf.NewClient().
+		Builder().
+		UnixDomainSocket(socketPath).
+		Build().
+		Get("http://localhost/ping").
+		Do()
+
+	if r.IsErr() {
+		t.Fatal(r.Err())
+	}
+
+	if !r.Ok().Body.Contains("ok localhost") {
+		t.Fatalf("unexpected body: %q", r.Ok().Body.String())
+	}
+}
+
+func TestUnixDomainSocket_WithCustomHost(t *testing.T) {
+	t.Parallel()
+
+	const socketPath = "/tmp/surfecho_customhost.sock"
+	_ = os.Remove(socketPath)
+
+	ln, err := net.Listen("unix", socketPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		ln.Close()
+		_ = os.Remove(socketPath)
+	}()
+
+	const wantHost = "docker.internal"
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Host != wantHost {
+			t.Fatalf("unexpected Host: got %q, want %q", r.Host, wantHost)
+		}
+		_, _ = w.Write([]byte("ok customhost"))
+	}))
+
+	ts.Listener.Close()
+	ts.Listener = ln
+	ts.Start()
+
+	defer ts.Close()
+
+	client := surf.NewClient().
+		Builder().
+		UnixDomainSocket(socketPath).
+		Build()
+
+	r := client.
+		Get("http://" + wantHost + "/v1.41/containers/json").
+		Do()
+
+	if r.IsErr() {
+		t.Fatal(r.Err())
+	}
+
+	if !r.Ok().Body.Contains("ok customhost") {
+		t.Fatalf("unexpected body: %q", r.Ok().Body.String())
+	}
+}
+
 func TestContenType(t *testing.T) {
 	t.Parallel()
 

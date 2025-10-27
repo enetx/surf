@@ -173,9 +173,6 @@ func (ut *uquicTransport) CloseIdleConnections() {
 	}
 }
 
-// defaultHTTPSPort is used when no port is specified in the URL.
-const defaultHTTPSPort = "443"
-
 // address builds host:port address from HTTP request, defaulting to port 443 for HTTPS if port is missing.
 func (ut *uquicTransport) address(req *http.Request) string {
 	host, port, err := net.SplitHostPort(req.URL.Host)

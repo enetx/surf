@@ -44,4 +44,7 @@ const (
 	// _maxIdleConnsPerHost is the default maximum number of idle connections per host.
 	// Maintains connection efficiency while controlling per-host resource usage.
 	_maxIdleConnsPerHost = 128
+
+	// defaultHTTPSPort is used when no port is specified in the URL.
+	defaultHTTPSPort = "443"
 )
