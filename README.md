@@ -15,7 +15,7 @@
 ## ✨ Key Features
 
 ### 🎭 **Browser Impersonation**
-- **Chrome & Firefox Support**: Accurately mimic Chrome v131 and Firefox v144 browser fingerprints
+- **Chrome & Firefox Support**: Accurately mimic Chrome v142 and Firefox v144 browser fingerprints
 - **Platform Diversity**: Impersonate Windows, macOS, Linux, Android, and iOS devices
 - **TLS Fingerprinting**: Full JA3/JA4 fingerprint customization for enhanced privacy
 - **Automatic Headers**: Proper header ordering and browser-specific values
@@ -143,7 +143,7 @@ if resp.IsOk() {
 client := surf.NewClient().
     Builder().
     Impersonate().
-    Chrome().        // Latest Chrome v131
+    Chrome().        // Latest Chrome v142
     Build()
 
 resp := client.Get("https://example.com").Do()
@@ -250,7 +250,7 @@ client := surf.NewClient().
 // Combine TLS fingerprinting with HTTP/3 QUIC fingerprinting
 client := surf.NewClient().
     Builder().
-    JA().Chrome131().               // TLS fingerprint (JA3/JA4)
+    JA().Chrome142().               // TLS fingerprint (JA3/JA4)
     HTTP3Settings().Chrome().Set().  // Complete QUIC fingerprint (JA4QUIC)
     Build()
 
@@ -780,10 +780,10 @@ client := surf.NewClient().
 ```go
 client := surf.NewClient().
     Builder().
-    UnixDomainSocket("/var/run/docker.sock").
+    UnixSocket("/var/run/docker.sock").
     Build()
 
-resp := client.Get("http://localhost/v1.24/containers/json").Do()
+resp := client.Get("http://localhost/v1.41/containers/json").Do()
 ```
 
 ### Network Interface Binding

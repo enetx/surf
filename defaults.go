@@ -7,7 +7,7 @@ import "time"
 const (
 	// _userAgent is the default User-Agent header for HTTP requests.
 	// Uses a modern Chrome browser signature to ensure compatibility with most web services.
-	_userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+	_userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
 
 	// _maxRedirects is the default maximum number of redirects to follow.
 	// Prevents infinite redirect loops while allowing reasonable redirect chains.

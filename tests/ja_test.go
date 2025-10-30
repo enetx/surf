@@ -11,11 +11,11 @@ import (
 	utls "github.com/enetx/utls"
 )
 
-func TestJAChrome131(t *testing.T) {
+func TestJAChrome142(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome131().
+		JA().Chrome142().
 		Build()
 
 	if client == nil {
@@ -416,7 +416,7 @@ func TestJAMultipleCalls(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome131().
+		JA().Chrome142().
 		JA().Firefox144().
 		Build()
 
@@ -445,7 +445,7 @@ func TestJAWithHTTP2(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome131().
+		JA().Chrome142().
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		EnablePush(1).
@@ -492,7 +492,7 @@ func TestJARoundTripperHTTP1(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome131().
+		JA().Chrome142().
 		Build()
 
 	req := client.Get(g.String(ts.URL))
@@ -519,7 +519,7 @@ func TestJACloseIdleConnections(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome131().
+		JA().Chrome142().
 		Build()
 
 	req := client.Get(g.String(ts.URL))
