@@ -79,7 +79,7 @@ func (h *HTTP2Settings) PriorityFrames(priorityFrames []http2.PriorityFrame) *HT
 // Set applies the accumulated HTTP/2 settings.
 // It configures the HTTP/2 settings for the surf client.
 func (h *HTTP2Settings) Set() *Builder {
-	if h.builder.forseHTTP1 {
+	if h.builder.forceHTTP1 {
 		return h.builder
 	}
 

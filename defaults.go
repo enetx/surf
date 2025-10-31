@@ -45,6 +45,9 @@ const (
 	// Maintains connection efficiency while controlling per-host resource usage.
 	_maxIdleConnsPerHost = 128
 
-	// defaultHTTPSPort is used when no port is specified in the URL.
+	// defaultHTTPPort is the implicit port for plain HTTP URLs without an explicit port.
+	defaultHTTPPort = "80"
+
+	// defaultHTTPSPort is the implicit port for HTTPS (TLS) URLs without an explicit port.
 	defaultHTTPSPort = "443"
 )

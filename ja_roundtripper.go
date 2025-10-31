@@ -3,7 +3,6 @@ package surf
 import (
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"net"
 	"slices"
@@ -17,22 +16,24 @@ import (
 	utls "github.com/enetx/utls"
 )
 
-var errProtocolNegotiated = errors.New("protocol negotiated")
-
 type roundtripper struct {
-	transport          http.RoundTripper
+	transport          *http.Transport
 	clientSessionCache utls.ClientSessionCache
 	ja                 *JA
-	cachedConnections  *g.MapSafe[string, net.Conn]
 	cachedTransports   *g.MapSafe[string, http.RoundTripper]
 }
 
-func newRoundTripper(ja *JA, transport http.RoundTripper) http.RoundTripper {
-	rt := new(roundtripper)
-	rt.ja = ja
-	rt.transport = transport
-	rt.cachedConnections = g.NewMapSafe[string, net.Conn]()
-	rt.cachedTransports = g.NewMapSafe[string, http.RoundTripper]()
+func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
+	transport, ok := base.(*http.Transport)
+	if !ok {
+		panic("surf: underlying transport must be *http.Transport")
+	}
+
+	rt := &roundtripper{
+		transport:        transport,
+		ja:               ja,
+		cachedTransports: g.NewMapSafe[string, http.RoundTripper](),
+	}
 
 	if ja.builder.cli.tlsConfig.ClientSessionCache != nil {
 		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
@@ -44,21 +45,41 @@ func newRoundTripper(ja *JA, transport http.RoundTripper) http.RoundTripper {
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.address(req)
 
-	transport := rt.cachedTransports.Get(addr)
-	if transport.IsNone() {
-		if err := rt.getTransport(req, addr); err != nil {
-			return nil, err
+	initTransport := func() (http.RoundTripper, error) {
+		cached := rt.cachedTransports.Get(addr)
+
+		if cached.IsNone() || cached.Some() == nil {
+			if err := rt.getTransport(req, addr); err != nil {
+				return nil, err
+			}
+
+			cached = rt.cachedTransports.Get(addr)
 		}
 
-		transport = rt.cachedTransports.Get(addr)
+		tr := cached.Some()
+		if tr == nil {
+			return nil, fmt.Errorf("surf: no transport available for %s", addr)
+		}
+
+		return tr, nil
 	}
 
-	response, err := transport.Some().RoundTrip(req)
+	transport, err := initTransport()
 	if err != nil {
-		return nil, err
+		rt.cachedTransports.Delete(addr)
+
+		transport, err = initTransport()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return response, nil
+	resp, err := transport.RoundTrip(req)
+	if resp == nil && err == nil {
+		return nil, fmt.Errorf("surf: transport %T returned <nil, nil> for %s", transport, req.URL)
+	}
+
+	return resp, err
 }
 
 func (rt *roundtripper) CloseIdleConnections() {
@@ -83,12 +104,14 @@ func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
 		return fmt.Errorf("invalid URL scheme: [%v]", req.URL.Scheme)
 	}
 
-	_, err := rt.dialTLS(req.Context(), "tcp", addr)
-	if errors.Is(err, errProtocolNegotiated) {
-		return nil
+	conn, err := rt.dialTLS(req.Context(), "tcp", addr)
+	if err != nil {
+		return err
 	}
 
-	return err
+	_ = conn.Close()
+
+	return nil
 }
 
 func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
@@ -96,18 +119,13 @@ func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, 
 }
 
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
-	if value := rt.cachedConnections.Get(addr); value.IsSome() {
-		rt.cachedConnections.Delete(addr)
-		return value.Some(), nil
-	}
-
-	rawConn, err := rt.transport.(*http.Transport).DialContext(ctx, network, addr)
+	rawConn, err := rt.transport.DialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
 	}
 
-	var host string
-	if host, _, err = net.SplitHostPort(addr); err != nil {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
 		host = addr
 	}
 
@@ -117,7 +135,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, spec.Err()
 	}
 
-	if rt.ja.builder.forseHTTP1 {
+	if rt.ja.builder.forceHTTP1 {
 		setAlpnProtocolToHTTP1(ref.Of(spec.Ok()))
 	}
 
@@ -150,20 +168,16 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, fmt.Errorf("uTlsConn.HandshakeContext() error: %+v", err)
 	}
 
-	if value := rt.cachedTransports.Get(addr); value.IsSome() {
-		return conn, nil
+	if tr := rt.cachedTransports.Get(addr); tr.IsNone() || tr.Some() == nil {
+		switch conn.ConnectionState().NegotiatedProtocol {
+		case http2.NextProtoTLS:
+			rt.cachedTransports.Set(addr, rt.buildHTTP2Transport())
+		default:
+			rt.cachedTransports.Set(addr, rt.buildHTTP1Transport())
+		}
 	}
 
-	switch conn.ConnectionState().NegotiatedProtocol {
-	case http2.NextProtoTLS:
-		rt.cachedTransports.Set(addr, rt.buildHTTP2Transport())
-	default:
-		rt.cachedTransports.Set(addr, rt.buildHTTP1Transport())
-	}
-
-	rt.cachedConnections.Set(addr, conn)
-
-	return nil, errProtocolNegotiated
+	return conn, nil
 }
 
 func (rt *roundtripper) address(req *http.Request) string {
@@ -172,11 +186,22 @@ func (rt *roundtripper) address(req *http.Request) string {
 		return net.JoinHostPort(host, port)
 	}
 
-	return net.JoinHostPort(req.URL.Host, defaultHTTPSPort)
+	var defaultPort string
+
+	switch g.String(req.URL.Scheme).Lower() {
+	case "http":
+		defaultPort = defaultHTTPPort
+	case "https":
+		defaultPort = defaultHTTPSPort
+	default:
+		defaultPort = defaultHTTPSPort
+	}
+
+	return net.JoinHostPort(req.URL.Host, defaultPort)
 }
 
 func (rt *roundtripper) buildHTTP1Transport() *http.Transport {
-	t := rt.transport.(*http.Transport).Clone()
+	t := rt.transport.Clone()
 	t.DialTLSContext = rt.dialTLS
 
 	return t
@@ -185,9 +210,9 @@ func (rt *roundtripper) buildHTTP1Transport() *http.Transport {
 func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	t := new(http2.Transport)
 	t.DialTLSContext = rt.dialTLSHTTP2
-	t.DisableCompression = rt.transport.(*http.Transport).DisableCompression
-	t.IdleConnTimeout = rt.transport.(*http.Transport).IdleConnTimeout
-	t.TLSClientConfig = rt.transport.(*http.Transport).TLSClientConfig
+	t.DisableCompression = rt.transport.DisableCompression
+	t.IdleConnTimeout = rt.transport.IdleConnTimeout
+	t.TLSClientConfig = rt.transport.TLSClientConfig
 
 	if rt.ja.builder.http2settings != nil {
 		h := rt.ja.builder.http2settings

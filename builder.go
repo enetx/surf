@@ -32,7 +32,7 @@ type Builder struct {
 	retryWait                time.Duration                              // Wait duration between retry attempts
 	retryMax                 int                                        // Maximum number of retry attempts
 	maxRedirects             int                                        // Maximum number of redirects to follow
-	forseHTTP1               bool                                       // Force HTTP/1.1 protocol usage
+	forceHTTP1               bool                                       // Force HTTP/1.1 protocol usage
 	cacheBody                bool                                       // Enable response body caching
 	followOnlyHostRedirects  bool                                       // Only follow redirects within same host
 	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
@@ -333,7 +333,7 @@ func (b *Builder) Retry(retryMax int, retryWait time.Duration, codes ...int) *Bu
 
 // ForceHTTP1MW configures the client to use HTTP/1.1 forcefully.
 func (b *Builder) ForceHTTP1() *Builder {
-	b.forseHTTP1 = true
+	b.forceHTTP1 = true
 	return b.addCliMW(forseHTTP1MW, 0)
 }
 

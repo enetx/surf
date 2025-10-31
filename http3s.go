@@ -74,7 +74,7 @@ func (h *HTTP3Settings) getQUICSpec() g.Option[uquic.QUICSpec] {
 // Set applies the accumulated HTTP/3 settings.
 // It configures the uQUIC transport for the surf client.
 func (h *HTTP3Settings) Set() *Builder {
-	if h.builder.forseHTTP1 {
+	if h.builder.forceHTTP1 {
 		return h.builder
 	}
 
@@ -173,14 +173,24 @@ func (ut *uquicTransport) CloseIdleConnections() {
 	}
 }
 
-// address builds host:port address from HTTP request, defaulting to port 443 for HTTPS if port is missing.
 func (ut *uquicTransport) address(req *http.Request) string {
 	host, port, err := net.SplitHostPort(req.URL.Host)
 	if err == nil {
 		return net.JoinHostPort(host, port)
 	}
 
-	return net.JoinHostPort(req.URL.Host, defaultHTTPSPort)
+	var defaultPort string
+
+	switch g.String(req.URL.Scheme).Lower() {
+	case "http":
+		defaultPort = defaultHTTPPort
+	case "https":
+		defaultPort = defaultHTTPSPort
+	default:
+		defaultPort = defaultHTTPSPort
+	}
+
+	return net.JoinHostPort(req.URL.Host, defaultPort)
 }
 
 // createH3 returns per-address cached http3.Transport with proper Dial & SNI configuration.
