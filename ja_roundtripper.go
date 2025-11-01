@@ -75,7 +75,7 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if cellOpt.IsSome() {
 		cellRef = cellOpt.Some()
 	} else {
-		cellRef = rt.cachedTransports.Get(addr).Some()
+		cellRef = entry.Get().Some()
 	}
 
 	initRes := cellRef.Force()
