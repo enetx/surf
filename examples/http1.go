@@ -9,7 +9,9 @@ import (
 
 func main() {
 	r := surf.NewClient().
-		// Builder().ForceHTTP1().Build().
+		Builder().JA().Firefox().
+		ForceHTTP1().
+		Build().
 		Get("https://tls.peet.ws/api/all").
 		Do()
 

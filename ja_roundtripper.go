@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/enetx/g"
+	"github.com/enetx/g/cell"
 	"github.com/enetx/g/ref"
 	"github.com/enetx/http"
 	"github.com/enetx/http2"
@@ -20,7 +21,7 @@ type roundtripper struct {
 	transport          *http.Transport
 	clientSessionCache utls.ClientSessionCache
 	ja                 *JA
-	cachedTransports   *g.MapSafe[string, http.RoundTripper]
+	cachedTransports   *g.MapSafe[string, *cell.LazyCell[g.Result[http.RoundTripper]]]
 }
 
 func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
@@ -32,7 +33,7 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 	rt := &roundtripper{
 		transport:        transport,
 		ja:               ja,
-		cachedTransports: g.NewMapSafe[string, http.RoundTripper](),
+		cachedTransports: g.NewMapSafe[string, *cell.LazyCell[g.Result[http.RoundTripper]]](),
 	}
 
 	if ja.builder.cli.tlsConfig.ClientSessionCache != nil {
@@ -44,39 +45,51 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.address(req)
+	scheme := g.String(req.URL.Scheme).Lower()
+	entry := rt.cachedTransports.Entry(addr)
 
-	initTransport := func() (http.RoundTripper, error) {
-		cached := rt.cachedTransports.Get(addr)
+	cellOpt := entry.OrSetBy(func() *cell.LazyCell[g.Result[http.RoundTripper]] {
+		ctx := req.Context()
 
-		if cached.IsNone() || cached.Some() == nil {
-			if err := rt.getTransport(req, addr); err != nil {
-				return nil, err
+		return cell.NewLazy(func() g.Result[http.RoundTripper] {
+			var (
+				tr  http.RoundTripper
+				err error
+			)
+
+			switch scheme {
+			case "http":
+				tr = rt.buildHTTP1Transport()
+			case "https":
+				tr, err = rt.buildHTTPSTransport(ctx, addr)
+			default:
+				err = fmt.Errorf("invalid URL scheme: [%v]", req.URL.Scheme)
 			}
 
-			cached = rt.cachedTransports.Get(addr)
-		}
+			return g.ResultOf(tr, err)
+		})
+	})
 
-		tr := cached.Some()
-		if tr == nil {
-			return nil, fmt.Errorf("surf: no transport available for %s", addr)
-		}
+	var cellRef *cell.LazyCell[g.Result[http.RoundTripper]]
 
-		return tr, nil
+	if cellOpt.IsSome() {
+		cellRef = cellOpt.Some()
+	} else {
+		cellRef = rt.cachedTransports.Get(addr).Some()
 	}
 
-	transport, err := initTransport()
-	if err != nil {
+	initRes := cellRef.Force()
+
+	if initRes.IsErr() {
 		rt.cachedTransports.Delete(addr)
-
-		transport, err = initTransport()
-		if err != nil {
-			return nil, err
-		}
+		return nil, initRes.Err()
 	}
 
-	resp, err := transport.RoundTrip(req)
+	tr := initRes.Ok()
+
+	resp, err := tr.RoundTrip(req)
 	if resp == nil && err == nil {
-		return nil, fmt.Errorf("surf: transport %T returned <nil, nil> for %s", transport, req.URL)
+		return nil, fmt.Errorf("surf: transport %T returned <nil, nil> for %s", tr, req.URL)
 	}
 
 	return resp, err
@@ -85,33 +98,40 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 func (rt *roundtripper) CloseIdleConnections() {
 	type closeIdler interface{ CloseIdleConnections() }
 
-	for k, v := range rt.cachedTransports.Iter() {
-		if tr, ok := v.(closeIdler); ok {
-			tr.CloseIdleConnections()
+	for addr, lazy := range rt.cachedTransports.Iter() {
+		if transport := lazy.Force(); transport.IsOk() {
+			if ci, ok := transport.Ok().(closeIdler); ok {
+				ci.CloseIdleConnections()
+			}
 		}
 
-		rt.cachedTransports.Delete(k)
+		rt.cachedTransports.Delete(addr)
 	}
 }
 
-func (rt *roundtripper) getTransport(req *http.Request, addr string) error {
-	switch strings.ToLower(req.URL.Scheme) {
-	case "http":
-		rt.cachedTransports.Set(addr, rt.buildHTTP1Transport())
-		return nil
-	case "https":
-	default:
-		return fmt.Errorf("invalid URL scheme: [%v]", req.URL.Scheme)
-	}
-
-	conn, err := rt.dialTLS(req.Context(), "tcp", addr)
+func (rt *roundtripper) buildHTTPSTransport(ctx context.Context, addr string) (http.RoundTripper, error) {
+	negProto, err := rt.probeALPN(ctx, addr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_ = conn.Close()
+	switch negProto {
+	case http2.NextProtoTLS:
+		return rt.buildHTTP2Transport(), nil
+	default:
+		return rt.buildHTTP1Transport(), nil
+	}
+}
 
-	return nil
+func (rt *roundtripper) probeALPN(ctx context.Context, addr string) (string, error) {
+	conn, err := rt.tlsHandshake(ctx, "tcp", addr)
+	if err != nil {
+		return "", err
+	}
+
+	defer conn.Close()
+
+	return conn.ConnectionState().NegotiatedProtocol, nil
 }
 
 func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
@@ -119,6 +139,10 @@ func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string, 
 }
 
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
+	return rt.tlsHandshake(ctx, network, addr)
+}
+
+func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) (*utls.UConn, error) {
 	rawConn, err := rt.transport.DialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
@@ -152,14 +176,14 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		config.SessionTicketsDisabled = false
 	}
 
-	conn := utls.UClient(rawConn, config, utls.HelloCustom)
-	if err = conn.ApplyPreset(ref.Of(spec.Ok())); err != nil {
-		_ = conn.Close()
+	uconn := utls.UClient(rawConn, config, utls.HelloCustom)
+	if err = uconn.ApplyPreset(ref.Of(spec.Ok())); err != nil {
+		_ = uconn.Close()
 		return nil, err
 	}
 
-	if err = conn.HandshakeContext(ctx); err != nil {
-		_ = conn.Close()
+	if err = uconn.HandshakeContext(ctx); err != nil {
+		_ = uconn.Close()
 
 		if strings.Contains(err.Error(), "CurvePreferences includes unsupported curve") {
 			return nil, fmt.Errorf("conn.HandshakeContext() error for tls 1.3 (please retry request): %+v", err)
@@ -168,16 +192,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 		return nil, fmt.Errorf("uTlsConn.HandshakeContext() error: %+v", err)
 	}
 
-	if tr := rt.cachedTransports.Get(addr); tr.IsNone() || tr.Some() == nil {
-		switch conn.ConnectionState().NegotiatedProtocol {
-		case http2.NextProtoTLS:
-			rt.cachedTransports.Set(addr, rt.buildHTTP2Transport())
-		default:
-			rt.cachedTransports.Set(addr, rt.buildHTTP1Transport())
-		}
-	}
-
-	return conn, nil
+	return uconn, nil
 }
 
 func (rt *roundtripper) address(req *http.Request) string {
@@ -187,7 +202,6 @@ func (rt *roundtripper) address(req *http.Request) string {
 	}
 
 	var defaultPort string
-
 	switch g.String(req.URL.Scheme).Lower() {
 	case "http":
 		defaultPort = defaultHTTPPort
@@ -209,6 +223,7 @@ func (rt *roundtripper) buildHTTP1Transport() *http.Transport {
 
 func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	t := new(http2.Transport)
+
 	t.DialTLSContext = rt.dialTLSHTTP2
 	t.DisableCompression = rt.transport.DisableCompression
 	t.IdleConnTimeout = rt.transport.IdleConnTimeout
@@ -294,18 +309,20 @@ func supportsResumption(spec utls.ClientHelloSpec) bool {
 //
 // Note that this function modifies the provided spec in-place.
 func setAlpnProtocolToHTTP1(utlsSpec *utls.ClientHelloSpec) {
-	for _, Extension := range utlsSpec.Extensions {
-		alpns, ok := Extension.(*utls.ALPNExtension)
-		if ok {
-			if i := slices.Index(alpns.AlpnProtocols, "h2"); i != -1 {
-				alpns.AlpnProtocols = slices.Delete(alpns.AlpnProtocols, i, i+1)
-			}
-
-			if !slices.Contains(alpns.AlpnProtocols, "http/1.1") {
-				alpns.AlpnProtocols = append([]string{"http/1.1"}, alpns.AlpnProtocols...)
-			}
-
-			break
+	for _, ext := range utlsSpec.Extensions {
+		alpns, ok := ext.(*utls.ALPNExtension)
+		if !ok {
+			continue
 		}
+
+		if i := slices.Index(alpns.AlpnProtocols, "h2"); i != -1 {
+			alpns.AlpnProtocols = slices.Delete(alpns.AlpnProtocols, i, i+1)
+		}
+
+		if !slices.Contains(alpns.AlpnProtocols, "http/1.1") {
+			alpns.AlpnProtocols = append(alpns.AlpnProtocols, "http/1.1")
+		}
+
+		break
 	}
 }
