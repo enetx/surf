@@ -166,3 +166,40 @@ func Headers[T ~string](headers *g.MapOrd[T, T], method string) {
 		return ida.UnwrapOrDefault().Cmp(idb.UnwrapOrDefault())
 	})
 }
+
+// HeadersUB for UB Web
+func HeadersUB[T ~string](headers *g.MapOrd[T, T], method string) {
+	switch method {
+	case http.MethodPost:
+		headers.Set(header.ACCEPT, "*/*")
+		headers.Set(header.CACHE_CONTROL, "no-cache")
+		headers.Set(header.CONTENT_TYPE, "")
+		headers.Set(header.PRAGMA, "no-cache")
+		headers.Set(header.PRIORITY, "u=1, i")
+		headers.Set(header.SEC_FETCH_DEST, "empty")
+		headers.Set(header.SEC_FETCH_MODE, "cors")
+		headers.Set(header.SEC_FETCH_SITE, "same-origin")
+	default:
+		headers.Set(
+			header.ACCEPT,
+			"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+		)
+		headers.Set(header.PRIORITY, "u=0, i")
+		headers.Set(header.CACHE_CONTROL, "max-age=0")
+		headers.Set(header.SEC_FETCH_DEST, "document")
+		headers.Set(header.SEC_FETCH_MODE, "navigate")
+		headers.Set(header.SEC_FETCH_SITE, "same-origine")
+		headers.Set(header.SEC_FETCH_USER, "?1")
+		headers.Set(header.UPGRADE_INSECURE_REQUESTS, "1")
+	}
+
+	headers.SortByKey(func(a, b T) cmp.Ordering {
+		m := headerOrder.Get(method).UnwrapOr(headerOrder[http.MethodGet])
+
+		enum := m.Iter().Enumerate().Collect().Invert()
+		ida := enum.Get(string(a))
+		idb := enum.Get(string(b))
+
+		return ida.UnwrapOrDefault().Cmp(idb.UnwrapOrDefault())
+	})
+}

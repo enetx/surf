@@ -259,6 +259,10 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 			chrome.Headers(&hclone, r.request.Method)
 		case firefoxBrowser:
 			firefox.Headers(&hclone, r.request.Method)
+		case chromeBrowserUB:
+			chrome.HeadersUB(&hclone, r.request.Method)
+		case firefoxBrowserUB:
+			firefox.HeadersUB(&hclone, r.request.Method)
 		}
 	}
 
