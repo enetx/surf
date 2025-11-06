@@ -102,13 +102,11 @@ func Headers[T ~string](headers *g.MapOrd[T, T], method string) {
 		headers.Set(header.SEC_FETCH_MODE, "cors")
 		headers.Set(header.SEC_FETCH_SITE, "same-origin")
 	default:
-		headers.Set(header.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-		headers.Set(header.PRIORITY, "u=0, i")
-		headers.Set(header.SEC_FETCH_DEST, "document")
-		headers.Set(header.SEC_FETCH_MODE, "navigate")
-		headers.Set(header.SEC_FETCH_SITE, "none")
-		headers.Set(header.SEC_FETCH_USER, "?1")
-		headers.Set(header.UPGRADE_INSECURE_REQUESTS, "1")
+		headers.Set(header.ACCEPT, "application/json")
+		headers.Set(header.PRIORITY, "u=1, i")
+		headers.Set(header.SEC_FETCH_DEST, "empty")
+		headers.Set(header.SEC_FETCH_MODE, "cors")
+		headers.Set(header.SEC_FETCH_SITE, "same-site")
 	}
 
 	headers.SortByKey(func(a, b T) cmp.Ordering {

@@ -181,6 +181,9 @@ func (req *Request) applyHeaders(
 ) {
 	r := req.request
 	if len(rawHeaders) >= 2 {
+		for _, h := range rawHeaders {
+			fmt.Println("h", h)
+		}
 		var key, value string
 
 		switch k := rawHeaders[0].(type) {

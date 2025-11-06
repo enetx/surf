@@ -15,7 +15,7 @@ type Impersonate struct {
 
 // RandomOS selects a random OS (Windows, macOS, Linux, Android, or iOS) for the impersonate.
 func (im *Impersonate) RandomOS() *Impersonate {
-	im.os = g.SliceOf(windows, macos, linux, android, ios).Random()
+	im.os = g.SliceOf(windows, macos, android, ios).Random()
 	return im
 }
 
