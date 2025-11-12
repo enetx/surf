@@ -4,9 +4,11 @@
 package surf
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"math"
 	"math/rand"
 	"net"
@@ -96,7 +98,6 @@ func (h *HTTP3Settings) Set() *Builder {
 			dialer:            c.GetDialer(),
 			proxy:             h.builder.proxy,
 			fallbackTransport: c.GetTransport(),
-			cachedConnections: g.NewMapSafe[string, *connection](),
 			cachedTransports:  g.NewMapSafe[string, http.RoundTripper](),
 		}
 
@@ -128,13 +129,12 @@ type connection struct {
 // SOCKS5 proxy compatibility, and automatic fallback to HTTP/2 for non-SOCKS5 proxies.
 // The transport supports both static and dynamic proxy configurations with connection caching.
 type uquicTransport struct {
-	quicSpec          *uquic.QUICSpec // QUIC specification for fingerprinting
-	tlsConfig         *tls.Config     // TLS configuration for QUIC connections
-	dialer            *net.Dialer     // Network dialer (may contain custom DNS resolver)
-	proxy             any             // Proxy configuration (static or dynamic function)
-	staticProxy       string          // Cached static proxy URL for performance
-	isDynamic         bool            // Flag indicating if proxy is dynamic (disables caching)
-	cachedConnections *g.MapSafe[string, *connection]
+	quicSpec          *uquic.QUICSpec                       // QUIC specification for fingerprinting
+	tlsConfig         *tls.Config                           // TLS configuration for QUIC connections
+	dialer            *net.Dialer                           // Network dialer (may contain custom DNS resolver)
+	proxy             any                                   // Proxy configuration (static or dynamic function)
+	staticProxy       string                                // Cached static proxy URL for performance
+	isDynamic         bool                                  // Flag indicating if proxy is dynamic (disables caching)
 	cachedTransports  *g.MapSafe[string, http.RoundTripper] // Per-address HTTP/3 transport cache
 	fallbackTransport http.RoundTripper                     // HTTP/2 transport for non-SOCKS5 proxy fallback
 }
@@ -152,18 +152,6 @@ func (ut *uquicTransport) CloseIdleConnections() {
 		}
 
 		ut.cachedTransports.Delete(k)
-	}
-
-	for id, c := range ut.cachedConnections.Iter() {
-		if c.quicConn != nil {
-			_ = c.quicConn.CloseWithError(0, "idle close")
-		}
-
-		if c.packetConn != nil {
-			_ = c.packetConn.Close()
-		}
-
-		ut.cachedConnections.Delete(id)
 	}
 
 	if ut.fallbackTransport != nil {
@@ -386,7 +374,23 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := ut.address(req)
 	h3 := ut.createH3(req, addr, proxy)
 
-	return h3.RoundTrip(req)
+	resp, err := h3.RoundTrip(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Body != nil && proxy != "" && isSOCKS5(proxy) {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		resp.Body = io.NopCloser(bytes.NewReader(body))
+		resp.ContentLength = int64(len(body))
+		resp.Header.Del("Content-Length")
+	}
+
+	return resp, nil
 }
 
 // getProxy extracts proxy URL from configured proxy source.
@@ -487,7 +491,7 @@ func (ut *uquicTransport) dialSOCKS5(
 
 	// Ensure QUIC config exists
 	if cfg == nil {
-		cfg = &uquic.Config{}
+		cfg = new(uquic.Config)
 	}
 
 	// Establish QUIC connection with uquic
@@ -498,15 +502,6 @@ func (ut *uquicTransport) dialSOCKS5(
 	}
 
 	success = true
-
-	// Cache connection for reuse
-	if ut.cachedConnections != nil {
-		key := quicconn.ConnKey(packetConn)
-		ut.cachedConnections.Set(key, &connection{
-			packetConn: packetConn,
-			quicConn:   quicConn,
-		})
-	}
 
 	return quicConn, nil
 }
@@ -584,15 +579,6 @@ func (ut *uquicTransport) dialDNS(
 	}
 
 	success = true
-
-	// Cache connection for reuse
-	if ut.cachedConnections != nil {
-		key := quicconn.ConnKey(udpConn)
-		ut.cachedConnections.Set(key, &connection{
-			packetConn: udpConn,
-			quicConn:   quicConn,
-		})
-	}
 
 	return quicConn, nil
 }

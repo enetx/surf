@@ -13,7 +13,7 @@ func main() {
 	chromeClient := surf.NewClient().Builder().
 		// DNS("127.0.0.1:53").
 		// DNS("1.0.0.1:53").
-		// Proxy("socks5://127.0.0.1:2080").
+		Proxy("socks5://127.0.0.1:1080"). // dante
 		// Proxy("socks5h://127.0.0.1:2080").
 		// Proxy("http://127.0.0.1:2080").
 		Impersonate().Chrome().HTTP3().
@@ -27,6 +27,7 @@ func main() {
 		fmt.Printf("Chrome H3 Status Code: %d\n", resp.StatusCode)
 		fmt.Printf("Chrome H3 Protocol: %s\n", resp.Proto)
 		fmt.Printf("Chrome H3 Server: %s\n", resp.Headers.Get("server"))
+		fmt.Println(r.Ok().Body.String())
 	case r.IsErr():
 		log.Printf("Chrome H3 request failed: %v", r.Err())
 	}
@@ -81,7 +82,7 @@ func main() {
 	fmt.Println("\n=== HTTP/3 with JA3 Fingerprinting ===")
 	ja3Client := surf.NewClient().Builder().
 		Proxy("socks5://127.0.0.1:2080").
-		JA().Chrome131().               // TLS fingerprint
+		JA().Chrome142().               // TLS fingerprint
 		HTTP3Settings().Chrome().Set(). // HTTP/3 fingerprint
 		Build()
 

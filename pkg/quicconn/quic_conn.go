@@ -22,7 +22,6 @@ package quicconn
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"sync"
@@ -389,21 +388,4 @@ func parseSocks5UDP(pkt []byte) ([]byte, net.Addr, bool, error) {
 	}
 
 	return pkt[off:], &net.UDPAddr{IP: ip, Port: port}, true, nil
-}
-
-// ConnKey computes a stable map key for a net.PacketConn, preferring the local
-// address string and falling back to the pointer value. Useful for connection
-// caches keyed by a PacketConn identity.
-func ConnKey(pc net.PacketConn) string {
-	if pc == nil {
-		return "pc:nil"
-	}
-
-	if la := pc.LocalAddr(); la != nil {
-		if s := la.String(); s != "" {
-			return "la:" + s
-		}
-	}
-
-	return fmt.Sprintf("ptr:%p", pc)
 }
