@@ -380,14 +380,33 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	if resp.Body != nil && proxy != "" && isSOCKS5(proxy) {
-		body, err := io.ReadAll(resp.Body)
+		var (
+			body []byte
+			err  error
+		)
+
+		if resp.ContentLength > 0 {
+			body = make([]byte, resp.ContentLength)
+			var n int
+			n, err = io.ReadFull(resp.Body, body)
+			if err == nil && int64(n) != resp.ContentLength {
+				err = fmt.Errorf("read mismatch for SOCKS5 proxy: expected %d bytes, got %d", resp.ContentLength, n)
+			}
+		} else {
+			var buf bytes.Buffer
+			_, err = io.Copy(&buf, resp.Body)
+			body = buf.Bytes()
+		}
+
+		resp.Body.Close()
+
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read response body via SOCKS5: %w", err)
 		}
 
 		resp.Body = io.NopCloser(bytes.NewReader(body))
 		resp.ContentLength = int64(len(body))
-		resp.Header.Del("Content-Length")
+		resp.Header.Set("Content-Length", strconv.FormatInt(resp.ContentLength, 10))
 	}
 
 	return resp, nil
