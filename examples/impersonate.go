@@ -28,16 +28,16 @@ func main() {
 	cli := surf.NewClient().
 		Builder().
 		// Proxy("http://127.0.0.1:8080").
-		Proxy("socks5://127.0.0.1:9050").
+		// Proxy("socks5://127.0.0.1:9050").
 		Impersonate().
 		// MacOS().
 		// IOS().
 		// Android().
 		// Tor().
 		// TorPrivate().
-		FireFox().
+		// FireFox().
 		// FireFoxPrivate().
-		// Chrome().
+		Chrome().
 		Build()
 
 	r := cli.
