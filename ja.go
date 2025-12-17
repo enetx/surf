@@ -247,11 +247,11 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 // Firefox141 sets the JA3/4 fingerprint to mimic Firefox version 141.
 func (j *JA) Firefox141() *Builder { return j.SetHelloID(utls.HelloFirefox_141) }
 
-// Firefox144 sets the JA3/4 fingerprint to mimic Firefox version 144.
-func (j *JA) Firefox144() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_144) }
+// Firefox146 sets the JA3/4 fingerprint to mimic Firefox version 146.
+func (j *JA) Firefox146() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_146) }
 
-// FirefoxPrivate144 sets the JA3/4 fingerprint to mimic Firefox private version 144.
-func (j *JA) FirefoxPrivate144() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_144) }
+// FirefoxPrivate146 sets the JA3/4 fingerprint to mimic Firefox private version 146.
+func (j *JA) FirefoxPrivate146() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_146) }
 
 // Tor sets the JA3/4 fingerprint to mimic Tor Browser version 14.5.6.
 func (j *JA) Tor() *Builder { return j.SetHelloSpec(firefox.Tor) }

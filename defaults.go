@@ -13,10 +13,6 @@ const (
 	// Prevents infinite redirect loops while allowing reasonable redirect chains.
 	_maxRedirects = 10
 
-	// _maxWorkers is the default maximum number of concurrent workers for parallel requests.
-	// Balances throughput with resource consumption for concurrent operations.
-	_maxWorkers = 10
-
 	// _dialerTimeout is the default timeout for establishing network connections.
 	// Prevents hanging on unresponsive servers during connection establishment.
 	_dialerTimeout = 30 * time.Second

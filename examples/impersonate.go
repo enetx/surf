@@ -36,8 +36,8 @@ func main() {
 		// Tor().
 		// TorPrivate().
 		// FireFox().
-		// FireFoxPrivate().
-		Chrome().
+		FireFoxPrivate().
+		// Chrome().
 		Build()
 
 	r := cli.
