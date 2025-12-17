@@ -342,7 +342,7 @@ func TestRoundTripperProtocolNegotiation(t *testing.T) {
 			"Firefox with HTTP/2",
 			func() *surf.Client {
 				return surf.NewClient().Builder().
-					JA().Firefox144().
+					JA().Firefox146().
 					Build()
 			},
 		},
@@ -492,7 +492,7 @@ func TestJATransportBuilding(t *testing.T) {
 			name: "Firefox with custom timeout",
 			configureJA: func() *surf.Client {
 				return surf.NewClient().Builder().
-					JA().Firefox144().
+					JA().Firefox146().
 					Timeout(5 * time.Second).
 					Build()
 			},
@@ -512,7 +512,7 @@ func TestJATransportBuilding(t *testing.T) {
 			name: "Firefox with custom DNS",
 			configureJA: func() *surf.Client {
 				return surf.NewClient().Builder().
-					JA().Firefox144().
+					JA().Firefox146().
 					DNS("8.8.8.8:53").
 					Build()
 			},

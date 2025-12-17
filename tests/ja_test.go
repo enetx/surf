@@ -346,7 +346,7 @@ func TestJAFirefox143(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Firefox144().
+		JA().Firefox146().
 		Build()
 
 	if client == nil {
@@ -417,7 +417,7 @@ func TestJAMultipleCalls(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome142().
-		JA().Firefox144().
+		JA().Firefox146().
 		Build()
 
 	if client == nil {
