@@ -18,18 +18,23 @@ func main() {
 	oh.Set(":scheme", "")
 	oh.Set(":path", "")
 	oh.Set("1", "1")
-	oh.Set("2", "2")
 	oh.Set("User-Agent", "")
+	oh.Set("Accept-Encoding", "gzip")
+	oh.Set("2", "2")
+	oh.Set("Content-Length", "")
+	oh.Set("Content-Type", "")
 	oh.Set("3", "3")
 	oh.Set("4", "4")
-	oh.Set("Accept-Encoding", "gzip")
 
 	r := surf.NewClient().
 		Builder().
+		ForceHTTP1().
+		// ForceHTTP2().
 		UserAgent("root").
 		SetHeaders(oh).
 		Build().
-		Get(url).
+		// Get(url).
+		Post(url, "surf").
 		Do()
 
 	if r.IsErr() {

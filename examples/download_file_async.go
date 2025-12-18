@@ -48,7 +48,7 @@ func main() {
 		}
 
 		pool.Go(func() g.Result[*g.File] {
-			headers := g.Map[g.String, g.String]{"Range": Format("bytes={}-{}", min, max-1)}
+			headers := g.Map[g.String, g.String]{"Range": g.Format("bytes={}-{}", min, max-1)}
 
 			r := surf.NewClient().
 				Builder().

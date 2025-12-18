@@ -96,6 +96,7 @@ func Headers[T ~string](headers *g.MapOrd[T, T], method string) {
 		headers.Set(header.ACCEPT, "*/*")
 		headers.Set(header.CACHE_CONTROL, "no-cache")
 		headers.Set(header.CONTENT_TYPE, "")
+		headers.Set(header.CONTENT_LENGTH, "")
 		headers.Set(header.PRAGMA, "no-cache")
 		headers.Set(header.PRIORITY, "u=1, i")
 		headers.Set(header.SEC_FETCH_DEST, "empty")
