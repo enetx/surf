@@ -657,6 +657,18 @@ func TestBuilderForceHTTP1(t *testing.T) {
 	}
 }
 
+func TestBuilderForceHTTP2(t *testing.T) {
+	t.Parallel()
+
+	client := surf.NewClient().Builder().
+		ForceHTTP2().
+		Build()
+
+	if client == nil {
+		t.Error("ForceHTTP2 builder returned nil client")
+	}
+}
+
 func TestBuilderSession(t *testing.T) {
 	t.Parallel()
 

@@ -337,6 +337,11 @@ func (b *Builder) ForceHTTP1() *Builder {
 	return b.addCliMW(forseHTTP1MW, 0)
 }
 
+// ForceHTTP2MW configures the client to use HTTP/2 forcefully.
+func (b *Builder) ForceHTTP2() *Builder {
+	return b.addCliMW(forseHTTP2MW, 0)
+}
+
 // Session configures whether the client should maintain a session.
 func (b *Builder) Session() *Builder { return b.addCliMW(sessionMW, 0) }
 

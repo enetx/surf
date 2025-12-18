@@ -8,10 +8,10 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/enetx/g v1.0.196 h1:ng8AjpWlrtfW09/2N0E1m1nXaaQLjr4qBIhvY5gNn+w=
 github.com/enetx/g v1.0.196/go.mod h1:l1wN4NtVD7m21tymlqFM1O9UK6/qppBrx9aLONeJGCA=
-github.com/enetx/http v1.0.19 h1:4W97CyqKrPiR16wEm6UOesqNrt8l4RsVMjZHz6+I84E=
-github.com/enetx/http v1.0.19/go.mod h1:1f4mytfF/SfjATEJnynpwGS6aa1ALjb8DtmYgFVblY0=
-github.com/enetx/http2 v1.0.20 h1:181A9wyzQOxvj+LqIJ/oGGx6Vl0Ry1wTLOfX+zTnaS0=
-github.com/enetx/http2 v1.0.20/go.mod h1:t54ex5HIS8V1+2j6cvEOv6umlrHsbUPFKQ54nYB58Nk=
+github.com/enetx/http v1.0.20 h1:C2pa7c2P3enQfdQQ1siruYROoctNYOP8Ur7qz9gCmuA=
+github.com/enetx/http v1.0.20/go.mod h1:1f4mytfF/SfjATEJnynpwGS6aa1ALjb8DtmYgFVblY0=
+github.com/enetx/http2 v1.0.21 h1:8vz+GgL1/RtvaEk/t9zwRXACjyp2fckCWBYysvXGxwo=
+github.com/enetx/http2 v1.0.21/go.mod h1:t54ex5HIS8V1+2j6cvEOv6umlrHsbUPFKQ54nYB58Nk=
 github.com/enetx/iter v0.0.0-20250912135656-f1583323588f h1:GUW+4AWfECIEJ9oAxgEAVGCpaozMCjRiUYnuR6Q0bCQ=
 github.com/enetx/iter v0.0.0-20250912135656-f1583323588f/go.mod h1:oMZN8hGLUpi7QBlMEUqailocNy0NFAO/7Lu+Nwh9HMM=
 github.com/enetx/uquic v0.0.0-20251211194956-3ebf03adbe9e h1:aFjWUldb+QkmrQ106bOz+fj0SdouLyrcQZ36QSpdpuc=

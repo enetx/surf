@@ -71,6 +71,15 @@ func forseHTTP1MW(client *Client) error {
 	return nil
 }
 
+// forseHTTP2MW configures the client to use HTTP/2 forcefully.
+// Disables HTTP/1.1 and forces the client to use only HTTP/2 protocol.
+func forseHTTP2MW(client *Client) error {
+	transport := client.GetTransport().(*http.Transport)
+	transport.Protocols = new(http.Protocols)
+	transport.Protocols.SetHTTP2(true)
+	return nil
+}
+
 // sessionMW configures the client's cookie jar for session management.
 // It initializes a new cookie jar and sets up the TLS configuration
 // to manage client sessions efficiently.
