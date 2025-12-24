@@ -25,11 +25,27 @@ func closeIdleConnectionsMW(r *Response) error {
 // (HTTP 101 Switching Protocols with Upgrade: websocket header).
 // This allows special handling of WebSocket connections which require different processing.
 func webSocketUpgradeErrorMW(r *Response) error {
-	if r.StatusCode == http.StatusSwitchingProtocols && r.Headers.Get(header.UPGRADE) == "websocket" {
-		return &ErrWebSocketUpgrade{fmt.Sprintf(`%s "%s" error:`, r.request.request.Method, r.URL.String())}
+	if r == nil {
+		return nil
+	}
+	if r.StatusCode != http.StatusSwitchingProtocols || r.Headers.Get(header.UPGRADE) != "websocket" {
+		return nil
 	}
 
-	return nil
+	method := "UNKNOWN"
+	if r.request != nil && r.request.request != nil {
+		method = r.request.request.Method
+		if r.URL == nil {
+			r.URL = r.request.request.URL
+		}
+	}
+
+	urlStr := ""
+	if r.URL != nil {
+		urlStr = r.URL.String()
+	}
+
+	return &ErrWebSocketUpgrade{fmt.Sprintf(`%s "%s" error:`, method, urlStr)}
 }
 
 // decodeBodyMW automatically decompresses response bodies based on Content-Encoding header.
