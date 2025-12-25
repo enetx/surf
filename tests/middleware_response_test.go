@@ -69,8 +69,8 @@ func TestMiddlewareResponseWebSocketUpgradeError(t *testing.T) {
 		t.Error("expected WebSocket upgrade error")
 	}
 
-	if !strings.Contains(resp.Err().Error(), "switching protocols to WebSocket") {
-		t.Errorf("expected WebSocket upgrade error message, got: %v", resp.Err())
+	if _, ok := resp.Err().(*surf.ErrWebSocketUpgrade); !ok {
+		t.Fatalf("expected ErrWebSocketUpgrade type, got %T", resp.Err())
 	}
 }
 
