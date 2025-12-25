@@ -168,12 +168,7 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) 
 		InsecureSkipVerify:     true,
 		SessionTicketsDisabled: true,
 		OmitEmptyPsk:           true,
-	}
-
-	if rt.ja != nil && rt.ja.builder != nil && rt.ja.builder.cli != nil {
-		if baseTLS := rt.ja.builder.cli.tlsConfig; baseTLS != nil && baseTLS.KeyLogWriter != nil {
-			config.KeyLogWriter = baseTLS.KeyLogWriter
-		}
+		KeyLogWriter:           rt.ja.builder.cli.tlsConfig.KeyLogWriter,
 	}
 
 	if supportsResumption(spec.Ok()) && rt.clientSessionCache != nil {
