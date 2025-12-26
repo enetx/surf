@@ -33,10 +33,8 @@ func main() {
 		// MacOS().
 		// IOS().
 		// Android().
-		// Tor().
-		// TorPrivate().
-		// FireFox().
-		FireFoxPrivate().
+		FireFox().
+		// FireFoxPrivate().
 		// Chrome().
 		Build()
 

@@ -5,8 +5,8 @@ go 1.24.0
 require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/enetx/g v1.0.196
-	github.com/enetx/http v1.0.21
-	github.com/enetx/http2 v1.0.21
+	github.com/enetx/http v1.0.22
+	github.com/enetx/http2 v1.0.22
 	github.com/enetx/uquic v0.0.0-20251211194956-3ebf03adbe9e
 	github.com/enetx/utls v0.0.0-20251024090823-efbd194d7328
 	github.com/klauspost/compress v1.18.2
@@ -30,7 +30,7 @@ require (
 	github.com/refraction-networking/utls v1.5.4 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/crypto v0.46.0 // indirect
-	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9 // indirect
+	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect

@@ -15,10 +15,17 @@ type HTTP2Settings struct {
 	enablePush           uint32
 	maxConcurrentStreams uint32
 	initialWindowSize    uint32
+	initialStreamID      uint32
 	maxFrameSize         uint32
 	maxHeaderListSize    uint32
 	connectionFlow       uint32
 	usePush              bool
+}
+
+// InitialStreamID sets the initial stream id for HTTP/2 streams.
+func (h *HTTP2Settings) InitialStreamID(id uint32) *HTTP2Settings {
+	h.initialStreamID = id
+	return h
 }
 
 // HeaderTableSize sets the header table size for HTTP/2 settings.
@@ -115,6 +122,10 @@ func (h *HTTP2Settings) Set() *Builder {
 
 		for _, s := range settings {
 			appendSetting(s.id, s.val)
+		}
+
+		if h.initialStreamID != 0 {
+			t2.StreamID = h.initialStreamID
 		}
 
 		if h.connectionFlow != 0 {

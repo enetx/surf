@@ -39,14 +39,6 @@ var firefoxUserAgent = map[ImpersonateOS]g.String{
 	ios:     "Mozilla/5.0 (iPhone; CPU iPhone OS 26_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/146.0 Mobile/15E148 Safari/605.1.15",
 }
 
-var torUserAgent = map[ImpersonateOS]g.String{
-	windows: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
-	macos:   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/20100101 Firefox/128.0",
-	linux:   "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0",
-	android: "Mozilla/5.0 (Android 16; Mobile; rv:128.0) Gecko/134.0 Firefox/128.0",
-	ios:     "Mozilla/5.0 (iPhone; CPU iPhone OS 26_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/128.3 Mobile/15E148 Safari/605.1.15",
-}
-
 func (imo ImpersonateOS) mobile() g.String {
 	if imo == android || imo == ios {
 		return "?1"

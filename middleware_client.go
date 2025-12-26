@@ -351,6 +351,10 @@ func h2cMW(client *Client) error {
 			appendSetting(s.id, s.val)
 		}
 
+		if h.initialStreamID != 0 {
+			t2.StreamID = h.initialStreamID
+		}
+
 		// Apply flow control settings if configured
 		if h.connectionFlow != 0 {
 			t2.ConnectionFlow = h.connectionFlow

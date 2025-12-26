@@ -255,6 +255,10 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 			appendSetting(s.id, s.val)
 		}
 
+		if h.initialStreamID != 0 {
+			t.StreamID = h.initialStreamID
+		}
+
 		if h.connectionFlow != 0 {
 			t.ConnectionFlow = h.connectionFlow
 		}

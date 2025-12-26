@@ -105,6 +105,33 @@ func TestHTTP2SettingsMaxConcurrentStreams(t *testing.T) {
 	}
 }
 
+func TestHTTP2SettingsInitialStreamID(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"initial_stream_id": "configured"}`)
+	}
+
+	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		HTTP2Settings().
+		InitialStreamID(3).
+		Set().
+		Build()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("HTTP/2 initial stream id request failed: %v", resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
 func TestHTTP2SettingsInitialWindowSize(t *testing.T) {
 	t.Parallel()
 
