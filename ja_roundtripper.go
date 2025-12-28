@@ -17,74 +17,89 @@ import (
 	utls "github.com/enetx/utls"
 )
 
-// unifiedTransport wraps both HTTP/1.1 and HTTP/2 transports and allows
-// switching between them dynamically based on connection and negotiation results.
+// unifiedTransport is a transport that wraps both HTTP/1.1 and HTTP/2 transports.
+// It can dynamically switch between HTTP/1.1 and HTTP/2 based on ALPN negotiation
+// and connection success, and optionally reuses a single pre-established connection.
 type unifiedTransport struct {
-	http1     *http.Transport          // HTTP/1.1 transport
-	http2     *http2.Transport         // HTTP/2 transport
-	firstConn atomic.Pointer[net.Conn] // optional first connection to reuse
-	useHTTP1  uint32                   // atomic flag, 1 if HTTP/1.1 should be used
+	http1     *http.Transport  // underlying HTTP/1.1 transport
+	http2     *http2.Transport // underlying HTTP/2 transport
+	firstConn net.Conn         // optional first connection to reuse for the first request
+	usedFirst atomic.Bool      // tracks whether firstConn has already been used
+	useHTTP1  uint32           // atomic flag, 1 if HTTP/1.1 should be forced
 }
 
 // newUnifiedTransport creates a new unifiedTransport with optional first connection.
 func newUnifiedTransport(http1 *http.Transport, http2 *http2.Transport, firstConn net.Conn) *unifiedTransport {
 	u := &unifiedTransport{
-		http1:    http1,
-		http2:    http2,
-		useHTTP1: 1, // start with HTTP/1.1 by default
+		http1:     http1,
+		http2:     http2,
+		firstConn: firstConn,
+		useHTTP1:  1,
 	}
 
-	if firstConn != nil {
-		u.firstConn.Store(&firstConn)
+	if http1 != nil {
+		orig := http1.DialTLSContext
+		http1.DialTLSContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			if !u.usedFirst.Swap(true) {
+				return u.firstConn, nil
+			}
+			return orig(ctx, network, addr)
+		}
 	}
 
-	// Wrap DialTLSContext for HTTP/1 and HTTP/2 to reuse firstConn if available
-	u.http1.DialTLSContext = u.dialTLS(http1.DialTLSContext)
-	if u.http2 != nil {
-		u.http2.DialTLSContext = u.dialTLSHTTP2(http2.DialTLSContext)
+	if http2 != nil {
+		orig := http2.DialTLSContext
+		http2.DialTLSContext = func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
+			if !u.usedFirst.Swap(true) {
+				return u.firstConn, nil
+			}
+			return orig(ctx, network, addr, cfg)
+		}
 	}
 
 	return u
 }
 
-// dialTLS wraps the original DialTLSContext for HTTP/1.1 to reuse firstConn if present.
-func (u *unifiedTransport) dialTLS(
-	orig func(ctx context.Context, network, addr string) (net.Conn, error),
-) func(ctx context.Context, network, addr string) (net.Conn, error) {
-	return func(ctx context.Context, network, addr string) (net.Conn, error) {
-		if ptr := u.firstConn.Swap(nil); ptr != nil {
-			return *ptr, nil
-		}
-		return orig(ctx, network, addr)
-	}
-}
-
-// dialTLSHTTP2 wraps the original DialTLSContext for HTTP/2 to reuse firstConn if present.
-func (u *unifiedTransport) dialTLSHTTP2(
-	orig func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error),
-) func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
-	return func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
-		if ptr := u.firstConn.Swap(nil); ptr != nil {
-			return *ptr, nil
-		}
-		return orig(ctx, network, addr, cfg)
-	}
-}
-
-// RoundTrip chooses the appropriate transport (HTTP/1.1 or HTTP/2) for the request.
-// If HTTP/2 fails, it falls back to HTTP/1.1 and marks useHTTP1 atomically.
+// RoundTrip executes a single HTTP transaction, choosing between HTTP/1.1 and HTTP/2.
+//
+// It attempts the request via HTTP/2 first, unless HTTP/1.1 has been forced by a previous failure.
+// If the HTTP/2 attempt fails and the request context is still valid, it falls back to HTTP/1.1.
+//
+// For requests with a body, fallback is only performed if req.GetBody is defined,
+// allowing the transport to rewind the stream. Upon fallback, the transport is
+// atomically marked to prefer HTTP/1.1 for all subsequent requests, and any
+// idle HTTP/2 connections are closed to release resources.
 func (u *unifiedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if atomic.LoadUint32(&u.useHTTP1) == 1 || u.http2 == nil {
 		return u.http1.RoundTrip(req)
 	}
 
 	resp, err := u.http2.RoundTrip(req)
-	if err != nil {
-		atomic.StoreUint32(&u.useHTTP1, 1)
-		return u.http1.RoundTrip(req)
+	if err == nil {
+		return resp, nil
 	}
 
-	return resp, nil
+	if err := req.Context().Err(); err != nil {
+		return nil, err
+	}
+
+	if req.Body != nil && req.Body != http.NoBody {
+		if req.GetBody == nil {
+			return nil, fmt.Errorf("surf: HTTP/2 failed and cannot retry because req.GetBody is nil: %w", err)
+		}
+
+		body, err := req.GetBody()
+		if err != nil {
+			return nil, fmt.Errorf("surf: failed to restore body for fallback: %w", err)
+		}
+
+		req.Body = body
+	}
+
+	atomic.StoreUint32(&u.useHTTP1, 1)
+	u.http2.CloseIdleConnections()
+
+	return u.http1.RoundTrip(req)
 }
 
 // roundtripper is a higher-level wrapper around HTTP transports, providing
@@ -193,29 +208,21 @@ func (rt *roundtripper) CloseIdleConnections() {
 // HTTP/1.1 and HTTP/2, or a plain HTTP/1.1 transport if forced or HTTP/2
 // is not negotiated.
 func (rt *roundtripper) buildHTTPSTransport(ctx context.Context, addr string) (http.RoundTripper, error) {
-	specRes := rt.ja.getSpec()
-	if specRes.IsErr() {
-		return nil, specRes.Err()
-	}
-
-	spec := specRes.Ok()
-
-	http1 := rt.buildHTTP1Transport()
-
-	if rt.ja.builder.forceHTTP1 {
-		setAlpnProtocolToHTTP1(ref.Of(spec))
-		return http1, nil
-	}
-
 	conn, err := rt.tlsHandshake(ctx, "tcp", addr)
 	if err != nil {
 		return nil, err
 	}
 
-	u := newUnifiedTransport(http1, nil, conn)
+	var http2 *http2.Transport
 
-	if conn.ConnectionState().NegotiatedProtocol == "h2" {
-		u.http2 = rt.buildHTTP2Transport()
+	useHTTP2 := conn.ConnectionState().NegotiatedProtocol == "h2"
+	if useHTTP2 {
+		http2 = rt.buildHTTP2Transport()
+	}
+
+	u := newUnifiedTransport(rt.buildHTTP1Transport(), http2, conn)
+
+	if useHTTP2 {
 		atomic.StoreUint32(&u.useHTTP1, 0)
 	}
 
@@ -277,7 +284,7 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) 
 
 	if err = uconn.HandshakeContext(ctx); err != nil {
 		uconn.Close()
-		return nil, fmt.Errorf("uTlsConn.HandshakeContext() error: %+v", err)
+		return nil, fmt.Errorf("uTLS.HandshakeContext() error: %+v", err)
 	}
 
 	return uconn, nil
