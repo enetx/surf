@@ -10,11 +10,10 @@ import (
 )
 
 func main() {
-	var urls []g.String
-
-	urls = append(urls, "https://tls.peet.ws/api/all")
-	urls = append(urls, "https://www.google.com")
-	urls = append(urls, "https://dzen.ru")
+	urls := g.NewSlice[g.String]()
+	urls.Push("https://tls.peet.ws/api/all")
+	urls.Push("https://www.google.com")
+	urls.Push("https://dzen.ru")
 
 	cli := surf.NewClient().
 		Builder().

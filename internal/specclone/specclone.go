@@ -78,15 +78,10 @@ func Clone(c *utls.ClientHelloSpec) *utls.ClientHelloSpec {
 		GetSessionID: c.GetSessionID,
 	}
 
-	if c.CipherSuites != nil {
-		clone.CipherSuites = append([]uint16{}, c.CipherSuites...)
-	}
+	clone.CipherSuites = append([]uint16(nil), c.CipherSuites...)
+	clone.CompressionMethods = append([]uint8(nil), c.CompressionMethods...)
 
-	if c.CompressionMethods != nil {
-		clone.CompressionMethods = append([]uint8{}, c.CompressionMethods...)
-	}
-
-	if c.Extensions != nil {
+	if len(c.Extensions) > 0 {
 		clone.Extensions = make([]utls.TLSExtension, len(c.Extensions))
 		for i, ext := range c.Extensions {
 			if ext != nil {

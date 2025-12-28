@@ -128,6 +128,7 @@ var HelloFirefox_146 = utls.ClientHelloSpec{
 			},
 			CandidatePayloadLens: []uint16{223}, // +16: 239
 		},
+		&utls.UtlsPreSharedKeyExtension{},
 	},
 }
 
