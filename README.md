@@ -919,6 +919,16 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## ❤️ Support / Sponsorship
+
+If you enjoy **Surf** and want to help keep development going, you can support the project with crypto donations:
+
+| USDT | TON | SOL | BTC | ETH |
+|--------------|-----|-----|-----|-----|
+| <img src="https://github.com/user-attachments/assets/72ccb81c-f958-416b-86f6-349c759cdb93" width="100" /> | <img src="https://github.com/user-attachments/assets/49431b49-3e43-49a6-8083-2f5cb39d4f4e" width="100" /> | <img src="https://github.com/user-attachments/assets/d92ba4e9-408b-411e-bc08-473725a880f8" width="100" /> | <img src="https://github.com/user-attachments/assets/67a1ac0e-de90-4341-a13c-614eb213f5da" width="100" /> | <img src="https://github.com/user-attachments/assets/2e1b6c2b-f4b8-47ca-9785-f0512198ae49" width="100" /> |
+
+Thank you for your support!
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -936,8 +946,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Discussions**: [GitHub Discussions](https://github.com/enetx/surf/discussions)
 - **Documentation**: [pkg.go.dev](https://pkg.go.dev/github.com/enetx/surf)
 
----
 
 <p align="center">
   <b>Made with ❤️ by the Surf contributors</b>
 </p>
+
