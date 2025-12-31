@@ -378,7 +378,7 @@ func TestDNSOverTLSWithOtherFeatures(t *testing.T) {
 		{
 			"DNS over TLS with HTTP/3",
 			func(b *surf.Builder) *surf.Client {
-				return b.DNSOverTLS().Cloudflare().HTTP3().Build()
+				return b.DNSOverTLS().Cloudflare().HTTP3Settings().Set().Build()
 			},
 		},
 	}

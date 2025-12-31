@@ -3,7 +3,6 @@ package surf
 import (
 	"context"
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/enetx/g"
@@ -27,6 +26,7 @@ type Builder struct {
 	proxy                    any                                        // Proxy configuration (static string/slice or dynamic function)
 	checkRedirect            func(*http.Request, []*http.Request) error // Custom redirect policy function
 	http2settings            *HTTP2Settings                             // HTTP/2 specific settings
+	http3settings            *HTTP3Settings                             // HTTP/3 specific settings
 	retryCodes               g.Slice[int]                               // HTTP status codes that trigger retries
 	cliMWs                   *middleware[*Client]                       // Priority-ordered client middlewares
 	retryWait                time.Duration                              // Wait duration between retry attempts
@@ -41,6 +41,7 @@ type Builder struct {
 	ja                       bool                                       // Enable JA3 TLS fingerprinting
 	singleton                bool                                       // Use singleton pattern for connection reuse
 	browser                  browser                                    // Browser type for fingerprinting
+	http3                    bool                                       // Enable HTTP/3 with automatic browser detection
 }
 
 // Build sets the provided settings for the client and returns the updated client.
@@ -153,10 +154,17 @@ func (b *Builder) HTTP2Settings() *HTTP2Settings {
 	return h2
 }
 
-// HTTP3 enables HTTP/3 with automatic browser detection.
-// Usage: surf.NewClient().Builder().Impersonate().Chrome().HTTP3().Build()
+// HTTP3Settings configures settings related to HTTP/3 and returns an http3s struct.
+func (b *Builder) HTTP3Settings() *HTTP3Settings {
+	h3 := &HTTP3Settings{builder: b}
+	b.http3settings = h3
+
+	return h3
+}
+
 func (b *Builder) HTTP3() *Builder {
-	return b.addCliMW(func(c *Client) error { return http3MW(c, b) }, math.MaxInt)
+	b.http3 = true
+	return b
 }
 
 // Impersonate configures something related to impersonation and returns an impersonate struct.

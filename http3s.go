@@ -10,7 +10,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math/rand"
+	"math"
+	"math/rand/v2"
 	"net"
 	"net/url"
 	"strconv"
@@ -25,43 +26,121 @@ import (
 	"github.com/wzshiming/socks5"
 )
 
-func http3MW(client *Client, b *Builder) error {
-	if b.forceHTTP1 || b.forceHTTP2 {
+const (
+	SETTINGS_QPACK_MAX_TABLE_CAPACITY = 1
+	SETTINGS_MAX_FIELD_SECTION_SIZE   = 6
+	SETTINGS_QPACK_BLOCKED_STREAMS    = 7
+	SETTINGS_ENABLE_CONNECT_PROTOCOL  = 8
+	SETTINGS_H3_DATAGRAM              = 51
+	UNKNOWN                           = 16765559
+	SETTINGS_ENABLE_WEBTRANSPORT      = 727725890
+)
+
+// HTTP3Settings represents a configurable set of HTTP/3 SETTINGS parameters.
+// These are sent to the server during HTTP/3 connection establishment.
+// Supports method chaining for convenient configuration.
+type HTTP3Settings struct {
+	builder  *Builder
+	settings g.MapOrd[uint64, uint64]
+}
+
+// QpackMaxTableCapacity sets the SETTINGS_QPACK_MAX_TABLE_CAPACITY value.
+func (h *HTTP3Settings) QpackMaxTableCapacity(num uint64) *HTTP3Settings {
+	h.settings.Set(SETTINGS_QPACK_MAX_TABLE_CAPACITY, num)
+	return h
+}
+
+// MaxFieldSectionSize sets the SETTINGS_MAX_FIELD_SECTION_SIZE value.
+func (h *HTTP3Settings) MaxFieldSectionSize(num uint64) *HTTP3Settings {
+	h.settings.Set(SETTINGS_MAX_FIELD_SECTION_SIZE, num)
+	return h
+}
+
+// QpackBlockedStreams sets the SETTINGS_QPACK_BLOCKED_STREAMS value.
+func (h *HTTP3Settings) QpackBlockedStreams(num uint64) *HTTP3Settings {
+	h.settings.Set(SETTINGS_QPACK_BLOCKED_STREAMS, num)
+	return h
+}
+
+// EnableConnectProtocol sets the SETTINGS_ENABLE_CONNECT_PROTOCOL value.
+func (h *HTTP3Settings) EnableConnectProtocol(num uint64) *HTTP3Settings {
+	h.settings.Set(SETTINGS_ENABLE_CONNECT_PROTOCOL, num)
+	return h
+}
+
+// H3Datagram sets the SETTINGS_H3_DATAGRAM value.
+func (h *HTTP3Settings) H3Datagram(num uint64) *HTTP3Settings {
+	h.settings.Set(SETTINGS_H3_DATAGRAM, num)
+	return h
+}
+
+// Unknown sets a custom unknown HTTP/3 SETTINGS value.
+func (h *HTTP3Settings) Unknown(num uint64) *HTTP3Settings {
+	h.settings.Set(UNKNOWN, num)
+	return h
+}
+
+// EnableWebtransport sets the SETTINGS_ENABLE_WEBTRANSPORT value.
+func (h *HTTP3Settings) EnableWebtransport(num uint64) *HTTP3Settings {
+	h.settings.Set(SETTINGS_ENABLE_WEBTRANSPORT, num)
+	return h
+}
+
+// Grease adds a GREASE SETTINGS parameter with a random ID and value.
+// GREASE values help prevent ossification of HTTP/3 implementations.
+func (h *HTTP3Settings) Grease() *HTTP3Settings {
+	maxn := (uint64(1<<62) - 1 - 0x21) / 0x1F
+	n := uint64(rand.Uint32()) % maxn
+	id := 0x1F*n + 0x21
+	value := uint64(rand.Uint32())
+
+	h.settings.Set(id, value)
+
+	return h
+}
+
+// Set applies the accumulated HTTP/3 settings to the client's transport.
+// If HTTP/3 is disabled or forced to HTTP/1/2, no changes are applied.
+func (h *HTTP3Settings) Set() *Builder {
+	return h.builder.addCliMW(func(c *Client) error {
+		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || !h.builder.http3 {
+			return nil
+		}
+
+		if !h.builder.singleton {
+			h.builder.addRespMW(closeIdleConnectionsMW, 0)
+		}
+
+		tlsConfig := c.tlsConfig.Clone()
+
+		transport := &uquicTransport{
+			settings:         h.settings,
+			tlsConfig:        tlsConfig,
+			dialer:           c.GetDialer(),
+			proxy:            h.builder.proxy,
+			cachedTransports: g.NewMapSafe[string, *http3.Transport](),
+		}
+
+		if !h.builder.forceHTTP3 {
+			transport.fallbackTransport = c.GetTransport()
+		}
+
+		switch v := h.builder.proxy.(type) {
+		case string:
+			transport.staticProxy = v
+			transport.isDynamic = false
+		case g.String:
+			transport.staticProxy = v.Std()
+			transport.isDynamic = false
+		default:
+			transport.isDynamic = true
+		}
+
+		c.GetClient().Transport = transport
+		c.transport = transport
+
 		return nil
-	}
-
-	if !b.singleton {
-		b.addRespMW(closeIdleConnectionsMW, 0)
-	}
-
-	tlsConfig := client.tlsConfig.Clone()
-
-	transport := &uquicTransport{
-		tlsConfig:        tlsConfig,
-		dialer:           client.GetDialer(),
-		proxy:            b.proxy,
-		cachedTransports: g.NewMapSafe[string, *http3.Transport](),
-	}
-
-	if !b.forceHTTP3 {
-		transport.fallbackTransport = client.GetTransport()
-	}
-
-	switch v := b.proxy.(type) {
-	case string:
-		transport.staticProxy = v
-		transport.isDynamic = false
-	case g.String:
-		transport.staticProxy = v.Std()
-		transport.isDynamic = false
-	default:
-		transport.isDynamic = true
-	}
-
-	client.GetClient().Transport = transport
-	client.transport = transport
-
-	return nil
+	}, math.MaxInt)
 }
 
 // uquicTransport implements http.RoundTripper using uQUIC fingerprinting for HTTP/3.
@@ -70,6 +149,7 @@ func http3MW(client *Client, b *Builder) error {
 // or when HTTP/3 is not supported by the server.
 // The transport supports both static and dynamic proxy configurations with connection caching.
 type uquicTransport struct {
+	settings          g.MapOrd[uint64, uint64]             // HTTP/3 Settings
 	tlsConfig         *tls.Config                          // TLS configuration for QUIC connections
 	dialer            *net.Dialer                          // Network dialer (may contain custom DNS resolver)
 	proxy             any                                  // Proxy configuration (static or dynamic function)
@@ -80,7 +160,7 @@ type uquicTransport struct {
 }
 
 // CloseIdleConnections closes all cached HTTP/3 connections and clears the cache.
-// It also attempts to close idle connections on the fallback transport if available.
+// Also closes idle connections on the fallback transport if supported.
 func (ut *uquicTransport) CloseIdleConnections() {
 	for k, h3 := range ut.cachedTransports.Iter() {
 		h3.CloseIdleConnections()
@@ -94,6 +174,7 @@ func (ut *uquicTransport) CloseIdleConnections() {
 	}
 }
 
+// address returns host:port for a request, filling default ports for HTTP/HTTPS if missing.
 func (ut *uquicTransport) address(req *http.Request) string {
 	host, port, err := net.SplitHostPort(req.URL.Host)
 	if err == nil {
@@ -132,7 +213,13 @@ func (ut *uquicTransport) createH3(req *http.Request, addr, proxy string) *http3
 	// Create uquic/http3 RoundTripper (with or without full QUIC fingerprinting)
 	h3 := &http3.Transport{
 		TLSClientConfig: ut.tlsConfig,
-		QUICConfig:      new(quic.Config),
+		QUICConfig: &quic.Config{
+			Versions:        []quic.Version{quic.Version1},
+			EnableDatagrams: true, // 51:1
+		},
+		EnableDatagrams:        false,
+		AdditionalSettings:     ut.settings,
+		MaxResponseHeaderBytes: 10 * 1 << 20,
 	}
 
 	if (ut.dialer != nil && ut.dialer.Resolver != nil) || proxy != "" {
@@ -380,7 +467,7 @@ func (ut *uquicTransport) getProxy() g.Option[string] {
 		p = v.Std()
 	case []string:
 		if len(v) > 0 {
-			p = v[rand.Intn(len(v))]
+			p = v[rand.N(len(v))]
 		}
 	case g.Slice[string]:
 		p = v.Random()
@@ -589,16 +676,7 @@ func isHTTP3UnsupportedError(err error) bool {
 		}
 	}
 
-	fallbacks := g.Slice[g.String]{
-		"no application protocol",
-		"alpn",
-		"version negotiation",
-		"unsupported quic version",
-		"handshake failure",
-		"no recent network activity",
-	}
-
-	return g.String(err.Error()).Lower().ContainsAny(fallbacks...)
+	return false
 }
 
 // isSOCKS5 checks if the given proxy URL is a SOCKS5 proxy supporting UDP.

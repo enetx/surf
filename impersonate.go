@@ -79,6 +79,18 @@ func (im *Impersonate) Chrome() *Builder {
 			}).
 		Set()
 
+	// "perk_text": "1:65536;6:262144;7:100;51:1;GREASE|m,a,s,p",
+	// "perk_hash": "e1d11ee6f2f4c7b1f11bfaaf4dbbc211",
+
+	im.builder.
+		HTTP3Settings().
+		QpackMaxTableCapacity(65536).
+		MaxFieldSectionSize(262144).
+		QpackBlockedStreams(100).
+		H3Datagram(1).
+		Grease().
+		Set()
+
 	headers := g.NewMapOrd[g.String, g.String]()
 	headers.Set(":authority", "")
 	headers.Set(":method", "")
@@ -129,6 +141,19 @@ func (im *Impersonate) FireFox() *Builder {
 			}).
 		Set()
 
+	// "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p",
+	// "perk_hash": "e9ebca6992bfd86ffa0663c1359de7d0",
+
+	im.builder.
+		HTTP3Settings().
+		QpackMaxTableCapacity(65536).
+		QpackBlockedStreams(20).
+		EnableWebtransport(0).
+		Unknown(1).
+		H3Datagram(1).
+		EnableConnectProtocol(1).
+		Set()
+
 	headers := g.NewMapOrd[g.String, g.String]()
 	headers.Set(":authority", "")
 	headers.Set(":method", "")
@@ -174,6 +199,19 @@ func (im *Impersonate) FireFoxPrivate() *Builder {
 				Exclusive: false,
 				Weight:    41,
 			}).
+		Set()
+
+	// "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p",
+	// "perk_hash": "e9ebca6992bfd86ffa0663c1359de7d0",
+
+	im.builder.
+		HTTP3Settings().
+		QpackMaxTableCapacity(65536).
+		QpackBlockedStreams(20).
+		EnableWebtransport(0).
+		Unknown(1).
+		H3Datagram(1).
+		EnableConnectProtocol(1).
 		Set()
 
 	headers := g.NewMapOrd[g.String, g.String]()
