@@ -32,7 +32,7 @@ const (
 	SETTINGS_QPACK_BLOCKED_STREAMS    = 0x07
 	SETTINGS_ENABLE_CONNECT_PROTOCOL  = 0x08
 	SETTINGS_H3_DATAGRAM              = 0x33
-	UNKNOWN                           = 0xFFD277
+	H3_DATAGRAM                       = 0xFFD277
 	SETTINGS_ENABLE_WEBTRANSPORT      = 0x2B603742
 )
 
@@ -69,14 +69,14 @@ func (h *HTTP3Settings) EnableConnectProtocol(num uint64) *HTTP3Settings {
 }
 
 // H3Datagram sets the SETTINGS_H3_DATAGRAM value.
-func (h *HTTP3Settings) H3Datagram(num uint64) *HTTP3Settings {
+func (h *HTTP3Settings) SettingsH3Datagram(num uint64) *HTTP3Settings {
 	h.settings.Set(SETTINGS_H3_DATAGRAM, num)
 	return h
 }
 
-// Unknown sets a custom unknown HTTP/3 SETTINGS value.
-func (h *HTTP3Settings) Unknown(num uint64) *HTTP3Settings {
-	h.settings.Set(UNKNOWN, num)
+// H3Datagram sets a custom H3_DATAGRAM HTTP/3 SETTINGS value.
+func (h *HTTP3Settings) H3Datagram(num uint64) *HTTP3Settings {
+	h.settings.Set(H3_DATAGRAM, num)
 	return h
 }
 

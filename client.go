@@ -353,7 +353,7 @@ func (c *Client) Multipart(rawURL g.String, multipartData g.MapOrd[g.String, g.S
 }
 
 // getCookies returns cookies for the specified URL.
-func (c Client) getCookies(rawURL g.String) []*http.Cookie {
+func (c *Client) getCookies(rawURL g.String) []*http.Cookie {
 	if c.cli.Jar == nil {
 		return nil
 	}

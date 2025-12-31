@@ -254,11 +254,16 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 	hclone := h.Clone()
 
 	if r.cli.builder != nil {
+		method := r.request.Method
+		if r.cli.builder.http3 {
+			method += "http3"
+		}
+
 		switch r.cli.builder.browser {
 		case chromeBrowser:
-			chrome.Headers(&hclone, r.request.Method)
+			chrome.Headers(&hclone, method)
 		case firefoxBrowser:
-			firefox.Headers(&hclone, r.request.Method)
+			firefox.Headers(&hclone, method)
 		}
 	}
 

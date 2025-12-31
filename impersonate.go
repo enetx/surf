@@ -87,7 +87,7 @@ func (im *Impersonate) Chrome() *Builder {
 		QpackMaxTableCapacity(65536).
 		MaxFieldSectionSize(262144).
 		QpackBlockedStreams(100).
-		H3Datagram(1).
+		SettingsH3Datagram(1).
 		Grease().
 		Set()
 
@@ -149,8 +149,8 @@ func (im *Impersonate) FireFox() *Builder {
 		QpackMaxTableCapacity(65536).
 		QpackBlockedStreams(20).
 		EnableWebtransport(0).
-		Unknown(1).
 		H3Datagram(1).
+		SettingsH3Datagram(1).
 		EnableConnectProtocol(1).
 		Set()
 
@@ -209,8 +209,8 @@ func (im *Impersonate) FireFoxPrivate() *Builder {
 		QpackMaxTableCapacity(65536).
 		QpackBlockedStreams(20).
 		EnableWebtransport(0).
-		Unknown(1).
 		H3Datagram(1).
+		SettingsH3Datagram(1).
 		EnableConnectProtocol(1).
 		Set()
 
