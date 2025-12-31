@@ -1,11 +1,31 @@
 package surf
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/enetx/g"
 	"github.com/enetx/http2"
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
+)
+
+var (
+	legacyGreasyChars = []string{" ", " ", ";"}
+	greasyChars       = []string{" ", "(", ":", "-", ".", "/", ")", ";", "=", "?", "_"}
+	greasyVersion     = []string{"8", "99", "24"}
+	greasyOrders      = [][]int{
+		{0, 1, 2}, {0, 2, 1}, {1, 0, 2},
+		{1, 2, 0}, {2, 0, 1}, {2, 1, 0},
+	}
+)
+
+const (
+	BrandChrome string = "Google Chrome"
+	// todo: add brave and edge to impersonate in the future?
+	// BrandBrave  string = "Brave"
+	// BrandEdge   string = "Microsoft Edge"
 )
 
 type Impersonate struct {
@@ -90,7 +110,7 @@ func (im *Impersonate) Chrome() *Builder {
 	headers.Set(header.COOKIE, "")
 	headers.Set(header.ORIGIN, "")
 	headers.Set(header.REFERER, "")
-	headers.Set(header.SEC_CH_UA, chromeSecCHUA)
+	headers.Set(header.SEC_CH_UA, g.String(clientHintUA(BrandChrome, "142", 142)))
 	headers.Set(header.SEC_CH_UA_MOBILE, im.os.mobile())
 	headers.Set(header.SEC_CH_UA_PLATFORM, chromePlatform[im.os])
 	headers.Set(header.USER_AGENT, chromeUserAgent[im.os])
@@ -190,4 +210,46 @@ func (im *Impersonate) FireFoxPrivate() *Builder {
 	headers.Set(header.USER_AGENT, firefoxUserAgent[im.os])
 
 	return im.builder.SetHeaders(headers)
+}
+
+func formatBrand(brand string, majorVersion string) string {
+	return fmt.Sprintf(`"%s";v="%s"`, brand, majorVersion)
+}
+
+func greasedBrand(seed int, majorVersionNumber int, permutedOrder []int) string {
+	var brand, version string
+
+	switch {
+	case majorVersionNumber <= 102, majorVersionNumber == 104:
+		brand = fmt.Sprintf("%sNot%sA%sBrand", legacyGreasyChars[permutedOrder[0]], legacyGreasyChars[permutedOrder[1]], legacyGreasyChars[permutedOrder[2]])
+		version = "99"
+	case majorVersionNumber == 103:
+		brand = fmt.Sprintf("%sNot%sA%sBrand", greasyChars[(seed%(len(greasyChars)-1))+1], greasyChars[(seed+1)%len(greasyChars)], greasyChars[(seed+2)%len(greasyChars)])
+		version = greasyVersion[seed%len(greasyVersion)]
+	default: // >=105
+		// https://github.com/WICG/ua-client-hints/pull/310
+		brand = fmt.Sprintf("Not%sA%sBrand", greasyChars[seed%len(greasyChars)], greasyChars[(seed+1)%len(greasyChars)])
+		version = greasyVersion[seed%len(greasyVersion)]
+	}
+
+	return formatBrand(brand, version)
+
+}
+
+func clientHintUA(brand string, majorVersion string, majorVersionNumber int) string {
+	seed := majorVersionNumber
+	if majorVersionNumber <= 102 {
+		// legacy behavior (maybe a bug?)
+		seed = 0
+	}
+
+	order := greasyOrders[seed%len(greasyOrders)]
+
+	greased := make([]string, 3)
+
+	greased[order[0]] = greasedBrand(seed, majorVersionNumber, order)
+	greased[order[1]] = formatBrand("Chromium", majorVersion)
+	greased[order[2]] = formatBrand(brand, majorVersion)
+
+	return strings.Join(greased, ", ")
 }
