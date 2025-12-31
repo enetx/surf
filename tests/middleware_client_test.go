@@ -223,7 +223,7 @@ func TestMiddlewareProxyWithFallback(t *testing.T) {
 	// Test proxy with HTTP fallback behavior
 	client := surf.NewClient().Builder().
 		Proxy("http://127.0.0.1:8080").
-		HTTP3Settings().Chrome().Set().
+		HTTP3().
 		Build()
 
 	if client == nil {

@@ -23,8 +23,7 @@
 
 ### 🔒 **Advanced TLS & Security**
 - **Custom JA3/JA4**: Configure precise TLS fingerprints with `HelloID` and `HelloSpec`
-- **HTTP/3 Support**: Full HTTP/3 over QUIC with complete browser-specific QUIC fingerprinting
-- **JA4QUIC Fingerprinting**: Complete QUIC transport parameter fingerprinting for Chrome and Firefox
+- **HTTP/3 Support**: Full HTTP/3 over QUIC
 - **HTTP/2 & HTTP/3**: Full HTTP/2 support with customizable settings (SETTINGS frame, window size, priority)
 - **Ordered Headers**: Browser-accurate header ordering for perfect fingerprint evasion
 - **Certificate Pinning**: Custom TLS certificate validation
@@ -79,7 +78,7 @@ resp, err := stdClient.Get("https://api.example.com")
 **Preserved Features When Using Std():**
 - ✅ JA3/TLS fingerprinting
 - ✅ HTTP/2 settings
-- ✅ HTTP/3 & QUIC fingerprinting
+- ✅ HTTP/3
 - ✅ Browser impersonation headers
 - ✅ Ordered headers
 - ✅ Cookies and sessions
@@ -180,16 +179,16 @@ client := surf.NewClient().
     Build()
 ```
 
-## 🚀 HTTP/3 & Complete QUIC Fingerprinting
+## 🚀 HTTP/3
 
-### Chrome HTTP/3 with Automatic Detection
+### HTTP/3 with Automatic Detection
 
 ```go
-// Automatic HTTP/3 with Chrome fingerprinting
+// Automatic HTTP/3
 client := surf.NewClient().
     Builder().
     Impersonate().Chrome().
-    HTTP3().        // Auto-detects Chrome and applies appropriate QUIC settings
+    HTTP3().
     Build()
 
 resp := client.Get("https://cloudflare-quic.com/").Do()
@@ -198,64 +197,6 @@ if resp.IsOk() {
 }
 ```
 
-### Firefox HTTP/3
-
-```go
-// Firefox with HTTP/3 fingerprinting
-client := surf.NewClient().
-    Builder().
-    Impersonate().FireFox().
-    HTTP3().        // Auto-detects Firefox and applies Firefox QUIC settings
-    Build()
-
-resp := client.Get("https://cloudflare-quic.com/").Do()
-```
-
-### Manual HTTP/3 Configuration
-
-```go
-// Custom QUIC fingerprint with Chrome settings
-client := surf.NewClient().
-    Builder().
-    HTTP3Settings().Chrome().Set().
-    Build()
-
-// Custom QUIC fingerprint with Firefox settings
-client := surf.NewClient().
-    Builder().
-    HTTP3Settings().Firefox().Set().
-    Build()
-
-// Custom QUIC ID
-client := surf.NewClient().
-    Builder().
-    HTTP3Settings().
-    SetQUICID(uquic.QUICChrome_115).
-    Set().
-    Build()
-
-// Custom QUIC Spec
-spec, _ := uquic.QUICID2Spec(uquic.QUICFirefox_116)
-client := surf.NewClient().
-    Builder().
-    HTTP3Settings().
-    SetQUICSpec(spec).
-    Set().
-    Build()
-```
-
-### HTTP/3 with Complete Fingerprinting
-
-```go
-// Combine TLS fingerprinting with HTTP/3 QUIC fingerprinting
-client := surf.NewClient().
-    Builder().
-    JA().Chrome142().               // TLS fingerprint (JA3/JA4)
-    HTTP3Settings().Chrome().Set().  // Complete QUIC fingerprint (JA4QUIC)
-    Build()
-
-resp := client.Get("https://cloudflare-quic.com/").Do()
-```
 
 ### HTTP/3 Compatibility & Fallbacks
 
@@ -266,38 +207,36 @@ HTTP/3 automatically handles compatibility issues:
 client := surf.NewClient().
     Builder().
     Proxy("http://proxy:8080").     // HTTP proxies incompatible with HTTP/3
-    HTTP3Settings().Chrome().Set(). // Will use HTTP/2 instead
+    HTTP3().    // Will use HTTP/2 instead
     Build()
 
 // With SOCKS5 proxy - HTTP/3 works over UDP
 client := surf.NewClient().
     Builder().
     Proxy("socks5://127.0.0.1:1080"). // SOCKS5 UDP proxy supports HTTP/3
-    HTTP3Settings().Chrome().Set().   // Will use HTTP/3 over SOCKS5
+    HTTP3().    // Will use HTTP/3 over SOCKS5
     Build()
 
 // With DNS settings - works seamlessly
 client := surf.NewClient().
     Builder().
     DNS("8.8.8.8:53").             // Custom DNS works with HTTP/3
-    HTTP3Settings().Chrome().Set().
+    HTTP3().
     Build()
 
 // With DNS-over-TLS - works seamlessly
 client := surf.NewClient().
     Builder().
     DNSOverTLS().Google().          // DoT works with HTTP/3
-    HTTP3Settings().Chrome().Set().
+    HTTP3().
     Build()
 ```
 
 **Key HTTP/3 Features:**
-- ✅ **Complete QUIC Fingerprinting**: Full Chrome and Firefox QUIC transport parameter matching
 - ✅ **Header Ordering**: Perfect browser-like header sequence preservation
 - ✅ **SOCKS5 UDP Support**: HTTP/3 works seamlessly over SOCKS5 UDP proxies
 - ✅ **Automatic Fallback**: Smart fallback to HTTP/2 when HTTP proxies are configured
 - ✅ **DNS Integration**: Custom DNS and DNS-over-TLS support
-- ✅ **JA4QUIC Support**: Advanced QUIC fingerprinting with Initial Packet + TLS ClientHello
 - ✅ **Order Independence**: `HTTP3()` works regardless of call order
 
 ## 🔧 Advanced Configuration
@@ -834,7 +773,6 @@ resp := surf.NewClient().
 | `Impersonate()` | Enable browser impersonation |
 | `JA()` | Configure JA3/JA4 fingerprinting |
 | `HTTP2Settings()` | Configure HTTP/2 parameters |
-| `HTTP3Settings()` | Configure HTTP/3 & QUIC parameters |
 | `HTTP3()` | Enable HTTP/3 with automatic browser detection |
 | `H2C()` | Enable HTTP/2 cleartext |
 | `Proxy(proxy)` | Set proxy configuration (string, []string for rotation) |
@@ -936,8 +874,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - Built with [enetx/http](https://github.com/enetx/http) for enhanced HTTP functionality
-- HTTP/3 support and complete QUIC fingerprinting powered by [uQUIC](https://github.com/enetx/uquic)
-- TLS fingerprinting powered by [uTLS](https://github.com/enetx/utls)
+- HTTP/3 support powered by [enetx/http3](https://github.com/enetx/http3)
+- TLS fingerprinting powered by [enetx/utls](https://github.com/enetx/utls)
 - Generic utilities from [enetx/g](https://github.com/enetx/g)
 
 ## 📞 Support
@@ -950,4 +888,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <p align="center">
   <b>Made with ❤️ by the Surf contributors</b>
 </p>
-
