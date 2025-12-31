@@ -298,12 +298,6 @@ client := surf.NewClient().
     Impersonate().Chrome().
     HTTP3().
     Build()
-
-// Manual configuration
-client := surf.NewClient().
-    Builder().
-    HTTP3Settings().Chrome().Set().
-    Build()
 ```
 
 ### Proxy Configuration
