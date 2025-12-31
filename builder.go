@@ -33,6 +33,8 @@ type Builder struct {
 	retryMax                 int                                        // Maximum number of retry attempts
 	maxRedirects             int                                        // Maximum number of redirects to follow
 	forceHTTP1               bool                                       // Force HTTP/1.1 protocol usage
+	forceHTTP2               bool                                       // Force HTTP/2 protocol usage
+	forceHTTP3               bool                                       // Force HTTP/3 protocol usage
 	cacheBody                bool                                       // Enable response body caching
 	followOnlyHostRedirects  bool                                       // Only follow redirects within same host
 	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
@@ -303,15 +305,22 @@ func (b *Builder) Retry(retryMax int, retryWait time.Duration, codes ...int) *Bu
 	return b
 }
 
-// ForceHTTP1MW configures the client to use HTTP/1.1 forcefully.
+// ForceHTTP1 configures the client to use HTTP/1.1 forcefully.
 func (b *Builder) ForceHTTP1() *Builder {
 	b.forceHTTP1 = true
 	return b.addCliMW(forseHTTP1MW, 0)
 }
 
-// ForceHTTP2MW configures the client to use HTTP/2 forcefully.
+// ForceHTTP2 configures the client to use HTTP/2 forcefully.
 func (b *Builder) ForceHTTP2() *Builder {
+	b.forceHTTP2 = true
 	return b.addCliMW(forseHTTP2MW, 0)
+}
+
+// ForceHTTP3 configures the client to use HTTP/2 forcefully.
+func (b *Builder) ForceHTTP3() *Builder {
+	b.forceHTTP3 = true
+	return b
 }
 
 // Session configures whether the client should maintain a session.

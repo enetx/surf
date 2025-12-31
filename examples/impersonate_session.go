@@ -11,6 +11,7 @@ func main() {
 		Session(). // Enables TLS session cache: 1st request = full handshake, 2nd = resumed with PSK (ext 41)
 		Impersonate().
 		Chrome().
+		HTTP3().
 		// FireFox().
 		// // Disable TLS session.
 		// With(func(cli *surf.Client) error {
