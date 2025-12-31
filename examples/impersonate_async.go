@@ -25,7 +25,7 @@ func main() {
 
 	defer cli.CloseIdleConnections()
 
-	p := pool.New[*surf.Response]().Limit(3)
+	p := pool.New[*surf.Response]()
 
 	for _, url := range urls {
 		p.Go(cli.Get(url).Do)
