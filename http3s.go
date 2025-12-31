@@ -1,6 +1,6 @@
 // Package surf provides HTTP/3 support with full uQUIC fingerprinting for advanced web scraping and automation.
 // This file implements HTTP/3 transport with complete QUIC Initial Packet + TLS ClientHello fingerprinting,
-// SOCKS5 proxy support, and automatic fallback to HTTP/2 for non-SOCKS5 proxies.
+// SOCKS5 proxy support, and automatic fallback to HTTP/2 for non-SOCKS5 proxies or when HTTP/3 is not supported by the server.
 package surf
 
 import (
@@ -119,14 +119,10 @@ func (h *HTTP3Settings) Set() *Builder {
 	}, math.MaxInt)
 }
 
-type connection struct {
-	packetConn net.PacketConn
-	quicConn   uquic.Connection
-}
-
 // uquicTransport implements http.RoundTripper using uQUIC fingerprinting for HTTP/3.
 // It provides full QUIC Initial Packet + TLS ClientHello fingerprinting capabilities,
-// SOCKS5 proxy compatibility, and automatic fallback to HTTP/2 for non-SOCKS5 proxies.
+// SOCKS5 proxy compatibility, and automatic fallback to HTTP/2 for non-SOCKS5 proxies
+// or when HTTP/3 is not supported by the server.
 // The transport supports both static and dynamic proxy configurations with connection caching.
 type uquicTransport struct {
 	quicSpec          *uquic.QUICSpec                       // QUIC specification for fingerprinting
@@ -349,6 +345,7 @@ func createUDPListener(preferredNetwork string) (*net.UDPConn, error) {
 
 // RoundTrip implements the http.RoundTripper interface with HTTP/3 support and automatic proxy fallback.
 // For non-SOCKS5 proxies, it automatically falls back to the HTTP/2 transport.
+// If HTTP/3 is not supported by the server, it automatically falls back to HTTP/2.
 // Dynamic proxy configurations are evaluated on each request for proper rotation.
 func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	var proxy string
@@ -376,6 +373,31 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	resp, err := h3.RoundTrip(req)
 	if err != nil {
+		// Check if context was cancelled - don't fallback in that case
+		if ctxErr := req.Context().Err(); ctxErr != nil {
+			return nil, err
+		}
+
+		// Check if error indicates HTTP/3 is not supported and fallback is available
+		if ut.fallbackTransport != nil && isHTTP3UnsupportedError(err) {
+			// Handle request body rewinding for fallback
+			if req.Body != nil && req.Body != http.NoBody {
+				if req.GetBody == nil {
+					return nil, fmt.Errorf("surf: HTTP/3 failed and cannot retry because req.GetBody is nil: %w", err)
+				}
+
+				body, bodyErr := req.GetBody()
+				if bodyErr != nil {
+					return nil, fmt.Errorf("surf: failed to restore body for fallback: %w", bodyErr)
+				}
+
+				req.Body = body
+			}
+
+			// Fallback to HTTP/2
+			return ut.fallbackTransport.RoundTrip(req)
+		}
+
 		return nil, err
 	}
 
@@ -600,6 +622,27 @@ func (ut *uquicTransport) dialDNS(
 	success = true
 
 	return quicConn, nil
+}
+
+// isHTTP3UnsupportedError checks if an error indicates that HTTP/3 is not supported by the server.
+// This includes connection errors, QUIC handshake failures, and network errors that suggest
+// the server doesn't support HTTP/3 and we should fallback to HTTP/2.
+func isHTTP3UnsupportedError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	// Check for net.OpError which often indicates connection issues
+	if _, ok := err.(*net.OpError); ok {
+		return true
+	}
+
+	// Check for DNS errors
+	if _, ok := err.(*net.DNSError); ok {
+		return true
+	}
+
+	return false
 }
 
 // isSOCKS5 checks if the given proxy URL is a SOCKS5 proxy supporting UDP.
