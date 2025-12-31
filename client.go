@@ -557,7 +557,7 @@ func detectAnnotatedDataType(data any) string {
 		return ""
 	}
 
-	if t.Kind() == reflect.Pointer {
+	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
 
