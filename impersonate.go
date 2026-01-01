@@ -49,7 +49,7 @@ func (im *Impersonate) IOS() *Impersonate {
 	return im
 }
 
-// Chrome impersonates Chrome browser v142.
+// Chrome impersonates Chrome browser v143.
 func (im *Impersonate) Chrome() *Builder {
 	im.builder.browser = chromeBrowser
 
@@ -64,7 +64,7 @@ func (im *Impersonate) Chrome() *Builder {
 
 	im.builder.
 		Boundary(chrome.Boundary).
-		JA().Chrome142().
+		JA().Chrome143().
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		EnablePush(0).
@@ -111,7 +111,7 @@ func (im *Impersonate) Chrome() *Builder {
 }
 
 // FireFox impersonates Firefox browser v146.
-func (im *Impersonate) FireFox() *Builder {
+func (im *Impersonate) Firefox() *Builder {
 	im.builder.browser = firefoxBrowser
 
 	// "ja3": "771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-34-18-51-43-13-45-28-27-65037,4588-29-23-24-25-256-257,0",
@@ -171,7 +171,7 @@ func (im *Impersonate) FireFox() *Builder {
 }
 
 // FireFoxPrivate impersonates Firefox private browser v146.
-func (im *Impersonate) FireFoxPrivate() *Builder {
+func (im *Impersonate) FirefoxPrivate() *Builder {
 	im.builder.browser = firefoxBrowser
 
 	// "ja3": "771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53,0-23-65281-10-11-16-5-34-18-51-43-13-28-27-65037,4588-29-23-24-25-256-257,0",

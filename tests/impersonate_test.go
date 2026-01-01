@@ -53,7 +53,7 @@ func TestImpersonateFirefox(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		Impersonate().FireFox().
+		Impersonate().Firefox().
 		Build()
 
 	if client == nil {
@@ -645,7 +645,7 @@ func TestImpersonateFirefoxPrivate(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		Impersonate().FireFoxPrivate().
+		Impersonate().FirefoxPrivate().
 		Build()
 
 	if client == nil {

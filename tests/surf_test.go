@@ -290,7 +290,7 @@ func TestMultipart(t *testing.T) {
 	multipartData := g.NewMapOrd[g.String, g.String]()
 	multipartData.Set(some, values)
 
-	r := surf.NewClient().Builder().Impersonate().FireFox().Build().
+	r := surf.NewClient().Builder().Impersonate().Firefox().Build().
 		Multipart(g.String(ts.URL), multipartData).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
@@ -322,7 +322,7 @@ func TestFileUpload(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().Impersonate().FireFox().CacheBody().Build().
+	r := surf.NewClient().Builder().Impersonate().Firefox().CacheBody().Build().
 		FileUpload(g.String(ts.URL), "file", "info.txt", "justfile").
 		Do()
 

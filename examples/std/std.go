@@ -15,7 +15,7 @@ func main() {
 			"socks5://127.0.0.1:2080",
 			"http://127.0.0.1:2080",
 		}).
-		Impersonate().FireFox().
+		Impersonate().Firefox().
 		Build()
 
 	test(cli.Std())

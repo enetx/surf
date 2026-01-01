@@ -228,7 +228,7 @@ func TestHTTP3AutoDetection(t *testing.T) {
 
 	t.Run("Firefox auto detection", func(t *testing.T) {
 		client := surf.NewClient().Builder().
-			Impersonate().FireFox().HTTP3().
+			Impersonate().Firefox().HTTP3().
 			Build()
 
 		if client.GetTransport() == nil {
@@ -360,7 +360,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 
 	t.Run("HTTP3 with JA3 compatibility", func(t *testing.T) {
 		client := surf.NewClient().Builder().
-			JA().Chrome142().
+			JA().Chrome143().
 			HTTP3().
 			Build()
 

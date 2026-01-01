@@ -21,7 +21,7 @@ func main() {
 	r := surf.NewClient().
 		Builder().
 		Impersonate().
-		FireFox().
+		Firefox().
 		// Chrome().
 		Build().
 		Multipart("http://google.com", multipartData).

@@ -2,7 +2,7 @@ package chrome
 
 import utls "github.com/enetx/utls"
 
-var HelloChrome_142 = utls.ClientHelloSpec{
+var HelloChrome_143 = utls.ClientHelloSpec{
 	CipherSuites: []uint16{
 		utls.GREASE_PLACEHOLDER,
 		utls.TLS_AES_128_GCM_SHA256,

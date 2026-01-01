@@ -33,9 +33,9 @@ func main() {
 		// MacOS().
 		// IOS().
 		// Android().
-		FireFox().
-		// FireFoxPrivate().
-		// Chrome().
+		// Firefox().
+		// FirefoxPrivate().
+		Chrome().
 		Build()
 
 	r := cli.

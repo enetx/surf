@@ -205,8 +205,8 @@ func (j *JA) Chrome120() *Builder { return j.SetHelloID(utls.HelloChrome_120) }
 // Chrome120PQ sets the JA3/4 fingerprint to mimic Chrome version 120 with post-quantum cryptography support.
 func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_PQ) }
 
-// Chrome142 sets the JA3/4 fingerprint to mimic Chrome version 142.
-func (j *JA) Chrome142() *Builder { return j.SetHelloSpec(chrome.HelloChrome_142) }
+// Chrome143 sets the JA3/4 fingerprint to mimic Chrome version 143.
+func (j *JA) Chrome143() *Builder { return j.SetHelloSpec(chrome.HelloChrome_143) }
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.
 func (j *JA) Edge() *Builder { return j.SetHelloID(utls.HelloEdge_85) }

@@ -20,7 +20,7 @@ func main() {
 		Singleton(). // for reuse client
 		Impersonate().
 		// Chrome().
-		FireFox().
+		Firefox().
 		Build()
 
 	defer cli.CloseIdleConnections()

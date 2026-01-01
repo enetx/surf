@@ -16,7 +16,7 @@ func main() {
 		Singleton().
 		Session().
 		Impersonate().
-		FireFox().
+		Firefox().
 		Build()
 
 	g.SliceOf(g.String("https://httpbingo.org/get")).
@@ -43,7 +43,7 @@ func main() {
 	// cli := surf.NewClient().
 	// 	Builder().
 	// 	Impersonate().
-	// 	FireFox().
+	// 	Firefox().
 	// 	Build()
 	//
 	// for _, URL := range urls {

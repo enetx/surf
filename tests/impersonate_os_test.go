@@ -51,7 +51,7 @@ func TestImpersonateOSIntegration(t *testing.T) {
 			"Linux Firefox impersonation",
 			func() *surf.Client {
 				return surf.NewClient().Builder().
-					Impersonate().Linux().FireFox().
+					Impersonate().Linux().Firefox().
 					Build()
 			},
 			"X11; Linux x86_64",
@@ -199,7 +199,7 @@ func TestImpersonateOSBrowserEngineIdentifiers(t *testing.T) {
 			"Firefox Gecko engine",
 			func() *surf.Client {
 				return surf.NewClient().Builder().
-					Impersonate().Windows().FireFox().
+					Impersonate().Windows().Firefox().
 					Build()
 			},
 			"Gecko/20100101",
