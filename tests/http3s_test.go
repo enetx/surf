@@ -120,6 +120,7 @@ func TestHTTP3SettingsWithForceHTTP1(t *testing.T) {
 	// HTTP/3 settings should be ignored when ForceHTTP1 is set
 	client := surf.NewClient().Builder().
 		ForceHTTP1().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -149,6 +150,7 @@ func TestHTTP3SettingsMethodChaining(t *testing.T) {
 
 	// Test that method chaining works correctly
 	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Session().
 		UserAgent("HTTP3Test/1.0").
@@ -174,6 +176,7 @@ func TestHTTP3SettingsTransportVerification(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -193,6 +196,7 @@ func TestHTTP3SettingsWithDNSOverTLS(t *testing.T) {
 
 	// Test client creation combining HTTP/3 with DNS over TLS
 	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		DNSOverTLS().
 		Cloudflare().
@@ -240,26 +244,12 @@ func TestHTTP3AutoDetection(t *testing.T) {
 			t.Fatal("Expected valid client and transport")
 		}
 	})
-
-	t.Run("Default to Chrome", func(t *testing.T) {
-		client := surf.NewClient().Builder().
-			HTTP3().
-			Build()
-
-		if client.GetTransport() == nil {
-			t.Fatal("Default HTTP/3 transport is nil")
-		}
-
-		// Verify client and transport are configured
-		if client == nil || client.GetTransport() == nil {
-			t.Fatal("Expected valid client and transport")
-		}
-	})
 }
 
 func TestHTTP3OrderIndependence(t *testing.T) {
 	t.Run("HTTP3 then Impersonate", func(t *testing.T) {
 		client := surf.NewClient().Builder().
+			HTTP3Settings().Set().
 			HTTP3().
 			Impersonate().Chrome().
 			Build()
@@ -281,36 +271,11 @@ func TestHTTP3OrderIndependence(t *testing.T) {
 	})
 }
 
-func TestHTTP3ManualVsAuto(t *testing.T) {
-	t.Run("Manual settings disable auto", func(t *testing.T) {
-		client := surf.NewClient().Builder().
-			Impersonate().Chrome().
-			HTTP3(). // This should be ignored
-			HTTP3(). // This takes precedence
-			Build()
-
-		if client == nil {
-			t.Fatal("Expected HTTP/3 transport from manual settings")
-		}
-	})
-
-	t.Run("Auto then manual", func(t *testing.T) {
-		client := surf.NewClient().Builder().
-			HTTP3().                // This gets disabled
-			HTTP3().                // This applies
-			Impersonate().Chrome(). // This should not trigger auto HTTP3
-			Build()
-
-		if client == nil {
-			t.Fatal("Expected HTTP/3 transport from manual settings")
-		}
-	})
-}
-
 func TestHTTP3Compatibility(t *testing.T) {
 	t.Run("HTTP3 with proxy fallback", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			Proxy("http://proxy:8080").
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -333,6 +298,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 	t.Run("HTTP3 with SOCKS5 proxy support", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			Proxy("socks5://127.0.0.1:1080").
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -349,6 +315,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 		client := surf.NewClient().Builder().
 			DNS("8.8.8.8:53").
 			Proxy("socks5://127.0.0.1:1080").
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -361,6 +328,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 	t.Run("HTTP3 with JA3 compatibility", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			JA().Chrome143().
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -373,6 +341,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 	t.Run("HTTP3 with DNS settings", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			DNS("8.8.8.8:53").
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -385,6 +354,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 	t.Run("HTTP3 with DNSOverTLS", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			DNSOverTLS().Google().
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -397,6 +367,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 	t.Run("HTTP3 with timeout", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			Timeout(30 * time.Second).
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -411,6 +382,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 
 		client := surf.NewClient().Builder().
 			WithContext(ctx).
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -422,6 +394,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 	t.Run("HTTP3 with headers", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			SetHeaders("X-Test", "value").
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -436,6 +409,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 				req.SetHeaders("X-Middleware", "test")
 				return nil
 			}).
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -449,6 +423,7 @@ func TestHTTP3TransportProperties(t *testing.T) {
 	t.Run("Chrome transport properties", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			HTTP3().
+			HTTP3Settings().Set().
 			Build()
 
 		if client == nil {
@@ -462,6 +437,7 @@ func TestHTTP3TransportProperties(t *testing.T) {
 
 	t.Run("Firefox transport properties", func(t *testing.T) {
 		client := surf.NewClient().Builder().
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -557,6 +533,7 @@ func TestHTTP3DNSIntegration(t *testing.T) {
 			buildFunc: func() *surf.Client {
 				return surf.NewClient().Builder().
 					DNSOverTLS().Cloudflare().
+					HTTP3Settings().Set().
 					HTTP3().
 					Build()
 			},
@@ -566,6 +543,7 @@ func TestHTTP3DNSIntegration(t *testing.T) {
 			buildFunc: func() *surf.Client {
 				return surf.NewClient().Builder().
 					DNS("1.1.1.1:53").
+					HTTP3Settings().Set().
 					HTTP3().
 					Build()
 			},
@@ -575,6 +553,7 @@ func TestHTTP3DNSIntegration(t *testing.T) {
 			buildFunc: func() *surf.Client {
 				return surf.NewClient().Builder().
 					DNS("192.168.1.1:53").
+					HTTP3Settings().Set().
 					HTTP3().
 					Build()
 			},
@@ -609,6 +588,7 @@ func TestHTTP3NetworkConditions(t *testing.T) {
 	t.Run("HTTP3 with unreachable proxy", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			Proxy("http://127.0.0.1:8080").
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -646,6 +626,7 @@ func TestHTTP3NetworkConditions(t *testing.T) {
 
 		client := surf.NewClient().Builder().
 			Timeout(1 * time.Millisecond). // Very short timeout
+			HTTP3Settings().Set().
 			HTTP3().
 			Build()
 
@@ -668,6 +649,7 @@ func TestHTTP3AddressResolution(t *testing.T) {
 
 	// Test address resolution with invalid addresses
 	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Timeout(1 * time.Second).
 		Build()
@@ -708,6 +690,7 @@ func TestHTTP3ProxyConfiguration(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			client := surf.NewClient().Builder().
+				HTTP3Settings().Set().
 				HTTP3().
 				Proxy(tc.proxyURL).
 				Timeout(1 * time.Second).
@@ -732,6 +715,7 @@ func TestHTTP3NetworkErrorHandling(t *testing.T) {
 
 	// Test HTTP3 network error handling
 	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Timeout(500 * time.Millisecond).
 		Build()
@@ -760,10 +744,12 @@ func TestHTTP3TransportCaching(t *testing.T) {
 
 	// Test that HTTP3 transport caching works properly
 	client1 := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
 	client2 := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -819,6 +805,7 @@ func TestHTTP3WithSession(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Session().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -838,6 +825,7 @@ func TestHTTP3WithForceHTTP1(t *testing.T) {
 	// When ForceHTTP1 is set, HTTP3 should be disabled
 	client := surf.NewClient().Builder().
 		ForceHTTP1().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -858,6 +846,7 @@ func TestHTTP3TransportCloseIdleConnections(t *testing.T) {
 
 	// Test without singleton - should have closeIdleConnections middleware
 	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -871,6 +860,7 @@ func TestHTTP3TransportCloseIdleConnections(t *testing.T) {
 	// Test with singleton - connections should persist
 	client = surf.NewClient().Builder().
 		Singleton().
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -888,6 +878,7 @@ func TestHTTP3WithInterfaceAddr(t *testing.T) {
 	// Test HTTP3 with specific interface address
 	client := surf.NewClient().Builder().
 		InterfaceAddr("192.168.1.100").
+		HTTP3Settings().Set().
 		HTTP3().
 		Build()
 
@@ -913,6 +904,7 @@ func TestHTTP3FallbackBehavior(t *testing.T) {
 	// to fully verify, but we can test the configuration
 
 	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
 		HTTP3().
 		Proxy("http://127.0.0.1:8080"). // Should trigger fallback
 		Build()
@@ -1004,6 +996,7 @@ func TestHTTP3WithSOCKS5Proxy(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := surf.NewClient().Builder().
+				HTTP3Settings().Set().
 				HTTP3().
 				Proxy(tt.proxy).
 				Build()
@@ -1070,6 +1063,7 @@ func TestHTTP3AddressParsing(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := surf.NewClient().Builder().
+				HTTP3Settings().Set().
 				HTTP3().
 				Build()
 
@@ -1103,6 +1097,7 @@ func TestHTTP3UDPListener(t *testing.T) {
 			"HTTP3 with DNS",
 			func() *surf.Client {
 				return surf.NewClient().Builder().
+					HTTP3Settings().Set().
 					HTTP3().
 					DNS(g.String("8.8.8.8:53")).
 					Build()
@@ -1112,6 +1107,7 @@ func TestHTTP3UDPListener(t *testing.T) {
 			"HTTP3 with interface",
 			func() *surf.Client {
 				return surf.NewClient().Builder().
+					HTTP3Settings().Set().
 					HTTP3().
 					InterfaceAddr(g.String("127.0.0.1")).
 					Build()
@@ -1165,7 +1161,9 @@ func TestHTTP3ErrorHandling(t *testing.T) {
 		},
 	}
 
-	client := surf.NewClient().Builder().HTTP3().Build()
+	client := surf.NewClient().Builder().
+		HTTP3Settings().Set().
+		HTTP3().Build()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1379,7 +1377,9 @@ func TestHTTP3SettingsWithDifferentValues(t *testing.T) {
 		EnableConnectProtocol(1024).
 		EnableWebtransport(999999).
 		Grease().
-		Set().Build()
+		Set().
+		HTTP3().
+		Build()
 
 	if client == nil {
 		t.Error("Client build failed with various setting values")
