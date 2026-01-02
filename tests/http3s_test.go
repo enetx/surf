@@ -1186,3 +1186,343 @@ func TestHTTP3ErrorHandling(t *testing.T) {
 		})
 	}
 }
+
+// TestHTTP3SettingsQpackMaxTableCapacity tests the QpackMaxTableCapacity method
+func TestHTTP3SettingsQpackMaxTableCapacity(t *testing.T) {
+	t.Parallel()
+
+	// Test setting QpackMaxTableCapacity
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(1024).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with QpackMaxTableCapacity")
+	}
+}
+
+// TestHTTP3SettingsMaxFieldSectionSize tests the MaxFieldSectionSize method
+func TestHTTP3SettingsMaxFieldSectionSize(t *testing.T) {
+	t.Parallel()
+
+	// Test setting MaxFieldSectionSize
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		MaxFieldSectionSize(4096).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with MaxFieldSectionSize")
+	}
+}
+
+// TestHTTP3SettingsQpackBlockedStreams tests the QpackBlockedStreams method
+func TestHTTP3SettingsQpackBlockedStreams(t *testing.T) {
+	t.Parallel()
+
+	// Test setting QpackBlockedStreams
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackBlockedStreams(8).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with QpackBlockedStreams")
+	}
+}
+
+// TestHTTP3SettingsEnableConnectProtocol tests the EnableConnectProtocol method
+func TestHTTP3SettingsEnableConnectProtocol(t *testing.T) {
+	t.Parallel()
+
+	// Test setting EnableConnectProtocol
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		EnableConnectProtocol(1).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with EnableConnectProtocol")
+	}
+}
+
+// TestHTTP3SettingsH3Datagram tests the H3Datagram method
+func TestHTTP3SettingsH3Datagram(t *testing.T) {
+	t.Parallel()
+
+	// Test setting H3Datagram
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		H3Datagram(128).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with H3Datagram")
+	}
+}
+
+// TestHTTP3SettingsSettingsH3Datagram tests the SettingsH3Datagram method
+func TestHTTP3SettingsSettingsH3Datagram(t *testing.T) {
+	t.Parallel()
+
+	// Test setting SettingsH3Datagram
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		SettingsH3Datagram(256).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with SettingsH3Datagram")
+	}
+}
+
+// TestHTTP3SettingsEnableWebtransport tests the EnableWebtransport method
+func TestHTTP3SettingsEnableWebtransport(t *testing.T) {
+	t.Parallel()
+
+	// Test setting EnableWebtransport
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		EnableWebtransport(1).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with EnableWebtransport")
+	}
+}
+
+// TestHTTP3SettingsGrease tests the Grease method
+func TestHTTP3SettingsGrease(t *testing.T) {
+	t.Parallel()
+
+	// Test setting Grease
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		Grease().
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with Grease")
+	}
+}
+
+// TestHTTP3SettingsCombined tests multiple HTTP/3 settings applied together
+func TestHTTP3SettingsCombined(t *testing.T) {
+	t.Parallel()
+
+	// Test multiple settings applied together
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(2048).
+		MaxFieldSectionSize(8192).
+		QpackBlockedStreams(16).
+		H3Datagram(256).
+		EnableConnectProtocol(2).
+		EnableWebtransport(4096).
+		Grease().
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("HTTP/3 build failed with combined settings")
+	}
+}
+
+// TestHTTP3SettingsWithProxy tests HTTP/3 settings with proxy configurations
+func TestHTTP3SettingsWithProxy(t *testing.T) {
+	t.Parallel()
+
+	// Test HTTP/3 settings with proxy
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(1024).
+		Grease().
+		Set().
+		Proxy("http://localhost:8080").
+		HTTP3().Build()
+
+	if client == nil {
+		t.Error("Client build with HTTP/3 and proxy failed")
+	}
+}
+
+// TestHTTP3SettingsWithDifferentValues tests various setting values
+func TestHTTP3SettingsWithDifferentValues(t *testing.T) {
+	t.Parallel()
+
+	// Apply various setting values to test different inputs
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(0).
+		MaxFieldSectionSize(1 << 20).
+		QpackBlockedStreams(65535).
+		H3Datagram(1).
+		SettingsH3Datagram(65535).
+		EnableConnectProtocol(1024).
+		EnableWebtransport(999999).
+		Grease().
+		Set().Build()
+
+	if client == nil {
+		t.Error("Client build failed with various setting values")
+	}
+}
+
+// TestHTTP3SettingsIntegrationWithTestServer tests HTTP/3 settings with real server
+func TestHTTP3SettingsIntegrationWithTestServer(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"http3_settings": "configured"}`)
+	}
+
+	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Test HTTP/3 settings with test server
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(1024).
+		Set().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Fatalf("HTTP/3 settings configuration failed")
+	}
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("HTTP/3 settings request failed: %v", resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
+// TestHTTP3SettingsWithCustomDialer tests HTTP/3 settings with custom dialers
+func TestHTTP3SettingsWithCustomDialer(t *testing.T) {
+	t.Parallel()
+
+	// Test HTTP/3 with custom DNS resolver
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(1024).
+		Set().
+		DNS("8.8.8.8:53").
+		HTTP3().Build()
+
+	if client == nil {
+		t.Error("Client build with custom dialer failed")
+	}
+}
+
+// TestHTTP3SettingsWithTimeout tests HTTP/3 settings with timeout configurations
+func TestHTTP3SettingsWithTimeout(t *testing.T) {
+	t.Parallel()
+
+	// Test with timeout
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(2048).
+		Set().
+		Timeout(30 * 1e9). // 30 seconds in nanoseconds
+		HTTP3().Build()
+
+	if client == nil {
+		t.Error("Client build with timeout failed")
+	}
+}
+
+// TestHTTP3SettingsWithSession tests HTTP/3 settings combined with session
+func TestHTTP3SettingsWithSession(t *testing.T) {
+	t.Parallel()
+
+	// Test with session
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(1024).
+		Set().
+		Session().
+		HTTP3().Build()
+
+	if client == nil {
+		t.Error("Client build with session failed")
+	}
+}
+
+// TestHTTP3SettingsWithKeepAlive tests HTTP/3 settings with keep-alive
+func TestHTTP3SettingsWithKeepAlive(t *testing.T) {
+	t.Parallel()
+
+	// Test with keep-alive disabled
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(512).
+		Set().
+		DisableKeepAlive().
+		HTTP3().Build()
+
+	if client == nil {
+		t.Error("Client build with keep-alive failed")
+	}
+}
+
+// TestHTTP3SettingsWithInterfaceAddr tests HTTP/3 with specific interface address
+func TestHTTP3SettingsWithInterfaceAddr(t *testing.T) {
+	t.Parallel()
+
+	// Test with specific interface address
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(1024).
+		Set().
+		InterfaceAddr("192.168.1.100").
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("Client build with interface address failed")
+	}
+}
+
+// TestHTTP3SettingsWithSingleton tests HTTP/3 with singleton configuration
+func TestHTTP3SettingsWithSingleton(t *testing.T) {
+	t.Parallel()
+
+	// Test with singleton
+	client := surf.NewClient().Builder().
+		HTTP3Settings().
+		QpackMaxTableCapacity(1024).
+		Set().
+		Singleton().
+		HTTP3().
+		Build()
+
+	if client == nil {
+		t.Error("Client build with singleton failed")
+	}
+
+	// Should support CloseIdleConnections
+	client.CloseIdleConnections()
+}
