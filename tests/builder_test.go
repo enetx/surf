@@ -835,3 +835,54 @@ func TestBuilderString(t *testing.T) {
 		t.Error("expected 'builder' in string representation")
 	}
 }
+
+// Test that ForceHTTP3 can be called and returns the same builder instance
+func TestBuilderForceHTTP3(t *testing.T) {
+	t.Parallel()
+
+	// Test that ForceHTTP3 can be called and returns the same builder instance
+	client := surf.NewClient()
+	builder := client.Builder()
+
+	// Apply ForceHTTP3 and verify it returns the same builder (fluent interface)
+	resultBuilder := builder.ForceHTTP3().HTTP3Settings().Set().HTTP3()
+
+	// Verify it returns the same builder instance for fluent interface
+	if resultBuilder != builder {
+		t.Error("ForceHTTP3 should return the same builder instance for fluent interface")
+	}
+}
+
+func TestBuilderForceHTTP3WithOtherSettings(t *testing.T) {
+	t.Parallel()
+
+	// Test ForceHTTP3 combined with other builder methods
+	client := surf.NewClient()
+	builder := client.Builder()
+
+	// Apply multiple builder methods including ForceHTTP3
+	resultBuilder := builder.ForceHTTP3().HTTP3Settings().Set().HTTP3().
+		Singleton().
+		Timeout(5 * time.Second).
+		Session()
+
+	// Verify it returns the same builder instance (fluent interface)
+	if resultBuilder != builder {
+		t.Error("ForceHTTP3 should return the same builder instance for fluent interface")
+	}
+}
+
+// Test that we can chain ForceHTTP3 with other methods
+func TestBuilderForceHTTP3Chaining(t *testing.T) {
+	t.Parallel()
+
+	client := surf.NewClient()
+	builder := client.Builder()
+
+	// Test multiple method chaining
+	result := builder.ForceHTTP3().HTTP3Settings().Set().HTTP3().Impersonate().Chrome().Build()
+
+	if result == nil {
+		t.Error("Builder should not return nil client")
+	}
+}
