@@ -140,7 +140,7 @@ func (h *HTTP3Settings) Set() *Builder {
 		c.transport = transport
 
 		return nil
-	}, math.MaxInt)
+	}, math.MaxInt-1)
 }
 
 // uquicTransport implements http.RoundTripper using uQUIC fingerprinting for HTTP/3.
