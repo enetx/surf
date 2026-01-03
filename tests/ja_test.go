@@ -167,6 +167,7 @@ func TestJAFirefoxVersions(t *testing.T) {
 		{"Firefox102", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox102().Build() }},
 		{"Firefox105", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox105().Build() }},
 		{"Firefox120", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox120().Build() }},
+		{"Firefox141", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox141().Build() }},
 	}
 
 	for _, tc := range firefoxVersions {
@@ -334,7 +335,7 @@ func TestJASetHelloSpec(t *testing.T) {
 	}
 }
 
-func TestJAFirefox143(t *testing.T) {
+func TestJAFirefox146(t *testing.T) {
 	t.Parallel()
 
 	handler := func(w http.ResponseWriter, _ *http.Request) {

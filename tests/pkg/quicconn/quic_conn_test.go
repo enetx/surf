@@ -397,3 +397,68 @@ func TestReadError_And_WriteError(t *testing.T) {
 		t.Fatalf("expected %v, got %v", wrErr, err)
 	}
 }
+
+// Test SetReadBuffer and SetWriteBuffer methods
+func TestSetReadBufferAndSetWriteBuffer(t *testing.T) {
+	t.Parallel()
+
+	// Create a mock UDP connection for testing
+	udpConn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 0})
+	if err != nil {
+		t.Fatalf("failed to create UDP listener: %v", err)
+	}
+	defer udpConn.Close()
+
+	// Create a QuicPacketConn
+	def := &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8080}
+	pc := quicconn.New(udpConn, def, quicconn.EncapRaw)
+
+	// Test SetReadBuffer with valid value
+	err = pc.SetReadBuffer(1024)
+	if err != nil {
+		t.Errorf("SetReadBuffer failed: %v", err)
+	}
+
+	// Test SetWriteBuffer with valid value
+	err = pc.SetWriteBuffer(2048)
+	if err != nil {
+		t.Errorf("SetWriteBuffer failed: %v", err)
+	}
+
+	// Test SetReadBuffer with positive value (should not panic)
+	err = pc.SetReadBuffer(4096)
+	if err != nil {
+		t.Errorf("SetReadBuffer with positive value failed: %v", err)
+	}
+
+	// Test SetWriteBuffer with positive value (should not panic)
+	err = pc.SetWriteBuffer(8192)
+	if err != nil {
+		t.Errorf("SetWriteBuffer with positive value failed: %v", err)
+	}
+}
+
+func TestSetReadBufferAndSetWriteBufferWithUnsupportedConn(t *testing.T) {
+	t.Parallel()
+
+	// Create a mock connection that doesn't support buffer operations
+	mc := &mockConn{
+		readData:  make([]byte, 1024),
+		writeData: bytes.Buffer{},
+	}
+
+	// Create a QuicPacketConn with mock connection
+	def := &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8080}
+	pc := quicconn.New(mc, def, quicconn.EncapRaw)
+
+	// These operations should not panic even if buffer methods aren't supported
+	err := pc.SetReadBuffer(1024)
+	if err != nil {
+		t.Errorf("SetReadBuffer with unsupported connection should not fail: %v", err)
+	}
+
+	err = pc.SetWriteBuffer(2048)
+	if err != nil {
+		t.Errorf("SetWriteBuffer with unsupported connection should not fail: %v", err)
+	}
+}
