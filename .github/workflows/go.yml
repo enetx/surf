@@ -17,7 +17,7 @@ jobs:
     - name: Test
       # env:  # Adding environment variables
       #   GOEXPERIMENT: "rangefunc"
-      run: go test -race -v -coverprofile=profile.cov -coverpkg=./... ./tests/... ./pkg/...
+      run: go test -race -v -coverprofile=profile.cov -coverpkg=./... ./tests/... ./pkg/... ./internal/...
     - uses: shogo82148/actions-goveralls@v1
       with:
         path-to-profile: profile.cov
