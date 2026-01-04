@@ -7,13 +7,13 @@ import (
 	"maps"
 	"math/rand"
 	"net"
-	"net/url"
 	"time"
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http/cookiejar"
 	"github.com/enetx/http2"
+	"github.com/enetx/surf/pkg/connectproxy"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -226,12 +226,7 @@ func unixSocketMW(client *Client, address g.String) error {
 // (functions that return proxy URLs for rotation). Handles various proxy types including
 // HTTP, HTTPS, and SOCKS proxies. Skips configuration for JA3 and HTTP/3 transports
 // which handle proxies differently.
-func proxyMW(client *Client, proxys any) error {
-	// Skip proxy configuration for JA3 transport (handled separately)
-	if client.builder.ja {
-		return nil
-	}
-
+func proxyMW(client *Client, proxies any) error {
 	// Skip if HTTP/3 transport is being used (handled separately)
 	if _, ok := client.GetTransport().(*uquicTransport); ok {
 		return nil
@@ -243,7 +238,7 @@ func proxyMW(client *Client, proxys any) error {
 	}
 
 	// Clear proxy if nil provided
-	if proxys == nil {
+	if proxies == nil {
 		transport.Proxy = nil
 		return nil
 	}
@@ -253,17 +248,20 @@ func proxyMW(client *Client, proxys any) error {
 		if proxy == "" {
 			return
 		}
-		if proxyURL, err := url.Parse(proxy); err == nil {
-			transport.Proxy = http.ProxyURL(proxyURL)
-		} else {
-			transport.Proxy = func(*http.Request) (*url.URL, error) {
-				return nil, fmt.Errorf("invalid proxy URL %q: %w", proxy, err)
+
+		dialer, err := connectproxy.NewDialer(proxy)
+		if err != nil {
+			transport.DialContext = func(context.Context, string, string) (net.Conn, error) {
+				return nil, fmt.Errorf("proxy dialer init failed: %w", err)
 			}
+			return
 		}
+
+		transport.DialContext = dialer.DialContext
 	}
 
 	// Handle static proxy configurations
-	switch v := proxys.(type) {
+	switch v := proxies.(type) {
 	case string:
 		setProxy(v)
 		return nil
@@ -273,10 +271,10 @@ func proxyMW(client *Client, proxys any) error {
 	}
 
 	// Handle dynamic proxy configurations - evaluate proxy per request
-	transport.Proxy = func(*http.Request) (*url.URL, error) {
+	transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
 		var proxy string
 
-		switch v := proxys.(type) {
+		switch v := proxies.(type) {
 		case func() g.String:
 			proxy = v().Std()
 		case []string:
@@ -287,15 +285,18 @@ func proxyMW(client *Client, proxys any) error {
 			proxy = v.Random()
 		case g.Slice[g.String]:
 			proxy = v.Random().Std()
-		default:
-			return nil, fmt.Errorf("unsupported proxy type: %T", proxys)
 		}
 
 		if proxy == "" {
-			return nil, nil
+			return client.dialer.DialContext(ctx, network, addr)
 		}
 
-		return url.Parse(proxy)
+		dialer, err := connectproxy.NewDialer(proxy)
+		if err != nil {
+			return nil, fmt.Errorf("create proxy dialer for %s: %w", proxy, err)
+		}
+
+		return dialer.DialContext(ctx, network, addr)
 	}
 
 	return nil

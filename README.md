@@ -28,7 +28,7 @@
 - **Ordered Headers**: Browser-accurate header ordering for perfect fingerprint evasion
 - **Certificate Pinning**: Custom TLS certificate validation
 - **DNS-over-TLS**: Enhanced privacy with DoT support
-- **Proxy Support**: HTTP, HTTPS, and SOCKS5 proxy configurations with UDP support for HTTP/3
+- **Proxy Support**: HTTP, HTTPS, SOCKS4 and SOCKS5 proxy configurations with UDP support for HTTP/3
 
 ### 🚀 **Performance & Reliability**
 - **Connection Pooling**: Efficient connection reuse with singleton pattern

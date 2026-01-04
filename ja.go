@@ -1,16 +1,10 @@
 package surf
 
 import (
-	"context"
-	"fmt"
 	"math"
-	"math/rand"
-	"net"
 
 	"github.com/enetx/g"
-	"github.com/enetx/http"
 	"github.com/enetx/surf/internal/specclone"
-	"github.com/enetx/surf/pkg/connectproxy"
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
 
@@ -67,8 +61,7 @@ func (j *JA) SetHelloSpec(spec utls.ClientHelloSpec) *Builder {
 // The method performs several key operations:
 // 1. Skips configuration if HTTP/3 is being used (JA3/4 only works with HTTP/1.1 and HTTP/2)
 // 2. Adds connection cleanup middleware if not using singleton pattern
-// 3. Configures proxy settings for both static and dynamic proxy configurations
-// 4. Wraps the transport with a custom round tripper that implements JA3/4 fingerprinting
+// 3. Wraps the transport with a custom round tripper that implements JA3/4 fingerprinting
 //
 // Returns the builder instance for method chaining.
 func (j *JA) build() *Builder {
@@ -80,59 +73,6 @@ func (j *JA) build() *Builder {
 
 		if !j.builder.singleton {
 			j.builder.addRespMW(closeIdleConnectionsMW, 0)
-		}
-
-		if j.builder.proxy != nil {
-			var proxy string
-
-			// Handle static proxy configurations
-			switch v := j.builder.proxy.(type) {
-			case string:
-				proxy = v
-			case g.String:
-				proxy = v.Std()
-			}
-
-			if proxy != "" {
-				// Static proxy configuration
-				dialer, err := connectproxy.NewDialer(proxy)
-				if err != nil {
-					c.GetTransport().(*http.Transport).DialContext = func(context.Context, string, string) (net.Conn, error) {
-						return nil, fmt.Errorf("proxy dialer init failed: %w", err)
-					}
-				} else {
-					c.GetTransport().(*http.Transport).DialContext = dialer.DialContext
-				}
-			} else {
-				// Dynamic proxy configuration - evaluate proxy per connection
-				c.GetTransport().(*http.Transport).DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-					var proxy string
-
-					switch v := j.builder.proxy.(type) {
-					case func() g.String:
-						proxy = v().Std()
-					case []string:
-						if len(v) > 0 {
-							proxy = v[rand.Intn(len(v))]
-						}
-					case g.Slice[string]:
-						proxy = v.Random()
-					case g.Slice[g.String]:
-						proxy = v.Random().Std()
-					}
-
-					if proxy == "" {
-						return c.GetDialer().DialContext(ctx, network, addr)
-					}
-
-					dialer, err := connectproxy.NewDialer(proxy)
-					if err != nil {
-						return nil, fmt.Errorf("create proxy dialer for %s: %w", proxy, err)
-					}
-
-					return dialer.DialContext(ctx, network, addr)
-				}
-			}
 		}
 
 		// Wrap the transport with JA3/4 fingerprinting round tripper

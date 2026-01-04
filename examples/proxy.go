@@ -19,6 +19,8 @@ func main() {
 	r := surf.NewClient().
 		Builder().
 		Proxy([]string{
+			"http://127.0.0.1:2080",
+			"socks4://127.0.0.1:2080",
 			"socks5://127.0.0.1:9050",
 			"socks5://127.0.0.1:9050",
 		}).

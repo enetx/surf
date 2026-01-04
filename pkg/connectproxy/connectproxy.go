@@ -15,6 +15,7 @@ import (
 
 	"github.com/enetx/http"
 	"github.com/enetx/http2"
+	_ "github.com/enetx/surf/pkg/socks4"
 	"golang.org/x/net/proxy"
 )
 
@@ -51,6 +52,8 @@ type proxyDialer struct {
 const (
 	schemeHTTP  = "http"
 	schemeHTTPS = "https"
+	socks4      = "socks4"
+	socks4A     = "socks4a"
 	socks5      = "socks5"
 	socks5H     = "socks5h"
 )
@@ -76,7 +79,7 @@ func NewDialer(proxy string) (*proxyDialer, error) {
 		if parsed.Port() == "" {
 			parsed.Host = net.JoinHostPort(parsed.Host, "443")
 		}
-	case socks5, socks5H:
+	case socks4, socks4A, socks5, socks5H:
 		if parsed.Port() == "" {
 			parsed.Host = net.JoinHostPort(parsed.Host, "1080")
 		}
@@ -168,7 +171,11 @@ func (c *proxyDialer) DialContext(ctx context.Context, network, address string) 
 			return nil, err
 		}
 
-		return dial.(proxy.ContextDialer).DialContext(ctx, network, address)
+		if cd, ok := dial.(proxy.ContextDialer); ok {
+			return cd.DialContext(ctx, network, address)
+		}
+
+		return dial.Dial(network, address)
 	}
 
 	req := (&http.Request{
