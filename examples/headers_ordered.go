@@ -21,8 +21,8 @@ func main() {
 	oh.Set("User-Agent", "")
 	oh.Set("Accept-Encoding", "gzip")
 	oh.Set("2", "2")
-	oh.Set("Content-Length", "")
 	oh.Set("Content-Type", "")
+	oh.Set("Content-Length", "")
 	oh.Set("3", "3")
 	oh.Set("4", "4")
 

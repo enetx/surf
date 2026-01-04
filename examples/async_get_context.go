@@ -31,7 +31,7 @@ func main() {
 		println(i)
 	}
 
-	for r := range p.Wait().Iter() {
+	for r := range p.Wait() {
 		if r.IsOk() {
 			r.Ok().Body.Limit(10).String().Print()
 		}
