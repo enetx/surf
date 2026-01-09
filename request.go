@@ -19,12 +19,12 @@ import (
 // It wraps the standard http.Request and provides enhanced features like middleware support,
 // retry capabilities, remote address tracking, and structured error handling.
 type Request struct {
-	request    *http.Request // The underlying standard HTTP request
-	cli        *Client       // The associated surf client for this request
-	werr       *error        // Pointer to error encountered during request writing/preparation
 	err        error         // General error associated with the request (validation, setup, etc.)
 	remoteAddr net.Addr      // Remote server address captured during connection
 	body       io.ReadCloser // Request body reader (for retry support and body preservation)
+	request    *http.Request // The underlying standard HTTP request
+	cli        *Client       // The associated surf client for this request
+	werr       *error        // Pointer to error encountered during request writing/preparation
 }
 
 // GetRequest returns the underlying standard http.Request.
@@ -106,11 +106,19 @@ retry:
 	}
 
 	if req.request.Method != http.MethodHead {
-		response.Body = new(Body)
-		response.Body.Reader = resp.Body
-		response.Body.cache = builder != nil && builder.cacheBody
-		response.Body.contentType = resp.Header.Get(header.CONTENT_TYPE)
-		response.Body.limit = -1
+		body := &Body{
+			Reader:      resp.Body,
+			cache:       builder != nil && builder.cacheBody,
+			contentType: resp.Header.Get(header.CONTENT_TYPE),
+			limit:       -1,
+		}
+
+		ctx := req.request.Context()
+		if ctx != context.Background() && ctx != context.TODO() {
+			body.ctx = ctx
+		}
+
+		response.Body = body
 	}
 
 	if err := req.cli.applyRespMW(response); err != nil {

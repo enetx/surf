@@ -14,16 +14,16 @@ import (
 // It wraps the standard http.Response and provides additional features like timing information,
 // retry attempts tracking, enhanced cookie management, and convenient access methods.
 type Response struct {
-	*Client                      // Embedded client provides access to all client functionality
+	Headers       Headers        // Response headers with convenience methods
+	Cookies       Cookies        // Response cookies with enhanced functionality
+	UserAgent     g.String       // User agent that was used for the request
+	Proto         g.String       // HTTP protocol version (HTTP/1.1, HTTP/2, HTTP/3)
 	remoteAddr    net.Addr       // Remote server address captured during connection
+	*Client                      // Embedded client provides access to all client functionality
 	URL           *url.URL       // Final URL after following redirects
 	response      *http.Response // Underlying standard HTTP response
 	Body          *Body          // Enhanced response body with compression support and caching
 	request       *Request       // The original request that generated this response
-	Headers       Headers        // Response headers with convenience methods
-	UserAgent     g.String       // User agent that was used for the request
-	Proto         g.String       // HTTP protocol version (HTTP/1.1, HTTP/2, HTTP/3)
-	Cookies       Cookies        // Response cookies with enhanced functionality
 	Time          time.Duration  // Total request duration including retries
 	ContentLength int64          // Content-Length header value (-1 if not specified)
 	StatusCode    StatusCode     // HTTP status code with convenience methods

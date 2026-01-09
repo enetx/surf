@@ -21,11 +21,11 @@ import (
 // It can dynamically switch between HTTP/1.1 and HTTP/2 based on ALPN negotiation
 // and connection success, and optionally reuses a single pre-established connection.
 type unifiedTransport struct {
+	firstConn net.Conn         // optional first connection to reuse for the first request
 	http1     *http.Transport  // underlying HTTP/1.1 transport
 	http2     *http2.Transport // underlying HTTP/2 transport
-	firstConn net.Conn         // optional first connection to reuse for the first request
-	usedFirst atomic.Bool      // tracks whether firstConn has already been used
 	useHTTP1  uint32           // atomic flag, 1 if HTTP/1.1 should be forced
+	usedFirst atomic.Bool      // tracks whether firstConn has already been used
 }
 
 // newUnifiedTransport creates a new unifiedTransport with optional first connection.

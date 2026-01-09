@@ -398,18 +398,16 @@ func TestBodyClose(t *testing.T) {
 func TestBodyCloseNil(t *testing.T) {
 	t.Parallel()
 
-	// Test Close() on nil body
+	// Test Close() on nil body - should return nil (no-op)
 	var body *surf.Body
-	err := body.Close()
-	if err == nil {
-		t.Error("expected error when closing nil body")
+	if err := body.Close(); err != nil {
+		t.Errorf("expected nil error when closing nil body, got: %v", err)
 	}
 
-	// Test Close() on body with nil Reader
+	// Test Close() on body with nil Reader - should return nil (no-op)
 	body = &surf.Body{}
-	err = body.Close()
-	if err == nil {
-		t.Error("expected error when closing body with nil Reader")
+	if err := body.Close(); err != nil {
+		t.Errorf("expected nil error when closing body with nil Reader, got: %v", err)
 	}
 }
 

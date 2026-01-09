@@ -150,13 +150,13 @@ func (h *HTTP3Settings) Set() *Builder {
 // The transport supports both static and dynamic proxy configurations with connection caching.
 type uquicTransport struct {
 	settings          g.MapOrd[uint64, uint64]             // HTTP/3 Settings
-	tlsConfig         *tls.Config                          // TLS configuration for QUIC connections
-	dialer            *net.Dialer                          // Network dialer (may contain custom DNS resolver)
 	proxy             any                                  // Proxy configuration (static or dynamic function)
 	staticProxy       string                               // Cached static proxy URL for performance
-	isDynamic         bool                                 // Flag indicating if proxy is dynamic (disables caching)
-	cachedTransports  *g.MapSafe[string, *http3.Transport] // Per-address HTTP/3 transport cache
 	fallbackTransport http.RoundTripper                    // HTTP/2 transport for non-SOCKS5 proxy fallback
+	tlsConfig         *tls.Config                          // TLS configuration for QUIC connections
+	dialer            *net.Dialer                          // Network dialer (may contain custom DNS resolver)
+	cachedTransports  *g.MapSafe[string, *http3.Transport] // Per-address HTTP/3 transport cache
+	isDynamic         bool                                 // Flag indicating if proxy is dynamic (disables caching)
 }
 
 // CloseIdleConnections closes all cached HTTP/3 connections and clears the cache.

@@ -22,16 +22,17 @@ const (
 // including proxy settings, TLS fingerprinting, HTTP/2 and HTTP/3 support, retry logic,
 // redirect handling, and browser impersonation capabilities.
 type Builder struct {
-	cli                      *Client                                    // The client being configured
+	retryCodes               g.Slice[int]                               // HTTP status codes that trigger retries
 	proxy                    any                                        // Proxy configuration (static string/slice or dynamic function)
+	cli                      *Client                                    // The client being configured
 	checkRedirect            func(*http.Request, []*http.Request) error // Custom redirect policy function
 	http2settings            *HTTP2Settings                             // HTTP/2 specific settings
 	http3settings            *HTTP3Settings                             // HTTP/3 specific settings
-	retryCodes               g.Slice[int]                               // HTTP status codes that trigger retries
 	cliMWs                   *middleware[*Client]                       // Priority-ordered client middlewares
 	retryWait                time.Duration                              // Wait duration between retry attempts
 	retryMax                 int                                        // Maximum number of retry attempts
 	maxRedirects             int                                        // Maximum number of redirects to follow
+	browser                  browser                                    // Browser type for fingerprinting
 	forceHTTP1               bool                                       // Force HTTP/1.1 protocol usage
 	forceHTTP2               bool                                       // Force HTTP/2 protocol usage
 	forceHTTP3               bool                                       // Force HTTP/3 protocol usage
@@ -40,7 +41,6 @@ type Builder struct {
 	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
 	ja                       bool                                       // Enable JA3 TLS fingerprinting
 	singleton                bool                                       // Use singleton pattern for connection reuse
-	browser                  browser                                    // Browser type for fingerprinting
 	http3                    bool                                       // Enable HTTP/3 with automatic browser detection
 }
 

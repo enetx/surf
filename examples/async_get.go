@@ -23,12 +23,14 @@ func main() {
 		Iter().
 		Cycle().
 		Take(100).
-		Parallel(100).
+		Parallel(10).
 		ForEach(func(s g.String) {
 			if r := cli.Get(s).Do(); r.IsOk() {
 				r.Ok().Body.Limit(10).String().Println()
 			}
 		})
+
+	cli.CloseIdleConnections()
 
 	elapsed := time.Since(start)
 	fmt.Printf("elapsed: %v\n", elapsed)

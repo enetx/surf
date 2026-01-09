@@ -12,8 +12,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
 	defer cancel()
 
-	cli := surf.NewClient().Builder().WithContext(ctx).Build()
-	req := cli.Get("https://httpbingo.org/get")
+	// cli := surf.NewClient().Builder().WithContext(ctx).Build()
+
+	cli := surf.NewClient()
+	req := cli.Get("https://httpbingo.org/get").WithContext(ctx)
 
 	resp := req.Do()
 	if resp.IsErr() {

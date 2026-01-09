@@ -723,7 +723,7 @@ client := surf.NewClient().
 ```go
 client := surf.NewClient().
     Builder().
-    Resolver("8.8.8.8:53").  // Use Google DNS
+    DNS("8.8.8.8:53").  // Use Google DNS
     Build()
 ```
 

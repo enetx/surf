@@ -8,17 +8,17 @@ import (
 // HTTP2Settings represents HTTP/2 settings.
 // https://lwthiker.com/networks/2022/06/17/http2-fingerprinting.html
 type HTTP2Settings struct {
-	builder              *Builder
 	priorityFrames       []http2.PriorityFrame
 	priorityParam        http2.PriorityParam
+	builder              *Builder
 	headerTableSize      uint32
-	enablePush           uint32
 	maxConcurrentStreams uint32
 	initialWindowSize    uint32
-	initialStreamID      uint32
 	maxFrameSize         uint32
 	maxHeaderListSize    uint32
 	connectionFlow       uint32
+	initialStreamID      uint32
+	enablePush           uint32
 	usePush              bool
 }
 

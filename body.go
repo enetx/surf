@@ -2,36 +2,101 @@ package surf
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"io"
 	"math"
 	"regexp"
+	"sync"
 
 	"github.com/enetx/g"
 	"github.com/enetx/surf/pkg/sse"
 	"golang.org/x/net/html/charset"
 )
 
+// reader is a wrapper around an io.Reader that supports cancellation via context.Context.
+// It allows blocking read operations to be interrupted if the context is canceled or times out.
+type reader struct {
+	r   io.Reader       // The underlying data source
+	ctx context.Context // Context used for canceling the read
+}
+
+// Read reads data from the internal io.Reader into the provided buffer p.
+// If the context ctx is canceled, Read immediately returns ctx.Err().
+// Otherwise, it behaves like a normal io.Reader, returning the number of bytes read
+// and any read error encountered.
+func (c *reader) Read(p []byte) (int, error) {
+	select {
+	case <-c.ctx.Done():
+		return 0, c.ctx.Err()
+	default:
+		return c.r.Read(p)
+	}
+}
+
 // Body represents an HTTP response body with enhanced functionality and automatic caching.
 // Provides convenient methods for parsing common data formats (JSON, XML, text) and includes
 // features like automatic decompression, content caching, character set detection, and size limits.
 type Body struct {
-	Reader      io.ReadCloser // ReadCloser for accessing the raw body content
-	contentType string        // MIME content type from Content-Type header
-	content     g.Bytes       // Cached body content (populated when cache is enabled)
-	limit       int64         // Maximum allowed body size in bytes (-1 for unlimited)
-	cache       bool          // Whether to cache the body content in memory for reuse
+	content     g.Bytes         // Cached body content (populated when cache is enabled)
+	contentType string          // MIME content type from Content-Type header
+	ctx         context.Context // Context associated with this Body
+	Reader      io.ReadCloser   // ReadCloser for accessing the raw body content
+	limit       int64           // Maximum allowed body size in bytes (-1 for unlimited)
+	once        sync.Once       // Ensures the body is read and cached exactly once
+	cache       bool            // Whether to cache the body content in memory for reuse
 }
 
-// MD5 returns the MD5 hash of the body's content as a HString.
+// Bytes returns the body's content as a byte slice.
+func (b *Body) Bytes() g.Bytes {
+	if b == nil {
+		return nil
+	}
+
+	if b.cache {
+		b.once.Do(func() { b.content = b.read() })
+		return b.content
+	}
+
+	return b.read()
+}
+
+// read reads the body content exactly once and returns it as g.Bytes.
+// It closes the underlying reader when finished. If a context is provided,
+// reading will be canceled if the context is done.
+// The read is limited by b.limit (if -1, unlimited), and io.LimitReader ensures the size limit.
+func (b *Body) read() g.Bytes {
+	if b.Reader == nil {
+		return nil
+	}
+
+	defer b.Close()
+
+	var r io.Reader = b.Reader
+	if b.ctx != nil {
+		r = &reader{ctx: b.ctx, r: b.Reader}
+	}
+
+	limit := b.limit
+	if limit == -1 {
+		limit = math.MaxInt64
+	}
+
+	data, err := io.ReadAll(io.LimitReader(r, limit))
+	if err != nil {
+		return nil
+	}
+
+	return data
+}
+
+// MD5 returns the MD5 hash of the body's content as a g.String.
 func (b *Body) MD5() g.String { return b.String().Hash().MD5() }
 
 // XML decodes the body's content as XML into the provided data structure.
-func (b *Body) XML(data any) error {
-	return xml.Unmarshal(b.Bytes(), data)
-}
+func (b *Body) XML(data any) error { return xml.Unmarshal(b.Bytes(), data) }
 
 // JSON decodes the body's content as JSON into the provided data structure.
 func (b *Body) JSON(data any) error { return json.Unmarshal(b.Bytes(), data) }
@@ -42,7 +107,12 @@ func (b *Body) Stream() *bufio.Reader {
 		return nil
 	}
 
-	return bufio.NewReader(b.Reader)
+	var r io.Reader = b.Reader
+	if b.ctx != nil {
+		r = &reader{ctx: b.ctx, r: b.Reader}
+	}
+
+	return bufio.NewReader(r)
 }
 
 // SSE reads the body's content as Server-Sent Events (SSE) and calls the provided function for each event.
@@ -65,13 +135,10 @@ func (b *Body) Limit(limit int64) *Body {
 // Close closes the body and returns any error encountered.
 func (b *Body) Close() error {
 	if b == nil || b.Reader == nil {
-		return errors.New("cannot close: body is empty or contains no content")
+		return nil
 	}
 
-	if _, err := io.Copy(io.Discard, b.Reader); err != nil {
-		return err
-	}
-
+	io.Copy(io.Discard, b.Reader)
 	return b.Reader.Close()
 }
 
@@ -94,44 +161,14 @@ func (b *Body) UTF8() g.String {
 	return g.String(content)
 }
 
-// Bytes returns the body's content as a byte slice.
-func (b *Body) Bytes() g.Bytes {
-	if b == nil {
-		return nil
-	}
-
-	if b.cache && b.content != nil {
-		return b.content
-	}
-
-	if _, err := b.Reader.Read(nil); err != nil {
-		if err.Error() == "http: read on closed response body" {
-			return nil
-		}
-	}
-
-	defer b.Close()
-
-	if b.limit == -1 {
-		b.limit = math.MaxInt64
-	}
-
-	content, err := io.ReadAll(io.LimitReader(b.Reader, b.limit))
-	if err != nil {
-		return nil
-	}
-
-	if b.cache {
-		b.content = content
-	}
-
-	return content
-}
-
 // Dump dumps the body's content to a file with the given filename.
 func (b *Body) Dump(filename g.String) error {
 	if b == nil || b.Reader == nil {
 		return errors.New("cannot dump: body is empty or contains no content")
+	}
+
+	if b.cache && b.content != nil {
+		return g.NewFile(filename).Write(b.content.String()).Err()
 	}
 
 	defer b.Close()
@@ -142,6 +179,10 @@ func (b *Body) Dump(filename g.String) error {
 // Contains checks if the body's content contains the provided pattern (byte slice, string, or
 // *regexp.Regexp) and returns a boolean.
 func (b *Body) Contains(pattern any) bool {
+	if b == nil {
+		return false
+	}
+
 	switch p := pattern.(type) {
 	case []byte:
 		return b.Bytes().Lower().Contains(g.Bytes(p).Lower())
