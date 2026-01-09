@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/enetx/g"
 	"github.com/enetx/surf"
@@ -38,7 +40,22 @@ func main() {
 	// url := "juliogroup.uk" // 101 proxy
 	// url := "bompreco.cloud" // 101 websocket
 
-	r := surf.NewClient().Get(g.String(url)).Do()
+	fmt.Println("start")
+
+	url = "anantha.eu"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	r := surf.NewClient().
+		Builder().
+		Impersonate().
+		Chrome().
+		Build().
+		Get(g.String(url)).
+		WithContext(ctx).
+		Do()
+
 	if r.IsErr() {
 		fmt.Println(r.Err())
 		return

@@ -148,6 +148,8 @@ func (c *proxyDialer) connectHTTP2(req *http.Request, conn net.Conn, h2clientCon
 
 	resp, err := h2clientConn.RoundTrip(req)
 	if err != nil {
+		_ = pw.Close()
+		_ = pr.Close()
 		_ = conn.Close()
 		return nil, err
 	}

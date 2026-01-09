@@ -97,7 +97,7 @@ func TestDefaultDialer(t *testing.T) {
 	}
 
 	// Test default dialer timeout
-	expectedTimeout := 30 * time.Second
+	expectedTimeout := 10 * time.Second
 	if dialer.Timeout != expectedTimeout {
 		t.Errorf("expected dialer timeout %v, got %v", expectedTimeout, dialer.Timeout)
 	}

@@ -37,6 +37,8 @@ func defaultTransportMW(client *Client) error {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.DialContext = client.dialer.DialContext
 	transport.TLSClientConfig = client.tlsConfig
+	transport.TLSHandshakeTimeout = _tlsHandshakeTimeout
+	transport.ResponseHeaderTimeout = _responseHeaderTimeout
 	transport.MaxIdleConns = _maxIdleConns
 	transport.MaxConnsPerHost = _maxConnsPerHost
 	transport.MaxIdleConnsPerHost = _maxIdleConnsPerHost
