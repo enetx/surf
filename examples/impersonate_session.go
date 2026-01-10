@@ -7,19 +7,16 @@ func main() {
 
 	cli := surf.NewClient().
 		Builder().
-		Singleton().
 		Session(). // Enables TLS session cache: 1st request = full handshake, 2nd = resumed with PSK (ext 41)
 		Impersonate().
-		Chrome().
-		// Firefox().
+		// Chrome().
+		Firefox().
 		// // Disable TLS session.
 		// With(func(cli *surf.Client) error {
 		// 	cli.GetTLSConfig().ClientSessionCache = nil
 		// 	return nil
 		// }).
 		Build()
-
-	defer cli.CloseIdleConnections()
 
 	r := cli.Get(url).Do()
 	r.Ok().Body.String().Println()

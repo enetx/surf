@@ -34,16 +34,19 @@ func defaultTLSConfigMW(client *Client) error {
 // defaultTransportMW initializes the default HTTP transport for the surf client.
 // Configures connection pooling, timeouts, and enables HTTP/2 support by default.
 func defaultTransportMW(client *Client) error {
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.DialContext = client.dialer.DialContext
-	transport.TLSClientConfig = client.tlsConfig
-	transport.TLSHandshakeTimeout = _tlsHandshakeTimeout
-	transport.ResponseHeaderTimeout = _responseHeaderTimeout
-	transport.MaxIdleConns = _maxIdleConns
-	transport.MaxConnsPerHost = _maxConnsPerHost
-	transport.MaxIdleConnsPerHost = _maxIdleConnsPerHost
-	transport.IdleConnTimeout = _idleConnTimeout
-	transport.ForceAttemptHTTP2 = true
+	transport := &http.Transport{
+		Proxy:                 http.ProxyFromEnvironment,
+		DialContext:           client.dialer.DialContext,
+		TLSClientConfig:       client.tlsConfig,
+		TLSHandshakeTimeout:   _tlsHandshakeTimeout,
+		ResponseHeaderTimeout: _responseHeaderTimeout,
+		MaxIdleConns:          _maxIdleConns,
+		MaxConnsPerHost:       _maxConnsPerHost,
+		MaxIdleConnsPerHost:   _maxIdleConnsPerHost,
+		IdleConnTimeout:       _idleConnTimeout,
+		ForceAttemptHTTP2:     true,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
 
 	client.transport = transport
 

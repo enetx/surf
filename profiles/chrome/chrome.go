@@ -2,6 +2,7 @@ package chrome
 
 import (
 	"crypto/rand"
+	"sync"
 
 	"github.com/enetx/g"
 	"github.com/enetx/g/cmp"
@@ -183,7 +184,21 @@ var headerOrder = g.Map[string, g.Slice[string]]{
 	},
 }
 
+var (
+	headerEnums g.Map[string, g.MapOrd[any, g.Int]]
+	once        sync.Once
+)
+
+func initHeaderEnums() {
+	headerEnums = g.NewMap[string, g.MapOrd[any, g.Int]]()
+	for method, headers := range headerOrder {
+		headerEnums[method] = headers.Iter().Enumerate().Collect().Invert()
+	}
+}
+
 func Headers[T ~string](headers *g.MapOrd[T, T], method string) {
+	once.Do(initHeaderEnums)
+
 	switch method {
 	case http.MethodPost:
 		headers.Set(header.ACCEPT, "*/*")
@@ -208,13 +223,14 @@ func Headers[T ~string](headers *g.MapOrd[T, T], method string) {
 		headers.Set(header.UPGRADE_INSECURE_REQUESTS, "1")
 	}
 
-	headers.SortByKey(func(a, b T) cmp.Ordering {
-		m := headerOrder.Get(method).UnwrapOr(headerOrder[http.MethodGet])
+	enum, ok := headerEnums[method]
+	if !ok {
+		enum = headerEnums[http.MethodGet]
+	}
 
-		enum := m.Iter().Enumerate().Collect().Invert()
+	headers.SortByKey(func(a, b T) cmp.Ordering {
 		ida := enum.Get(string(a))
 		idb := enum.Get(string(b))
-
 		return ida.UnwrapOrDefault().Cmp(idb.UnwrapOrDefault())
 	})
 }

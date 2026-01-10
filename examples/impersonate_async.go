@@ -17,13 +17,10 @@ func main() {
 
 	cli := surf.NewClient().
 		Builder().
-		Singleton(). // for reuse client
 		Impersonate().
 		// Chrome().
 		Firefox().
 		Build()
-
-	defer cli.CloseIdleConnections()
 
 	p := pool.New[*surf.Response]()
 
@@ -33,7 +30,8 @@ func main() {
 
 	for r := range p.Wait() {
 		if r.IsErr() {
-			log.Fatal(r.Err())
+			log.Println(r.Err())
+			continue
 		}
 
 		r.Ok().Debug().Response().Print()

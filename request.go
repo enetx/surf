@@ -259,8 +259,6 @@ func (req *Request) applyHeaders(
 // header order keys for the transport layer to use. Returns a filtered map containing only
 // non-pseudo headers with non-empty values.
 func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[T, T] {
-	hclone := h.Clone()
-
 	if r.cli.builder != nil {
 		method := r.request.Method
 		if r.cli.builder.http3 {
@@ -269,13 +267,13 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 
 		switch r.cli.builder.browser {
 		case chromeBrowser:
-			chrome.Headers(&hclone, method)
+			chrome.Headers(&h, method)
 		case firefoxBrowser:
-			firefox.Headers(&hclone, method)
+			firefox.Headers(&h, method)
 		}
 	}
 
-	headersKeys := g.TransformSlice(hclone.Iter().
+	headersKeys := g.TransformSlice(h.Iter().
 		Keys().
 		Map(func(s T) T { return T(g.String(s).Lower()) }).
 		Collect(), func(t T) string { return string(t) })
@@ -290,7 +288,7 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 		r.request.Header[http.PHeaderOrderKey] = pheaders
 	}
 
-	return hclone.Iter().
+	return h.Iter().
 		Filter(func(header, data T) bool { return header[0] != ':' && len(data) != 0 }).
 		Collect()
 }
