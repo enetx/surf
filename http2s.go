@@ -102,27 +102,20 @@ func (h *HTTP2Settings) Set() *Builder {
 			return err
 		}
 
+		t2.Settings = make([]http2.Setting, 0, 6)
+
 		appendSetting := func(id http2.SettingID, val uint32) {
 			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
 				t2.Settings = append(t2.Settings, http2.Setting{ID: id, Val: val})
 			}
 		}
 
-		settings := [...]struct {
-			id  http2.SettingID
-			val uint32
-		}{
-			{http2.SettingHeaderTableSize, h.headerTableSize},
-			{http2.SettingEnablePush, h.enablePush},
-			{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
-			{http2.SettingInitialWindowSize, h.initialWindowSize},
-			{http2.SettingMaxFrameSize, h.maxFrameSize},
-			{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
-		}
-
-		for _, s := range settings {
-			appendSetting(s.id, s.val)
-		}
+		appendSetting(http2.SettingHeaderTableSize, h.headerTableSize)
+		appendSetting(http2.SettingEnablePush, h.enablePush)
+		appendSetting(http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams)
+		appendSetting(http2.SettingInitialWindowSize, h.initialWindowSize)
+		appendSetting(http2.SettingMaxFrameSize, h.maxFrameSize)
+		appendSetting(http2.SettingMaxHeaderListSize, h.maxHeaderListSize)
 
 		if h.initialStreamID != 0 {
 			t2.StreamID = h.initialStreamID

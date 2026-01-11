@@ -5,10 +5,9 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
+	"strings"
 	"time"
 
-	"github.com/enetx/g"
-	"github.com/enetx/g/ref"
 	"github.com/enetx/http"
 	"github.com/enetx/http2"
 
@@ -53,10 +52,11 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 // RoundTrip executes a single HTTP request.
 // Optimized for parsing different sites (no per-request allocations).
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	scheme := g.String(req.URL.Scheme).Lower()
+	scheme := strings.ToLower(req.URL.Scheme)
 
 	switch scheme {
 	case "http":
+		// Plain HTTP always uses HTTP/1.1 (HTTP/2 requires TLS)
 		return rt.http1tr.RoundTrip(req)
 	case "https":
 		return rt.handleHTTPSRequest(req)
@@ -80,8 +80,8 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	// HTTP/2 failed - fallback to HTTP/1.1
-	if ctxErr := req.Context().Err(); ctxErr != nil {
-		return nil, ctxErr
+	if err := req.Context().Err(); err != nil {
+		return nil, err
 	}
 
 	// Restore request body if needed for retry
@@ -120,13 +120,16 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 		},
 		DisableCompression: rt.http1tr.DisableCompression,
 		IdleConnTimeout:    rt.http1tr.IdleConnTimeout,
-		ReadIdleTimeout:    _http2ReadIdleTimeout,
 		PingTimeout:        _http2PingTimeout,
+		ReadIdleTimeout:    _http2ReadIdleTimeout,
 		WriteByteTimeout:   _http2WriteByteTimeout,
 	}
 
 	if rt.ja.builder.http2settings != nil {
 		h := rt.ja.builder.http2settings
+
+		// Pre-allocate settings slice to avoid multiple allocations
+		t.Settings = make([]http2.Setting, 0, 6)
 
 		appendSetting := func(id http2.SettingID, val uint32) {
 			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
@@ -134,21 +137,12 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 			}
 		}
 
-		settings := [...]struct {
-			id  http2.SettingID
-			val uint32
-		}{
-			{http2.SettingHeaderTableSize, h.headerTableSize},
-			{http2.SettingEnablePush, h.enablePush},
-			{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
-			{http2.SettingInitialWindowSize, h.initialWindowSize},
-			{http2.SettingMaxFrameSize, h.maxFrameSize},
-			{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
-		}
-
-		for _, s := range settings {
-			appendSetting(s.id, s.val)
-		}
+		appendSetting(http2.SettingHeaderTableSize, h.headerTableSize)
+		appendSetting(http2.SettingEnablePush, h.enablePush)
+		appendSetting(http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams)
+		appendSetting(http2.SettingInitialWindowSize, h.initialWindowSize)
+		appendSetting(http2.SettingMaxFrameSize, h.maxFrameSize)
+		appendSetting(http2.SettingMaxHeaderListSize, h.maxHeaderListSize)
 
 		if h.initialStreamID != 0 {
 			t.StreamID = h.initialStreamID
@@ -202,15 +196,17 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) 
 		host = addr
 	}
 
-	spec := rt.ja.getSpec()
-	if spec.IsErr() {
+	specr := rt.ja.getSpec()
+	if specr.IsErr() {
 		rawConn.Close()
-		return nil, spec.Err()
+		return nil, specr.Err()
 	}
+
+	spec := specr.Ok()
 
 	// Apply HTTP/1 ALPN if forced
 	if rt.ja.builder.forceHTTP1 {
-		setAlpnProtocolToHTTP1(ref.Of(spec.Ok()))
+		setAlpnProtocolToHTTP1(&spec)
 	}
 
 	config := &utls.Config{
@@ -221,14 +217,14 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) 
 		KeyLogWriter:           rt.ja.builder.cli.tlsConfig.KeyLogWriter,
 	}
 
-	if supportsResumption(spec.Ok()) && rt.clientSessionCache != nil {
+	if supportsResumption(spec) && rt.clientSessionCache != nil {
 		config.ClientSessionCache = rt.clientSessionCache
 		config.PreferSkipResumptionOnNilExtension = true
 		config.SessionTicketsDisabled = false
 	}
 
 	uconn := utls.UClient(rawConn, config, utls.HelloCustom)
-	if err = uconn.ApplyPreset(ref.Of(spec.Ok())); err != nil {
+	if err = uconn.ApplyPreset(&spec); err != nil {
 		uconn.Close()
 		return nil, err
 	}
@@ -281,33 +277,35 @@ func supportsResumption(spec utls.ClientHelloSpec) bool {
 // by updating or adding the ALPN extension.
 func setAlpnProtocolToHTTP1(utlsSpec *utls.ClientHelloSpec) {
 	for _, ext := range utlsSpec.Extensions {
-		if alpns, ok := ext.(*utls.ALPNExtension); ok {
-			// Remove h2 and ensure http/1.1 is present
-			protocols := make([]string, 0, len(alpns.AlpnProtocols))
-			hasHTTP1 := false
-
-			for _, proto := range alpns.AlpnProtocols {
-				if proto == "h2" {
-					continue
-				}
-
-				if proto == "http/1.1" {
-					hasHTTP1 = true
-				}
-
-				protocols = append(protocols, proto)
-			}
-
-			if !hasHTTP1 {
-				protocols = append(protocols, "http/1.1")
-			}
-
-			alpns.AlpnProtocols = protocols
-			return
+		alpns, ok := ext.(*utls.ALPNExtension)
+		if !ok {
+			continue
 		}
+
+		filtered := alpns.AlpnProtocols[:0]
+		hasHTTP1 := false
+
+		for _, proto := range alpns.AlpnProtocols {
+			if proto == "h2" {
+				continue
+			}
+
+			if proto == "http/1.1" {
+				hasHTTP1 = true
+			}
+
+			filtered = append(filtered, proto)
+		}
+
+		alpns.AlpnProtocols = filtered
+
+		if !hasHTTP1 {
+			alpns.AlpnProtocols = append(alpns.AlpnProtocols, "http/1.1")
+		}
+
+		return
 	}
 
-	// Add new ALPN extension if not present
 	utlsSpec.Extensions = append(utlsSpec.Extensions, &utls.ALPNExtension{
 		AlpnProtocols: []string{"http/1.1"},
 	})

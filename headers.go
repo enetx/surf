@@ -61,5 +61,9 @@ func (h Headers) Values(key g.String) g.Slice[g.String] {
 // It wraps the Get method from the textproto.MIMEHeader type.
 func (h Headers) Get(key g.String) g.String { return g.String(textproto.MIMEHeader(h).Get(key.Std())) }
 
+// Del deletes the values associated with a specified header key.
+// It wraps the Del method from the textproto.MIMEHeader type.
+func (h Headers) Del(key g.String) { textproto.MIMEHeader(h).Del(key.Std()) }
+
 // Clone returns a copy of Headers or nil if Headers is nil.
 func (h Headers) Clone() Headers { return Headers(http.Header(h).Clone()) }

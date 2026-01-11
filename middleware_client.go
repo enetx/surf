@@ -35,17 +35,18 @@ func defaultTLSConfigMW(client *Client) error {
 // Configures connection pooling, timeouts, and enables HTTP/2 support by default.
 func defaultTransportMW(client *Client) error {
 	transport := &http.Transport{
-		Proxy:                 http.ProxyFromEnvironment,
 		DialContext:           client.dialer.DialContext,
+		DisableCompression:    true,
+		ExpectContinueTimeout: 1 * time.Second,
+		ForceAttemptHTTP2:     true,
+		IdleConnTimeout:       _idleConnTimeout,
+		MaxConnsPerHost:       _maxConnsPerHost,
+		MaxIdleConns:          _maxIdleConns,
+		MaxIdleConnsPerHost:   _maxIdleConnsPerHost,
+		Proxy:                 http.ProxyFromEnvironment,
+		ResponseHeaderTimeout: _responseHeaderTimeout,
 		TLSClientConfig:       client.tlsConfig,
 		TLSHandshakeTimeout:   _tlsHandshakeTimeout,
-		ResponseHeaderTimeout: _responseHeaderTimeout,
-		MaxIdleConns:          _maxIdleConns,
-		MaxConnsPerHost:       _maxConnsPerHost,
-		MaxIdleConnsPerHost:   _maxIdleConnsPerHost,
-		IdleConnTimeout:       _idleConnTimeout,
-		ForceAttemptHTTP2:     true,
-		ExpectContinueTimeout: 1 * time.Second,
 	}
 
 	client.transport = transport
@@ -333,6 +334,9 @@ func h2cMW(client *Client) error {
 	if client.builder.http2settings != nil {
 		h := client.builder.http2settings
 
+		// Pre-allocate settings slice to avoid multiple allocations
+		t2.Settings = make([]http2.Setting, 0, 6)
+
 		// Helper function to append non-zero settings
 		appendSetting := func(id http2.SettingID, val uint32) {
 			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
@@ -340,33 +344,21 @@ func h2cMW(client *Client) error {
 			}
 		}
 
-		// Apply all configured HTTP/2 settings
-		settings := [...]struct {
-			id  http2.SettingID
-			val uint32
-		}{
-			{http2.SettingHeaderTableSize, h.headerTableSize},
-			{http2.SettingEnablePush, h.enablePush},
-			{http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams},
-			{http2.SettingInitialWindowSize, h.initialWindowSize},
-			{http2.SettingMaxFrameSize, h.maxFrameSize},
-			{http2.SettingMaxHeaderListSize, h.maxHeaderListSize},
-		}
-
-		for _, s := range settings {
-			appendSetting(s.id, s.val)
-		}
+		appendSetting(http2.SettingHeaderTableSize, h.headerTableSize)
+		appendSetting(http2.SettingEnablePush, h.enablePush)
+		appendSetting(http2.SettingMaxConcurrentStreams, h.maxConcurrentStreams)
+		appendSetting(http2.SettingInitialWindowSize, h.initialWindowSize)
+		appendSetting(http2.SettingMaxFrameSize, h.maxFrameSize)
+		appendSetting(http2.SettingMaxHeaderListSize, h.maxHeaderListSize)
 
 		if h.initialStreamID != 0 {
 			t2.StreamID = h.initialStreamID
 		}
 
-		// Apply flow control settings if configured
 		if h.connectionFlow != 0 {
 			t2.ConnectionFlow = h.connectionFlow
 		}
 
-		// Apply priority settings if configured
 		if !h.priorityParam.IsZero() {
 			t2.PriorityParam = h.priorityParam
 		}

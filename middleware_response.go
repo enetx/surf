@@ -5,6 +5,7 @@ import (
 	"compress/zlib"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/andybalholm/brotli"
 	"github.com/enetx/http"
@@ -51,6 +52,51 @@ func webSocketUpgradeErrorMW(r *Response) error {
 	return &ErrWebSocketUpgrade{fmt.Sprintf(`%s "%s" error:`, method, url)}
 }
 
+// Pools for reusing decompression resources to reduce allocations.
+var (
+	// zstdDecoderPool pools zstd.Decoder instances.
+	zstdDecoderPool = sync.Pool{
+		New: func() any {
+			dec, _ := zstd.NewReader(nil)
+			return dec
+		},
+	}
+
+	// gzipReaderPool pools gzip.Reader instances.
+	gzipReaderPool = sync.Pool{
+		New: func() any {
+			return new(gzip.Reader)
+		},
+	}
+)
+
+type (
+	// zstdReadCloser wraps a zstd decoder and returns it to the pool on Close.
+	zstdReadCloser struct {
+		io.ReadCloser
+		dec *zstd.Decoder
+	}
+
+	// gzipReadCloser wraps a gzip reader and returns it to the pool on Close.
+	gzipReadCloser struct {
+		*gzip.Reader
+	}
+)
+
+// Close closes the underlying reader and returns the decoder to the pool.
+func (z *zstdReadCloser) Close() error {
+	err := z.ReadCloser.Close()
+	zstdDecoderPool.Put(z.dec)
+	return err
+}
+
+// Close closes the reader and returns it to the pool.
+func (g *gzipReadCloser) Close() error {
+	err := g.Reader.Close()
+	gzipReaderPool.Put(g.Reader)
+	return err
+}
+
 // decodeBodyMW automatically decompresses response bodies based on Content-Encoding header.
 // Supports multiple compression algorithms:
 // - deflate: DEFLATE compression (zlib format)
@@ -60,7 +106,12 @@ func webSocketUpgradeErrorMW(r *Response) error {
 // Updates the response body reader to provide decompressed content transparently.
 // Returns an error if decompression fails, otherwise the body can be read normally.
 func decodeBodyMW(r *Response) error {
-	if r.Body == nil {
+	if r.Body == nil || r.Body.Reader == nil {
+		return nil
+	}
+
+	encoding := r.Headers.Get(header.CONTENT_ENCODING)
+	if encoding.Empty() {
 		return nil
 	}
 
@@ -69,24 +120,37 @@ func decodeBodyMW(r *Response) error {
 		err    error
 	)
 
-	switch r.Headers.Get(header.CONTENT_ENCODING) {
+	switch encoding.Lower() {
 	case "deflate":
 		reader, err = zlib.NewReader(r.Body.Reader)
 	case "gzip":
-		reader, err = gzip.NewReader(r.Body.Reader)
+		gr := gzipReaderPool.Get().(*gzip.Reader)
+		if err := gr.Reset(r.Body.Reader); err != nil {
+			gzipReaderPool.Put(gr)
+			return err
+		}
+		reader = &gzipReadCloser{Reader: gr}
 	case "br":
 		reader = io.NopCloser(brotli.NewReader(r.Body.Reader))
 	case "zstd":
-		decoder, err := zstd.NewReader(r.Body.Reader)
-		if err != nil {
+		dec := zstdDecoderPool.Get().(*zstd.Decoder)
+		if err := dec.Reset(r.Body.Reader); err != nil {
+			zstdDecoderPool.Put(dec)
 			return err
 		}
-
-		reader = decoder.IOReadCloser()
+		reader = &zstdReadCloser{
+			ReadCloser: dec.IOReadCloser(),
+			dec:        dec,
+		}
+	default:
+		return nil
 	}
 
 	if err == nil && reader != nil {
 		r.Body.Reader = reader
+		r.Headers.Del(header.CONTENT_ENCODING)
+		r.Headers.Del(header.CONTENT_LENGTH)
+		r.ContentLength = -1
 	}
 
 	return err
