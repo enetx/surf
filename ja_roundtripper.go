@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
-	"sync"
 	"time"
 
 	"github.com/enetx/g"
@@ -19,57 +18,46 @@ import (
 // roundtripper is a higher-level wrapper around HTTP transports, providing
 // TLS session resumption and protocol selection.
 type roundtripper struct {
-	transport          *http.Transport
+	http1tr            *http.Transport
+	http2tr            *http2.Transport
 	clientSessionCache utls.ClientSessionCache
 	ja                 *JA
-
-	http1Transport *http.Transport
-	http2Transport *http2.Transport
-	once           sync.Once
 }
 
 // newRoundTripper creates a new roundtripper wrapping the given base transport
 // and using JA configuration.
 func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
-	transport, ok := base.(*http.Transport)
+	http1tr, ok := base.(*http.Transport)
 	if !ok {
 		panic("surf: underlying transport must be *http.Transport")
 	}
 
 	rt := &roundtripper{
-		transport: transport,
-		ja:        ja,
+		http1tr: http1tr,
+		ja:      ja,
 	}
 
 	if ja.builder.cli.tlsConfig.ClientSessionCache != nil {
 		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
 	}
 
+	rt.http1tr.DialTLSContext = rt.dialTLS
+
+	if !ja.builder.forceHTTP1 {
+		rt.http2tr = rt.buildHTTP2Transport()
+	}
+
 	return rt
-}
-
-// initTransports initializes HTTP/1 and HTTP/2 transports once.
-// Called lazily on first use.
-func (rt *roundtripper) initTransports() {
-	rt.once.Do(func() {
-		rt.http1Transport = rt.transport.Clone()
-		rt.http1Transport.DialTLSContext = rt.dialTLS
-
-		if !rt.ja.builder.forceHTTP1 {
-			rt.http2Transport = rt.buildHTTP2Transport()
-		}
-	})
 }
 
 // RoundTrip executes a single HTTP request.
 // Optimized for parsing different sites (no per-request allocations).
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	rt.initTransports()
 	scheme := g.String(req.URL.Scheme).Lower()
 
 	switch scheme {
 	case "http":
-		return rt.http1Transport.RoundTrip(req)
+		return rt.http1tr.RoundTrip(req)
 	case "https":
 		return rt.handleHTTPSRequest(req)
 	default:
@@ -81,12 +69,12 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 // Reuses pre-built transports to avoid allocations.
 func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, error) {
 	// If HTTP/1 is forced, use it directly
-	if rt.ja.builder.forceHTTP1 {
-		return rt.http1Transport.RoundTrip(req)
+	if rt.http2tr == nil {
+		return rt.http1tr.RoundTrip(req)
 	}
 
 	// Try HTTP/2 first
-	resp, err := rt.http2Transport.RoundTrip(req)
+	resp, err := rt.http2tr.RoundTrip(req)
 	if err == nil {
 		return resp, nil
 	}
@@ -110,21 +98,17 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	// Retry with HTTP/1.1
-	return rt.http1Transport.RoundTrip(req)
+	return rt.http1tr.RoundTrip(req)
 }
 
 // CloseIdleConnections closes all idle connections.
 func (rt *roundtripper) CloseIdleConnections() {
-	if rt.http1Transport != nil {
-		rt.http1Transport.CloseIdleConnections()
+	if rt.http1tr != nil {
+		rt.http1tr.CloseIdleConnections()
 	}
 
-	if rt.http2Transport != nil {
-		rt.http2Transport.CloseIdleConnections()
-	}
-
-	if rt.transport != nil {
-		rt.transport.CloseIdleConnections()
+	if rt.http2tr != nil {
+		rt.http2tr.CloseIdleConnections()
 	}
 }
 
@@ -134,9 +118,11 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 		DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
 			return rt.dialTLS(ctx, network, addr)
 		},
-		DisableCompression: rt.transport.DisableCompression,
-		IdleConnTimeout:    rt.transport.IdleConnTimeout,
-		TLSClientConfig:    rt.transport.TLSClientConfig,
+		DisableCompression: rt.http1tr.DisableCompression,
+		IdleConnTimeout:    rt.http1tr.IdleConnTimeout,
+		ReadIdleTimeout:    _http2ReadIdleTimeout,
+		PingTimeout:        _http2PingTimeout,
+		WriteByteTimeout:   _http2WriteByteTimeout,
 	}
 
 	if rt.ja.builder.http2settings != nil {
@@ -192,7 +178,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 // tlsHandshake performs a full TLS handshake using uTLS, applying JA fingerprint
 // presets and optionally enabling session resumption.
 func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) (*utls.UConn, error) {
-	timeout := rt.transport.TLSHandshakeTimeout
+	timeout := rt.http1tr.TLSHandshakeTimeout
 	if timeout > 0 {
 		if deadline, ok := ctx.Deadline(); ok {
 			remaining := time.Until(deadline)
@@ -206,7 +192,7 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) 
 		defer cancel()
 	}
 
-	rawConn, err := rt.transport.DialContext(ctx, network, addr)
+	rawConn, err := rt.http1tr.DialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
 	}
