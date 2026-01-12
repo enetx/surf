@@ -107,10 +107,11 @@ retry:
 
 	if req.request.Method != http.MethodHead {
 		body := &Body{
-			Reader:      resp.Body,
-			cache:       builder != nil && builder.cacheBody,
-			contentType: resp.Header.Get(header.CONTENT_TYPE),
-			limit:       -1,
+			Reader:        resp.Body,
+			cache:         builder != nil && builder.cacheBody,
+			contentType:   resp.Header.Get(header.CONTENT_TYPE),
+			contentLength: resp.ContentLength,
+			limit:         -1,
 		}
 
 		ctx := req.request.Context()

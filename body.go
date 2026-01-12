@@ -2,6 +2,7 @@ package surf
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"encoding/xml"
@@ -40,13 +41,14 @@ func (c *reader) Read(p []byte) (int, error) {
 // Provides convenient methods for parsing common data formats (JSON, XML, text) and includes
 // features like automatic decompression, content caching, character set detection, and size limits.
 type Body struct {
-	content     g.Bytes         // Cached body content (populated when cache is enabled)
-	contentType string          // MIME content type from Content-Type header
-	ctx         context.Context // Context associated with this Body
-	Reader      io.ReadCloser   // ReadCloser for accessing the raw body content
-	limit       int64           // Maximum allowed body size in bytes (-1 for unlimited)
-	once        sync.Once       // Ensures the body is read and cached exactly once
-	cache       bool            // Whether to cache the body content in memory for reuse
+	content       g.Bytes         // Cached body content (populated when cache is enabled)
+	contentType   string          // MIME content type from Content-Type header
+	ctx           context.Context // Context associated with this Body
+	Reader        io.ReadCloser   // ReadCloser for accessing the raw body content
+	once          sync.Once       // Ensures the body is read and cached exactly once
+	contentLength int64           // Content length in bytes from Content-Length header (-1 if unknown)
+	limit         int64           // Maximum allowed body size in bytes (-1 for unlimited)
+	cache         bool            // Whether to cache the body content in memory for reuse
 }
 
 // Bytes returns the body's content as a byte slice.
@@ -84,12 +86,17 @@ func (b *Body) read() g.Bytes {
 		limit = math.MaxInt64
 	}
 
-	data, err := io.ReadAll(io.LimitReader(r, limit))
+	buf := new(bytes.Buffer)
+	if cl := b.contentLength; cl > 0 && cl < limit && cl <= math.MaxInt32 {
+		buf.Grow(int(cl))
+	}
+
+	_, err := io.Copy(buf, io.LimitReader(r, limit))
 	if err != nil {
 		return nil
 	}
 
-	return data
+	return buf.Bytes()
 }
 
 // MD5 returns the MD5 hash of the body's content as a g.String.
