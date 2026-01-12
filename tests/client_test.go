@@ -985,30 +985,6 @@ func TestClientWithContext(t *testing.T) {
 	}
 }
 
-func TestClientURLSanitization(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	// Remove http:// from URL to test sanitization
-	url := strings.Replace(ts.URL, "http://", "", 1)
-
-	client := surf.NewClient()
-	resp := client.Get(g.String(url)).Do()
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	if !resp.Ok().StatusCode.IsSuccess() {
-		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-	}
-}
-
 func TestClientInvalidRequests(t *testing.T) {
 	t.Parallel()
 

@@ -11,7 +11,7 @@ import (
 func main() {
 	r := surf.NewClient().
 		Builder().Timeout(time.Second).Build().
-		Get("httpbingo.org/delay/2").
+		Get("http://httpbingo.org/delay/2").
 		Do()
 
 	if r.IsErr() {

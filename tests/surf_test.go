@@ -111,7 +111,7 @@ func TestUnixDomainSocket(t *testing.T) {
 	r := surf.NewClient().Builder().
 		UnixSocket(socketPath).
 		Build().
-		Get("unix").
+		Get("http://unix").
 		Do()
 
 	if r.IsErr() {

@@ -178,8 +178,6 @@ func (c *Client) Patch(rawURL g.String, data any) *Request {
 // It uploads a file from filePath using the specified fieldName in the form.
 // Optional data can include additional form fields (g.MapOrd) or custom reader (io.Reader).
 func (c *Client) FileUpload(rawURL, fieldName, filePath g.String, data ...any) *Request {
-	sanitizedURL := sanitizeURL(rawURL)
-
 	var (
 		multipartData g.MapOrd[string, string]
 		reader        io.Reader
@@ -280,7 +278,7 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath g.String, data ...any) *
 			})
 	}()
 
-	req, err := http.NewRequest(http.MethodPost, sanitizedURL, bodyReader)
+	req, err := http.NewRequest(http.MethodPost, rawURL.Std(), bodyReader)
 	if err != nil {
 		request.err = err
 		return request
@@ -298,8 +296,6 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath g.String, data ...any) *
 // Multipart creates a new multipart form data request with the specified form fields.
 // The multipartData map contains field names and their corresponding values.
 func (c *Client) Multipart(rawURL g.String, multipartData g.MapOrd[g.String, g.String]) *Request {
-	sanitizedURL := sanitizeURL(rawURL)
-
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
 
@@ -338,7 +334,7 @@ func (c *Client) Multipart(rawURL g.String, multipartData g.MapOrd[g.String, g.S
 		return request
 	}
 
-	req, err := http.NewRequest(http.MethodPost, sanitizedURL, body)
+	req, err := http.NewRequest(http.MethodPost, rawURL.Std(), body)
 	if err != nil {
 		request.err = err
 		return request
@@ -387,8 +383,6 @@ func (c *Client) setCookies(rawURL g.String, cookies []*http.Cookie) error {
 // method type and body.
 // If there is an error, it returns a Request object with the error set.
 func (c *Client) buildRequest(rawURL g.String, methodType string, data any) *Request {
-	sanitizedURL := sanitizeURL(rawURL)
-
 	request := new(Request)
 
 	body, contentType, err := buildBody(data)
@@ -397,7 +391,7 @@ func (c *Client) buildRequest(rawURL g.String, methodType string, data any) *Req
 		return request
 	}
 
-	req, err := http.NewRequest(methodType, sanitizedURL, body)
+	req, err := http.NewRequest(methodType, rawURL.Std(), body)
 	if err != nil {
 		request.err = err
 		return request
@@ -580,17 +574,17 @@ func detectAnnotatedDataType(data any) string {
 	return ""
 }
 
-// sanitizeURL accepts a raw URL string and formats it to ensure it has an "http://" or "https://"
-// prefix.
-func sanitizeURL(rawURL g.String) string {
-	rawURL = rawURL.TrimSet(".")
-
-	if !rawURL.StartsWithAny("http://", "https://") {
-		rawURL = rawURL.Prepend("http://")
-	}
-
-	return rawURL.Std()
-}
+// // sanitizeURL accepts a raw URL string and formats it to ensure it has an "http://" or "https://"
+// // prefix.
+// func sanitizeURL(rawURL g.String) string {
+// 	rawURL = rawURL.TrimSet(".")
+//
+// 	if !rawURL.StartsWithAny("http://", "https://") {
+// 		rawURL = rawURL.Prepend("http://")
+// 	}
+//
+// 	return rawURL.Std()
+// }
 
 // parseURL attempts to parse any supported rawURL type into a *url.URL.
 // Returns an error if the type is unsupported or if parsing fails.

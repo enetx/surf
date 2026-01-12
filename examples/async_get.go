@@ -19,8 +19,9 @@ func main() {
 		Firefox().
 		Build()
 
-	g.SliceOf(g.String("https://httpbingo.org/get")).
+	g.SliceOf(g.String("httpbingo.org/get")).
 		Iter().
+		Map(func(s g.String) g.String { return "http://" + s }).
 		Cycle().
 		Take(100).
 		Parallel(10).

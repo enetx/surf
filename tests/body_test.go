@@ -71,8 +71,8 @@ func TestBodyBytes(t *testing.T) {
 
 	// Without cache, second call to Bytes() returns nil as body is consumed
 	bytes2 := body.Bytes()
-	if bytes2 != nil {
-		t.Error("expected nil on second call to Bytes() without cache")
+	if bytes2.NotEmpty() {
+		t.Error("expected len == 0 on second call to Bytes() without cache")
 	}
 }
 
@@ -388,10 +388,10 @@ func TestBodyClose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// After close, Bytes() should return nil
+	// After close, Bytes() should return len == 0
 	content := body.Bytes()
-	if content != nil {
-		t.Error("expected nil after Close(), got content")
+	if content.NotEmpty() {
+		t.Error("expected len == 0 after Close(), got content")
 	}
 }
 
@@ -637,8 +637,8 @@ func TestBodyWithoutCache(t *testing.T) {
 
 	// Second call returns nil because body was consumed
 	content2 := body.Bytes()
-	if content2 != nil {
-		t.Error("expected nil for second call without cache")
+	if content2.NotEmpty() {
+		t.Error("expected len == 0 for second call without cache")
 	}
 }
 
@@ -660,9 +660,9 @@ func TestBodyNilOperations(t *testing.T) {
 		body.MD5()
 	}()
 
-	// Bytes() should return nil
-	if body.Bytes() != nil {
-		t.Error("expected nil Bytes() for nil body")
+	// Bytes() should return len == 0
+	if body.Bytes().NotEmpty() {
+		t.Error("expected len == 0 Bytes() for nil body")
 	}
 
 	// String() should return empty or panic
@@ -737,8 +737,8 @@ func TestBodyClosedBody(t *testing.T) {
 
 	// Try to read after close
 	content := body.Bytes()
-	if content != nil {
-		t.Error("expected nil after body closed")
+	if content.NotEmpty() {
+		t.Error("expected len == 0 after body closed")
 	}
 }
 

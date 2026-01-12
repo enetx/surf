@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"log"
 	"net/url"
@@ -37,7 +36,7 @@ func main() {
 		diff      = contentLength.Ok() % tasks
 	)
 
-	pool := pool.New[*g.File]().Limit(10)
+	p := pool.New[*g.File]().Limit(10)
 
 	for task := range tasks {
 		min := chunkSize * task
@@ -47,7 +46,7 @@ func main() {
 			max += diff
 		}
 
-		pool.Go(func() g.Result[*g.File] {
+		p.Go(func() g.Result[*g.File] {
 			headers := g.Map[g.String, g.String]{"Range": g.Format("bytes={}-{}", min, max-1)}
 
 			r := surf.NewClient().
@@ -59,18 +58,18 @@ func main() {
 				Do()
 
 			if r.IsErr() {
-				pool.Cancel(r.Err())
+				p.Cancel(r.Err())
 				return g.Err[*g.File](r.Err())
 			}
 
 			tmpFile := g.NewFile("").CreateTemp("", task.String()+".")
 			if tmpFile.IsErr() {
-				pool.Cancel(tmpFile.Err())
+				p.Cancel(tmpFile.Err())
 				return tmpFile
 			}
 
 			if err := r.Ok().Body.Dump(tmpFile.Ok().Path().Ok()); err != nil {
-				pool.Cancel(err)
+				p.Cancel(err)
 				return g.Err[*g.File](err)
 			}
 
@@ -78,9 +77,9 @@ func main() {
 		})
 	}
 
-	result := pool.Wait().Collect()
+	result := p.Wait().Collect()
 
-	if err := pool.Cause(); err != nil && !errors.Is(err, context.Canceled) {
+	if err := p.Cause(); err != nil && !errors.Is(err, pool.ErrAllTasksDone) {
 		log.Fatal(err)
 	}
 

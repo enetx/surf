@@ -54,7 +54,7 @@ type Body struct {
 // Bytes returns the body's content as a byte slice.
 func (b *Body) Bytes() g.Bytes {
 	if b == nil {
-		return nil
+		return g.Bytes{}
 	}
 
 	if b.cache {
@@ -71,7 +71,7 @@ func (b *Body) Bytes() g.Bytes {
 // The read is limited by b.limit (if -1, unlimited), and io.LimitReader ensures the size limit.
 func (b *Body) read() g.Bytes {
 	if b.Reader == nil {
-		return nil
+		return g.Bytes{}
 	}
 
 	defer b.Close()
@@ -86,17 +86,16 @@ func (b *Body) read() g.Bytes {
 		limit = math.MaxInt64
 	}
 
-	buf := new(bytes.Buffer)
-	if cl := b.contentLength; cl > 0 && cl < limit && cl <= math.MaxInt32 {
+	if cl := b.contentLength; cl > 0 && cl <= limit && cl <= math.MaxInt32 {
+		buf := new(bytes.Buffer)
 		buf.Grow(int(cl))
+		io.Copy(buf, io.LimitReader(r, limit))
+
+		return buf.Bytes()
 	}
 
-	_, err := io.Copy(buf, io.LimitReader(r, limit))
-	if err != nil {
-		return nil
-	}
-
-	return buf.Bytes()
+	data, _ := io.ReadAll(io.LimitReader(r, limit))
+	return data
 }
 
 // MD5 returns the MD5 hash of the body's content as a g.String.

@@ -12,8 +12,8 @@ func main() {
 		Builder().
 		FollowOnlyHostRedirects().
 		Build().
-		Get("google.com").
-		// Get("www.google.com").
+		Get("http://google.com").
+		// Get("http://www.google.com").
 		Do()
 
 	if r.IsErr() {

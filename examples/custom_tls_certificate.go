@@ -45,7 +45,7 @@ PB0KuEzBx1LQzkE8M0MToiGLsR2iK7x1KsWqbf7+5Y2Zqm5qmOfDm+71WnmIprnU
 	tc.InsecureSkipVerify = false
 	tc.RootCAs = rootCAs
 
-	r := cli.Get("google.com").Do()
+	r := cli.Get("https://www.google.com").Do()
 	if r.IsErr() {
 		log.Fatal(r.Err())
 	}
