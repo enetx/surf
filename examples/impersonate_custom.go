@@ -57,7 +57,6 @@ func main() {
 	cli := surf.NewClient().
 		Builder().
 		Boundary(b.String).
-		JA().Chrome87().
 		HTTP2Settings().
 		EnablePush(1).
 		MaxConcurrentStreams(1000).
@@ -65,6 +64,7 @@ func main() {
 		MaxHeaderListSize(262144).
 		InitialWindowSize(6291456).
 		HeaderTableSize(65536).
+		NoRFC7540Priorities(1).
 		PriorityParam(http2.PriorityParam{
 			Exclusive: true,
 			Weight:    255,

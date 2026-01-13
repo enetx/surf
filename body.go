@@ -86,16 +86,15 @@ func (b *Body) read() g.Bytes {
 		limit = math.MaxInt64
 	}
 
+	buf := new(bytes.Buffer)
 	if cl := b.contentLength; cl > 0 && cl <= limit && cl <= math.MaxInt32 {
-		buf := new(bytes.Buffer)
 		buf.Grow(int(cl))
-		io.Copy(buf, io.LimitReader(r, limit))
-
-		return buf.Bytes()
+	} else {
+		buf.Grow(16384)
 	}
 
-	data, _ := io.ReadAll(io.LimitReader(r, limit))
-	return data
+	io.Copy(buf, io.LimitReader(r, limit))
+	return buf.Bytes()
 }
 
 // MD5 returns the MD5 hash of the body's content as a g.String.

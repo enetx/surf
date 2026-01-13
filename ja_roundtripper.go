@@ -129,7 +129,7 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 		h := rt.ja.builder.http2settings
 
 		// Pre-allocate settings slice to avoid multiple allocations
-		t.Settings = make([]http2.Setting, 0, 6)
+		t.Settings = make([]http2.Setting, 0, 7)
 
 		appendSetting := func(id http2.SettingID, val uint32) {
 			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
@@ -143,6 +143,7 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 		appendSetting(http2.SettingInitialWindowSize, h.initialWindowSize)
 		appendSetting(http2.SettingMaxFrameSize, h.maxFrameSize)
 		appendSetting(http2.SettingMaxHeaderListSize, h.maxHeaderListSize)
+		appendSetting(http2.SettingNoRFC7540Priorities, h.noRFC7540Priorities)
 
 		if h.initialStreamID != 0 {
 			t.StreamID = h.initialStreamID

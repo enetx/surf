@@ -18,6 +18,7 @@ type HTTP2Settings struct {
 	maxHeaderListSize    uint32
 	connectionFlow       uint32
 	initialStreamID      uint32
+	noRFC7540Priorities  uint32
 	enablePush           uint32
 	usePush              bool
 }
@@ -65,6 +66,12 @@ func (h *HTTP2Settings) MaxHeaderListSize(size uint32) *HTTP2Settings {
 	return h
 }
 
+// NoRFC7540Priorities disables RFC 7540 priority signaling in HTTP/2.
+func (h *HTTP2Settings) NoRFC7540Priorities(size uint32) *HTTP2Settings {
+	h.noRFC7540Priorities = size
+	return h
+}
+
 // ConnectionFlow sets the flow control for the HTTP/2 connection.
 func (h *HTTP2Settings) ConnectionFlow(size uint32) *HTTP2Settings {
 	h.connectionFlow = size
@@ -102,7 +109,7 @@ func (h *HTTP2Settings) Set() *Builder {
 			return err
 		}
 
-		t2.Settings = make([]http2.Setting, 0, 6)
+		t2.Settings = make([]http2.Setting, 0, 7)
 
 		appendSetting := func(id http2.SettingID, val uint32) {
 			if val != 0 || (id == http2.SettingEnablePush && h.usePush) {
@@ -116,6 +123,7 @@ func (h *HTTP2Settings) Set() *Builder {
 		appendSetting(http2.SettingInitialWindowSize, h.initialWindowSize)
 		appendSetting(http2.SettingMaxFrameSize, h.maxFrameSize)
 		appendSetting(http2.SettingMaxHeaderListSize, h.maxHeaderListSize)
+		appendSetting(http2.SettingNoRFC7540Priorities, h.noRFC7540Priorities)
 
 		if h.initialStreamID != 0 {
 			t2.StreamID = h.initialStreamID
