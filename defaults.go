@@ -6,8 +6,9 @@ import "time"
 // These values provide sensible defaults for connection management, timeouts, and client behavior.
 const (
 	// _userAgent is the default User-Agent header for HTTP requests.
-	// Uses a modern Chrome browser signature to ensure compatibility with most web services.
-	_userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+	// Identifies requests made by the surf HTTP client library.
+	// Can be overridden using Builder.UserAgent() or Impersonate().
+	_userAgent = "surf/1.0 (https://github.com/enetx/surf)"
 
 	// _maxRedirects is the default maximum number of redirects to follow.
 	// Prevents infinite redirect loops while allowing reasonable redirect chains.
@@ -69,6 +70,24 @@ const (
 	// Prevents hanging on slow or stalled write operations.
 	// Set to 0 to disable (no timeout for writes).
 	_http2WriteByteTimeout = 10 * time.Second
+
+	// HTTP/3 (QUIC) Transport timeouts
+
+	// _quicHandshakeTimeout is the timeout for QUIC handshake completion.
+	// Similar to TLS handshake timeout but for QUIC protocol.
+	_quicHandshakeTimeout = 10 * time.Second
+
+	// _quicMaxIdleTimeout is the maximum time a QUIC connection can remain idle.
+	// After this timeout, the connection is closed.
+	_quicMaxIdleTimeout = 30 * time.Second
+
+	// _quicKeepAlivePeriod is the interval for QUIC keep-alive pings.
+	// Helps maintain connections through NAT and detect dead connections.
+	_quicKeepAlivePeriod = 15 * time.Second
+
+	// _maxResponseHeaderBytes is the maximum size of response headers in HTTP/3.
+	// Limits memory usage when receiving large headers. Default 10MB.
+	_maxResponseHeaderBytes = 10 << 20
 
 	// Port defaults
 
