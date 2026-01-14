@@ -49,7 +49,7 @@ func (im *Impersonate) IOS() *Impersonate {
 	return im
 }
 
-// Chrome impersonates Chrome browser v143.
+// Chrome impersonates Chrome browser v144.
 func (im *Impersonate) Chrome() *Builder {
 	im.builder.browser = chromeBrowser
 
@@ -64,7 +64,7 @@ func (im *Impersonate) Chrome() *Builder {
 
 	im.builder.
 		Boundary(chrome.Boundary).
-		JA().Chrome143().
+		JA().Chrome144().
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		EnablePush(0).
@@ -110,7 +110,7 @@ func (im *Impersonate) Chrome() *Builder {
 	return im.builder.SetHeaders(headers)
 }
 
-// FireFox impersonates Firefox browser v146.
+// Firefox impersonates Firefox browser v147.
 func (im *Impersonate) Firefox() *Builder {
 	im.builder.browser = firefoxBrowser
 
@@ -125,7 +125,7 @@ func (im *Impersonate) Firefox() *Builder {
 
 	im.builder.
 		Boundary(firefox.Boundary).
-		JA().Firefox146().
+		JA().Firefox147().
 		HTTP2Settings().
 		InitialStreamID(3).
 		HeaderTableSize(65536).
@@ -170,7 +170,7 @@ func (im *Impersonate) Firefox() *Builder {
 	return im.builder.SetHeaders(headers)
 }
 
-// FireFoxPrivate impersonates Firefox private browser v146.
+// FirefoxPrivate impersonates Firefox private browser v147.
 func (im *Impersonate) FirefoxPrivate() *Builder {
 	im.builder.browser = firefoxBrowser
 
@@ -185,7 +185,7 @@ func (im *Impersonate) FirefoxPrivate() *Builder {
 
 	im.builder.
 		Boundary(firefox.Boundary).
-		JA().FirefoxPrivate146().
+		JA().FirefoxPrivate147().
 		HTTP2Settings().
 		InitialStreamID(3).
 		HeaderTableSize(65536).

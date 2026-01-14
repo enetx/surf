@@ -145,8 +145,8 @@ func (j *JA) Chrome120() *Builder { return j.SetHelloID(utls.HelloChrome_120) }
 // Chrome120PQ sets the JA3/4 fingerprint to mimic Chrome version 120 with post-quantum cryptography support.
 func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_PQ) }
 
-// Chrome143 sets the JA3/4 fingerprint to mimic Chrome version 143.
-func (j *JA) Chrome143() *Builder { return j.SetHelloSpec(chrome.HelloChrome_143) }
+// Chrome144 sets the JA3/4 fingerprint to mimic Chrome version 144.
+func (j *JA) Chrome144() *Builder { return j.SetHelloSpec(chrome.HelloChrome_144) }
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.
 func (j *JA) Edge() *Builder { return j.SetHelloID(utls.HelloEdge_85) }
@@ -187,11 +187,11 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 // Firefox141 sets the JA3/4 fingerprint to mimic Firefox version 141.
 func (j *JA) Firefox141() *Builder { return j.SetHelloID(utls.HelloFirefox_141) }
 
-// Firefox146 sets the JA3/4 fingerprint to mimic Firefox version 146.
-func (j *JA) Firefox146() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_146) }
+// Firefox147 sets the JA3/4 fingerprint to mimic Firefox version 147.
+func (j *JA) Firefox147() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_147) }
 
-// FirefoxPrivate146 sets the JA3/4 fingerprint to mimic Firefox private version 146.
-func (j *JA) FirefoxPrivate146() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_146) }
+// FirefoxPrivate147 sets the JA3/4 fingerprint to mimic Firefox private version 147.
+func (j *JA) FirefoxPrivate147() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_147) }
 
 // IOS sets the JA3/4 fingerprint to mimic the latest iOS Safari browser (auto-detection).
 func (j *JA) IOS() *Builder { return j.SetHelloID(utls.HelloIOS_Auto) }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/enetx/g"
@@ -47,7 +46,9 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Ok().Time)
+	r.Ok().Body.String().Println()
 
-	r.Ok().Debug().Request().Response(true).Print()
+	// fmt.Println(r.Ok().Time)
+
+	// r.Ok().Debug().Request().Response(true).Print()
 }

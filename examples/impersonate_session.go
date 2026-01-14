@@ -9,8 +9,7 @@ func main() {
 		Builder().
 		Session(). // Enables TLS session cache: 1st request = full handshake, 2nd = resumed with PSK (ext 41)
 		Impersonate().
-		// Chrome().
-		Firefox().
+		Chrome().
 		// // Disable TLS session.
 		// With(func(cli *surf.Client) error {
 		// 	cli.GetTLSConfig().ClientSessionCache = nil

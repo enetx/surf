@@ -1,6 +1,7 @@
 package chrome_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/enetx/g"
@@ -98,13 +99,7 @@ func TestHeaders_POST(t *testing.T) {
 				continue
 			}
 
-			found := false
-			for _, key := range keys {
-				if key == expected {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(keys, expected)
 
 			if !found {
 				t.Errorf("Header %s not found in the ordered map", expected)

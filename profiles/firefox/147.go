@@ -5,7 +5,7 @@ import (
 	"github.com/enetx/utls/dicttls"
 )
 
-var HelloFirefox_146 = utls.ClientHelloSpec{
+var HelloFirefox_147 = utls.ClientHelloSpec{
 	TLSVersMin: utls.VersionTLS12,
 	TLSVersMax: utls.VersionTLS13,
 	CipherSuites: []uint16{
@@ -132,7 +132,7 @@ var HelloFirefox_146 = utls.ClientHelloSpec{
 	},
 }
 
-var HelloFirefoxPrivate_146 = utls.ClientHelloSpec{
+var HelloFirefoxPrivate_147 = utls.ClientHelloSpec{
 	TLSVersMin: utls.VersionTLS12,
 	TLSVersMax: utls.VersionTLS13,
 	CipherSuites: []uint16{

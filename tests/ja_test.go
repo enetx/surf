@@ -11,11 +11,11 @@ import (
 	utls "github.com/enetx/utls"
 )
 
-func TestJAChrome143(t *testing.T) {
+func TestJAChrome144(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome143().
+		JA().Chrome144().
 		Build()
 
 	if client == nil {
@@ -335,7 +335,7 @@ func TestJASetHelloSpec(t *testing.T) {
 	}
 }
 
-func TestJAFirefox146(t *testing.T) {
+func TestJAFirefox147(t *testing.T) {
 	t.Parallel()
 
 	handler := func(w http.ResponseWriter, _ *http.Request) {
@@ -347,7 +347,7 @@ func TestJAFirefox146(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Firefox146().
+		JA().Firefox147().
 		Build()
 
 	if client == nil {
@@ -417,8 +417,8 @@ func TestJAMultipleCalls(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome143().
-		JA().Firefox146().
+		JA().Chrome144().
+		JA().Firefox147().
 		Build()
 
 	if client == nil {
@@ -446,7 +446,7 @@ func TestJAWithHTTP2(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome143().
+		JA().Chrome144().
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		EnablePush(1).
@@ -493,7 +493,7 @@ func TestJARoundTripperHTTP1(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome143().
+		JA().Chrome144().
 		Build()
 
 	req := client.Get(g.String(ts.URL))
@@ -520,7 +520,7 @@ func TestJACloseIdleConnections(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome143().
+		JA().Chrome144().
 		Build()
 
 	req := client.Get(g.String(ts.URL))
