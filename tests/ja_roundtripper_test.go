@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -400,6 +401,52 @@ func TestRoundTripperALPNProtocolModification(t *testing.T) {
 	}
 
 	// Verify HTTP/1.1 is used (should be in response proto)
+	httpResp := resp.Ok().GetResponse()
+	if httpResp.Proto != "HTTP/1.1" {
+		t.Logf("Expected HTTP/1.1, got %s (may vary by server)", httpResp.Proto)
+	}
+}
+
+func TestRoundTripperHTTP2FallbackForcesHTTP1ALPN(t *testing.T) {
+	t.Parallel()
+
+	var h2Attempts atomic.Int32
+	var http1Requests atomic.Int32
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		http1Requests.Add(1)
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"protocol": "http1"}`)
+	}
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(handler))
+	ts.EnableHTTP2 = true
+	ts.Config.TLSNextProto = map[string]func(*http.Server, *tls.Conn, http.Handler){
+		"h2": func(_ *http.Server, conn *tls.Conn, _ http.Handler) {
+			h2Attempts.Add(1)
+			_ = conn.Close()
+		},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome144().
+		Timeout(2 * time.Second).
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if h2Attempts.Load() == 0 {
+		t.Fatal("expected HTTP/2 attempt before fallback")
+	}
+	if http1Requests.Load() == 0 {
+		t.Fatal("expected HTTP/1.1 fallback request")
+	}
+
 	httpResp := resp.Ok().GetResponse()
 	if httpResp.Proto != "HTTP/1.1" {
 		t.Logf("Expected HTTP/1.1, got %s (may vary by server)", httpResp.Proto)
