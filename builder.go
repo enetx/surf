@@ -23,7 +23,7 @@ const (
 // redirect handling, and browser impersonation capabilities.
 type Builder struct {
 	retryCodes               g.Slice[int]                               // HTTP status codes that trigger retries
-	proxy                    g.String                                   // Proxy
+	proxy                    g.String                                   // Proxy URL for client connections
 	cli                      *Client                                    // The client being configured
 	checkRedirect            func(*http.Request, []*http.Request) error // Custom redirect policy function
 	http2settings            *HTTP2Settings                             // HTTP/2 specific settings
@@ -41,6 +41,7 @@ type Builder struct {
 	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
 	ja                       bool                                       // Enable JA3 TLS fingerprinting
 	http3                    bool                                       // Enable HTTP/3 with automatic browser detection
+	disableCompression       bool                                       // Disable automatic response body decompression
 }
 
 // Build applies all configured settings and returns the client.
@@ -256,8 +257,11 @@ func (b *Builder) GetRemoteAddress() *Builder { return b.addReqMW(remoteAddrMW, 
 // DisableKeepAlive disable keep-alive connections.
 func (b *Builder) DisableKeepAlive() *Builder { return b.addCliMW(disableKeepAliveMW, 0) }
 
-// DisableCompression disables compression for the HTTP client.
-func (b *Builder) DisableCompression() *Builder { return b.addCliMW(disableCompressionMW, 0) }
+// DisableCompression disables automatic response body decompression.
+func (b *Builder) DisableCompression() *Builder {
+	b.disableCompression = true
+	return b
+}
 
 // Retry configures the retry behavior of the client.
 //

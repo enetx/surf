@@ -50,6 +50,10 @@ func webSocketUpgradeErrorMW(r *Response) error {
 // Updates the response body reader to provide decompressed content transparently.
 // Returns an error if decompression fails, otherwise the body can be read normally.
 func decodeBodyMW(r *Response) error {
+	if r.builder != nil && r.builder.disableCompression {
+		return nil
+	}
+
 	if r.Body == nil || r.Body.Reader == nil {
 		return nil
 	}

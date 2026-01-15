@@ -102,12 +102,6 @@ func disableKeepAliveMW(client *Client) error {
 	return nil
 }
 
-// disableCompressionMW disables compression for the client's transport.
-func disableCompressionMW(client *Client) error {
-	client.GetTransport().(*http.Transport).DisableCompression = true
-	return nil
-}
-
 // interfaceAddrMW configures the client's local network interface address for outbound connections.
 // Accepts either an IP address (e.g., "192.168.1.100", "::1") or an interface name (e.g., "eth0").
 func interfaceAddrMW(client *Client, address g.String) error {
