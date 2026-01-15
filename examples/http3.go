@@ -13,10 +13,16 @@ func main() {
 		// DNS("127.0.0.1:53").
 		// DNS("1.1.1.1:53").
 		// Proxy("socks5://127.0.0.1:1080"). // dante
-		// Proxy([]string{"socks5://127.0.0.1:1080"}). // dante
 		// Proxy("socks5h://127.0.0.1:2080").
 		// Proxy("http://127.0.0.1:2080").
+
+		// "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p",
+		// "perk_hash": "e9ebca6992bfd86ffa0663c1359de7d0",
 		Impersonate().Firefox().HTTP3().
+
+		// "perk_text": "1:65536;6:262144;7:100;51:1;GREASE|m,a,s,p",
+		// "perk_hash": "e1d11ee6f2f4c7b1f11bfaaf4dbbc211",
+		// Impersonate().Chrome().HTTP3().
 		Build()
 
 	// r := cli.Get("https://cloudflare-quic.com").Do()
@@ -25,14 +31,11 @@ func main() {
 	switch {
 	case r.IsOk():
 		resp := r.Ok()
-		fmt.Printf("Chrome H3 Status Code: %d\n", resp.StatusCode)
-		fmt.Printf("Chrome H3 Protocol: %s\n", resp.Proto)
-		fmt.Printf("Chrome H3 Server: %s\n", resp.Headers.Get("server"))
+		fmt.Printf("H3 Status Code: %d\n", resp.StatusCode)
+		fmt.Printf("H3 Protocol: %s\n", resp.Proto)
+		fmt.Printf("H3 Server: %s\n", resp.Headers.Get("server"))
 		fmt.Println(r.Ok().Body.String())
 	case r.IsErr():
-		log.Printf("Chrome H3 request failed: %v", r.Err())
+		log.Printf("H3 request failed: %v", r.Err())
 	}
-
-	// "perk_text": "1:65536;6:262144;7:100;51:1;GREASE|m,a,s,p",
-	// "perk_hash": "e1d11ee6f2f4c7b1f11bfaaf4dbbc211",
 }
