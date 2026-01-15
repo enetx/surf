@@ -13,11 +13,13 @@ func main() {
 
 	cli := surf.NewClient().
 		Builder().
-		Singleton().
 		Session().
 		Impersonate().
 		Firefox().
-		Build()
+		Build().
+		Unwrap()
+
+	defer cli.CloseIdleConnections()
 
 	g.SliceOf(g.String("httpbingo.org/get")).
 		Iter().
@@ -30,8 +32,6 @@ func main() {
 				r.Ok().Body.Limit(10).String().Println()
 			}
 		})
-
-	cli.CloseIdleConnections()
 
 	elapsed := time.Since(start)
 	fmt.Printf("elapsed: %v\n", elapsed)

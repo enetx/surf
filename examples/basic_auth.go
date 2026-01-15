@@ -17,6 +17,7 @@ func main() {
 		Builder().
 		BasicAuth("root:passwd").
 		Build().
+		Unwrap().
 		Get("https://httpbingo.org/basic-auth/root/passwd").
 		Do()
 

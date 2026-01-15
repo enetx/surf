@@ -19,6 +19,7 @@ func main() {
 		Session().
 		AddCookies(c1, c2).
 		Build().
+		Unwrap().
 		Get(URL).
 		Do()
 

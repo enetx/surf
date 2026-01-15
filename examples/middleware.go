@@ -21,7 +21,8 @@ func main() {
 		With(baseURL).
 		With(ua2, 2). // Apply `ua2` middleware with priority 2 (executes after `ua`)
 		With(ua).     // Apply `ua` middleware with priority 0 (executes before `ua2`)
-		Build()
+		Build().
+		Unwrap()
 
 	r := cli.Get(url).Do()
 	if r.IsErr() {

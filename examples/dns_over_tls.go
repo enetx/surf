@@ -24,6 +24,7 @@ func main() {
 		// Forge().
 		// AddProvider("dns.provider.com", "0.0.0.0:853", "2.2.2.2:853"). // custom dns provider
 		Build().
+		Unwrap().
 		Get("https://tls.peet.ws/api/all").
 		Do()
 

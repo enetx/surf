@@ -16,7 +16,7 @@ func TestJAChrome144(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -65,18 +65,18 @@ func TestJAChromeVersions(t *testing.T) {
 		name   string
 		method func() *surf.Client
 	}{
-		{"Chrome58", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome58().Build() }},
-		{"Chrome62", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome62().Build() }},
-		{"Chrome70", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome70().Build() }},
-		{"Chrome72", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome72().Build() }},
-		{"Chrome83", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome83().Build() }},
-		{"Chrome87", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome87().Build() }},
-		{"Chrome96", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome96().Build() }},
-		{"Chrome100", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome100().Build() }},
-		{"Chrome102", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome102().Build() }},
-		{"Chrome106", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome106().Build() }},
-		{"Chrome120", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome120().Build() }},
-		{"Chrome120PQ", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome120PQ().Build() }},
+		{"Chrome58", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome58().Build().Unwrap() }},
+		{"Chrome62", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome62().Build().Unwrap() }},
+		{"Chrome70", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome70().Build().Unwrap() }},
+		{"Chrome72", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome72().Build().Unwrap() }},
+		{"Chrome83", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome83().Build().Unwrap() }},
+		{"Chrome87", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome87().Build().Unwrap() }},
+		{"Chrome96", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome96().Build().Unwrap() }},
+		{"Chrome100", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome100().Build().Unwrap() }},
+		{"Chrome102", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome102().Build().Unwrap() }},
+		{"Chrome106", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome106().Build().Unwrap() }},
+		{"Chrome120", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome120().Build().Unwrap() }},
+		{"Chrome120PQ", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome120PQ().Build().Unwrap() }},
 	}
 
 	for _, tc := range chromeVersions {
@@ -116,9 +116,9 @@ func TestJAEdgeVersions(t *testing.T) {
 		name   string
 		method func() *surf.Client
 	}{
-		{"Edge", func() *surf.Client { return surf.NewClient().Builder().JA().Edge().Build() }},
-		{"Edge85", func() *surf.Client { return surf.NewClient().Builder().JA().Edge85().Build() }},
-		{"Edge106", func() *surf.Client { return surf.NewClient().Builder().JA().Edge106().Build() }},
+		{"Edge", func() *surf.Client { return surf.NewClient().Builder().JA().Edge().Build().Unwrap() }},
+		{"Edge85", func() *surf.Client { return surf.NewClient().Builder().JA().Edge85().Build().Unwrap() }},
+		{"Edge106", func() *surf.Client { return surf.NewClient().Builder().JA().Edge106().Build().Unwrap() }},
 	}
 
 	for _, tc := range edgeVersions {
@@ -158,16 +158,16 @@ func TestJAFirefoxVersions(t *testing.T) {
 		name   string
 		method func() *surf.Client
 	}{
-		{"Firefox", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox().Build() }},
-		{"Firefox55", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox55().Build() }},
-		{"Firefox56", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox56().Build() }},
-		{"Firefox63", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox63().Build() }},
-		{"Firefox65", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox65().Build() }},
-		{"Firefox99", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox99().Build() }},
-		{"Firefox102", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox102().Build() }},
-		{"Firefox105", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox105().Build() }},
-		{"Firefox120", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox120().Build() }},
-		{"Firefox141", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox141().Build() }},
+		{"Firefox", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox().Build().Unwrap() }},
+		{"Firefox55", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox55().Build().Unwrap() }},
+		{"Firefox56", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox56().Build().Unwrap() }},
+		{"Firefox63", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox63().Build().Unwrap() }},
+		{"Firefox65", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox65().Build().Unwrap() }},
+		{"Firefox99", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox99().Build().Unwrap() }},
+		{"Firefox102", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox102().Build().Unwrap() }},
+		{"Firefox105", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox105().Build().Unwrap() }},
+		{"Firefox120", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox120().Build().Unwrap() }},
+		{"Firefox141", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox141().Build().Unwrap() }},
 	}
 
 	for _, tc := range firefoxVersions {
@@ -207,11 +207,11 @@ func TestJAiOSVersions(t *testing.T) {
 		name   string
 		method func() *surf.Client
 	}{
-		{"IOS", func() *surf.Client { return surf.NewClient().Builder().JA().IOS().Build() }},
-		{"IOS11", func() *surf.Client { return surf.NewClient().Builder().JA().IOS11().Build() }},
-		{"IOS12", func() *surf.Client { return surf.NewClient().Builder().JA().IOS12().Build() }},
-		{"IOS13", func() *surf.Client { return surf.NewClient().Builder().JA().IOS13().Build() }},
-		{"IOS14", func() *surf.Client { return surf.NewClient().Builder().JA().IOS14().Build() }},
+		{"IOS", func() *surf.Client { return surf.NewClient().Builder().JA().IOS().Build().Unwrap() }},
+		{"IOS11", func() *surf.Client { return surf.NewClient().Builder().JA().IOS11().Build().Unwrap() }},
+		{"IOS12", func() *surf.Client { return surf.NewClient().Builder().JA().IOS12().Build().Unwrap() }},
+		{"IOS13", func() *surf.Client { return surf.NewClient().Builder().JA().IOS13().Build().Unwrap() }},
+		{"IOS14", func() *surf.Client { return surf.NewClient().Builder().JA().IOS14().Build().Unwrap() }},
 	}
 
 	for _, tc := range iOSVersions {
@@ -251,8 +251,8 @@ func TestJAAndroidAndSafari(t *testing.T) {
 		name   string
 		method func() *surf.Client
 	}{
-		{"Android", func() *surf.Client { return surf.NewClient().Builder().JA().Android().Build() }},
-		{"Safari", func() *surf.Client { return surf.NewClient().Builder().JA().Safari().Build() }},
+		{"Android", func() *surf.Client { return surf.NewClient().Builder().JA().Android().Build().Unwrap() }},
+		{"Safari", func() *surf.Client { return surf.NewClient().Builder().JA().Safari().Build().Unwrap() }},
 	}
 
 	for _, tc := range testCases {
@@ -292,11 +292,14 @@ func TestJARandomizedProfiles(t *testing.T) {
 		name   string
 		method func() *surf.Client
 	}{
-		{"Randomized", func() *surf.Client { return surf.NewClient().Builder().JA().Randomized().Build() }},
-		{"RandomizedALPN", func() *surf.Client { return surf.NewClient().Builder().JA().RandomizedALPN().Build() }},
+		{"Randomized", func() *surf.Client { return surf.NewClient().Builder().JA().Randomized().Build().Unwrap() }},
+		{
+			"RandomizedALPN",
+			func() *surf.Client { return surf.NewClient().Builder().JA().RandomizedALPN().Build().Unwrap() },
+		},
 		{
 			"RandomizedNoALPN",
-			func() *surf.Client { return surf.NewClient().Builder().JA().RandomizedNoALPN().Build() },
+			func() *surf.Client { return surf.NewClient().Builder().JA().RandomizedNoALPN().Build().Unwrap() },
 		},
 	}
 
@@ -328,7 +331,7 @@ func TestJASetHelloSpec(t *testing.T) {
 	// Test SetHelloSpec method with custom spec
 	ja3Builder := surf.NewClient().Builder().JA()
 	spec := utls.ClientHelloSpec{}
-	client := ja3Builder.SetHelloSpec(spec).Build()
+	client := ja3Builder.SetHelloSpec(spec).Build().Unwrap()
 
 	if client == nil {
 		t.Error("expected client to be built with SetHelloSpec")
@@ -348,7 +351,7 @@ func TestJAFirefox147(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Firefox147().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -383,7 +386,7 @@ func TestJAWithImpersonate(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -419,7 +422,7 @@ func TestJAMultipleCalls(t *testing.T) {
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
 		JA().Firefox147().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -451,7 +454,7 @@ func TestJAWithHTTP2(t *testing.T) {
 		HeaderTableSize(65536).
 		EnablePush(1).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -494,7 +497,7 @@ func TestJARoundTripperHTTP1(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
@@ -521,7 +524,7 @@ func TestJACloseIdleConnections(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()

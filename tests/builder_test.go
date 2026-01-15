@@ -24,9 +24,9 @@ func TestBuilderBuild(t *testing.T) {
 		t.Fatal("Builder() returned nil")
 	}
 
-	built := builder.Build()
+	built := builder.Build().Unwrap()
 	if built != originalClient {
-		t.Error("Build() should return the same client instance")
+		t.Error("Build().Unwrap() should return the same client instance")
 	}
 }
 
@@ -58,7 +58,7 @@ func TestBuilderWith(t *testing.T) {
 			responseMWCalled = true
 			return nil
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -101,7 +101,7 @@ func TestBuilderWithPriority(t *testing.T) {
 			executionOrder = append(executionOrder, 2)
 			return nil
 		}, 2).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -133,7 +133,7 @@ func TestBuilderWithInvalidType(t *testing.T) {
 
 	surf.NewClient().Builder().
 		With("invalid type").
-		Build()
+		Build().Unwrap()
 }
 
 func TestBuilderSingleton(t *testing.T) {
@@ -147,15 +147,13 @@ func TestBuilderSingleton(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		Singleton().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
 
-	// Test CloseIdleConnections works with singleton
 	client.CloseIdleConnections()
 }
 
@@ -165,7 +163,7 @@ func TestBuilderH2C(t *testing.T) {
 	// H2C requires special server setup, just test that method doesn't panic
 	client := surf.NewClient().Builder().
 		H2C().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("H2C builder returned nil client")
@@ -185,7 +183,7 @@ func TestBuilderHTTP2Settings(t *testing.T) {
 		MaxHeaderListSize(262144).
 		ConnectionFlow(15663105).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("HTTP2Settings builder returned nil client")
@@ -196,10 +194,9 @@ func TestBuilderImpersonate(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		Singleton(). // Required for impersonate
 		Impersonate().
 		Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("Impersonate builder returned nil client")
@@ -212,10 +209,9 @@ func TestBuilderJA3(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		Singleton(). // Required for JA
 		JA().
 		Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("JA3 builder returned nil client")
@@ -229,7 +225,7 @@ func TestBuilderUnixDomainSocket(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		UnixSocket("/tmp/test.sock").
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("UnixDomainSocket builder returned nil client")
@@ -241,7 +237,7 @@ func TestBuilderDNS(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		DNS("8.8.8.8:53").
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("DNS builder returned nil client")
@@ -254,7 +250,7 @@ func TestBuilderDNSOverTLS(t *testing.T) {
 	client := surf.NewClient().Builder().
 		DNSOverTLS().
 		Cloudflare().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("DNSOverTLS builder returned nil client")
@@ -268,7 +264,7 @@ func TestBuilderTimeout(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Timeout(timeout).
-		Build()
+		Build().Unwrap()
 
 	if client.GetClient().Timeout != timeout {
 		t.Errorf("expected timeout %v, got %v", timeout, client.GetClient().Timeout)
@@ -281,7 +277,7 @@ func TestBuilderInterfaceAddr(t *testing.T) {
 	// Use localhost as a valid interface address
 	client := surf.NewClient().Builder().
 		InterfaceAddr("127.0.0.1").
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("InterfaceAddr builder returned nil client")
@@ -308,19 +304,17 @@ func TestBuilderProxy(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		proxy any
+		proxy g.String
 	}{
 		{"string proxy", "http://localhost:8080"},
 		{"g.String proxy", g.String("http://localhost:8080")},
-		{"slice proxy", []string{"http://localhost:8081", "http://localhost:8082"}},
-		{"g.Slice proxy", g.SliceOf("http://localhost:8081", "http://localhost:8082")},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := surf.NewClient().Builder().
 				Proxy(tt.proxy).
-				Build()
+				Build().Unwrap()
 
 			if client == nil {
 				t.Error("Proxy builder returned nil client")
@@ -347,7 +341,7 @@ func TestBuilderAuth(t *testing.T) {
 	t.Run("BasicAuth", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			BasicAuth("user:pass").
-			Build()
+			Build().Unwrap()
 
 		resp := client.Get(g.String(ts.URL)).Do()
 		if resp.IsErr() {
@@ -358,7 +352,7 @@ func TestBuilderAuth(t *testing.T) {
 	t.Run("BearerAuth", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			BearerAuth("token123").
-			Build()
+			Build().Unwrap()
 
 		resp := client.Get(g.String(ts.URL)).Do()
 		if resp.IsErr() {
@@ -385,7 +379,7 @@ func TestBuilderUserAgent(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		UserAgent(customUA).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -412,7 +406,7 @@ func TestBuilderHeaders(t *testing.T) {
 	client := surf.NewClient().Builder().
 		SetHeaders("X-Custom", "value1").
 		AddHeaders("X-Added", "value2").
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -436,7 +430,7 @@ func TestBuilderCookies(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		AddCookies(&http.Cookie{Name: "test", Value: "value"}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -462,7 +456,7 @@ func TestBuilderWithContext(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		WithContext(ctx).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -488,7 +482,7 @@ func TestBuilderContentType(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		ContentType(g.String(contentType)).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Post(g.String(ts.URL), "data").Do()
 	if resp.IsErr() {
@@ -509,7 +503,7 @@ func TestBuilderCacheBody(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		CacheBody().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -541,7 +535,7 @@ func TestBuilderGetRemoteAddress(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		GetRemoteAddress().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -558,7 +552,7 @@ func TestBuilderDisableKeepAlive(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		DisableKeepAlive().
-		Build()
+		Build().Unwrap()
 
 	transport := client.GetTransport().(*http.Transport)
 	if !transport.DisableKeepAlives {
@@ -571,7 +565,7 @@ func TestBuilderDisableCompression(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		DisableCompression().
-		Build()
+		Build().Unwrap()
 
 	transport := client.GetTransport().(*http.Transport)
 	if !transport.DisableCompression {
@@ -598,7 +592,7 @@ func TestBuilderRetry(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Retry(5, 10*time.Millisecond).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -633,7 +627,7 @@ func TestBuilderRetryWithCustomCodes(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Retry(3, 10*time.Millisecond, http.StatusBadRequest). // Custom retry code
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -650,7 +644,7 @@ func TestBuilderForceHTTP1(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		ForceHTTP1().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("ForceHTTP1 builder returned nil client")
@@ -662,7 +656,7 @@ func TestBuilderForceHTTP2(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		ForceHTTP2().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Error("ForceHTTP2 builder returned nil client")
@@ -674,7 +668,7 @@ func TestBuilderSession(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Session().
-		Build()
+		Build().Unwrap()
 
 	if client.GetClient().Jar == nil {
 		t.Error("expected cookie jar to be set for session")
@@ -705,7 +699,7 @@ func TestBuilderRedirects(t *testing.T) {
 	t.Run("MaxRedirects", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			MaxRedirects(1).
-			Build()
+			Build().Unwrap()
 
 		resp := client.Get(g.String(ts.URL)).Do()
 		if resp.IsErr() {
@@ -721,7 +715,7 @@ func TestBuilderRedirects(t *testing.T) {
 		redirectCount = 0 // Reset counter
 		client := surf.NewClient().Builder().
 			NotFollowRedirects().
-			Build()
+			Build().Unwrap()
 
 		resp := client.Get(g.String(ts.URL)).Do()
 		if resp.IsErr() {
@@ -736,7 +730,7 @@ func TestBuilderRedirects(t *testing.T) {
 	t.Run("FollowOnlyHostRedirects", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			FollowOnlyHostRedirects().
-			Build()
+			Build().Unwrap()
 
 		if client == nil {
 			t.Error("FollowOnlyHostRedirects builder returned nil client")
@@ -746,7 +740,7 @@ func TestBuilderRedirects(t *testing.T) {
 	t.Run("ForwardHeadersOnRedirect", func(t *testing.T) {
 		client := surf.NewClient().Builder().
 			ForwardHeadersOnRedirect().
-			Build()
+			Build().Unwrap()
 
 		if client == nil {
 			t.Error("ForwardHeadersOnRedirect builder returned nil client")
@@ -775,7 +769,7 @@ func TestBuilderRedirectPolicy(t *testing.T) {
 		RedirectPolicy(func(*http.Request, []*http.Request) error {
 			return http.ErrUseLastResponse
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -806,7 +800,7 @@ func TestBuilderBoundary(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Boundary(func() g.String { return g.String(expectedBoundary) }).
-		Build()
+		Build().Unwrap()
 
 	// Test with multipart
 	data := g.NewMapOrd[g.String, g.String](1)
@@ -862,7 +856,6 @@ func TestBuilderForceHTTP3WithOtherSettings(t *testing.T) {
 
 	// Apply multiple builder methods including ForceHTTP3
 	resultBuilder := builder.ForceHTTP3().HTTP3Settings().Set().HTTP3().
-		Singleton().
 		Timeout(5 * time.Second).
 		Session()
 
@@ -880,7 +873,7 @@ func TestBuilderForceHTTP3Chaining(t *testing.T) {
 	builder := client.Builder()
 
 	// Test multiple method chaining
-	result := builder.ForceHTTP3().HTTP3Settings().Set().HTTP3().Impersonate().Chrome().Build()
+	result := builder.ForceHTTP3().HTTP3Settings().Set().HTTP3().Impersonate().Chrome().Build().Unwrap()
 
 	if result == nil {
 		t.Error("Builder should not return nil client")

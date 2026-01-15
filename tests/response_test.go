@@ -120,7 +120,7 @@ func TestResponseGetCookies(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
@@ -151,7 +151,7 @@ func TestResponseSetCookies(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
@@ -226,7 +226,7 @@ func TestResponseRemoteAddress(t *testing.T) {
 	defer ts.Close()
 
 	// Test with GetRemoteAddress enabled
-	client := surf.NewClient().Builder().GetRemoteAddress().Build()
+	client := surf.NewClient().Builder().GetRemoteAddress().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
@@ -323,7 +323,7 @@ func TestResponseWithRetry(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Retry(5, 10*time.Millisecond).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -535,7 +535,7 @@ func TestResponseWithMiddleware(t *testing.T) {
 			}
 			return nil
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -807,19 +807,39 @@ func TestResponseStatusCodeMethods(t *testing.T) {
 			statusCode := resp.Ok().StatusCode
 
 			if statusCode.IsInformational() != tc.isInfo {
-				t.Errorf("IsInformational() for %d: expected %v, got %v", tc.status, tc.isInfo, statusCode.IsInformational())
+				t.Errorf(
+					"IsInformational() for %d: expected %v, got %v",
+					tc.status,
+					tc.isInfo,
+					statusCode.IsInformational(),
+				)
 			}
 			if statusCode.IsSuccess() != tc.isSuccess {
 				t.Errorf("IsSuccess() for %d: expected %v, got %v", tc.status, tc.isSuccess, statusCode.IsSuccess())
 			}
 			if statusCode.IsRedirection() != tc.isRedirect {
-				t.Errorf("IsRedirection() for %d: expected %v, got %v", tc.status, tc.isRedirect, statusCode.IsRedirection())
+				t.Errorf(
+					"IsRedirection() for %d: expected %v, got %v",
+					tc.status,
+					tc.isRedirect,
+					statusCode.IsRedirection(),
+				)
 			}
 			if statusCode.IsClientError() != tc.isClientErr {
-				t.Errorf("IsClientError() for %d: expected %v, got %v", tc.status, tc.isClientErr, statusCode.IsClientError())
+				t.Errorf(
+					"IsClientError() for %d: expected %v, got %v",
+					tc.status,
+					tc.isClientErr,
+					statusCode.IsClientError(),
+				)
 			}
 			if statusCode.IsServerError() != tc.isServerErr {
-				t.Errorf("IsServerError() for %d: expected %v, got %v", tc.status, tc.isServerErr, statusCode.IsServerError())
+				t.Errorf(
+					"IsServerError() for %d: expected %v, got %v",
+					tc.status,
+					tc.isServerErr,
+					statusCode.IsServerError(),
+				)
 			}
 			// IsError() doesn't exist in the StatusCode type, check if it's client or server error
 			isError := statusCode.IsClientError() || statusCode.IsServerError()
@@ -885,7 +905,7 @@ func TestResponseNoFollowRedirects(t *testing.T) {
 	defer ts.Close()
 
 	// Test with redirects disabled
-	client := surf.NewClient().Builder().NotFollowRedirects().Build()
+	client := surf.NewClient().Builder().NotFollowRedirects().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())

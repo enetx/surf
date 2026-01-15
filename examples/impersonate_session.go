@@ -15,7 +15,8 @@ func main() {
 		// 	cli.GetTLSConfig().ClientSessionCache = nil
 		// 	return nil
 		// }).
-		Build()
+		Build().
+		Unwrap()
 
 	r := cli.Get(url).Do()
 	r.Ok().Body.String().Println()

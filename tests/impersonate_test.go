@@ -25,7 +25,7 @@ func TestImpersonateChrome(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -54,7 +54,7 @@ func TestImpersonateFirefox(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Firefox().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -92,7 +92,7 @@ func TestImpersonateWithOS(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Windows().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -134,7 +134,7 @@ func TestImpersonateMacOS(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().MacOS().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -171,7 +171,7 @@ func TestImpersonateLinux(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Linux().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -208,7 +208,7 @@ func TestImpersonateAndroid(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Android().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -245,7 +245,7 @@ func TestImpersonateIOS(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().IOS().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -285,7 +285,7 @@ func TestImpersonateRandomOS(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().RandomOS().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -339,7 +339,7 @@ func TestImpersonateWithCustomHeaders(t *testing.T) {
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
 		SetHeaders(headers).
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -381,7 +381,7 @@ func TestImpersonateChromeHeaders(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
-		Build()
+		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
@@ -436,7 +436,7 @@ func TestImpersonateChromeBoundaryGeneration(t *testing.T) {
 	// Test that Chrome boundary generation works correctly
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
-		Build()
+		Build().Unwrap()
 
 	// Create multiple multipart requests to test boundary uniqueness
 	formData := g.NewMapOrd[g.String, g.String](2)
@@ -528,7 +528,7 @@ func TestImpersonateChromeOSVariants(t *testing.T) {
 
 			impersonate := surf.NewClient().Builder().Impersonate()
 			osImpersonate := tc.osFunc(impersonate)
-			client := osImpersonate.Chrome().Build()
+			client := osImpersonate.Chrome().Build().Unwrap()
 
 			req := client.Get(g.String(ts.URL))
 			resp := req.Do()
@@ -567,7 +567,7 @@ func TestImpersonateChromeTransportConfiguration(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
-		Build()
+		Build().Unwrap()
 
 	// Verify the client was properly configured
 	if client.GetClient() == nil {
@@ -610,7 +610,7 @@ func TestImpersonateChromeJA3Configuration(t *testing.T) {
 	// Test that Chrome impersonation includes JA3 configuration
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
-		Build()
+		Build().Unwrap()
 
 	// The JA3 configuration is internal, but we can verify the client builds successfully
 	// and that TLS configuration is present
@@ -646,7 +646,7 @@ func TestImpersonateFirefoxPrivate(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().FirefoxPrivate().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")

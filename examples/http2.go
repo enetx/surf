@@ -8,10 +8,13 @@ import (
 )
 
 func main() {
-	r := surf.NewClient().
+	cli := surf.NewClient().
 		Builder().JA().Firefox().
 		ForceHTTP2().
 		Build().
+		Unwrap()
+
+	r := cli.
 		Get("https://tls.peet.ws/api/all").
 		Do()
 

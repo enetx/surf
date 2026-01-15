@@ -12,6 +12,7 @@ func main() {
 		Builder().
 		AddHeaders("If-Modified-Since", time.Now().Format("02.01.2006-15:04:05")).
 		Build().
+		Unwrap().
 		Get("https://httpbingo.org/cache").
 		Do().
 		Unwrap()

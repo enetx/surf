@@ -35,7 +35,7 @@ func TestMiddlewareRequestUserAgent(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().UserAgent(tc.userAgent).Build()
+			client := surf.NewClient().Builder().UserAgent(tc.userAgent).Build().Unwrap()
 			req := client.Get(g.String(ts.URL))
 			resp := req.Do()
 
@@ -64,7 +64,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 	defer ts.Close()
 
 	t.Run("g.String type", func(t *testing.T) {
-		client := surf.NewClient().Builder().UserAgent(g.String("gString-UserAgent/1.0")).Build()
+		client := surf.NewClient().Builder().UserAgent(g.String("gString-UserAgent/1.0")).Build().Unwrap()
 		resp := client.Get(g.String(ts.URL)).Do()
 
 		if resp.IsErr() {
@@ -79,7 +79,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 
 	t.Run("[]string slice", func(t *testing.T) {
 		userAgents := []string{"Agent1/1.0", "Agent2/1.0", "Agent3/1.0"}
-		client := surf.NewClient().Builder().UserAgent(userAgents).Build()
+		client := surf.NewClient().Builder().UserAgent(userAgents).Build().Unwrap()
 
 		// Make multiple requests to test random selection
 		foundAgents := make(map[string]bool)
@@ -105,7 +105,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 
 	t.Run("g.Slice[string] type", func(t *testing.T) {
 		userAgents := g.SliceOf("gSliceAgent1/1.0", "gSliceAgent2/1.0")
-		client := surf.NewClient().Builder().UserAgent(userAgents).Build()
+		client := surf.NewClient().Builder().UserAgent(userAgents).Build().Unwrap()
 		resp := client.Get(g.String(ts.URL)).Do()
 
 		if resp.IsErr() {
@@ -122,7 +122,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 
 	t.Run("g.Slice[g.String] type", func(t *testing.T) {
 		userAgents := g.SliceOf(g.String("gStringSliceAgent1/1.0"), g.String("gStringSliceAgent2/1.0"))
-		client := surf.NewClient().Builder().UserAgent(userAgents).Build()
+		client := surf.NewClient().Builder().UserAgent(userAgents).Build().Unwrap()
 		resp := client.Get(g.String(ts.URL)).Do()
 
 		if resp.IsErr() {
@@ -147,7 +147,7 @@ func TestMiddlewareRequestUserAgentErrors(t *testing.T) {
 	defer ts.Close()
 
 	t.Run("empty []string slice", func(t *testing.T) {
-		client := surf.NewClient().Builder().UserAgent([]string{}).Build()
+		client := surf.NewClient().Builder().UserAgent([]string{}).Build().Unwrap()
 		resp := client.Get(g.String(ts.URL)).Do()
 
 		if resp.IsOk() {
@@ -156,7 +156,7 @@ func TestMiddlewareRequestUserAgentErrors(t *testing.T) {
 	})
 
 	t.Run("empty g.Slice[string]", func(t *testing.T) {
-		client := surf.NewClient().Builder().UserAgent(g.Slice[string]{}).Build()
+		client := surf.NewClient().Builder().UserAgent(g.Slice[string]{}).Build().Unwrap()
 		resp := client.Get(g.String(ts.URL)).Do()
 
 		if resp.IsOk() {
@@ -165,7 +165,7 @@ func TestMiddlewareRequestUserAgentErrors(t *testing.T) {
 	})
 
 	t.Run("empty g.Slice[g.String]", func(t *testing.T) {
-		client := surf.NewClient().Builder().UserAgent(g.Slice[g.String]{}).Build()
+		client := surf.NewClient().Builder().UserAgent(g.Slice[g.String]{}).Build().Unwrap()
 		resp := client.Get(g.String(ts.URL)).Do()
 
 		if resp.IsOk() {
@@ -174,7 +174,7 @@ func TestMiddlewareRequestUserAgentErrors(t *testing.T) {
 	})
 
 	t.Run("invalid type", func(t *testing.T) {
-		client := surf.NewClient().Builder().UserAgent(123).Build()
+		client := surf.NewClient().Builder().UserAgent(123).Build().Unwrap()
 		resp := client.Get(g.String(ts.URL)).Do()
 
 		if resp.IsOk() {
@@ -201,7 +201,7 @@ func TestMiddlewareRequestBearerAuth(t *testing.T) {
 	defer ts.Close()
 
 	// Test with bearer token
-	client := surf.NewClient().Builder().BearerAuth("test-token-123").Build()
+	client := surf.NewClient().Builder().BearerAuth("test-token-123").Build().Unwrap()
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
 
@@ -236,7 +236,7 @@ func TestMiddlewareRequestBasicAuth(t *testing.T) {
 	defer ts.Close()
 
 	// Test with basic auth
-	client := surf.NewClient().Builder().BasicAuth("testuser:testpass").Build()
+	client := surf.NewClient().Builder().BasicAuth("testuser:testpass").Build().Unwrap()
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
 
@@ -281,7 +281,7 @@ func TestMiddlewareRequestContentType(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().ContentType(g.String(tc.contentType)).Build()
+			client := surf.NewClient().Builder().ContentType(g.String(tc.contentType)).Build().Unwrap()
 			req := client.Post(g.String(ts.URL), g.String("test data"))
 			resp := req.Do()
 
@@ -309,7 +309,7 @@ func TestMiddlewareRequestGetRemoteAddress(t *testing.T) {
 	defer ts.Close()
 
 	// Test GetRemoteAddress
-	client := surf.NewClient().Builder().GetRemoteAddress().Build()
+	client := surf.NewClient().Builder().GetRemoteAddress().Build().Unwrap()
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
 
@@ -614,7 +614,7 @@ func TestMiddlewareRequestHeaders(t *testing.T) {
 		AddHeaders(g.Map[string, string]{
 			"X-Third": "3",
 		}).
-		Build()
+		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()

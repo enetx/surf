@@ -25,7 +25,7 @@ func TestClientStd(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	surfClient := surf.NewClient().Builder().Session().Build()
+	surfClient := surf.NewClient().Builder().Session().Build().Unwrap()
 	stdClient := surfClient.Std()
 
 	if stdClient == nil {
@@ -64,7 +64,7 @@ func TestTransportAdapter(t *testing.T) {
 			req.SetHeaders("X-Request-MW", "called")
 			return nil
 		}).
-		Build()
+		Build().Unwrap()
 
 	stdClient := surfClient.Std()
 	req, err := http.NewRequest("GET", ts.URL, nil)
@@ -94,7 +94,7 @@ func TestCookieJarAdapter(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	surfClient := surf.NewClient().Builder().Session().Build()
+	surfClient := surf.NewClient().Builder().Session().Build().Unwrap()
 	stdClient := surfClient.Std()
 
 	u, _ := url.Parse(ts.URL)
@@ -124,7 +124,7 @@ func TestAdapterWithComplexResponse(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	surfClient := surf.NewClient().Builder().Session().Build()
+	surfClient := surf.NewClient().Builder().Session().Build().Unwrap()
 	stdClient := surfClient.Std()
 
 	resp, err := stdClient.Get(ts.URL)
@@ -162,7 +162,7 @@ func TestAdapterWithPostData(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	surfClient := surf.NewClient().Builder().Session().Build()
+	surfClient := surf.NewClient().Builder().Session().Build().Unwrap()
 	stdClient := surfClient.Std()
 
 	req, err := http.NewRequest("POST", ts.URL, strings.NewReader(`{"key":"value"}`))
@@ -286,7 +286,7 @@ func TestAdapterRedirectHandling(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().MaxRedirects(3).Build()
+	client := surf.NewClient().Builder().MaxRedirects(3).Build().Unwrap()
 	stdClient := client.Std()
 
 	resp, err := stdClient.Get(ts.URL)
@@ -319,7 +319,7 @@ func TestAdapterSetCookiesEdgeCases(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	stdClient := client.Std()
 
 	// Test SetCookies functionality through the adapter
@@ -390,7 +390,7 @@ func TestAdapterTimeoutHandling(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Timeout(50 * time.Millisecond). // Very short timeout
-		Build()
+		Build().Unwrap()
 	stdClient := client.Std()
 
 	_, err := stdClient.Get(ts.URL)

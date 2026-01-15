@@ -24,6 +24,7 @@ func main() {
 		Firefox().
 		// Chrome().
 		Build().
+		Unwrap().
 		Multipart("http://google.com", multipartData).
 		Do().
 		Unwrap()

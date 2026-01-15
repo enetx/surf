@@ -34,27 +34,27 @@ func TestDNSOverTLSProviders(t *testing.T) {
 			var builtClient *surf.Client
 			switch name {
 			case "AdGuard":
-				builtClient = dnsBuilder.AdGuard().Build()
+				builtClient = dnsBuilder.AdGuard().Build().Unwrap()
 			case "Google":
-				builtClient = dnsBuilder.Google().Build()
+				builtClient = dnsBuilder.Google().Build().Unwrap()
 			case "Cloudflare":
-				builtClient = dnsBuilder.Cloudflare().Build()
+				builtClient = dnsBuilder.Cloudflare().Build().Unwrap()
 			case "Quad9":
-				builtClient = dnsBuilder.Quad9().Build()
+				builtClient = dnsBuilder.Quad9().Build().Unwrap()
 			case "Switch":
-				builtClient = dnsBuilder.Switch().Build()
+				builtClient = dnsBuilder.Switch().Build().Unwrap()
 			case "CIRAShield":
-				builtClient = dnsBuilder.CIRAShield().Build()
+				builtClient = dnsBuilder.CIRAShield().Build().Unwrap()
 			case "Ali":
-				builtClient = dnsBuilder.Ali().Build()
+				builtClient = dnsBuilder.Ali().Build().Unwrap()
 			case "Quad101":
-				builtClient = dnsBuilder.Quad101().Build()
+				builtClient = dnsBuilder.Quad101().Build().Unwrap()
 			case "SB":
-				builtClient = dnsBuilder.SB().Build()
+				builtClient = dnsBuilder.SB().Build().Unwrap()
 			case "Forge":
-				builtClient = dnsBuilder.Forge().Build()
+				builtClient = dnsBuilder.Forge().Build().Unwrap()
 			case "LibreDNS":
-				builtClient = dnsBuilder.LibreDNS().Build()
+				builtClient = dnsBuilder.LibreDNS().Build().Unwrap()
 			default:
 				t.Fatalf("unknown provider: %s", name)
 			}
@@ -89,13 +89,13 @@ func TestDNSOverTLSWithLocalRequest(t *testing.T) {
 			var builtClient *surf.Client
 			switch name {
 			case "Cloudflare":
-				builtClient = dnsBuilder.Cloudflare().Build()
+				builtClient = dnsBuilder.Cloudflare().Build().Unwrap()
 			case "AdGuard":
-				builtClient = dnsBuilder.AdGuard().Build()
+				builtClient = dnsBuilder.AdGuard().Build().Unwrap()
 			case "Google":
-				builtClient = dnsBuilder.Google().Build()
+				builtClient = dnsBuilder.Google().Build().Unwrap()
 			case "Quad9":
-				builtClient = dnsBuilder.Quad9().Build()
+				builtClient = dnsBuilder.Quad9().Build().Unwrap()
 			}
 			req := builtClient.Get(g.String(ts.URL))
 			resp := req.Do()
@@ -119,13 +119,13 @@ func TestDNSOverTLSCustomProvider(t *testing.T) {
 	builder := client.Builder()
 	dnsBuilder := builder.DNSOverTLS()
 
-	builtClient := dnsBuilder.Cloudflare().Build()
+	builtClient := dnsBuilder.Cloudflare().Build().Unwrap()
 
 	// Test that we can create a client with AddProvider
 	client2 := surf.NewClient()
 	builder2 := client2.Builder()
 	dnsBuilder2 := builder2.DNSOverTLS()
-	builtClient2 := dnsBuilder2.AddProvider("127.0.0.1", "127.0.0.1:853").Build()
+	builtClient2 := dnsBuilder2.AddProvider("127.0.0.1", "127.0.0.1:853").Build().Unwrap()
 
 	if builtClient == nil {
 		t.Error("expected client with DNS provider to be non-nil")
@@ -144,7 +144,7 @@ func TestDNSOverTLSMultipleProviders(t *testing.T) {
 	builder := client.Builder()
 	dnsBuilder := builder.DNSOverTLS()
 
-	builtClient := dnsBuilder.AddProvider("1.1.1.1", "1.1.1.1:853").Build()
+	builtClient := dnsBuilder.AddProvider("1.1.1.1", "1.1.1.1:853").Build().Unwrap()
 
 	if builtClient == nil {
 		t.Error("expected client with multiple DNS providers to be non-nil")
@@ -171,25 +171,25 @@ func TestDNSOverTLSAllProviders(t *testing.T) {
 			// First test that the provider works
 			switch name {
 			case "AdGuard":
-				builtClient = dnsBuilder.AdGuard().Build()
+				builtClient = dnsBuilder.AdGuard().Build().Unwrap()
 			case "Google":
-				builtClient = dnsBuilder.Google().Build()
+				builtClient = dnsBuilder.Google().Build().Unwrap()
 			case "Quad9":
-				builtClient = dnsBuilder.Quad9().Build()
+				builtClient = dnsBuilder.Quad9().Build().Unwrap()
 			case "Switch":
-				builtClient = dnsBuilder.Switch().Build()
+				builtClient = dnsBuilder.Switch().Build().Unwrap()
 			case "CIRAShield":
-				builtClient = dnsBuilder.CIRAShield().Build()
+				builtClient = dnsBuilder.CIRAShield().Build().Unwrap()
 			case "Ali":
-				builtClient = dnsBuilder.Ali().Build()
+				builtClient = dnsBuilder.Ali().Build().Unwrap()
 			case "Quad101":
-				builtClient = dnsBuilder.Quad101().Build()
+				builtClient = dnsBuilder.Quad101().Build().Unwrap()
 			case "SB":
-				builtClient = dnsBuilder.SB().Build()
+				builtClient = dnsBuilder.SB().Build().Unwrap()
 			case "Forge":
-				builtClient = dnsBuilder.Forge().Build()
+				builtClient = dnsBuilder.Forge().Build().Unwrap()
 			case "LibreDNS":
-				builtClient = dnsBuilder.LibreDNS().Build()
+				builtClient = dnsBuilder.LibreDNS().Build().Unwrap()
 			}
 
 			if builtClient == nil {
@@ -201,7 +201,7 @@ func TestDNSOverTLSAllProviders(t *testing.T) {
 			client2 := surf.NewClient()
 			builder2 := client2.Builder()
 			dnsBuilder2 := builder2.DNSOverTLS()
-			builtClient2 := dnsBuilder2.AddProvider("test.com", "test.com:853").Build()
+			builtClient2 := dnsBuilder2.AddProvider("test.com", "test.com:853").Build().Unwrap()
 
 			if builtClient2 == nil {
 				t.Error("expected client with AddProvider to be built successfully")
@@ -260,7 +260,7 @@ func TestDNSOverTLSResolverConfiguration(t *testing.T) {
 			builder := client.Builder()
 			dnsBuilder := builder.DNSOverTLS()
 
-			builtClient := tc.buildFunc(dnsBuilder).Build()
+			builtClient := tc.buildFunc(dnsBuilder).Build().Unwrap()
 
 			if tc.expectError {
 				if builtClient != nil {
@@ -311,7 +311,7 @@ func TestDNSOverTLSIntegration(t *testing.T) {
 			builder := client.Builder()
 			dnsBuilder := builder.DNSOverTLS()
 
-			builtClient := provider.buildFunc(dnsBuilder).Build()
+			builtClient := provider.buildFunc(dnsBuilder).Build().Unwrap()
 			if builtClient == nil {
 				t.Fatalf("expected client to be built for %s", provider.name)
 			}
@@ -348,37 +348,37 @@ func TestDNSOverTLSWithOtherFeatures(t *testing.T) {
 		{
 			"DNS over TLS with proxy",
 			func(b *surf.Builder) *surf.Client {
-				return b.DNSOverTLS().Google().Proxy("http://localhost:8080").Build()
+				return b.DNSOverTLS().Google().Proxy("http://localhost:8080").Build().Unwrap()
 			},
 		},
 		{
 			"DNS over TLS with timeout",
 			func(b *surf.Builder) *surf.Client {
-				return b.DNSOverTLS().Cloudflare().Timeout(time.Second * 30).Build()
+				return b.DNSOverTLS().Cloudflare().Timeout(time.Second * 30).Build().Unwrap()
 			},
 		},
 		{
 			"DNS over TLS with user agent",
 			func(b *surf.Builder) *surf.Client {
-				return b.DNSOverTLS().AdGuard().UserAgent("test-agent").Build()
+				return b.DNSOverTLS().AdGuard().UserAgent("test-agent").Build().Unwrap()
 			},
 		},
 		{
 			"DNS over TLS with session",
 			func(b *surf.Builder) *surf.Client {
-				return b.DNSOverTLS().Quad9().Session().Build()
+				return b.DNSOverTLS().Quad9().Session().Build().Unwrap()
 			},
 		},
 		{
 			"DNS over TLS with impersonation",
 			func(b *surf.Builder) *surf.Client {
-				return b.DNSOverTLS().Google().Impersonate().Chrome().Build()
+				return b.DNSOverTLS().Google().Impersonate().Chrome().Build().Unwrap()
 			},
 		},
 		{
 			"DNS over TLS with HTTP/3",
 			func(b *surf.Builder) *surf.Client {
-				return b.DNSOverTLS().Cloudflare().HTTP3Settings().Set().Build()
+				return b.DNSOverTLS().Cloudflare().HTTP3Settings().Set().Build().Unwrap()
 			},
 		},
 	}
@@ -452,7 +452,7 @@ func TestDNSOverTLSErrorHandling(t *testing.T) {
 			builder := client.Builder()
 			dnsBuilder := builder.DNSOverTLS()
 
-			builtClient := tc.buildFunc(dnsBuilder).Build()
+			builtClient := tc.buildFunc(dnsBuilder).Build().Unwrap()
 
 			if tc.shouldFail {
 				if builtClient != nil {
@@ -480,7 +480,7 @@ func TestDNSOverTLSProviderChaining(t *testing.T) {
 		Google().
 		DNSOverTLS().Cloudflare().
 		DNSOverTLS().AdGuard().
-		Build()
+		Build().Unwrap()
 
 	if builtClient == nil {
 		t.Fatal("expected chained client to be built successfully")
@@ -504,7 +504,7 @@ func TestDNSOverTLSWithCustomDialer(t *testing.T) {
 		Timeout(time.Second * 10).
 		DNSOverTLS().Google().
 		InterfaceAddr("127.0.0.1").
-		Build()
+		Build().Unwrap()
 
 	if builtClient == nil {
 		t.Fatal("expected client with custom dialer to be built")

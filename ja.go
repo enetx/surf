@@ -71,10 +71,6 @@ func (j *JA) build() *Builder {
 			return nil
 		}
 
-		if !j.builder.singleton {
-			j.builder.addRespMW(closeIdleConnectionsMW, 0)
-		}
-
 		// Wrap the transport with JA3/4 fingerprinting round tripper
 		c.GetClient().Transport = newRoundTripper(j, c.GetTransport())
 

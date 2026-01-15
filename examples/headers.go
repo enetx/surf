@@ -27,6 +27,7 @@ func main() {
 		SetHeaders(h1).
 		AddHeaders(header.REFERER, "Paradise").
 		Build().
+		Unwrap().
 		Get(url)
 
 	r := req.Do()

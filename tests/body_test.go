@@ -422,7 +422,7 @@ func TestBodyContains(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().CacheBody().Build()
+	client := surf.NewClient().Builder().CacheBody().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
@@ -577,7 +577,7 @@ func TestBodyCache(t *testing.T) {
 	defer ts.Close()
 
 	// Test with cache enabled
-	client := surf.NewClient().Builder().CacheBody().Build()
+	client := surf.NewClient().Builder().CacheBody().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
@@ -1207,7 +1207,7 @@ func TestBodyContainsEdgeCases(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().CacheBody().Build()
+	client := surf.NewClient().Builder().CacheBody().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())

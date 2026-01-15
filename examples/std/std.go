@@ -11,10 +11,7 @@ import (
 func main() {
 	cli := surf.NewClient().
 		Builder().
-		Proxy([]string{
-			"socks5://127.0.0.1:2080",
-			"http://127.0.0.1:2080",
-		}).
+		Proxy("socks5://127.0.0.1:1080").
 		Impersonate().Firefox().
 		Build()
 

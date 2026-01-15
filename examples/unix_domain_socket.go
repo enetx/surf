@@ -13,6 +13,7 @@ func main() {
 		Builder().
 		UnixSocket(socket).
 		Build().
+		Unwrap().
 		Get("http://localhost/v1.41/containers/json").
 		Do()
 

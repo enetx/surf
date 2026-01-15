@@ -15,7 +15,7 @@ func main() {
 
 	go H2CServerUpgrade()
 
-	r := surf.NewClient().Builder().H2C().Build().Get("http://localhost:1010").Do()
+	r := surf.NewClient().Builder().H2C().Build().Unwrap().Get("http://localhost:1010").Do()
 	if r.IsErr() {
 		log.Fatal(r.Err())
 	}

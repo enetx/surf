@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// to get remote server ip address
-	cli := surf.NewClient().Builder().GetRemoteAddress().Build()
+	cli := surf.NewClient().Builder().GetRemoteAddress().Build().Unwrap()
 
 	r := cli.Get("http://ya.ru").Do()
 	if r.IsErr() {

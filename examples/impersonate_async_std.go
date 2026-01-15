@@ -18,11 +18,11 @@ func main() {
 
 	cli := surf.NewClient().
 		Builder().
-		Singleton(). // for reuse client
 		Impersonate().
 		// Chrome().
 		Firefox().
-		Build()
+		Build().
+		Unwrap()
 
 	defer cli.CloseIdleConnections()
 

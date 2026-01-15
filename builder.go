@@ -23,7 +23,7 @@ const (
 // redirect handling, and browser impersonation capabilities.
 type Builder struct {
 	retryCodes               g.Slice[int]                               // HTTP status codes that trigger retries
-	proxy                    any                                        // Proxy configuration (static string/slice or dynamic function)
+	proxy                    g.String                                   // Proxy
 	cli                      *Client                                    // The client being configured
 	checkRedirect            func(*http.Request, []*http.Request) error // Custom redirect policy function
 	http2settings            *HTTP2Settings                             // HTTP/2 specific settings
@@ -40,17 +40,17 @@ type Builder struct {
 	followOnlyHostRedirects  bool                                       // Only follow redirects within same host
 	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
 	ja                       bool                                       // Enable JA3 TLS fingerprinting
-	singleton                bool                                       // Use singleton pattern for connection reuse
 	http3                    bool                                       // Enable HTTP/3 with automatic browser detection
 }
 
-// Build sets the provided settings for the client and returns the updated client.
-// It configures various settings like HTTP2, sessions, keep-alive, dial TLS, resolver,
-// interface address, timeout, and redirect policy.
-func (b *Builder) Build() *Client {
-	// apply each middleware to the Client
-	b.cliMWs.run(b.cli)
-	return b.cli
+// Build applies all configured settings and returns the client.
+// Returns g.Result with error if any middleware fails.
+func (b *Builder) Build() g.Result[*Client] {
+	if err := b.cliMWs.run(b.cli); err != nil {
+		return g.Err[*Client](err)
+	}
+
+	return g.Ok(b.cli)
 }
 
 // With registers middleware into the client builder with optional priority.
@@ -127,22 +127,6 @@ func (b *Builder) Boundary(boundary func() g.String) *Builder {
 	return b.addCliMW(func(client *Client) error { return boundaryMW(client, boundary) }, 999)
 }
 
-// Singleton configures the client to use a singleton instance, ensuring there's only one client instance.
-// This is needed specifically for JA or Impersonate functionalities.
-//
-//	cli := surf.NewClient().
-//		Builder().
-//		Singleton(). // for reuse client
-//		Impersonate().
-//		FireFox().
-//		Build()
-//
-//	defer cli.CloseIdleConnections()
-func (b *Builder) Singleton() *Builder {
-	b.singleton = true
-	return b
-}
-
 // H2C configures the client to handle HTTP/2 Cleartext (h2c).
 func (b *Builder) H2C() *Builder { return b.addCliMW(h2cMW, 999) }
 
@@ -196,26 +180,14 @@ func (b *Builder) Timeout(timeout time.Duration) *Builder {
 	return b.addCliMW(func(client *Client) error { return timeoutMW(client, timeout) }, 0)
 }
 
-// InterfaceAddr sets the network interface address for the client.
+// InterfaceAddr sets the local network interface for outbound connections.
+// Accepts either an IP address (e.g., "192.168.1.100", "::1") or an interface name (e.g., "eth0", "en0").
 func (b *Builder) InterfaceAddr(address g.String) *Builder {
 	return b.addCliMW(func(client *Client) error { return interfaceAddrMW(client, address) }, 0)
 }
 
-// Proxy sets the proxy settings for the client.
-// Supports both static proxy configurations and dynamic proxy provider functions.
-//
-// Static proxy examples:
-//
-//	.Proxy("socks5://127.0.0.1:9050")
-//	.Proxy([]string{"socks5://proxy1", "http://proxy2"})
-//
-// Dynamic proxy example:
-//
-//	.Proxy(func() g.String {
-//	  // Your proxy rotation logic here
-//	  return "socks5://127.0.0.1:9050"
-//	})
-func (b *Builder) Proxy(proxy any) *Builder {
+// Proxy sets the proxy URL for the client.
+func (b *Builder) Proxy(proxy g.String) *Builder {
 	b.proxy = proxy
 	return b.addCliMW(func(client *Client) error { return proxyMW(client, proxy) }, 0)
 }

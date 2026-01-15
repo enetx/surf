@@ -11,6 +11,7 @@ func main() {
 		Builder().
 		NotFollowRedirects().
 		Build().
+		Unwrap().
 		Get("http://google.com").
 		Do().
 		Unwrap()

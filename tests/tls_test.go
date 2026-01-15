@@ -21,7 +21,7 @@ func TestTLSGrabberHTTPS(t *testing.T) {
 	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Build()
+	client := surf.NewClient().Builder().Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
@@ -52,7 +52,7 @@ func TestTLSGrabberHTTP(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Build()
+	client := surf.NewClient().Builder().Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
@@ -85,7 +85,7 @@ func TestTLSGrabberWithImpersonate(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -126,7 +126,7 @@ func TestTLSGrabberWithJA3(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -259,7 +259,7 @@ func TestTLSGrabberWithHTTPS2(t *testing.T) {
 	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Build()
+	client := surf.NewClient().Builder().Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()
@@ -298,7 +298,7 @@ func TestTLSGrabberWithHTTP3(t *testing.T) {
 	ts := httptest.NewTLSServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Build()
+	client := surf.NewClient().Builder().Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
 	resp := req.Do()

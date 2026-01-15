@@ -12,6 +12,7 @@ func main() {
 		Builder().JA().Firefox().
 		ForceHTTP1().
 		Build().
+		Unwrap().
 		Get("https://tls.peet.ws/api/all").
 		Do()
 

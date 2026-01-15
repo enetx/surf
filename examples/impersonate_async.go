@@ -20,7 +20,10 @@ func main() {
 		Impersonate().
 		// Chrome().
 		Firefox().
-		Build()
+		Build().
+		Unwrap()
+
+	defer cli.CloseIdleConnections()
 
 	p := pool.New[*surf.Response]()
 

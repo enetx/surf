@@ -18,6 +18,7 @@ func main() {
 		Builder().
 		AddCookies(&http.Cookie{Name: "test", Value: "rest"}).
 		Build().
+		Unwrap().
 		Post(url, body)
 
 	r := req.Do()

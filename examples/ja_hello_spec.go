@@ -103,7 +103,8 @@ func main() {
 		Builder().
 		JA().
 		SetHelloSpec(spec).
-		Build()
+		Build().
+		Unwrap()
 
 	r := cli.
 		Get("https://tls.peet.ws/api/clean").

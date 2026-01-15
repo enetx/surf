@@ -12,6 +12,7 @@ func main() {
 		Builder().
 		InterfaceAddr("127.0.0.1"). // network adapter ip address
 		Build().
+		Unwrap().
 		Get("http://myip.dnsomatic.com").
 		Do()
 

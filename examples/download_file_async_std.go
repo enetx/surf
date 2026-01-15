@@ -73,6 +73,7 @@ func main() {
 				Retry(10, time.Second*2).
 				AddHeaders(headers).
 				Build().
+				Unwrap().
 				Get(dURL).
 				Do()
 

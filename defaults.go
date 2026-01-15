@@ -72,7 +72,6 @@ const (
 	_http2WriteByteTimeout = 10 * time.Second
 
 	// HTTP/3 (QUIC) Transport timeouts
-
 	// _quicHandshakeTimeout is the timeout for QUIC handshake completion.
 	// Similar to TLS handshake timeout but for QUIC protocol.
 	_quicHandshakeTimeout = 10 * time.Second
@@ -88,12 +87,4 @@ const (
 	// _maxResponseHeaderBytes is the maximum size of response headers in HTTP/3.
 	// Limits memory usage when receiving large headers. Default 10MB.
 	_maxResponseHeaderBytes = 10 << 20
-
-	// Port defaults
-
-	// defaultHTTPPort is the implicit port for plain HTTP URLs without an explicit port.
-	defaultHTTPPort = "80"
-
-	// defaultHTTPSPort is the implicit port for HTTPS (TLS) URLs without an explicit port.
-	defaultHTTPSPort = "443"
 )

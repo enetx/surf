@@ -10,14 +10,6 @@ import (
 	"github.com/enetx/surf/header"
 )
 
-// closeIdleConnectionsMW forces the client to close idle connections after each response.
-// This middleware is useful when using non-singleton clients to prevent connection leaks
-// and ensure clean resource management. Particularly important for JA3 fingerprinting scenarios.
-func closeIdleConnectionsMW(r *Response) error {
-	r.cli.CloseIdleConnections()
-	return nil
-}
-
 // webSocketUpgradeErrorMW detects and handles WebSocket upgrade responses.
 // Returns an error when a response indicates a successful WebSocket protocol upgrade
 // (HTTP 101 Switching Protocols with Upgrade: websocket header).

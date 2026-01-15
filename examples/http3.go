@@ -12,7 +12,7 @@ func main() {
 	cli := surf.NewClient().Builder().
 		// DNS("127.0.0.1:53").
 		// DNS("1.1.1.1:53").
-		// Proxy("socks5://127.0.0.1:1080"). // dante
+		Proxy("socks5://127.0.0.1:1080"). // dante
 		// Proxy("socks5h://127.0.0.1:2080").
 		// Proxy("http://127.0.0.1:2080").
 
@@ -23,7 +23,8 @@ func main() {
 		// "perk_text": "1:65536;6:262144;7:100;51:1;GREASE|m,a,s,p",
 		// "perk_hash": "e1d11ee6f2f4c7b1f11bfaaf4dbbc211",
 		// Impersonate().Chrome().HTTP3().
-		Build()
+		Build().
+		Unwrap()
 
 	// r := cli.Get("https://cloudflare-quic.com").Do()
 	r := cli.Get("https://fp.impersonate.pro/api/http3").Do()

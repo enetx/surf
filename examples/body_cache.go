@@ -12,6 +12,7 @@ func main() {
 		Builder().
 		CacheBody().
 		Build().
+		Unwrap().
 		Get("http://httpbingo.org/get").
 		Do()
 

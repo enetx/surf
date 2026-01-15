@@ -18,6 +18,7 @@ func main() {
 		Builder().
 		ContentType("secret/content-type").
 		Build().
+		Unwrap().
 		Get("https://httpbingo.org/get").
 		Do()
 

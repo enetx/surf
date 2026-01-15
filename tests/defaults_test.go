@@ -23,7 +23,7 @@ func TestDefaultConstants(t *testing.T) {
 		t.Fatal("expected builder to be created")
 	}
 
-	built := builder.Build()
+	built := builder.Build().Unwrap()
 	if built == nil {
 		t.Fatal("expected client to be built with defaults")
 	}
@@ -135,7 +135,7 @@ func TestDefaultsIntegration(t *testing.T) {
 		MaxRedirects(5).
 		UserAgent("test-agent")
 
-	builtClient := builder.Build()
+	builtClient := builder.Build().Unwrap()
 	if builtClient == nil {
 		t.Fatal("expected client to build successfully with modified defaults")
 	}

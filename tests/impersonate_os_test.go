@@ -34,7 +34,7 @@ func TestImpersonateOSIntegration(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().Windows().Chrome().
-					Build()
+					Build().Unwrap()
 			},
 			"Windows NT 10.0",
 		},
@@ -43,7 +43,7 @@ func TestImpersonateOSIntegration(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().MacOS().Chrome().
-					Build()
+					Build().Unwrap()
 			},
 			"Macintosh",
 		},
@@ -52,7 +52,7 @@ func TestImpersonateOSIntegration(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().Linux().Firefox().
-					Build()
+					Build().Unwrap()
 			},
 			"X11; Linux x86_64",
 		},
@@ -61,7 +61,7 @@ func TestImpersonateOSIntegration(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().Android().Chrome().
-					Build()
+					Build().Unwrap()
 			},
 			"Android",
 		},
@@ -113,7 +113,7 @@ func TestImpersonateOSMobileVsDesktop(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().Windows().Chrome().
-					Build()
+					Build().Unwrap()
 			},
 			false,
 			"Windows",
@@ -123,7 +123,7 @@ func TestImpersonateOSMobileVsDesktop(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().Android().Chrome().
-					Build()
+					Build().Unwrap()
 			},
 			true,
 			"Mobile",
@@ -133,7 +133,7 @@ func TestImpersonateOSMobileVsDesktop(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().IOS().Chrome().
-					Build()
+					Build().Unwrap()
 			},
 			true,
 			"iPhone",
@@ -191,7 +191,7 @@ func TestImpersonateOSBrowserEngineIdentifiers(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().Windows().Chrome().
-					Build()
+					Build().Unwrap()
 			},
 			"AppleWebKit/537.36",
 		},
@@ -200,7 +200,7 @@ func TestImpersonateOSBrowserEngineIdentifiers(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					Impersonate().Windows().Firefox().
-					Build()
+					Build().Unwrap()
 			},
 			"Gecko/20100101",
 		},

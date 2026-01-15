@@ -26,7 +26,7 @@ func main() {
 	fmt.Printf("default user agent: %s\n", get.Headers.UserAgent[0])
 
 	// change user-agent header
-	r = cli.Builder().UserAgent("From root with love!!!").Build().Get(url).Do().Unwrap()
+	r = cli.Builder().UserAgent("From root with love!!!").Build().Unwrap().Get(url).Do().Unwrap()
 
 	get = new(Get)
 	r.Body.JSON(&get)

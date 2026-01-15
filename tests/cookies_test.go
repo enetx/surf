@@ -31,7 +31,7 @@ func TestCookiesBasic(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -86,7 +86,7 @@ func TestCookiesWithAttributes(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -142,7 +142,7 @@ func TestCookiesIteration(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -176,7 +176,7 @@ func TestCookiesSent(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 
 	// First request - set cookies manually
 	cookies := []*ehttp.Cookie{
@@ -238,7 +238,7 @@ func TestCookiesSessionPersistence(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 
 	// First request
 	resp1 := client.Get(g.String(ts.URL)).Do()
@@ -318,7 +318,7 @@ func TestCookiesSpecialChars(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -460,7 +460,7 @@ func TestCookiesContainsMethod(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -507,7 +507,7 @@ func TestCookiesContainsRegexp(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -571,7 +571,7 @@ func TestCookiesContainsPatternTypes(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -640,7 +640,7 @@ func TestCookiesContainsPartialMatches(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -696,7 +696,7 @@ func TestCookiesContainsComplexRegexp(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
@@ -756,7 +756,7 @@ func TestCookiesContainsUnsupportedTypes(t *testing.T) {
 	ts := httptest.NewServer(ehttp.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {

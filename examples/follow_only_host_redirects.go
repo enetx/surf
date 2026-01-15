@@ -12,6 +12,7 @@ func main() {
 		Builder().
 		FollowOnlyHostRedirects().
 		Build().
+		Unwrap().
 		Get("http://google.com").
 		// Get("http://www.google.com").
 		Do()

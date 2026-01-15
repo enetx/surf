@@ -65,7 +65,8 @@ surfClient := surf.NewClient().
     Builder().
     Impersonate().Chrome().
     Session().
-    Build()
+    Build().
+    Unwrap()
 
 // Convert to standard net/http.Client
 stdClient := surfClient.Std()
@@ -142,7 +143,8 @@ client := surf.NewClient().
     Builder().
     Impersonate().
     Chrome().        // Latest Chrome v144
-    Build()
+    Build().
+    Unwrap()
 
 resp := client.Get("https://example.com").Do()
 ```
@@ -155,7 +157,8 @@ client := surf.NewClient().
     Impersonate().
     RandomOS().      // Randomly selects Windows, macOS, Linux, Android, or iOS
     Firefox().       // Latest Firefox v147
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### Platform-Specific Impersonation
@@ -167,7 +170,8 @@ client := surf.NewClient().
     Impersonate().
     IOS().
     Chrome().
-    Build()
+    Build().
+    Unwrap()
 
 // Android Chrome
 client := surf.NewClient().
@@ -175,7 +179,8 @@ client := surf.NewClient().
     Impersonate().
     Android().
     Chrome().
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ## 🚀 HTTP/3 & Complete QUIC Fingerprinting
@@ -188,7 +193,8 @@ client := surf.NewClient().
     Builder().
     Impersonate().Chrome().
     HTTP3().    // Auto-detects Chrome and applies appropriate HTTP/3 settings
-    Build()
+    Build().
+    Unwrap()
 
 resp := client.Get("https://cloudflare-quic.com/").Do()
 if resp.IsOk() {
@@ -204,7 +210,8 @@ client := surf.NewClient().
     Builder().
     Impersonate().Firefox().
     HTTP3().    // Auto-detects Firefox and applies Firefox HTTP/3 settings
-    Build()
+    Build().
+    Unwrap()
 
 resp := client.Get("https://cloudflare-quic.com/").Do()
 ```
@@ -216,7 +223,8 @@ resp := client.Get("https://cloudflare-quic.com/").Do()
 client := surf.NewClient().
     Builder().
     HTTP3Settings().Grease().Set().
-    Build()
+    Build().
+    Unwrap()
 
 ```
 
@@ -230,28 +238,32 @@ client := surf.NewClient().
     Builder().
     Proxy("http://proxy:8080").    // HTTP proxies incompatible with HTTP/3
     HTTP3().                       // Will use HTTP/2 instead
-    Build()
+    Build().
+    Unwrap()
 
 // With SOCKS5 proxy - HTTP/3 works over UDP
 client := surf.NewClient().
     Builder().
     Proxy("socks5://127.0.0.1:1080").    // SOCKS5 UDP proxy supports HTTP/3
     HTTP3().                             // Will use HTTP/3 over SOCKS5
-    Build()
+    Build().
+    Unwrap()
 
 // With DNS settings - works seamlessly
 client := surf.NewClient().
     Builder().
     DNS("8.8.8.8:53").   // Custom DNS works with HTTP/3
     HTTP3().
-    Build()
+    Build().
+    Unwrap()
 
 // With DNS-over-TLS - works seamlessly
 client := surf.NewClient().
     Builder().
     DNSOverTLS().Google().   // DoT works with HTTP/3
     HTTP3().Set().
-    Build()
+    Build().
+    Unwrap()
 ```
 
 **Key HTTP/3 Features:**
@@ -273,7 +285,8 @@ client := surf.NewClient().
     Builder().
     JA().
     Chrome().     // Latest Chrome
-    Build()
+    Build().
+    Unwrap()
 
 
 // Randomized fingerprints for evasion
@@ -281,21 +294,24 @@ client := surf.NewClient().
     Builder().
     JA().
     Randomized().    // Random TLS fingerprint
-    Build()
+    Build().
+    Unwrap()
 
 // With custom HelloID
 client := surf.NewClient().
     Builder().
     JA().
     SetHelloID(utls.HelloChrome_Auto).
-    Build()
+    Build().
+    Unwrap()
 
 // With custom HelloSpec
 client := surf.NewClient().
     Builder().
     JA().
     SetHelloSpec(customSpec).
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### HTTP/2 Configuration
@@ -310,7 +326,8 @@ client := surf.NewClient().
     MaxHeaderListSize(262144).
     ConnectionFlow(15663105).
     Set().
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### HTTP/3 Configuration
@@ -325,7 +342,8 @@ client := surf.NewClient().
 	H3Datagram(1).
 	Grease().
 	Set().
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### Proxy Configuration
@@ -335,19 +353,8 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     Proxy("http://proxy.example.com:8080").
-    Build()
-
-// Rotating proxies
-proxies := []string{
-    "http://proxy1.example.com:8080",
-    "http://proxy2.example.com:8080",
-    "socks5://proxy3.example.com:1080",
-}
-
-client := surf.NewClient().
-    Builder().
-    Proxy(proxies).  // Randomly selects from list
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### SOCKS5 UDP Proxy Support
@@ -360,7 +367,8 @@ client := surf.NewClient().
     Proxy("socks5://127.0.0.1:1080").
     Impersonate().Chrome().
     HTTP3().  // Uses HTTP/3 over SOCKS5 UDP
-    Build()
+    Build().
+    Unwrap()
 
 // SOCKS5 with custom DNS resolution
 client := surf.NewClient().
@@ -368,7 +376,8 @@ client := surf.NewClient().
     DNS("8.8.8.8:53").              // Custom DNS resolver
     Proxy("socks5://proxy:1080").   // SOCKS5 UDP proxy
     HTTP3().                        // HTTP/3 over SOCKS5
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ## 🔌 Middleware System
@@ -383,7 +392,8 @@ client := surf.NewClient().
         fmt.Printf("Request to: %s\n", req.GetRequest().URL)
         return nil
     }).
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### Response Middleware
@@ -396,7 +406,8 @@ client := surf.NewClient().
         fmt.Printf("Response time: %v\n", resp.Time)
         return nil
     }).
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### Client Middleware
@@ -408,7 +419,8 @@ client := surf.NewClient().
         // Modify client configuration
         client.GetClient().Timeout = 30 * time.Second
     }).
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ## 📤 Request Types
@@ -496,7 +508,8 @@ resp := surf.NewClient().
 client := surf.NewClient().
     Builder().
     Session().        // Enable cookie jar
-    Build()
+    Build().
+    Unwrap()
 
 // Login
 client.Post("https://example.com/login", credentials).Do()
@@ -639,16 +652,16 @@ if resp.IsOk() {
 
 ## ⚡ Performance Optimization
 
-### Connection Reuse with Singleton
+### Connection Reuse
 
 ```go
 // Create a reusable client
 client := surf.NewClient().
     Builder().
-    Singleton().      // Enable connection pooling
     Impersonate().
     Chrome().
-    Build()
+    Build().
+    Unwrap()
 
 // Reuse for multiple requests
 for i := 0; i < 100; i++ {
@@ -666,7 +679,8 @@ defer client.CloseIdleConnections()
 client := surf.NewClient().
     Builder().
     CacheBody().      // Enable body caching
-    Build()
+    Build().
+    Unwrap()
 
 resp := client.Get("https://api.example.com/data").Do()
 if resp.IsOk() {
@@ -685,7 +699,8 @@ client := surf.NewClient().
     Builder().
     Retry(3, 2*time.Second).           // Max 3 retries, 2 second wait
     RetryCodes(http.StatusTooManyRequests, http.StatusServiceUnavailable).
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ## 🌐 Advanced Features
@@ -697,7 +712,8 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     H2C().
-    Build()
+    Build().
+    Unwrap()
 
 resp := client.Get("http://localhost:8080/h2c-endpoint").Do()
 ```
@@ -715,7 +731,8 @@ headers.Set("Accept-Encoding", "gzip, deflate")
 client := surf.NewClient().
     Builder().
     SetHeaders(headers).  // Headers will be sent in this exact order
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### Custom DNS Resolver
@@ -724,7 +741,8 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     DNS("8.8.8.8:53").  // Use Google DNS
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### DNS-over-TLS
@@ -733,7 +751,8 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     DNSOverTLS("1.1.1.1:853").  // Cloudflare DoT
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### Unix Domain Sockets
@@ -742,7 +761,8 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     UnixSocket("/var/run/docker.sock").
-    Build()
+    Build().
+    Unwrap()
 
 resp := client.Get("http://localhost/v1.41/containers/json").Do()
 ```
@@ -753,7 +773,8 @@ resp := client.Get("http://localhost/v1.41/containers/json").Do()
 client := surf.NewClient().
     Builder().
     InterfaceAddr("192.168.1.100").  // Bind to specific IP
-    Build()
+    Build().
+    Unwrap()
 ```
 
 ### Raw HTTP Requests
@@ -802,7 +823,6 @@ resp := surf.NewClient().
 | `DNS(dns)` | Set custom DNS resolver |
 | `DNSOverTLS()` | Configure DNS-over-TLS |
 | `Session()` | Enable cookie jar for sessions |
-| `Singleton()` | Enable connection pooling (reuse client) |
 | `Timeout(duration)` | Set request timeout |
 | `MaxRedirects(n)` | Set maximum redirects |
 | `NotFollowRedirects()` | Disable redirect following |

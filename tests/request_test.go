@@ -349,7 +349,7 @@ func TestRequestRetry(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Retry(5, 10*time.Millisecond).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -387,7 +387,7 @@ func TestRequestMiddlewareError(t *testing.T) {
 		With(func(*surf.Request) error {
 			return expectedErr
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if !resp.IsErr() {
@@ -402,7 +402,7 @@ func TestRequestMiddlewareError(t *testing.T) {
 		With(func(*surf.Response) error {
 			return expectedErr
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp = client.Get(g.String(ts.URL)).Do()
 	if !resp.IsErr() {
@@ -462,7 +462,7 @@ func TestRequestRemoteAddress(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		GetRemoteAddress().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {

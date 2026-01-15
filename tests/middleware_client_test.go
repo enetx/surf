@@ -2,6 +2,7 @@ package surf_test
 
 import (
 	"fmt"
+	"net"
 	"strings"
 	"testing"
 	"time"
@@ -23,14 +24,15 @@ func TestMiddlewareClientH2C(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test H2C (HTTP/2 cleartext)
-	client := surf.NewClient().Builder().H2C().Build()
+	result := surf.NewClient().Builder().H2C().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
+	client := result.Ok()
+	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
-		// H2C may not be supported in test environment
 		t.Logf("H2C test failed (may be expected): %v", resp.Err())
 		return
 	}
@@ -43,10 +45,12 @@ func TestMiddlewareClientH2C(t *testing.T) {
 func TestMiddlewareClientH2CTransportConfiguration(t *testing.T) {
 	t.Parallel()
 
-	// Test that H2C configures the transport correctly
-	client := surf.NewClient().Builder().H2C().Build()
+	result := surf.NewClient().Builder().H2C().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	// Check the transport type - it should be http2.Transport after h2cMW
+	client := result.Ok()
 	transport := client.GetClient().Transport
 
 	if transport == nil {
@@ -54,78 +58,9 @@ func TestMiddlewareClientH2CTransportConfiguration(t *testing.T) {
 	}
 }
 
-func TestMiddlewareProxyRotation(t *testing.T) {
-	t.Parallel()
-
-	// Test proxy rotation with multiple proxies
-	proxies := []string{
-		"socks5://localhost:1080",
-		"socks5://localhost:1081",
-		"http://127.0.0.1:8080",
-	}
-
-	client := surf.NewClient().Builder().
-		Proxy(proxies).
-		Build()
-
-	if client == nil {
-		t.Fatal("expected client to be built")
-	}
-
-	// Transport should be configured with proxy rotation
-	if client.GetTransport() == nil {
-		t.Fatal("expected transport to be configured")
-	}
-}
-
-func TestMiddlewareProxyFunction(t *testing.T) {
-	t.Parallel()
-
-	// Test proxy function for dynamic proxy selection
-	proxyFunc := func() g.String {
-		return g.String("socks5://dynamic.proxy.com:1080")
-	}
-
-	client := surf.NewClient().Builder().
-		Proxy(proxyFunc).
-		Build()
-
-	if client == nil {
-		t.Fatal("expected client to be built")
-	}
-
-	if client.GetTransport() == nil {
-		t.Fatal("expected transport to be configured")
-	}
-}
-
-func TestMiddlewareProxySlice(t *testing.T) {
-	t.Parallel()
-
-	// Test g.Slice proxy configuration
-	proxies := g.SliceOf(
-		"socks5://127.0.0.1:1080",
-		"socks5://127.0.0.1:1081",
-		"http://127.0.0.1:8082",
-	)
-
-	client := surf.NewClient().Builder().
-		Proxy(proxies).
-		Build()
-
-	if client == nil {
-		t.Fatal("expected client to be built")
-	}
-
-	if client.GetTransport() == nil {
-		t.Fatal("expected transport to be configured")
-	}
-}
-
 func TestMiddlewareDNSOverTLS(t *testing.T) {
 	t.Parallel()
 
-	// Test DNS over TLS configuration
 	tests := []struct {
 		name string
 		dns  string
@@ -137,13 +72,12 @@ func TestMiddlewareDNSOverTLS(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().
-				DNS(g.String(tt.dns)).
-				Build()
-
-			if client == nil {
-				t.Fatal("expected client to be built")
+			result := surf.NewClient().Builder().DNS(g.String(tt.dns)).Build()
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
 			}
+
+			client := result.Ok()
 
 			if client.GetDialer() == nil {
 				t.Fatal("expected dialer to be configured")
@@ -159,28 +93,34 @@ func TestMiddlewareDNSOverTLS(t *testing.T) {
 func TestMiddlewareInterfaceBinding(t *testing.T) {
 	t.Parallel()
 
-	// Test interface address binding with various formats
 	tests := []struct {
-		name string
-		addr string
+		name        string
+		addr        string
+		expectError bool
 	}{
-		{"IPv4 localhost", "127.0.0.1"},
-		{"IPv4 private", "192.168.1.100"},
-		{"IPv6 localhost", "::1"},
-		{"IPv4 any", "0.0.0.0"},
+		{"IPv4 localhost", "127.0.0.1", false},
+		{"IPv4 private", "192.168.1.100", false},
+		{"IPv6 localhost", "::1", false},
+		{"IPv4 any", "0.0.0.0", false},
+		{"Invalid address", "not-an-ip", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().
-				InterfaceAddr(g.String(tt.addr)).
-				Build()
+			result := surf.NewClient().Builder().InterfaceAddr(g.String(tt.addr)).Build()
 
-			if client == nil {
-				t.Fatal("expected client to be built")
+			if tt.expectError {
+				if result.IsOk() {
+					t.Errorf("expected error for %s", tt.name)
+				}
+				return
 			}
 
-			if client.GetDialer() == nil {
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
+			}
+
+			if result.Ok().GetDialer() == nil {
 				t.Fatal("expected dialer to be configured")
 			}
 		})
@@ -190,7 +130,6 @@ func TestMiddlewareInterfaceBinding(t *testing.T) {
 func TestMiddlewareUnixDomainSocket(t *testing.T) {
 	t.Parallel()
 
-	// Test Unix domain socket configuration
 	tests := []struct {
 		name string
 		path string
@@ -202,13 +141,12 @@ func TestMiddlewareUnixDomainSocket(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().
-				UnixSocket(g.String(tt.path)).
-				Build()
-
-			if client == nil {
-				t.Fatal("expected client to be built")
+			result := surf.NewClient().Builder().UnixSocket(g.String(tt.path)).Build()
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
 			}
+
+			client := result.Ok()
 
 			if client.GetDialer() == nil {
 				t.Fatal("expected dialer to be configured")
@@ -220,17 +158,17 @@ func TestMiddlewareUnixDomainSocket(t *testing.T) {
 func TestMiddlewareProxyWithFallback(t *testing.T) {
 	t.Parallel()
 
-	// Test proxy with HTTP fallback behavior
-	client := surf.NewClient().Builder().
+	result := surf.NewClient().Builder().
 		Proxy("http://127.0.0.1:8080").
 		HTTP3Settings().Set().
 		Build()
 
-	if client == nil {
-		t.Fatal("expected client to be built")
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
 	}
 
-	// Should fall back to HTTP/2 transport with non-SOCKS proxy
+	client := result.Ok()
+
 	if client.GetTransport() == nil {
 		t.Fatal("expected transport to be configured")
 	}
@@ -239,7 +177,6 @@ func TestMiddlewareProxyWithFallback(t *testing.T) {
 func TestMiddlewareTimeoutConfiguration(t *testing.T) {
 	t.Parallel()
 
-	// Test various timeout configurations
 	tests := []struct {
 		name    string
 		timeout int
@@ -251,16 +188,17 @@ func TestMiddlewareTimeoutConfiguration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().
+			result := surf.NewClient().Builder().
 				Timeout(time.Duration(tt.timeout) * time.Second).
 				Build()
 
-			if client == nil {
-				t.Fatal("expected client to be built")
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
 			}
 
-			// Timeout should be configured
+			client := result.Ok()
 			expected := time.Duration(tt.timeout) * time.Second
+
 			if client.GetClient().Timeout != expected {
 				t.Errorf("expected timeout %v, got %v", expected, client.GetClient().Timeout)
 			}
@@ -271,32 +209,31 @@ func TestMiddlewareTimeoutConfiguration(t *testing.T) {
 func TestMiddlewareClientH2CWithHTTP2Settings(t *testing.T) {
 	t.Parallel()
 
-	// Test H2C with various HTTP/2 settings
 	testCases := []struct {
 		name      string
-		buildFunc func() *surf.Client
+		buildFunc func() g.Result[*surf.Client]
 	}{
 		{
 			"H2C with default settings",
-			func() *surf.Client {
+			func() g.Result[*surf.Client] {
 				return surf.NewClient().Builder().H2C().Build()
 			},
 		},
 		{
 			"H2C with compression disabled",
-			func() *surf.Client {
+			func() g.Result[*surf.Client] {
 				return surf.NewClient().Builder().H2C().DisableCompression().Build()
 			},
 		},
 		{
 			"H2C with timeout",
-			func() *surf.Client {
+			func() g.Result[*surf.Client] {
 				return surf.NewClient().Builder().H2C().Timeout(10 * time.Second).Build()
 			},
 		},
 		{
 			"H2C with keep-alive disabled",
-			func() *surf.Client {
+			func() g.Result[*surf.Client] {
 				return surf.NewClient().Builder().H2C().DisableKeepAlive().Build()
 			},
 		},
@@ -312,10 +249,13 @@ func TestMiddlewareClientH2CWithHTTP2Settings(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			client := tc.buildFunc()
+			result := tc.buildFunc()
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
+			}
 
-			req := client.Get(g.String(ts.URL))
-			resp := req.Do()
+			client := result.Ok()
+			resp := client.Get(g.String(ts.URL)).Do()
 
 			if resp.IsErr() {
 				t.Logf("H2C settings test failed (may be expected): %v", resp.Err())
@@ -347,7 +287,12 @@ func TestMiddlewareClientH2CHTTPMethods(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	client := surf.NewClient().Builder().H2C().Build()
+	result := surf.NewClient().Builder().H2C().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
+
+	client := result.Ok()
 
 	testMethods := []struct {
 		method  string
@@ -361,8 +306,7 @@ func TestMiddlewareClientH2CHTTPMethods(t *testing.T) {
 
 	for _, tm := range testMethods {
 		t.Run(tm.method, func(t *testing.T) {
-			req := tm.reqFunc(ts.URL)
-			resp := req.Do()
+			resp := tm.reqFunc(ts.URL).Do()
 
 			if resp.IsErr() {
 				t.Logf("H2C %s method test failed (may be expected): %v", tm.method, resp.Err())
@@ -383,13 +327,13 @@ func TestMiddlewareClientH2CHTTPMethods(t *testing.T) {
 func TestMiddlewareClientH2CCompatibilityChecks(t *testing.T) {
 	t.Parallel()
 
-	// Test that h2cMW handles various scenarios correctly
-	// We can't directly test HTTP/3 incompatibility without HTTP/3 setup
-	// but we can test the basic H2C configuration
+	result := surf.NewClient().Builder().H2C().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	client := surf.NewClient().Builder().H2C().Build()
+	client := result.Ok()
 
-	// Verify the client was configured
 	if client.GetClient() == nil {
 		t.Fatal("expected HTTP client to be configured")
 	}
@@ -398,19 +342,15 @@ func TestMiddlewareClientH2CCompatibilityChecks(t *testing.T) {
 		t.Fatal("expected transport to be configured")
 	}
 
-	// Test with a simple request to verify functionality
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		// Echo back some request info
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"host": "%s", "userAgent": "%s"}`,
-			r.Host, r.UserAgent())
+		fmt.Fprintf(w, `{"host": "%s", "userAgent": "%s"}`, r.Host, r.UserAgent())
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
+	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {
 		t.Logf("H2C compatibility test failed (may be expected): %v", resp.Err())
@@ -421,7 +361,6 @@ func TestMiddlewareClientH2CCompatibilityChecks(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 
-	// Verify response contains expected data
 	body := resp.Ok().Body.String()
 	if !strings.Contains(body.Std(), "host") {
 		t.Error("expected response to contain host information")
@@ -431,52 +370,25 @@ func TestMiddlewareClientH2CCompatibilityChecks(t *testing.T) {
 func TestMiddlewareClientProxy(t *testing.T) {
 	t.Parallel()
 
-	// Note: Testing actual proxy functionality requires a proxy server
-	// Here we test proxy configuration
-
 	tests := []struct {
 		name  string
-		proxy any
+		proxy g.String
 	}{
 		{
 			name:  "string proxy",
 			proxy: "http://127.0.0.1:8080",
 		},
-		{
-			name:  "g.String proxy",
-			proxy: g.String("http://127.0.0.1:8080"),
-		},
-		{
-			name:  "function proxy",
-			proxy: func() g.String { return g.String("http://127.0.0.1:8080") },
-		},
-		{
-			name:  "string slice proxy",
-			proxy: []string{"http://127.0.0.1:8080", "http://127.0.0.1:8081"},
-		},
-		{
-			name:  "g.Slice[string] proxy",
-			proxy: g.SliceOf("http://127.0.0.1:8080", "http://127.0.0.1:8081"),
-		},
-		{
-			name:  "g.Slice[g.String] proxy",
-			proxy: g.SliceOf(g.String("http://127.0.0.1:8080"), g.String("http://127.0.0.1:8081")),
-		},
-		{
-			name:  "nil proxy",
-			proxy: nil,
-		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().Proxy(tt.proxy).Build()
-
-			if client == nil {
-				t.Fatal("expected client to be built successfully")
+			result := surf.NewClient().Builder().Proxy(tt.proxy).Build()
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
 			}
 
-			// Verify transport is configured
+			client := result.Ok()
+
 			if client.GetTransport() == nil {
 				t.Fatal("expected transport to be configured")
 			}
@@ -487,34 +399,24 @@ func TestMiddlewareClientProxy(t *testing.T) {
 func TestMiddlewareClientDNSResolver(t *testing.T) {
 	t.Parallel()
 
-	// Test DNS configuration
 	tests := []struct {
 		name string
 		dns  string
 	}{
-		{
-			name: "Google DNS",
-			dns:  "8.8.8.8:53",
-		},
-		{
-			name: "Cloudflare DNS",
-			dns:  "1.1.1.1:53",
-		},
-		{
-			name: "Custom DNS",
-			dns:  "192.168.1.1:53",
-		},
+		{"Google DNS", "8.8.8.8:53"},
+		{"Cloudflare DNS", "1.1.1.1:53"},
+		{"Custom DNS", "192.168.1.1:53"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().DNS(g.String(tt.dns)).Build()
-
-			if client == nil {
-				t.Fatal("expected client to be built successfully")
+			result := surf.NewClient().Builder().DNS(g.String(tt.dns)).Build()
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
 			}
 
-			// DNS configuration affects the dialer
+			client := result.Ok()
+
 			if client.GetDialer() == nil {
 				t.Fatal("expected dialer to be configured")
 			}
@@ -525,54 +427,85 @@ func TestMiddlewareClientDNSResolver(t *testing.T) {
 func TestMiddlewareClientInterface(t *testing.T) {
 	t.Parallel()
 
-	// Test interface address configuration
 	tests := []struct {
-		name  string
-		iface string
+		name        string
+		iface       string
+		expectError bool
 	}{
-		{
-			name:  "IPv4 address",
-			iface: "192.168.1.100",
-		},
-		{
-			name:  "IPv6 address",
-			iface: "::1",
-		},
-		{
-			name:  "Interface name",
-			iface: "eth0",
-		},
+		{"IPv4 address", "127.0.0.1", false},
+		{"IPv6 address", "::1", false},
+		{"Any address", "0.0.0.0", false},
+		{"Invalid", "not-valid-anything", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().InterfaceAddr(g.String(tt.iface)).Build()
+			result := surf.NewClient().Builder().InterfaceAddr(g.String(tt.iface)).Build()
 
-			if client == nil {
-				t.Fatal("expected client to be built successfully")
+			if tt.expectError {
+				if result.IsOk() {
+					t.Errorf("expected error for %s", tt.name)
+				}
+				return
 			}
 
-			// Interface configuration affects the dialer
-			if client.GetDialer() == nil {
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
+			}
+
+			if result.Ok().GetDialer() == nil {
 				t.Fatal("expected dialer to be configured")
 			}
 		})
 	}
 }
 
-func TestMiddlewareClientUnixDomainSocket(t *testing.T) {
+func TestMiddlewareClientInterfaceByName(t *testing.T) {
 	t.Parallel()
 
-	// Test Unix domain socket configuration
-	socket := "/tmp/test.sock"
-
-	client := surf.NewClient().Builder().UnixSocket(g.String(socket)).Build()
-
-	if client == nil {
-		t.Fatal("expected client to be built successfully")
+	// Get available interfaces
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		t.Skipf("cannot get interfaces: %v", err)
 	}
 
-	// Unix socket configuration affects the dialer
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+
+		addrs, err := iface.Addrs()
+		if err != nil || len(addrs) == 0 {
+			continue
+		}
+
+		t.Run(iface.Name, func(t *testing.T) {
+			result := surf.NewClient().Builder().InterfaceAddr(g.String(iface.Name)).Build()
+			if result.IsErr() {
+				t.Fatalf("failed for interface %s: %v", iface.Name, result.Err())
+			}
+
+			if result.Ok().GetDialer().LocalAddr == nil {
+				t.Error("expected LocalAddr to be set")
+			}
+		})
+
+		break
+	}
+}
+
+func TestMiddlewareClientUnixDomainSocketTest(t *testing.T) {
+	t.Parallel()
+
+	socket := "/tmp/test.sock"
+
+	result := surf.NewClient().Builder().UnixSocket(g.String(socket)).Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
+
+	client := result.Ok()
+
 	if client.GetDialer() == nil {
 		t.Fatal("expected dialer to be configured")
 	}
@@ -589,95 +522,65 @@ func TestMiddlewareClientDNSConfiguration(t *testing.T) {
 		{"Google DNS IPv4", "8.8.8.8:53", false},
 		{"Cloudflare DNS IPv4", "1.1.1.1:53", false},
 		{"Google DNS IPv6", "[2001:4860:4860::8888]:53", false},
-		{"Localhost DNS", "127.0.0.1:53", true}, // May fail if no local DNS server
+		{"Localhost DNS", "127.0.0.1:53", false},
 		{"Invalid port", "8.8.8.8:99999", true},
-		{"Invalid IP", "999.999.999.999:53", true},
 		{"Missing port", "8.8.8.8", true},
-		{"Empty DNS", "", false}, // Should work (dnsMW handles empty)
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().DNS(g.String(tc.dns)).Build()
-
-			// Check if the resolver was configured
-			dialer := client.GetDialer()
-			if tc.dns == "" {
-				// Empty DNS should not set a custom resolver (or set nil)
-				if dialer.Resolver != nil {
-					// May still have a resolver, check if it's the default
-					t.Log("Empty DNS still has resolver (may be expected)")
-				}
-			} else if !tc.expectError {
-				// For valid DNS, resolver should be set
-				if dialer.Resolver == nil {
-					t.Error("expected resolver to be set for valid DNS")
-				} else if !dialer.Resolver.PreferGo {
-					t.Error("expected resolver to have PreferGo set to true")
-				}
-			}
-
-			// Test DNS functionality with local server
-			if !tc.expectError && tc.dns != "" {
-				// Create local test server
-				handler := func(w http.ResponseWriter, r *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					fmt.Fprintf(w, `{"dns_test": "success", "remote_addr": "%s"}`, r.RemoteAddr)
-				}
-
-				ts := httptest.NewServer(http.HandlerFunc(handler))
-				defer ts.Close()
-
-				req := client.Get(g.String(ts.URL))
-				resp := req.Do()
-
-				if resp.IsErr() {
-					// DNS resolution may fail in test environments with custom DNS
-					t.Logf("DNS test failed (may be expected with custom DNS %s): %v", tc.dns, resp.Err())
-				} else {
-					if !resp.Ok().StatusCode.IsSuccess() {
-						t.Errorf("expected success status with DNS %s, got %d", tc.dns, resp.Ok().StatusCode)
-					}
-				}
-			}
-		})
-	}
-}
-
-func TestMiddlewareClientDNSEmptyAndNil(t *testing.T) {
-	t.Parallel()
-
-	// Test with empty string
-	client1 := surf.NewClient().Builder().DNS(g.String("")).Build()
-
-	handler := func(w http.ResponseWriter, _ *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "ok")
+		fmt.Fprintf(w, `{"dns_test": "success", "remote_addr": "%s"}`, r.RemoteAddr)
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	req1 := client1.Get(g.String(ts.URL))
-	resp1 := req1.Do()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := surf.NewClient().Builder().DNS(g.String(tc.dns)).Build()
 
-	if resp1.IsErr() {
-		t.Fatalf("empty DNS should not cause errors: %v", resp1.Err())
-	}
+			if tc.expectError {
+				if result.IsOk() {
+					t.Errorf("expected error for %s", tc.name)
+				}
+				return
+			}
 
-	if resp1.Ok().StatusCode != http.StatusOK {
-		t.Errorf("expected status 200, got %d", resp1.Ok().StatusCode)
+			if result.IsErr() {
+				t.Fatalf("failed to build client: %v", result.Err())
+			}
+
+			client := result.Ok()
+			dialer := client.GetDialer()
+
+			if dialer.Resolver == nil {
+				t.Error("expected resolver to be set for valid DNS")
+			} else if !dialer.Resolver.PreferGo {
+				t.Error("expected resolver to have PreferGo set to true")
+			}
+
+			resp := client.Get(g.String(ts.URL)).Do()
+			if resp.IsErr() {
+				t.Logf("DNS test failed (may be expected with custom DNS %s): %v", tc.dns, resp.Err())
+			} else if !resp.Ok().StatusCode.IsSuccess() {
+				t.Errorf("expected success status with DNS %s, got %d", tc.dns, resp.Ok().StatusCode)
+			}
+		})
 	}
 }
 
 func TestMiddlewareClientDNSResolverBehavior(t *testing.T) {
 	t.Parallel()
 
-	// Test that custom DNS resolver is actually used
-	client := surf.NewClient().Builder().DNS(g.String("1.1.1.1:53")).Build()
+	result := surf.NewClient().Builder().DNS(g.String("1.1.1.1:53")).Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
+	client := result.Ok()
 	dialer := client.GetDialer()
+
 	if dialer.Resolver == nil {
 		t.Fatal("expected resolver to be set")
 	}
@@ -686,13 +589,10 @@ func TestMiddlewareClientDNSResolverBehavior(t *testing.T) {
 		t.Error("expected resolver PreferGo to be true")
 	}
 
-	// The Dial function should be set for custom DNS resolution
 	if dialer.Resolver.Dial == nil {
 		t.Error("expected resolver Dial function to be set")
 	}
 
-	// Test that the Dial function was configured for UDP to the DNS server
-	// We can't easily test this without network access, but we can verify structure
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, `{"host": "%s"}`, r.Host)
@@ -701,9 +601,7 @@ func TestMiddlewareClientDNSResolverBehavior(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
-
+	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatalf("DNS resolver test failed: %v", resp.Err())
 	}
@@ -717,7 +615,6 @@ func TestMiddlewareClientTimeout(t *testing.T) {
 	t.Parallel()
 
 	handler := func(w http.ResponseWriter, _ *http.Request) {
-		// Simulate slow response
 		time.Sleep(100 * time.Millisecond)
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, `{"timeout": "test"}`)
@@ -726,23 +623,24 @@ func TestMiddlewareClientTimeout(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test with short timeout
-	client := surf.NewClient().Builder().Timeout(50 * time.Millisecond).Build()
+	// Short timeout - should fail
+	result1 := surf.NewClient().Builder().Timeout(50 * time.Millisecond).Build()
+	if result1.IsErr() {
+		t.Fatalf("failed to build client: %v", result1.Err())
+	}
 
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
-
-	if resp.IsOk() {
-		// Should timeout
+	resp1 := result1.Ok().Get(g.String(ts.URL)).Do()
+	if resp1.IsOk() {
 		t.Error("expected timeout error")
 	}
 
-	// Test with longer timeout
-	client2 := surf.NewClient().Builder().Timeout(200 * time.Millisecond).Build()
+	// Long timeout - should succeed
+	result2 := surf.NewClient().Builder().Timeout(200 * time.Millisecond).Build()
+	if result2.IsErr() {
+		t.Fatalf("failed to build client: %v", result2.Err())
+	}
 
-	req2 := client2.Get(g.String(ts.URL))
-	resp2 := req2.Do()
-
+	resp2 := result2.Ok().Get(g.String(ts.URL)).Do()
 	if resp2.IsErr() {
 		t.Errorf("expected success with longer timeout, got error: %v", resp2.Err())
 	}
@@ -766,41 +664,42 @@ func TestMiddlewareClientRedirectPolicy(t *testing.T) {
 	defer ts.Close()
 
 	// Test NotFollowRedirects
-	client1 := surf.NewClient().Builder().NotFollowRedirects().Build()
-	req1 := client1.Get(g.String(ts.URL))
-	resp1 := req1.Do()
+	result1 := surf.NewClient().Builder().NotFollowRedirects().Build()
+	if result1.IsErr() {
+		t.Fatalf("failed to build client: %v", result1.Err())
+	}
 
+	resp1 := result1.Ok().Get(g.String(ts.URL)).Do()
 	if resp1.IsErr() {
 		t.Fatal(resp1.Err())
 	}
 
-	// Should get redirect status, not final 200
 	if resp1.Ok().StatusCode != http.StatusFound {
 		t.Errorf("expected redirect status with NotFollowRedirects, got %d", resp1.Ok().StatusCode)
 	}
 
-	// Reset counter
 	redirectCount = 0
 
 	// Test MaxRedirects
-	client2 := surf.NewClient().Builder().MaxRedirects(2).Build()
-	req2 := client2.Get(g.String(ts.URL))
-	resp2 := req2.Do()
+	result2 := surf.NewClient().Builder().MaxRedirects(2).Build()
+	if result2.IsErr() {
+		t.Fatalf("failed to build client: %v", result2.Err())
+	}
 
-	// Should fail after 2 redirects (need 3 to reach final)
-	// Note: This may not fail in all cases depending on exact redirect handling
+	resp2 := result2.Ok().Get(g.String(ts.URL)).Do()
 	if resp2.IsOk() {
 		t.Log("MaxRedirects test passed but might not have failed as expected")
 	}
 
-	// Reset counter
 	redirectCount = 0
 
 	// Test with enough redirects
-	client3 := surf.NewClient().Builder().MaxRedirects(5).Build()
-	req3 := client3.Get(g.String(ts.URL))
-	resp3 := req3.Do()
+	result3 := surf.NewClient().Builder().MaxRedirects(5).Build()
+	if result3.IsErr() {
+		t.Fatalf("failed to build client: %v", result3.Err())
+	}
 
+	resp3 := result3.Ok().Get(g.String(ts.URL)).Do()
 	if resp3.IsErr() {
 		t.Fatal(resp3.Err())
 	}
@@ -814,23 +713,22 @@ func TestMiddlewareClientFollowOnlyHostRedirects(t *testing.T) {
 	t.Parallel()
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		// Try to redirect to external host
 		http.Redirect(w, r, "http://localhost/", http.StatusFound)
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test FollowOnlyHostRedirects
-	client := surf.NewClient().Builder().FollowOnlyHostRedirects().Build()
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
+	result := surf.NewClient().Builder().FollowOnlyHostRedirects().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
+	resp := result.Ok().Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
 
-	// Should not follow redirect to different host
 	if resp.Ok().StatusCode != http.StatusFound {
 		t.Errorf("expected redirect status when not following external redirect, got %d", resp.Ok().StatusCode)
 	}
@@ -852,23 +750,21 @@ func TestMiddlewareClientForwardHeadersOnRedirect(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test ForwardHeadersOnRedirect
-	client := surf.NewClient().Builder().
-		ForwardHeadersOnRedirect().
-		Build()
+	result := surf.NewClient().Builder().ForwardHeadersOnRedirect().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	req := client.Get(g.String(ts.URL)).
+	resp := result.Ok().Get(g.String(ts.URL)).
 		SetHeaders(g.Map[string, string]{
 			"X-Custom": "forwarded",
 			"X-Test":   "value",
-		})
-	resp := req.Do()
+		}).Do()
 
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
 
-	// Check if headers were forwarded
 	if receivedHeaders.Get("X-Custom") != "forwarded" {
 		t.Error("expected custom header to be forwarded on redirect")
 	}
@@ -885,12 +781,12 @@ func TestMiddlewareClientDisableKeepAlive(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test DisableKeepAlive
-	client := surf.NewClient().Builder().DisableKeepAlive().Build()
+	result := surf.NewClient().Builder().DisableKeepAlive().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
-
+	resp := result.Ok().Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
@@ -898,19 +794,13 @@ func TestMiddlewareClientDisableKeepAlive(t *testing.T) {
 	if !resp.Ok().StatusCode.IsSuccess() {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
-
-	// Transport should be configured for DisableKeepAlive
-	// We can't easily inspect the internal transport configuration
-	// but we can verify the client was created successfully
 }
 
 func TestMiddlewareClientDisableCompression(t *testing.T) {
 	t.Parallel()
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		// Check Accept-Encoding header
 		if r.Header.Get("Accept-Encoding") == "" {
-			// Compression disabled, no Accept-Encoding
 			w.Header().Set("X-Compression", "disabled")
 		}
 		w.WriteHeader(http.StatusOK)
@@ -920,19 +810,19 @@ func TestMiddlewareClientDisableCompression(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test DisableCompression
-	client := surf.NewClient().Builder().DisableCompression().Build()
+	result := surf.NewClient().Builder().DisableCompression().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
-
+	resp := result.Ok().Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
 
-	// Transport should be configured for DisableCompression
-	// We can't easily inspect the internal transport configuration
-	// but we can verify the client was created successfully
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
 }
 
 func TestMiddlewareClientForceHTTP1(t *testing.T) {
@@ -946,12 +836,12 @@ func TestMiddlewareClientForceHTTP1(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test ForceHTTP1
-	client := surf.NewClient().Builder().ForceHTTP1().Build()
+	result := surf.NewClient().Builder().ForceHTTP1().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
-
+	resp := result.Ok().Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
@@ -986,21 +876,19 @@ func TestMiddlewareClientSession(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test Session
-	client := surf.NewClient().Builder().Session().Build()
+	result := surf.NewClient().Builder().Session().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
 
-	// Set cookie
-	req1 := client.Get(g.String(ts.URL + "/setcookie"))
-	resp1 := req1.Do()
+	client := result.Ok()
 
+	resp1 := client.Get(g.String(ts.URL + "/setcookie")).Do()
 	if resp1.IsErr() {
 		t.Fatal(resp1.Err())
 	}
 
-	// Check cookie is sent
-	req2 := client.Get(g.String(ts.URL + "/checkcookie"))
-	resp2 := req2.Do()
-
+	resp2 := client.Get(g.String(ts.URL + "/checkcookie")).Do()
 	if resp2.IsErr() {
 		t.Fatal(resp2.Err())
 	}
@@ -1010,166 +898,32 @@ func TestMiddlewareClientSession(t *testing.T) {
 	}
 }
 
-func TestMiddlewareClientSingleton(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, `test`)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	// Test Singleton
-	client := surf.NewClient().Builder().Singleton().Build()
-
-	req := client.Get(g.String(ts.URL))
-	resp := req.Do()
-
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	if !resp.Ok().StatusCode.IsSuccess() {
-		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-	}
-}
-
-func TestMiddlewareClientDNSAdvanced(t *testing.T) {
-	t.Parallel()
-
-	// Test advanced DNS configurations
-	testCases := []struct {
-		name     string
-		dnsAddr  string
-		expected bool
-	}{
-		{"IPv4 DNS", "8.8.8.8:53", true},
-		{"IPv6 DNS", "[2001:4860:4860::8888]:53", true},
-		{"Localhost DNS", "127.0.0.1:53", true},
-		{"Invalid port", "8.8.8.8:99999", false},
-		{"Invalid IP", "999.999.999.999:53", false},
-		{"Missing port", "8.8.8.8", false},
-		{"Empty DNS", "", false},
-	}
-
-	handler := func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, `{"dns": "configured"}`)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().DNS(g.String(tc.dnsAddr)).Build()
-
-			if tc.expected {
-				if client == nil {
-					t.Errorf("expected client to be created for %s", tc.name)
-					return
-				}
-
-				// Test request with custom DNS
-				resp := client.Get(g.String(ts.URL)).Do()
-				if resp.IsErr() {
-					t.Logf("DNS request error for %s (may be expected): %v", tc.name, resp.Err())
-				}
-			} else {
-				// Some invalid configurations may still create a client but fail later
-				if client != nil {
-					resp := client.Get(g.String(ts.URL)).Do()
-					if resp.IsErr() {
-						t.Logf("Expected DNS error for %s: %v", tc.name, resp.Err())
-					}
-				}
-			}
-		})
-	}
-}
-
 func TestMiddlewareClientH2CErrorHandling(t *testing.T) {
 	t.Parallel()
 
-	// Test H2C error handling scenarios
-	client := surf.NewClient().Builder().H2C().Build()
-
-	if client == nil {
-		t.Fatal("expected H2C client to be created")
+	result := surf.NewClient().Builder().H2C().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
 	}
+
+	client := result.Ok()
 
 	// Test connection to non-existent server
 	resp := client.Get(g.String("http://127.0.0.1:65535/nonexistent")).Do()
-	if resp.IsErr() {
-		t.Logf("Expected connection error: %v", resp.Err())
-	} else {
+	if resp.IsOk() {
 		t.Error("expected error connecting to non-existent server")
 	}
 
 	// Test with invalid URL
 	resp2 := client.Get(g.String("invalid-url")).Do()
-	if resp2.IsErr() {
-		t.Logf("Expected URL parsing error: %v", resp2.Err())
-	} else {
+	if resp2.IsOk() {
 		t.Error("expected error with invalid URL")
-	}
-}
-
-func TestMiddlewareClientProxyAdvanced(t *testing.T) {
-	t.Parallel()
-
-	// Test advanced proxy configurations
-	testCases := []struct {
-		name      string
-		proxyURL  string
-		expectErr bool
-	}{
-		{"HTTP proxy", "http://127.0.0.1:8080", true},
-		{"HTTPS proxy", "https://127.0.0.1:8443", true},
-		{"SOCKS5 proxy", "socks5://127.0.0.1:1080", true},
-		{"Proxy with auth", "http://user:pass@127.0.0.1:8080", true},
-		{"Invalid proxy URL", "invalid://proxy", true},
-		{"Malformed URL", "not-a-url", true},
-	}
-
-	handler := func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, `{"proxy": "test"}`)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			client := surf.NewClient().Builder().Proxy(tc.proxyURL).Build()
-
-			if tc.expectErr {
-				if client == nil {
-					t.Logf("Client creation failed for %s (may be expected)", tc.name)
-					return
-				}
-
-				// Test request through proxy (will likely fail due to unavailable proxy)
-				resp := client.Get(g.String(ts.URL)).Do()
-				if resp.IsErr() {
-					t.Logf("Expected proxy error for %s: %v", tc.name, resp.Err())
-				}
-			} else {
-				if client != nil {
-					t.Errorf("expected client creation to fail for %s", tc.name)
-				}
-			}
-		})
 	}
 }
 
 func TestMiddlewareClientComplexConfigurations(t *testing.T) {
 	t.Parallel()
 
-	// Test complex middleware combinations
 	handler := func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, `{"complex": "config"}`)
@@ -1178,8 +932,7 @@ func TestMiddlewareClientComplexConfigurations(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Test combining multiple middlewares
-	client := surf.NewClient().Builder().
+	result := surf.NewClient().Builder().
 		DNS("8.8.8.8:53").
 		Timeout(5 * time.Second).
 		DisableKeepAlive().
@@ -1187,16 +940,70 @@ func TestMiddlewareClientComplexConfigurations(t *testing.T) {
 		H2C().
 		Build()
 
-	if client == nil {
-		t.Fatal("expected client with complex configuration to be created")
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
 	}
 
-	resp := client.Get(g.String(ts.URL)).Do()
+	resp := result.Ok().Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
 		t.Logf("Complex configuration request error: %v", resp.Err())
-	} else {
-		if !resp.Ok().StatusCode.IsSuccess() {
-			t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-		}
+	} else if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
+func TestMiddlewareClientDNSValidation(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		dns         string
+		expectError bool
+	}{
+		{"Valid DNS", "8.8.8.8:53", false},
+		{"Missing port", "8.8.8.8", true},
+		{"Empty string", "", true},
+		{"Invalid format", "invalid", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := surf.NewClient().Builder().DNS(g.String(tt.dns)).Build()
+
+			if tt.expectError && result.IsOk() {
+				t.Errorf("expected error for DNS %q", tt.dns)
+			}
+
+			if !tt.expectError && result.IsErr() {
+				t.Errorf("unexpected error for DNS %q: %v", tt.dns, result.Err())
+			}
+		})
+	}
+}
+
+func TestMiddlewareClientUnixSocketValidation(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		socket      string
+		expectError bool
+	}{
+		{"Valid socket", "/tmp/test.sock", false},
+		{"Empty string", "", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := surf.NewClient().Builder().UnixSocket(g.String(tt.socket)).Build()
+
+			if tt.expectError && result.IsOk() {
+				t.Errorf("expected error for socket %q", tt.socket)
+			}
+
+			if !tt.expectError && result.IsErr() {
+				t.Errorf("unexpected error for socket %q: %v", tt.socket, result.Err())
+			}
+		})
 	}
 }

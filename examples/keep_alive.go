@@ -11,6 +11,7 @@ func main() {
 		Builder().
 		DisableKeepAlive().
 		Build().
+		Unwrap().
 		Get("http://www.keycdn.com").
 		Do()
 

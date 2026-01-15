@@ -67,7 +67,7 @@ func TestH2C(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().H2C().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().H2C().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -110,7 +110,7 @@ func TestUnixDomainSocket(t *testing.T) {
 
 	r := surf.NewClient().Builder().
 		UnixSocket(socketPath).
-		Build().
+		Build().Unwrap().
 		Get("http://unix").
 		Do()
 
@@ -156,7 +156,7 @@ func TestUnixDomainSocket_WithLocalhostURL(t *testing.T) {
 	r := surf.NewClient().
 		Builder().
 		UnixSocket(socketPath).
-		Build().
+		Build().Unwrap().
 		Get("http://localhost/ping").
 		Do()
 
@@ -203,7 +203,7 @@ func TestUnixDomainSocket_WithCustomHost(t *testing.T) {
 	client := surf.NewClient().
 		Builder().
 		UnixSocket(socketPath).
-		Build()
+		Build().Unwrap()
 
 	r := client.
 		Get("http://" + wantHost + "/v1.41/containers/json").
@@ -231,7 +231,7 @@ func TestContenType(t *testing.T) {
 
 	r := surf.NewClient().Builder().
 		ContentType("secret/content-type").
-		Build().
+		Build().Unwrap().
 		Get(g.String(ts.URL)).
 		Do()
 
@@ -256,7 +256,7 @@ func TestDisableKeepAlive(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().DisableKeepAlive().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().DisableKeepAlive().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -290,7 +290,7 @@ func TestMultipart(t *testing.T) {
 	multipartData := g.NewMapOrd[g.String, g.String]()
 	multipartData.Set(some, values)
 
-	r := surf.NewClient().Builder().Impersonate().Firefox().Build().
+	r := surf.NewClient().Builder().Impersonate().Firefox().Build().Unwrap().
 		Multipart(g.String(ts.URL), multipartData).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
@@ -322,7 +322,7 @@ func TestFileUpload(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().Impersonate().Firefox().CacheBody().Build().
+	r := surf.NewClient().Builder().Impersonate().Firefox().CacheBody().Build().Unwrap().
 		FileUpload(g.String(ts.URL), "file", "info.txt", "justfile").
 		Do()
 
@@ -363,7 +363,7 @@ func TestDeflate(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().CacheBody().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().CacheBody().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -389,7 +389,7 @@ func TestGzip(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().CacheBody().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().CacheBody().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -410,7 +410,7 @@ func TestBrotli(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().CacheBody().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().CacheBody().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -431,7 +431,7 @@ func TestZstd(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().CacheBody().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().CacheBody().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -451,7 +451,7 @@ func TestBody(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().CacheBody().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().CacheBody().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -473,13 +473,13 @@ func TestTimeOut(t *testing.T) {
 	defer ts.Close()
 
 	err := surf.NewClient().
-		Builder().Timeout(time.Microsecond).Build().
+		Builder().Timeout(time.Microsecond).Build().Unwrap().
 		Get(g.String(ts.URL)).
 		Do().
 		Err()
 
 	r := surf.NewClient().
-		Builder().Timeout(time.Second).Build().
+		Builder().Timeout(time.Second).Build().Unwrap().
 		Get(g.String(ts.URL)).
 		Do()
 
@@ -506,7 +506,7 @@ func TestSession(t *testing.T) {
 
 	defer ts.Close()
 
-	r := surf.NewClient().Builder().Session().Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().Session().Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -550,7 +550,7 @@ func TestBearerAuth(t *testing.T) {
 
 	r := surf.NewClient().Builder().
 		BearerAuth("good").
-		Build().
+		Build().Unwrap().
 		Get(g.String(ts.URL)).Do()
 
 	if r.IsErr() {
@@ -562,7 +562,7 @@ func TestBearerAuth(t *testing.T) {
 
 	r2 := surf.NewClient().Builder().
 		BearerAuth("bad").
-		Build().
+		Build().Unwrap().
 		Get(g.String(ts.URL)).Do()
 
 	if r2.IsErr() {
@@ -599,7 +599,7 @@ func TestBasicAuth(t *testing.T) {
 
 	r := surf.NewClient().Builder().
 		BasicAuth("good:password").
-		Build().
+		Build().Unwrap().
 		Get(g.String(ts.URL)).
 		Do()
 
@@ -612,7 +612,7 @@ func TestBasicAuth(t *testing.T) {
 
 	r2 := surf.NewClient().Builder().
 		BasicAuth("bad:password").
-		Build().
+		Build().Unwrap().
 		Get(g.String(ts.URL)).
 		Do()
 	if r2.IsErr() {
@@ -662,7 +662,7 @@ func TestUserAgent(t *testing.T) {
 
 	agent := "Hi from surf"
 
-	r := surf.NewClient().Builder().UserAgent(agent).Build().Get(g.String(ts.URL)).Do()
+	r := surf.NewClient().Builder().UserAgent(agent).Build().Unwrap().Get(g.String(ts.URL)).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return

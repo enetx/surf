@@ -13,7 +13,8 @@ func main() {
 		// Retry(2, time.Millisecond*50).
 		// Retry(2, time.Millisecond*50, 500).
 		Retry(2, time.Millisecond*50, 500, 503).
-		Build()
+		Build().
+		Unwrap()
 
 	for i := 0; i < 3; i++ {
 		r := cli.Get("http://httpbingo.org/unstable").Do()

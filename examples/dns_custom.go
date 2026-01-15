@@ -16,6 +16,7 @@ func main() {
 		// DNS("8.8.8.8:53").     // google dns
 		// DNS("9.9.9.9:53").     // quad9 dns
 		Build().
+		Unwrap().
 		Get("http://httpbingo.org/get").
 		Do()
 

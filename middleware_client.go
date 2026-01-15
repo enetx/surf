@@ -3,10 +3,11 @@ package surf
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"maps"
-	"math/rand"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/enetx/g"
@@ -108,19 +109,47 @@ func disableCompressionMW(client *Client) error {
 }
 
 // interfaceAddrMW configures the client's local network interface address for outbound connections.
-// This allows binding the client to a specific network interface or IP address for dialing.
-// Useful for systems with multiple network interfaces or for controlling which IP address to use.
+// Accepts either an IP address (e.g., "192.168.1.100", "::1") or an interface name (e.g., "eth0").
 func interfaceAddrMW(client *Client, address g.String) error {
-	if address != "" {
-		ip, err := net.ResolveTCPAddr("tcp", address.Std()+":0")
-		if err != nil {
-			return err
-		}
-
-		client.GetDialer().LocalAddr = ip
+	if address.Empty() {
+		return errors.New("interface address is empty")
 	}
 
-	return nil
+	addr := address.Std()
+
+	// Try to parse as IP first
+	if ip := net.ParseIP(addr); ip != nil {
+		client.GetDialer().LocalAddr = &net.TCPAddr{IP: ip}
+		return nil
+	}
+
+	iface, err := net.InterfaceByName(addr)
+	if err != nil {
+		return fmt.Errorf("invalid interface %q: not an IP or interface name", address)
+	}
+
+	addrs, err := iface.Addrs()
+	if err != nil {
+		return fmt.Errorf("get addresses for interface %q: %w", address, err)
+	}
+
+	if len(addrs) == 0 {
+		return fmt.Errorf("interface %q has no addresses", address)
+	}
+
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok && ipnet.IP.To4() != nil {
+			client.GetDialer().LocalAddr = &net.TCPAddr{IP: ipnet.IP}
+			return nil
+		}
+	}
+
+	if ipnet, ok := addrs[0].(*net.IPNet); ok {
+		client.GetDialer().LocalAddr = &net.TCPAddr{IP: ipnet.IP}
+		return nil
+	}
+
+	return fmt.Errorf("no usable address for interface %q", address)
 }
 
 // timeoutMW configures the client's overall request timeout.
@@ -190,7 +219,29 @@ func redirectPolicyMW(client *Client) error {
 // instead of the system's default DNS configuration.
 func dnsMW(client *Client, dns g.String) error {
 	if dns.Empty() {
-		return nil
+		return errors.New("DNS address is empty")
+	}
+
+	host, port, err := net.SplitHostPort(dns.Std())
+	if err != nil {
+		return fmt.Errorf("invalid DNS address %q: %w", dns, err)
+	}
+
+	if host == "" {
+		return fmt.Errorf("invalid DNS address %q: empty host", dns)
+	}
+
+	if port == "" {
+		return fmt.Errorf("invalid DNS address %q: empty port", dns)
+	}
+
+	portNum, err := strconv.Atoi(port)
+	if err != nil {
+		return fmt.Errorf("invalid DNS address %q: invalid port", dns)
+	}
+
+	if portNum < 1 || portNum > 65535 {
+		return fmt.Errorf("invalid DNS address %q: port out of range", dns)
 	}
 
 	client.GetDialer().Resolver = &net.Resolver{
@@ -217,10 +268,15 @@ func dnsTLSMW(client *Client, resolver *net.Resolver) error {
 // useful for connecting to local services that expose Unix socket interfaces.
 func unixSocketMW(client *Client, address g.String) error {
 	if address.Empty() {
-		return nil
+		return errors.New("unix socket address is empty")
 	}
 
-	client.GetTransport().(*http.Transport).DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
+	transport, ok := client.GetTransport().(*http.Transport)
+	if !ok {
+		return errors.New("transport is not *http.Transport")
+	}
+
+	transport.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
 		return (&net.Dialer{}).DialContext(ctx, "unix", address.Std())
 	}
 
@@ -228,11 +284,7 @@ func unixSocketMW(client *Client, address g.String) error {
 }
 
 // proxyMW configures HTTP proxy settings for the client transport.
-// Supports both static proxy configurations (string URLs) and dynamic proxy providers
-// (functions that return proxy URLs for rotation). Handles various proxy types including
-// HTTP, HTTPS, and SOCKS proxies. Skips configuration for JA3 and HTTP/3 transports
-// which handle proxies differently.
-func proxyMW(client *Client, proxies any) error {
+func proxyMW(client *Client, proxy g.String) error {
 	// Skip if HTTP/3 transport is being used (handled separately)
 	if _, ok := client.GetTransport().(*uquicTransport); ok {
 		return nil
@@ -240,70 +292,20 @@ func proxyMW(client *Client, proxies any) error {
 
 	transport, ok := client.GetTransport().(*http.Transport)
 	if !ok {
-		return fmt.Errorf("transport is not *http.Transport")
+		return errors.New("transport is not *http.Transport")
 	}
 
-	// Clear proxy if nil provided
-	if proxies == nil {
+	if proxy.Empty() {
 		transport.Proxy = nil
 		return nil
 	}
 
-	// Helper function to set static proxy
-	setProxy := func(proxy string) {
-		if proxy == "" {
-			return
-		}
-
-		dialer, err := connectproxy.NewDialer(proxy)
-		if err != nil {
-			transport.DialContext = func(context.Context, string, string) (net.Conn, error) {
-				return nil, fmt.Errorf("proxy dialer init failed: %w", err)
-			}
-			return
-		}
-
-		transport.DialContext = dialer.DialContext
+	dialer, err := connectproxy.NewDialer(proxy.Std())
+	if err != nil {
+		return fmt.Errorf("create proxy dialer: %w", err)
 	}
 
-	// Handle static proxy configurations
-	switch v := proxies.(type) {
-	case string:
-		setProxy(v)
-		return nil
-	case g.String:
-		setProxy(v.Std())
-		return nil
-	}
-
-	// Handle dynamic proxy configurations - evaluate proxy per request
-	transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-		var proxy string
-
-		switch v := proxies.(type) {
-		case func() g.String:
-			proxy = v().Std()
-		case []string:
-			if len(v) > 0 {
-				proxy = v[rand.Intn(len(v))]
-			}
-		case g.Slice[string]:
-			proxy = v.Random()
-		case g.Slice[g.String]:
-			proxy = v.Random().Std()
-		}
-
-		if proxy == "" {
-			return client.dialer.DialContext(ctx, network, addr)
-		}
-
-		dialer, err := connectproxy.NewDialer(proxy)
-		if err != nil {
-			return nil, fmt.Errorf("create proxy dialer for %s: %w", proxy, err)
-		}
-
-		return dialer.DialContext(ctx, network, addr)
-	}
+	transport.DialContext = dialer.DialContext
 
 	return nil
 }

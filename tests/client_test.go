@@ -211,7 +211,7 @@ func TestClientTimeout(t *testing.T) {
 	// Client with reasonable timeout
 	client := surf.NewClient().Builder().
 		Timeout(5 * time.Second). // 5 seconds - should be enough
-		Build()
+		Build().Unwrap()
 
 	// This should succeed (response is faster than timeout)
 	resp := client.Get(g.String(ts.URL)).Do()
@@ -224,7 +224,7 @@ func TestClientTimeout(t *testing.T) {
 	// Test with very short timeout that should fail
 	clientFast := surf.NewClient().Builder().
 		Timeout(1 * time.Millisecond). // Very short timeout
-		Build()
+		Build().Unwrap()
 
 	resp2 := clientFast.Get(g.String(ts.URL)).Do()
 	// This should timeout
@@ -737,7 +737,7 @@ func TestClientMultipartWithCustomBoundary(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		Boundary(func() g.String { return "custom-boundary-123" }).
-		Build()
+		Build().Unwrap()
 
 	data := g.NewMapOrd[g.String, g.String](1)
 	data.Set("test_field", "test_value")
@@ -909,9 +909,9 @@ func TestClientBuilder(t *testing.T) {
 	}
 
 	// Test that builder returns the same client
-	built := builder.Build()
+	built := builder.Build().Unwrap()
 	if built != client {
-		t.Error("Builder().Build() did not return the same client")
+		t.Error("Builder().Build().Unwrap() did not return the same client")
 	}
 }
 
@@ -923,7 +923,7 @@ func TestClientCloseIdleConnections(t *testing.T) {
 	client.CloseIdleConnections() // Should not panic
 
 	// Test with singleton
-	client = surf.NewClient().Builder().Singleton().Build()
+	client = surf.NewClient().Builder().Build().Unwrap()
 	client.CloseIdleConnections() // Should close connections
 }
 
@@ -942,7 +942,7 @@ func TestClientCookies(t *testing.T) {
 	defer ts.Close()
 
 	// Test with session
-	client := surf.NewClient().Builder().Session().Build()
+	client := surf.NewClient().Builder().Session().Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -1031,7 +1031,7 @@ func TestClientMiddlewareApplication(t *testing.T) {
 			responseMiddlewareCalled = true
 			return nil
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {

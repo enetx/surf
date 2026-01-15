@@ -76,7 +76,8 @@ func main() {
 			req.SetHeaders(headers)
 			return nil
 		}).
-		Build()
+		Build().
+		Unwrap()
 
 	const url = "https://tls.peet.ws/api/all"
 

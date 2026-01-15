@@ -27,7 +27,7 @@ func TestRoundTripperTransportCaching(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	// First request should cache the transport
 	resp1 := client.Get(g.String(ts.URL)).Do()
@@ -62,7 +62,7 @@ func TestRoundTripperJAErrorHandling(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -83,7 +83,7 @@ func TestRoundTripperTLSConnectionFailure(t *testing.T) {
 	// Test TLS connection failure handling
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	// Try to connect to an invalid TLS endpoint
 	resp := client.Get(g.String("https://127.0.0.1:1")).Do()
@@ -107,7 +107,7 @@ func TestRoundTripperSessionCaching(t *testing.T) {
 	client := surf.NewClient().Builder().
 		Session().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	// Multiple requests should use session caching
 	for i := 0; i < 3; i++ {
@@ -134,7 +134,7 @@ func TestRoundTripperHTTPSchemeHandling(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	// HTTP (not HTTPS) should use HTTP/1 transport without TLS
 	resp := client.Get(g.String(ts.URL)).Do()
@@ -152,7 +152,7 @@ func TestRoundTripperInvalidScheme(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	// Invalid scheme should return error
 	resp := client.Get(g.String("ftp://invalid.scheme")).Do()
@@ -181,7 +181,7 @@ func TestRoundTripperSessionCache(t *testing.T) {
 	clientWithSession := surf.NewClient().Builder().
 		JA().Chrome144().
 		Session().
-		Build()
+		Build().Unwrap()
 
 	resp1 := clientWithSession.Get(g.String(ts.URL)).Do()
 	if resp1.IsErr() {
@@ -212,7 +212,7 @@ func TestRoundTripperCloseIdleConnections(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	// Make initial request to create connections
 	resp1 := client.Get(g.String(ts.URL)).Do()
@@ -275,7 +275,7 @@ func TestRoundTripperCustomHelloSpec(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().SetHelloSpec(customSpec).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -301,7 +301,7 @@ func TestRoundTripperAddressHandling(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	// Test actual connection to local server
 	resp := client.Get(g.String(ts.URL)).Do()
@@ -335,7 +335,7 @@ func TestRoundTripperProtocolNegotiation(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					JA().Chrome144().
-					Build()
+					Build().Unwrap()
 			},
 		},
 		{
@@ -343,7 +343,7 @@ func TestRoundTripperProtocolNegotiation(t *testing.T) {
 			func() *surf.Client {
 				return surf.NewClient().Builder().
 					JA().Firefox147().
-					Build()
+					Build().Unwrap()
 			},
 		},
 		{
@@ -352,7 +352,7 @@ func TestRoundTripperProtocolNegotiation(t *testing.T) {
 				return surf.NewClient().Builder().
 					JA().Chrome144().
 					ForceHTTP1().
-					Build()
+					Build().Unwrap()
 			},
 		},
 	}
@@ -388,7 +388,7 @@ func TestRoundTripperALPNProtocolModification(t *testing.T) {
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
 		ForceHTTP1().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -412,7 +412,7 @@ func TestRoundTripperErrorHandling(t *testing.T) {
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
 		Timeout(1 * time.Millisecond). // Very short timeout to trigger errors
-		Build()
+		Build().Unwrap()
 
 	// Test connection timeout using slow local server
 	handler := func(w http.ResponseWriter, _ *http.Request) {
@@ -454,7 +454,7 @@ func TestJAHTTP2Transport(t *testing.T) {
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be created with JA3 and HTTP2 settings")
@@ -484,7 +484,7 @@ func TestJATransportBuilding(t *testing.T) {
 				return surf.NewClient().Builder().
 					JA().Chrome144().
 					ForceHTTP1().
-					Build()
+					Build().Unwrap()
 			},
 			expectClient: true,
 		},
@@ -494,7 +494,7 @@ func TestJATransportBuilding(t *testing.T) {
 				return surf.NewClient().Builder().
 					JA().Firefox147().
 					Timeout(5 * time.Second).
-					Build()
+					Build().Unwrap()
 			},
 			expectClient: true,
 		},
@@ -504,7 +504,7 @@ func TestJATransportBuilding(t *testing.T) {
 				return surf.NewClient().Builder().
 					JA().Chrome144().
 					Proxy("socks5://127.0.0.1:9999").
-					Build()
+					Build().Unwrap()
 			},
 			expectClient: true,
 		},
@@ -514,7 +514,7 @@ func TestJATransportBuilding(t *testing.T) {
 				return surf.NewClient().Builder().
 					JA().Firefox147().
 					DNS("8.8.8.8:53").
-					Build()
+					Build().Unwrap()
 			},
 			expectClient: true,
 		},
@@ -551,7 +551,7 @@ func TestJATLSConfiguration(t *testing.T) {
 	// Test with different TLS configurations
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be created")
@@ -584,7 +584,7 @@ func TestJAConnectionPooling(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be created")
@@ -615,7 +615,7 @@ func TestJAErrorHandling(t *testing.T) {
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
 		Timeout(100 * time.Millisecond).
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be created")
@@ -652,7 +652,7 @@ func TestJARoundtripperHTTP2Transport(t *testing.T) {
 		InitialWindowSize(6291456).
 		MaxHeaderListSize(262144).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -692,7 +692,7 @@ func TestJARoundtripperTLSDialing(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			client := surf.NewClient().Builder().
 				JA().SetHelloID(tt.spec).
-				Build()
+				Build().Unwrap()
 
 			if client == nil {
 				t.Fatal("expected client to be built successfully")
@@ -719,7 +719,7 @@ func TestJARoundtripperSessionCaching(t *testing.T) {
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
 		Session().
-		Build()
+		Build().Unwrap()
 
 	if client == nil {
 		t.Fatal("expected client to be built successfully")
@@ -760,7 +760,7 @@ func TestJARoundtripperAddressParsing(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome144().
-		Build()
+		Build().Unwrap()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

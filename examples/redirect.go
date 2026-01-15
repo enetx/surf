@@ -21,7 +21,8 @@ func main() {
 		// MaxRedirects(4).      // max 4 redirects
 		// NotFollowRedirects(). // not follow redirects
 		RedirectPolicy(rp). // or custom redirect policy
-		Build()
+		Build().
+		Unwrap()
 
 	r := cli.Get("https://httpbingo.org/redirect/6").Do()
 	if r.IsErr() {

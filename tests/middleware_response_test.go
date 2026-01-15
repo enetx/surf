@@ -579,7 +579,7 @@ func TestMiddlewareResponseChaining(t *testing.T) {
 			}
 			return nil
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 
@@ -620,7 +620,7 @@ func TestMiddlewareResponseWithErrors(t *testing.T) {
 			}
 			return nil
 		}).
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 
@@ -651,7 +651,7 @@ func TestMiddlewareResponseBodyCache(t *testing.T) {
 	defer ts.Close()
 
 	// Test with body caching enabled
-	client := surf.NewClient().Builder().CacheBody().Build()
+	client := surf.NewClient().Builder().CacheBody().Build().Unwrap()
 	resp := client.Get(g.String(ts.URL)).Do()
 
 	if resp.IsErr() {

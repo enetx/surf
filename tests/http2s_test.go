@@ -26,7 +26,7 @@ func TestHTTP2SettingsHeaderTableSize(t *testing.T) {
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -64,7 +64,7 @@ func TestHTTP2SettingsEnablePush(t *testing.T) {
 				HTTP2Settings().
 				EnablePush(tc.pushValue).
 				Set().
-				Build()
+				Build().Unwrap()
 
 			resp := client.Get(g.String(ts.URL)).Do()
 			if resp.IsErr() {
@@ -93,7 +93,7 @@ func TestHTTP2SettingsMaxConcurrentStreams(t *testing.T) {
 		HTTP2Settings().
 		MaxConcurrentStreams(100).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -120,7 +120,7 @@ func TestHTTP2SettingsInitialStreamID(t *testing.T) {
 		HTTP2Settings().
 		InitialStreamID(3).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -147,7 +147,7 @@ func TestHTTP2SettingsInitialWindowSize(t *testing.T) {
 		HTTP2Settings().
 		InitialWindowSize(65535).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -174,7 +174,7 @@ func TestHTTP2SettingsMaxFrameSize(t *testing.T) {
 		HTTP2Settings().
 		MaxFrameSize(16384).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -201,7 +201,7 @@ func TestHTTP2SettingsMaxHeaderListSize(t *testing.T) {
 		HTTP2Settings().
 		MaxHeaderListSize(8192).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -228,7 +228,7 @@ func TestHTTP2SettingsConnectionFlow(t *testing.T) {
 		HTTP2Settings().
 		ConnectionFlow(1048576).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -261,7 +261,7 @@ func TestHTTP2SettingsPriorityParam(t *testing.T) {
 		HTTP2Settings().
 		PriorityParam(priorityParam).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -307,7 +307,7 @@ func TestHTTP2SettingsPriorityFrames(t *testing.T) {
 		HTTP2Settings().
 		PriorityFrames(priorityFrames).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -340,7 +340,7 @@ func TestHTTP2SettingsCombined(t *testing.T) {
 		MaxHeaderListSize(8192).
 		ConnectionFlow(1048576).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -369,7 +369,7 @@ func TestHTTP2SettingsWithForceHTTP1(t *testing.T) {
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -409,7 +409,7 @@ func TestHTTP2SettingsChaining(t *testing.T) {
 		Set().
 		Session().
 		UserAgent("HTTP2Test/1.0").
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
@@ -436,7 +436,7 @@ func TestHTTP2SettingsProtocolVerification(t *testing.T) {
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		Set().
-		Build()
+		Build().Unwrap()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {

@@ -19,7 +19,8 @@ func main() {
 		BasicAuth("root:toor").
 		BearerAuth("bearer").
 		CacheBody().
-		Build()
+		Build().
+		Unwrap()
 
 	r := cli.Get("https://httpbingo.org/headers").Do()
 	if r.IsErr() {

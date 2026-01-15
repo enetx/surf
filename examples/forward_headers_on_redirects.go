@@ -13,6 +13,7 @@ func main() {
 		ForwardHeadersOnRedirect().
 		AddHeaders(map[string]string{"Referer": "surf.xoxo"}).
 		Build().
+		Unwrap().
 		Get("http://google.com").
 		Do()
 

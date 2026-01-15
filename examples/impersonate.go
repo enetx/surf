@@ -35,7 +35,8 @@ func main() {
 		Firefox().
 		// FirefoxPrivate().
 		// Chrome().
-		Build()
+		Build().
+		Unwrap()
 
 	r := cli.
 		Get(url).

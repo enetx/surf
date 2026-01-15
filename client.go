@@ -81,14 +81,19 @@ func (c *Client) applyRespMW(resp *Response) error {
 	return c.respMWs.run(resp)
 }
 
-// CloseIdleConnections removes all entries from the cached transports.
-// Specifically used when Singleton is enabled for JA3 or Impersonate functionalities.
-func (c *Client) CloseIdleConnections() {
-	if c.builder == nil || !c.builder.singleton {
-		return
+// CloseIdleConnections closes idle connections while keeping the client usable.
+// Safe to call periodically to free resources during long-running operations.
+func (c *Client) CloseIdleConnections() { c.cli.CloseIdleConnections() }
+
+// Close completely shuts down the client and releases all resources.
+// After calling Close, the client should not be used.
+func (c *Client) Close() error {
+	if closer, ok := c.transport.(interface{ Close() error }); ok {
+		return closer.Close()
 	}
 
-	c.cli.CloseIdleConnections()
+	c.CloseIdleConnections()
+	return nil
 }
 
 // GetClient returns http.Client used by the Client.
