@@ -1,6 +1,8 @@
 package surf_test
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"net"
@@ -563,13 +565,39 @@ func TestBuilderDisableKeepAlive(t *testing.T) {
 func TestBuilderDisableCompression(t *testing.T) {
 	t.Parallel()
 
-	client := surf.NewClient().Builder().
-		DisableCompression().
-		Build().Unwrap()
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Accept-Encoding") != "" {
+			t.Error("expected no Accept-Encoding header")
+		}
 
-	transport := client.GetTransport().(*http.Transport)
-	if !transport.DisableCompression {
-		t.Error("expected DisableCompression to be true")
+		w.Header().Set("Content-Encoding", "gzip")
+		w.WriteHeader(http.StatusOK)
+
+		var buf bytes.Buffer
+		gw := gzip.NewWriter(&buf)
+		gw.Write([]byte("test body"))
+		gw.Close()
+
+		w.Write(buf.Bytes())
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	result := surf.NewClient().Builder().DisableCompression().Build()
+	if result.IsErr() {
+		t.Fatalf("failed to build client: %v", result.Err())
+	}
+
+	resp := result.Ok().Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("request failed: %v", resp.Err())
+	}
+
+	body := resp.Ok().Body.Bytes()
+
+	if body.String() == "test body" {
+		t.Error("expected body to remain compressed, but it was decoded")
 	}
 }
 

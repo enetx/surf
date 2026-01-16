@@ -8,8 +8,8 @@ require (
 	github.com/enetx/http v1.0.24
 	github.com/enetx/http2 v1.0.24
 	github.com/enetx/http3 v1.0.5
-	github.com/enetx/utls v0.0.0-20251024090823-efbd194d7328
-	github.com/klauspost/compress v1.18.2
+	github.com/enetx/utls v0.0.0-20260115181616-c525a7d559c8
+	github.com/klauspost/compress v1.18.3
 	github.com/quic-go/quic-go v0.59.0
 	github.com/wzshiming/socks5 v0.7.0
 	golang.org/x/net v0.49.0
