@@ -18,6 +18,7 @@ import (
 // TLS session resumption and protocol selection.
 type roundtripper struct {
 	http1tr            *http.Transport
+	http1trFallback    *http.Transport
 	http2tr            *http2.Transport
 	clientSessionCache utls.ClientSessionCache
 	ja                 *JA
@@ -41,6 +42,8 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 	}
 
 	rt.http1tr.DialTLSContext = rt.dialTLS
+	rt.http1trFallback = http1tr.Clone()
+	rt.http1trFallback.DialTLSContext = rt.dialTLSHTTP1
 
 	if !ja.builder.forceHTTP1 {
 		rt.http2tr = rt.buildHTTP2Transport()
@@ -98,13 +101,17 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	// Retry with HTTP/1.1
-	return rt.http1tr.RoundTrip(req)
+	return rt.http1trFallback.RoundTrip(req)
 }
 
 // CloseIdleConnections closes all idle connections.
 func (rt *roundtripper) CloseIdleConnections() {
 	if rt.http1tr != nil {
 		rt.http1tr.CloseIdleConnections()
+	}
+
+	if rt.http1trFallback != nil {
+		rt.http1trFallback.CloseIdleConnections()
 	}
 
 	if rt.http2tr != nil {
@@ -165,14 +172,20 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	return t
 }
 
-// dialTLS performs TLS handshake using uTLS.
+// dialTLS performs TLS handshake using uTLS with default ALPN (h2, http/1.1).
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
-	return rt.tlsHandshake(ctx, network, addr)
+	return rt.tlsHandshake(ctx, network, addr, false)
+}
+
+// dialTLSHTTP1 performs TLS handshake using uTLS with HTTP/1.1 only ALPN.
+// Used for fallback when HTTP/2 connection fails.
+func (rt *roundtripper) dialTLSHTTP1(ctx context.Context, network, addr string) (net.Conn, error) {
+	return rt.tlsHandshake(ctx, network, addr, true)
 }
 
 // tlsHandshake performs a full TLS handshake using uTLS, applying JA fingerprint
 // presets and optionally enabling session resumption.
-func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) (*utls.UConn, error) {
+func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, forceHTTP1 bool) (*utls.UConn, error) {
 	timeout := rt.http1tr.TLSHandshakeTimeout
 	if timeout > 0 {
 		if deadline, ok := ctx.Deadline(); ok {
@@ -206,7 +219,7 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string) 
 	spec := specr.Ok()
 
 	// Apply HTTP/1 ALPN if forced
-	if rt.ja.builder.forceHTTP1 {
+	if forceHTTP1 || rt.ja.builder.forceHTTP1 {
 		setAlpnProtocolToHTTP1(&spec)
 	}
 
