@@ -110,11 +110,12 @@ func (rt *roundtripper) CloseIdleConnections() {
 		rt.http1tr.CloseIdleConnections()
 	}
 
-	if rt.http2tr != nil {
-		rt.http2tr.CloseIdleConnections()
-	}
 	if rt.http1trFallback != nil {
 		rt.http1trFallback.CloseIdleConnections()
+	}
+
+	if rt.http2tr != nil {
+		rt.http2tr.CloseIdleConnections()
 	}
 }
 
@@ -171,11 +172,13 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	return t
 }
 
-// dialTLS performs TLS handshake using uTLS.
+// dialTLS performs TLS handshake using uTLS with default ALPN (h2, http/1.1).
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
 	return rt.tlsHandshake(ctx, network, addr, false)
 }
 
+// dialTLSHTTP1 performs TLS handshake using uTLS with HTTP/1.1 only ALPN.
+// Used for fallback when HTTP/2 connection fails.
 func (rt *roundtripper) dialTLSHTTP1(ctx context.Context, network, addr string) (net.Conn, error) {
 	return rt.tlsHandshake(ctx, network, addr, true)
 }
