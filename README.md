@@ -8,6 +8,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/enetx/surf)](https://goreportcard.com/report/github.com/enetx/surf)
 [![Coverage Status](https://coveralls.io/repos/github/enetx/surf/badge.svg?branch=main&service=github)](https://coveralls.io/github/enetx/surf?branch=main)
 [![Go](https://github.com/enetx/surf/actions/workflows/go.yml/badge.svg)](https://github.com/enetx/surf/actions/workflows/go.yml)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/enetx/surf)
 
 <p>Surf is a powerful, feature-rich HTTP client library for Go that makes working with HTTP requests intuitive and enjoyable. With advanced features like browser impersonation, JA3/JA4 fingerprinting, and comprehensive middleware support, Surf provides everything you need for modern web interactions.</p>
