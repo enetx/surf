@@ -43,12 +43,12 @@ func userAgentMW(req *Request, userAgent any) error {
 		}
 		ua = v[rand.Intn(len(v))]
 	case g.Slice[string]:
-		if v.Empty() {
+		if v.IsEmpty() {
 			return &ErrUserAgentType{"cannot select a random user agent from an empty slice"}
 		}
 		ua = v.Random()
 	case g.Slice[g.String]:
-		if v.Empty() {
+		if v.IsEmpty() {
 			return &ErrUserAgentType{"cannot select a random user agent from an empty slice"}
 		}
 		ua = v.Random().Std()
@@ -101,7 +101,7 @@ func remoteAddrMW(req *Request) error {
 // Adds an Authorization header with the Bearer token format if a token is provided.
 // Only sets the header if the token is not empty, allowing conditional authentication.
 func bearerAuthMW(req *Request, token g.String) error {
-	if token.NotEmpty() {
+	if !token.IsEmpty() {
 		req.AddHeaders(g.Map[g.String, g.String]{header.AUTHORIZATION: "Bearer " + token})
 	}
 
@@ -134,7 +134,7 @@ func basicAuthMW(req *Request, authentication g.String) error {
 // Sets the MIME type of the request body content to inform the server
 // how to interpret the request data. Returns an error if contentType is empty.
 func contentTypeMW(req *Request, contentType g.String) error {
-	if contentType.Empty() {
+	if contentType.IsEmpty() {
 		return fmt.Errorf("Content-Type is empty")
 	}
 

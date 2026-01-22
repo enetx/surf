@@ -105,7 +105,7 @@ func disableKeepAliveMW(client *Client) error {
 // interfaceAddrMW configures the client's local network interface address for outbound connections.
 // Accepts either an IP address (e.g., "192.168.1.100", "::1") or an interface name (e.g., "eth0").
 func interfaceAddrMW(client *Client, address g.String) error {
-	if address.Empty() {
+	if address.IsEmpty() {
 		return errors.New("interface address is empty")
 	}
 
@@ -212,7 +212,7 @@ func redirectPolicyMW(client *Client) error {
 // Sets up the client to use the specified DNS server address for hostname resolution
 // instead of the system's default DNS configuration.
 func dnsMW(client *Client, dns g.String) error {
-	if dns.Empty() {
+	if dns.IsEmpty() {
 		return errors.New("DNS address is empty")
 	}
 
@@ -261,7 +261,7 @@ func dnsTLSMW(client *Client, resolver *net.Resolver) error {
 // Replaces the standard TCP connection with Unix socket communication,
 // useful for connecting to local services that expose Unix socket interfaces.
 func unixSocketMW(client *Client, address g.String) error {
-	if address.Empty() {
+	if address.IsEmpty() {
 		return errors.New("unix socket address is empty")
 	}
 
@@ -289,7 +289,7 @@ func proxyMW(client *Client, proxy g.String) error {
 		return errors.New("transport is not *http.Transport")
 	}
 
-	if proxy.Empty() {
+	if proxy.IsEmpty() {
 		transport.Proxy = nil
 		return nil
 	}

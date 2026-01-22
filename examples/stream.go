@@ -15,8 +15,13 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
+	// IMPORTANT: Call Stream() once and reuse the returned reader.
+	// Each call to Stream() creates a new bufio.Reader with its own buffer.
+	// Calling Stream() repeatedly in a loop will lose buffered data.
+	stream := r.Ok().Body.Stream()
+
 	for {
-		line, err := r.Ok().Body.Stream().ReadString('\n')
+		line, err := stream.ReadString('\n')
 		if err == io.EOF {
 			break
 		}
@@ -31,20 +36,21 @@ func main() {
 
 	// var bytesRead int
 	// buffer := make([]byte, 4096)
-
+	// stream := r.Ok().Body.Stream()
+	//
 	// for {
-	// 	n, err := r.Ok().Body.Stream().Read(buffer)
+	// 	n, err := stream.Read(buffer)
 	// 	bytesRead += n
-
+	//
 	// 	if err == io.EOF {
 	// 		break
 	// 	}
-
+	//
 	// 	if err != nil {
 	// 		log.Fatal(err)
 	// 	}
-
-	// 	log.Println(string(buffer))
+	//
+	// 	log.Println(string(buffer[:n]))
 	// 	time.Sleep(time.Second * 1)
 	// }
 }

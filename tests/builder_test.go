@@ -832,7 +832,7 @@ func TestBuilderBoundary(t *testing.T) {
 
 	// Test with multipart
 	data := g.NewMapOrd[g.String, g.String](1)
-	data.Set("field", "value")
+	data.Insert("field", "value")
 
 	resp := client.Multipart(g.String(ts.URL), data).Do()
 	if resp.IsErr() {

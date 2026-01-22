@@ -108,8 +108,8 @@ func TestClientGetWithParams(t *testing.T) {
 
 	// Test GET with map parameters
 	params := g.NewMapOrd[g.String, g.String](2)
-	params.Set("name", "test")
-	params.Set("value", "123")
+	params.Insert("name", "test")
+	params.Insert("value", "123")
 
 	resp := client.Get(g.String(ts.URL), params).Do()
 	if resp.IsErr() {
@@ -437,10 +437,10 @@ func TestClientPostWithData(t *testing.T) {
 			name: "g.MapOrd with sorted fields",
 			data: func() g.MapOrd[string, string] {
 				m := g.NewMapOrd[string, string]()
-				m.Set("zebra", "animal")
-				m.Set("apple", "fruit")
-				m.Set("book", "object")
-				m.Set("cat", "pet")
+				m.Insert("zebra", "animal")
+				m.Insert("apple", "fruit")
+				m.Insert("book", "object")
+				m.Insert("cat", "pet")
 				return m
 			}(),
 			contentType: "application/x-www-form-urlencoded",
@@ -460,10 +460,10 @@ func TestClientPostWithData(t *testing.T) {
 			name: "g.MapOrd[g.String, g.String] with sorted fields",
 			data: func() g.MapOrd[g.String, g.String] {
 				m := g.NewMapOrd[g.String, g.String]()
-				m.Set("delta", "fourth")
-				m.Set("alpha", "first")
-				m.Set("charlie", "third")
-				m.Set("bravo", "second")
+				m.Insert("delta", "fourth")
+				m.Insert("alpha", "first")
+				m.Insert("charlie", "third")
+				m.Insert("bravo", "second")
 				return m
 			}(),
 			contentType: "application/x-www-form-urlencoded",
@@ -667,8 +667,8 @@ func TestClientMultipart(t *testing.T) {
 	client := surf.NewClient()
 
 	data := g.NewMapOrd[g.String, g.String](2)
-	data.Set("field1", "value1")
-	data.Set("field2", "value2")
+	data.Insert("field1", "value1")
+	data.Insert("field2", "value2")
 
 	resp := client.Multipart(g.String(ts.URL), data).Do()
 	if resp.IsErr() {
@@ -704,9 +704,9 @@ func TestClientMultipartEdgeCases(t *testing.T) {
 
 	// Test with special characters in field names and values
 	specialData := g.NewMapOrd[g.String, g.String](3)
-	specialData.Set("field with spaces", "value with spaces")
-	specialData.Set("field_with_unicode", "value with 特殊字符 🚀")
-	specialData.Set("empty_field", "")
+	specialData.Insert("field with spaces", "value with spaces")
+	specialData.Insert("field_with_unicode", "value with 特殊字符 🚀")
+	specialData.Insert("empty_field", "")
 
 	resp = client.Multipart(g.String(ts.URL), specialData).Do()
 	if resp.IsErr() {
@@ -740,7 +740,7 @@ func TestClientMultipartWithCustomBoundary(t *testing.T) {
 		Build().Unwrap()
 
 	data := g.NewMapOrd[g.String, g.String](1)
-	data.Set("test_field", "test_value")
+	data.Insert("test_field", "test_value")
 
 	resp := client.Multipart(g.String(ts.URL), data).Do()
 	if resp.IsErr() {
@@ -758,7 +758,7 @@ func TestClientMultipartInvalidURL(t *testing.T) {
 	client := surf.NewClient()
 
 	data := g.NewMapOrd[g.String, g.String](1)
-	data.Set("field", "value")
+	data.Insert("field", "value")
 
 	// Test with invalid URL
 	resp := client.Multipart("invalid://url with spaces", data).Do()
@@ -805,7 +805,7 @@ func TestClientFileUpload(t *testing.T) {
 	// Test with io.Reader
 	reader := strings.NewReader("test content")
 	data := g.NewMapOrd[g.String, g.String](1)
-	data.Set("field", "value")
+	data.Insert("field", "value")
 
 	resp := client.FileUpload(
 		g.String(ts.URL),
@@ -863,7 +863,7 @@ func TestClientFileUploadVariants(t *testing.T) {
 				"content",
 				func() g.MapOrd[string, string] {
 					m := g.NewMapOrd[string, string](1)
-					m.Set("key", "value")
+					m.Insert("key", "value")
 					return m
 				}(),
 			},

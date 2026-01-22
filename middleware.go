@@ -61,7 +61,7 @@ func (m *middleware[T]) add(priority g.Int, fn func(T) error) {
 func (m *middleware[T]) run(ctx T) error {
 	clone := m.heap.Clone()
 
-	for !clone.Empty() {
+	for !clone.IsEmpty() {
 		item := clone.Pop().Some()
 		if err := item.fn(ctx); err != nil {
 			return err

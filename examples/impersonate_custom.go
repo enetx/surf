@@ -11,25 +11,25 @@ import (
 func main() {
 	headers := g.NewMapOrd[g.String, g.String]()
 
-	headers.Set(":method", "")
-	headers.Set(":authority", "")
-	headers.Set(":scheme", "")
-	headers.Set(":path", "")
-	headers.Set("sec-ch-ua", "\"Google Chrome\";v=\"87\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"87\"")
-	headers.Set("sec-ch-ua-mobile", "?0")
-	headers.Set("sec-ch-ua-platform", "\"Windows\"")
-	headers.Set("Upgrade-Insecure-Requests", "1")
-	headers.Set(
+	headers.Insert(":method", "")
+	headers.Insert(":authority", "")
+	headers.Insert(":scheme", "")
+	headers.Insert(":path", "")
+	headers.Insert("sec-ch-ua", "\"Google Chrome\";v=\"87\", \" Not;A Brand\";v=\"99\", \"Chromium\";v=\"87\"")
+	headers.Insert("sec-ch-ua-mobile", "?0")
+	headers.Insert("sec-ch-ua-platform", "\"Windows\"")
+	headers.Insert("Upgrade-Insecure-Requests", "1")
+	headers.Insert(
 		"Accept",
 		"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
 	)
-	headers.Set("Sec-Fetch-Site", "none")
-	headers.Set("Sec-Fetch-Mode", "navigate")
-	headers.Set("Sec-Fetch-User", "?1")
-	headers.Set("Sec-Fetch-Dest", "document")
-	headers.Set("Accept-Encoding", "gzip, deflate, br")
-	headers.Set("User-Agent", "")
-	headers.Set("Accept-Language", "en-US,en;q=0.9")
+	headers.Insert("Sec-Fetch-Site", "none")
+	headers.Insert("Sec-Fetch-Mode", "navigate")
+	headers.Insert("Sec-Fetch-User", "?1")
+	headers.Insert("Sec-Fetch-Dest", "document")
+	headers.Insert("Accept-Encoding", "gzip, deflate, br")
+	headers.Insert("User-Agent", "")
+	headers.Insert("Accept-Language", "en-US,en;q=0.9")
 
 	priorityFrames := []http2.PriorityFrame{
 		{

@@ -76,7 +76,7 @@ retry:
 	}
 
 	// Check if retry is needed based on status code and retry configuration
-	if builder != nil && builder.retryMax != 0 && attempts < builder.retryMax && builder.retryCodes.NotEmpty() &&
+	if builder != nil && builder.retryMax != 0 && attempts < builder.retryMax && !builder.retryCodes.IsEmpty() &&
 		builder.retryCodes.Contains(resp.StatusCode) {
 		attempts++
 
@@ -281,11 +281,11 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 
 	headers, pheaders := headersKeys.Iter().Partition(func(v string) bool { return v[0] != ':' })
 
-	if headers.NotEmpty() {
+	if !headers.IsEmpty() {
 		r.request.Header[http.HeaderOrderKey] = headers
 	}
 
-	if pheaders.NotEmpty() {
+	if !pheaders.IsEmpty() {
 		r.request.Header[http.PHeaderOrderKey] = pheaders
 	}
 

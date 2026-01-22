@@ -41,7 +41,7 @@ func (e *Event) parse(t, data g.String) {
 
 // Skip checks if the event should be skipped.
 func (e *Event) Skip() bool {
-	if e.Data.Empty() {
+	if e.Data.IsEmpty() {
 		return true
 	}
 

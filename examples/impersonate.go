@@ -35,6 +35,9 @@ func main() {
 		Firefox().
 		// FirefoxPrivate().
 		// Chrome().
+		// SetHeaders(map[string]string{
+		// 	"Accept-Encoding": "gzip, deflate",
+		// }).
 		Build().
 		Unwrap()
 

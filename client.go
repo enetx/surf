@@ -200,7 +200,7 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath g.String, data ...any) *
 		switch i := v.(type) {
 		case g.MapOrd[g.String, g.String]:
 			mo := g.NewMapOrd[string, string](i.Len())
-			i.Iter().ForEach(func(k, v g.String) { mo.Set(k.Std(), v.Std()) })
+			i.Iter().ForEach(func(k, v g.String) { mo.Insert(k.Std(), v.Std()) })
 			multipartData = mo
 		case g.MapOrd[string, string]:
 			multipartData = i
@@ -594,7 +594,7 @@ func detectAnnotatedDataType(data any) string {
 // parseURL attempts to parse any supported rawURL type into a *url.URL.
 // Returns an error if the type is unsupported or if parsing fails.
 func parseURL(rawURL g.String) g.Result[*url.URL] {
-	if rawURL.Empty() {
+	if rawURL.IsEmpty() {
 		return g.Err[*url.URL](errors.New("URL is empty"))
 	}
 

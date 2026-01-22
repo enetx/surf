@@ -39,43 +39,43 @@ type HTTP3Settings struct {
 
 // QpackMaxTableCapacity sets the maximum dynamic table capacity for QPACK.
 func (h *HTTP3Settings) QpackMaxTableCapacity(num uint64) *HTTP3Settings {
-	h.settings.Set(SETTINGS_QPACK_MAX_TABLE_CAPACITY, num)
+	h.settings.Insert(SETTINGS_QPACK_MAX_TABLE_CAPACITY, num)
 	return h
 }
 
 // MaxFieldSectionSize sets the maximum size of a field section the peer is willing to accept.
 func (h *HTTP3Settings) MaxFieldSectionSize(num uint64) *HTTP3Settings {
-	h.settings.Set(SETTINGS_MAX_FIELD_SECTION_SIZE, num)
+	h.settings.Insert(SETTINGS_MAX_FIELD_SECTION_SIZE, num)
 	return h
 }
 
 // QpackBlockedStreams sets the maximum number of streams that can be blocked on QPACK.
 func (h *HTTP3Settings) QpackBlockedStreams(num uint64) *HTTP3Settings {
-	h.settings.Set(SETTINGS_QPACK_BLOCKED_STREAMS, num)
+	h.settings.Insert(SETTINGS_QPACK_BLOCKED_STREAMS, num)
 	return h
 }
 
 // EnableConnectProtocol enables the extended CONNECT protocol (RFC 9220).
 func (h *HTTP3Settings) EnableConnectProtocol(num uint64) *HTTP3Settings {
-	h.settings.Set(SETTINGS_ENABLE_CONNECT_PROTOCOL, num)
+	h.settings.Insert(SETTINGS_ENABLE_CONNECT_PROTOCOL, num)
 	return h
 }
 
 // SettingsH3Datagram sets the H3_DATAGRAM setting value.
 func (h *HTTP3Settings) SettingsH3Datagram(num uint64) *HTTP3Settings {
-	h.settings.Set(SETTINGS_H3_DATAGRAM, num)
+	h.settings.Insert(SETTINGS_H3_DATAGRAM, num)
 	return h
 }
 
 // H3Datagram sets a custom H3_DATAGRAM value for datagram support.
 func (h *HTTP3Settings) H3Datagram(num uint64) *HTTP3Settings {
-	h.settings.Set(H3_DATAGRAM, num)
+	h.settings.Insert(H3_DATAGRAM, num)
 	return h
 }
 
 // EnableWebtransport enables WebTransport support over HTTP/3.
 func (h *HTTP3Settings) EnableWebtransport(num uint64) *HTTP3Settings {
-	h.settings.Set(SETTINGS_ENABLE_WEBTRANSPORT, num)
+	h.settings.Insert(SETTINGS_ENABLE_WEBTRANSPORT, num)
 	return h
 }
 
@@ -83,7 +83,7 @@ func (h *HTTP3Settings) EnableWebtransport(num uint64) *HTTP3Settings {
 func (h *HTTP3Settings) Grease() *HTTP3Settings {
 	maxn := (uint64(1<<62) - 1 - 0x21) / 0x1F
 	n := uint64(rand.Uint32()) % maxn
-	h.settings.Set(0x1F*n+0x21, uint64(rand.Uint32()))
+	h.settings.Insert(0x1F*n+0x21, uint64(rand.Uint32()))
 
 	return h
 }

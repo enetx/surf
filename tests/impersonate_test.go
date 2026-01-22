@@ -334,7 +334,7 @@ func TestImpersonateWithCustomHeaders(t *testing.T) {
 	defer ts.Close()
 
 	headers := g.NewMapOrd[g.String, g.String](1)
-	headers.Set("X-Custom", "test-value")
+	headers.Insert("X-Custom", "test-value")
 
 	client := surf.NewClient().Builder().
 		Impersonate().Chrome().
@@ -440,8 +440,8 @@ func TestImpersonateChromeBoundaryGeneration(t *testing.T) {
 
 	// Create multiple multipart requests to test boundary uniqueness
 	formData := g.NewMapOrd[g.String, g.String](2)
-	formData.Set(g.String("field1"), g.String("value1"))
-	formData.Set(g.String("field2"), g.String("value2"))
+	formData.Insert(g.String("field1"), g.String("value1"))
+	formData.Insert(g.String("field2"), g.String("value2"))
 
 	boundaries := make(map[string]bool)
 

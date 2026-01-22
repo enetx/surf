@@ -291,7 +291,7 @@ func TestMiddlewareResponseDecodeBodyEmptyBody(t *testing.T) {
 
 	// Body should be empty
 	body := resp.Ok().Body.String()
-	if !body.Empty() {
+	if !body.IsEmpty() {
 		t.Errorf("expected empty body, got %q", body.Std())
 	}
 }

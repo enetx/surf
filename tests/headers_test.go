@@ -125,9 +125,9 @@ func TestHeadersSetOnRequest(t *testing.T) {
 	client := surf.NewClient()
 
 	headers := g.NewMapOrd[g.String, g.String](3)
-	headers.Set("X-Custom-1", "value1")
-	headers.Set("X-Custom-2", "value2")
-	headers.Set(header.CONTENT_TYPE, "application/json")
+	headers.Insert("X-Custom-1", "value1")
+	headers.Insert("X-Custom-2", "value2")
+	headers.Insert(header.CONTENT_TYPE, "application/json")
 
 	resp := client.Get(g.String(ts.URL)).SetHeaders(headers).Do()
 
@@ -178,7 +178,7 @@ func TestHeadersCaseInsensitive(t *testing.T) {
 		t.Error("expected headers to be case-insensitive")
 	}
 
-	if headers.Get("content-type").Empty() {
+	if headers.Get("content-type").IsEmpty() {
 		t.Error("expected case-insensitive header access")
 	}
 }
@@ -203,7 +203,7 @@ func TestHeadersEmpty(t *testing.T) {
 	headers := resp.Ok().Headers
 
 	// Test accessing non-existent header
-	if !headers.Get("Non-Existent-Header").Empty() {
+	if !headers.Get("Non-Existent-Header").IsEmpty() {
 		t.Error("expected non-existent header to return empty string")
 	}
 
@@ -240,7 +240,7 @@ func TestHeadersMultipleValues(t *testing.T) {
 	}
 
 	multiValue := headers.Get("X-Multi")
-	if multiValue.Empty() {
+	if multiValue.IsEmpty() {
 		t.Error("expected X-Multi header to have value")
 	}
 }
@@ -437,7 +437,7 @@ func TestHeadersDirectMethods(t *testing.T) {
 
 	// Test Get with non-existent header
 	nonExistent := headers.Get("Non-Existent")
-	if !nonExistent.Empty() {
+	if !nonExistent.IsEmpty() {
 		t.Error("expected Get to return empty string for non-existent header")
 	}
 
@@ -586,7 +586,7 @@ func TestHeadersCaseInsensitiveVariations(t *testing.T) {
 		}
 
 		value := headers.Get(g.String(headerName))
-		if value.Empty() {
+		if value.IsEmpty() {
 			t.Errorf("expected Get to work case-insensitively with header name %q", headerName)
 		}
 

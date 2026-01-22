@@ -190,8 +190,8 @@ func TestRequestSetHeaders(t *testing.T) {
 			name: "g.MapOrd[string, string]",
 			headers: []any{func() g.MapOrd[string, string] {
 				m := g.NewMapOrd[string, string](2)
-				m.Set("X-Custom", "value")
-				m.Set("X-Multiple", "last")
+				m.Insert("X-Custom", "value")
+				m.Insert("X-Multiple", "last")
 				return m
 			}()},
 		},
@@ -199,8 +199,8 @@ func TestRequestSetHeaders(t *testing.T) {
 			name: "g.MapOrd[g.String, g.String]",
 			headers: []any{func() g.MapOrd[g.String, g.String] {
 				m := g.NewMapOrd[g.String, g.String](2)
-				m.Set("X-Custom", "value")
-				m.Set("X-Multiple", "last")
+				m.Insert("X-Custom", "value")
+				m.Insert("X-Multiple", "last")
 				return m
 			}()},
 		},
@@ -504,9 +504,9 @@ func TestRequestHeaderOrder(t *testing.T) {
 
 	// Test with MapOrd to ensure order preservation
 	headers := g.NewMapOrd[g.String, g.String](3)
-	headers.Set("X-First", "1")
-	headers.Set("X-Second", "2")
-	headers.Set("X-Third", "3")
+	headers.Insert("X-First", "1")
+	headers.Insert("X-Second", "2")
+	headers.Insert("X-Third", "3")
 
 	resp := client.Get(g.String(ts.URL)).SetHeaders(headers).Do()
 	if resp.IsErr() {
@@ -536,14 +536,14 @@ func TestRequestHeaderOrderWithPseudoHeaders(t *testing.T) {
 
 	// Test with ordered headers including pseudo headers
 	headers := g.NewMapOrd[g.String, g.String]()
-	headers.Set(":method", "GET")
-	headers.Set(":authority", "127.0.0.1")
-	headers.Set(":scheme", "https")
-	headers.Set(":path", "/test")
-	headers.Set("Custom-Header-1", "value1")
-	headers.Set("Custom-Header-2", "value2")
-	headers.Set("User-Agent", "test-agent")
-	headers.Set("Accept-Encoding", "gzip")
+	headers.Insert(":method", "GET")
+	headers.Insert(":authority", "127.0.0.1")
+	headers.Insert(":scheme", "https")
+	headers.Insert(":path", "/test")
+	headers.Insert("Custom-Header-1", "value1")
+	headers.Insert("Custom-Header-2", "value2")
+	headers.Insert("User-Agent", "test-agent")
+	headers.Insert("Accept-Encoding", "gzip")
 
 	resp := client.Get(g.String(ts.URL)).SetHeaders(headers).Do()
 	if resp.IsErr() {
@@ -573,7 +573,7 @@ func TestRequestHeaderOrderMixedTypes(t *testing.T) {
 
 	// Test with string key/value MapOrd
 	headers1 := g.NewMapOrd[string, string]()
-	headers1.Set("X-Test", "test")
+	headers1.Insert("X-Test", "test")
 
 	resp := client.Get(g.String(ts.URL)).SetHeaders(headers1).Do()
 	if resp.IsErr() {
@@ -582,8 +582,8 @@ func TestRequestHeaderOrderMixedTypes(t *testing.T) {
 
 	// Test multiple SetHeaders calls
 	headers2 := g.NewMapOrd[g.String, g.String]()
-	headers2.Set("X-Test", "test")
-	headers2.Set("X-Another", "value")
+	headers2.Insert("X-Test", "test")
+	headers2.Insert("X-Another", "value")
 
 	resp2 := client.Get(g.String(ts.URL)).
 		SetHeaders(headers2).
@@ -651,9 +651,9 @@ func TestRequestPseudoHeaders(t *testing.T) {
 
 	// Test with pseudo-headers (should be filtered out)
 	headers := g.NewMapOrd[g.String, g.String](3)
-	headers.Set(":method", "GET")  // pseudo-header
-	headers.Set(":path", "/test")  // pseudo-header
-	headers.Set("X-Real", "value") // real header
+	headers.Insert(":method", "GET")  // pseudo-header
+	headers.Insert(":path", "/test")  // pseudo-header
+	headers.Insert("X-Real", "value") // real header
 
 	resp := client.Get(g.String(ts.URL)).SetHeaders(headers).Do()
 	if resp.IsErr() {

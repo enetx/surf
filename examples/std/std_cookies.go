@@ -14,7 +14,8 @@ func main() {
 	cli := surf.NewClient().
 		Builder().
 		Session().
-		Build()
+		Build().
+		Unwrap()
 
 	stdcli := cli.Std()
 

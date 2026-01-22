@@ -106,7 +106,9 @@ func (b *Body) XML(data any) error { return xml.Unmarshal(b.Bytes(), data) }
 // JSON decodes the body's content as JSON into the provided data structure.
 func (b *Body) JSON(data any) error { return json.Unmarshal(b.Bytes(), data) }
 
-// Stream returns the body's bufio.Reader for streaming the content.
+// Stream returns a bufio.Reader for streaming the body content.
+// IMPORTANT: Call this method once and reuse the returned reader.
+// Each call creates a new bufio.Reader; calling repeatedly in a loop will lose buffered data.
 func (b *Body) Stream() *bufio.Reader {
 	if b == nil || b.Reader == nil {
 		return nil

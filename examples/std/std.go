@@ -13,7 +13,8 @@ func main() {
 		Builder().
 		Proxy("socks5://127.0.0.1:1080").
 		Impersonate().Firefox().
-		Build()
+		Build().
+		Unwrap()
 
 	test(cli.Std())
 }

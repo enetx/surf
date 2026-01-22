@@ -43,9 +43,9 @@ func main() {
 	// }
 
 	mapData := g.NewMapOrd[string, string]()
-	mapData.Set("custname", "toor")
-	mapData.Set("custtel", "88888888")
-	mapData.Set("custemail", "rest@gmail.com")
+	mapData.Insert("custname", "toor")
+	mapData.Insert("custtel", "88888888")
+	mapData.Insert("custemail", "rest@gmail.com")
 
 	r = surf.NewClient().Post(URL, mapData).Do().Unwrap()
 

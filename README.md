@@ -454,9 +454,9 @@ resp := surf.NewClient().
 
 // Ordered form data (preserves field insertion order)
 orderedForm := g.NewMapOrd[string, string]()
-orderedForm.Set("username", "john")
-orderedForm.Set("password", "secret")
-orderedForm.Set("remember_me", "true")
+orderedForm.Insert("username", "john")
+orderedForm.Insert("password", "secret")
+orderedForm.Insert("remember_me", "true")
 
 resp := surf.NewClient().
     Post("https://example.com/login", orderedForm).
@@ -493,8 +493,8 @@ resp := surf.NewClient().
 
 ```go
 fields := g.NewMapOrd[g.String, g.String]()
-fields.Set("field1", "value1")
-fields.Set("field2", "value2")
+fields.Insert("field1", "value1")
+fields.Insert("field2", "value2")
 
 resp := surf.NewClient().
     Multipart("https://api.example.com/form", fields).
@@ -724,10 +724,10 @@ resp := client.Get("http://localhost:8080/h2c-endpoint").Do()
 ```go
 // Control exact header order for fingerprinting evasion
 headers := g.NewMapOrd[g.String, g.String]()
-headers.Set("User-Agent", "Custom/1.0")
-headers.Set("Accept", "*/*")
-headers.Set("Accept-Language", "en-US")
-headers.Set("Accept-Encoding", "gzip, deflate")
+headers.Insert("User-Agent", "Custom/1.0")
+headers.Insert("Accept", "*/*")
+headers.Insert("Accept-Language", "en-US")
+headers.Insert("Accept-Encoding", "gzip, deflate")
 
 client := surf.NewClient().
     Builder().
@@ -820,7 +820,7 @@ resp := surf.NewClient().
 | `HTTP3Settings()` | Configure HTTP/3 parameters |
 | `HTTP3()` | Enable HTTP/3 with automatic browser detection |
 | `H2C()` | Enable HTTP/2 cleartext |
-| `Proxy(proxy)` | Set proxy configuration (string, []string for rotation) |
+| `Proxy(proxy)` | Set proxy configuration |
 | `DNS(dns)` | Set custom DNS resolver |
 | `DNSOverTLS()` | Configure DNS-over-TLS |
 | `Session()` | Enable cookie jar for sessions |

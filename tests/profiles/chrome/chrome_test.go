@@ -51,17 +51,17 @@ func TestHeaders_POST(t *testing.T) {
 	t.Run("POST method header order", func(t *testing.T) {
 		headers := g.NewMapOrd[string, string]()
 
-		headers.Set(":method", "POST")
-		headers.Set(":authority", "127.0.0.1")
-		headers.Set(":scheme", "https")
-		headers.Set(":path", "/api")
-		headers.Set(header.CONTENT_LENGTH, "100")
-		headers.Set(header.USER_AGENT, "Mozilla/5.0")
-		headers.Set(header.REFERER, "https://127.0.0.1")
-		headers.Set(header.COOKIE, "session=abc")
-		headers.Set(header.ACCEPT_ENCODING, "gzip, deflate")
-		headers.Set(header.ACCEPT_LANGUAGE, "en-US")
-		headers.Set(header.ORIGIN, "https://127.0.0.1")
+		headers.Insert(":method", "POST")
+		headers.Insert(":authority", "127.0.0.1")
+		headers.Insert(":scheme", "https")
+		headers.Insert(":path", "/api")
+		headers.Insert(header.CONTENT_LENGTH, "100")
+		headers.Insert(header.USER_AGENT, "Mozilla/5.0")
+		headers.Insert(header.REFERER, "https://127.0.0.1")
+		headers.Insert(header.COOKIE, "session=abc")
+		headers.Insert(header.ACCEPT_ENCODING, "gzip, deflate")
+		headers.Insert(header.ACCEPT_LANGUAGE, "en-US")
+		headers.Insert(header.ORIGIN, "https://127.0.0.1")
 
 		chrome.Headers(&headers, http.MethodPost)
 
@@ -123,8 +123,8 @@ func TestHeaders_POST(t *testing.T) {
 	t.Run("POST method preserves existing headers", func(t *testing.T) {
 		headers := g.NewMapOrd[string, string]()
 
-		headers.Set("X-Custom-Header", "custom-value")
-		headers.Set(header.AUTHORIZATION, "Bearer token123")
+		headers.Insert("X-Custom-Header", "custom-value")
+		headers.Insert(header.AUTHORIZATION, "Bearer token123")
 
 		chrome.Headers(&headers, http.MethodPost)
 

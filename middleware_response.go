@@ -59,7 +59,7 @@ func decodeBodyMW(r *Response) error {
 	}
 
 	encoding := r.Headers.Get(header.CONTENT_ENCODING)
-	if encoding.Empty() {
+	if encoding.IsEmpty() {
 		return nil
 	}
 
