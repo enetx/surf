@@ -1,7 +1,6 @@
 package surf
 
 import (
-	"bytes"
 	"compress/gzip"
 	"io"
 	"sync"
@@ -33,26 +32,26 @@ var (
 			return brotli.NewReader(nil)
 		},
 	}
-
-	// bodyBufferPool pools bytes.Buffer for reading response bodies.
-	bodyBufferPool = sync.Pool{
-		New: func() any {
-			return new(bytes.Buffer)
-		},
-	}
 )
 
 // zstdReadCloser wraps a zstd decoder and returns it to the pool on Close.
 type zstdReadCloser struct {
-	io.ReadCloser
 	dec *zstd.Decoder
 }
 
-// Close closes the underlying reader and returns the decoder to the pool.
+// Read reads decompressed data from the decoder.
+func (zr *zstdReadCloser) Read(p []byte) (int, error) {
+	return zr.dec.Read(p)
+}
+
+// Close resets the decoder and returns it to the pool.
 func (zr *zstdReadCloser) Close() error {
-	err := zr.ReadCloser.Close()
+	if err := zr.dec.Reset(nil); err != nil {
+		return err
+	}
+
 	zstdDecoderPool.Put(zr.dec)
-	return err
+	return nil
 }
 
 // gzipReadCloser wraps a gzip reader and returns it to the pool on Close.
@@ -111,8 +110,5 @@ func acquireZstdReader(r io.Reader) g.Result[io.ReadCloser] {
 		return g.Err[io.ReadCloser](err)
 	}
 
-	return g.Ok[io.ReadCloser](&zstdReadCloser{
-		ReadCloser: dec.IOReadCloser(),
-		dec:        dec,
-	})
+	return g.Ok[io.ReadCloser](&zstdReadCloser{dec: dec})
 }
