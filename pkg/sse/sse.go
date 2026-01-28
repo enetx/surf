@@ -33,7 +33,7 @@ func (e *Event) parse(t, data g.String) {
 	case "id":
 		e.ID = data
 	case "retry":
-		e.Retry = data.ToInt().UnwrapOr(-1)
+		e.Retry = data.TryInt().UnwrapOr(-1)
 	case "data":
 		e.Data = data
 	}

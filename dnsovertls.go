@@ -76,7 +76,10 @@ func (dot *DNSOverTLS) LibreDNS() *Builder {
 // resolver returns a custom net.Resolver that uses a dial function to create a secure connection
 // to the DNS server using DNS over TLS.
 func (DNSOverTLS) resolver(serverName g.String, addresses ...g.String) *net.Resolver {
-	return &net.Resolver{PreferGo: true, Dial: dial(serverName.Std(), g.SliceOf(addresses...).ToStringSlice()...)}
+	return &net.Resolver{
+		PreferGo: true,
+		Dial:     dial(serverName.Std(), g.TransformSlice(addresses, g.String.Std)...),
+	}
 }
 
 // AddProvider sets up DNS over TLS with a custom DNS provider.

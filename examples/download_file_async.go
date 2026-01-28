@@ -25,7 +25,7 @@ func main() {
 		log.Fatal("Doesn't support header 'Accept-Ranges'.")
 	}
 
-	contentLength := r.Ok().Headers.Get("Content-Length").ToInt()
+	contentLength := r.Ok().Headers.Get("Content-Length").TryInt()
 	if contentLength.IsErr() {
 		log.Fatal(contentLength.Err())
 	}

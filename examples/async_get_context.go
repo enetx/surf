@@ -12,7 +12,7 @@ func main() {
 	urls := g.SliceOf[g.String]("https://httpbingo.org/get").
 		Iter().
 		Cycle().
-		ToChan(p.GetContext())
+		Chan(p.GetContext())
 
 	cli := surf.NewClient()
 
