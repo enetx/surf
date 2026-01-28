@@ -49,6 +49,24 @@ type proxyDialer struct {
 	tr2 *http2.Transport
 }
 
+// SetResolver sets a custom DNS resolver for the proxy dialer.
+// This resolver will be used for all DNS lookups including proxy server address
+// and target host resolution. When set, target hostnames are pre-resolved locally
+// before being sent to the proxy, ensuring DNS queries bypass the proxy.
+func (c *proxyDialer) SetResolver(r *net.Resolver) {
+	c.Dialer.Resolver = r
+}
+
+// dialerProxy is an adapter that implements proxy.Dialer interface
+// using net.Dialer to support custom DNS resolver with proxies.
+type dialerProxy struct {
+	dialer *net.Dialer
+}
+
+func (d *dialerProxy) Dial(network, addr string) (net.Conn, error) {
+	return d.dialer.Dial(network, addr)
+}
+
 const (
 	schemeHTTP  = "http"
 	schemeHTTPS = "https"
@@ -167,8 +185,23 @@ func (c *proxyDialer) DialContext(ctx context.Context, network, address string) 
 		return nil, &ErrProxyEmpty{}
 	}
 
+	// Pre-resolve DNS locally if custom resolver is configured.
+	if c.Dialer.Resolver != nil {
+		host, port, err := net.SplitHostPort(address)
+		if err == nil {
+			if net.ParseIP(host) == nil {
+				ips, err := c.Dialer.Resolver.LookupIPAddr(ctx, host)
+				if err == nil && len(ips) > 0 {
+					address = net.JoinHostPort(ips[0].IP.String(), port)
+				}
+			}
+		}
+	}
+
 	if strings.HasPrefix(c.ProxyURL.Scheme, "socks") {
-		dial, err := proxy.FromURL(c.ProxyURL, proxy.Direct)
+		forward := proxy.Dialer(&dialerProxy{dialer: &c.Dialer})
+
+		dial, err := proxy.FromURL(c.ProxyURL, forward)
 		if err != nil {
 			return nil, err
 		}
@@ -242,20 +275,21 @@ func (c *proxyDialer) initProxyConn(ctx context.Context, network string) (net.Co
 				return nil, "", err
 			}
 		} else {
+			tcpConn, err := c.Dialer.DialContext(ctx, network, c.ProxyURL.Host)
+			if err != nil {
+				return nil, "", err
+			}
+
 			tlsConf := tls.Config{
 				NextProtos:         []string{"h2", "http/1.1"},
 				ServerName:         c.ProxyURL.Hostname(),
 				InsecureSkipVerify: true,
 			}
 
-			var tlsConn *tls.Conn
-			tlsConn, err = tls.Dial(network, c.ProxyURL.Host, &tlsConf)
-			if err != nil {
-				return nil, "", err
-			}
+			tlsConn := tls.Client(tcpConn, &tlsConf)
 
-			err = tlsConn.Handshake()
-			if err != nil {
+			if err = tlsConn.HandshakeContext(ctx); err != nil {
+				_ = tcpConn.Close()
 				return nil, "", err
 			}
 

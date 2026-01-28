@@ -299,6 +299,13 @@ func proxyMW(client *Client, proxy g.String) error {
 		return fmt.Errorf("create proxy dialer: %w", err)
 	}
 
+	// Pass custom DNS resolver to proxy dialer if configured.
+	// This ensures DNS queries go through the custom DNS server, not through the proxy.
+	// Target hostnames are pre-resolved locally before being sent to the proxy.
+	if client.dialer != nil && client.dialer.Resolver != nil {
+		dialer.SetResolver(client.dialer.Resolver)
+	}
+
 	transport.DialContext = dialer.DialContext
 
 	return nil

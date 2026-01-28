@@ -26,7 +26,10 @@ func main() {
 
 	cli := surf.NewClient().
 		Builder().
+		// DNS("1.1.1.1:53").
+		// DNSOverTLS().Google().
 		// Proxy("http://127.0.0.1:2080").
+		// Proxy("socks4://127.0.0.1:2080").
 		// Proxy("socks5://127.0.0.1:2080").
 		Impersonate().
 		// MacOS().

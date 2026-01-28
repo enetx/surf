@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/andybalholm/brotli v1.2.0
-	github.com/enetx/g v1.0.202
+	github.com/enetx/g v1.0.204
 	github.com/enetx/http v1.0.24
 	github.com/enetx/http2 v1.0.24
 	github.com/enetx/http3 v1.0.6
