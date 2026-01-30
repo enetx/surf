@@ -298,12 +298,12 @@ func (b *Body) Dump(filename g.String) error {
 			return content.Err()
 		}
 
-		if !content.Ok().IsEmpty() {
-			return g.NewFile(filename).Write(content.Ok().String()).Err()
-		}
+		return g.NewFile(filename).Write(content.Ok().String()).Err()
 	}
 
 	defer b.Close()
+
+	b.setupContextCancel()
 
 	return g.NewFile(filename).WriteFromReader(b.Reader).Err()
 }

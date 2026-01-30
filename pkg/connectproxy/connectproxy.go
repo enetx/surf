@@ -177,7 +177,12 @@ func (c *proxyDialer) connectHTTP1(req *http.Request, conn net.Conn) error {
 	return nil
 }
 
-func (c *proxyDialer) connectHTTP2(req *http.Request, conn net.Conn, h2clientConn *http2.ClientConn) (net.Conn, error) {
+func (c *proxyDialer) connectHTTP2(
+	req *http.Request,
+	conn net.Conn,
+	h2clientConn *http2.ClientConn,
+	closeOnError bool,
+) (net.Conn, error) {
 	req.Proto = "HTTP/2.0"
 	req.ProtoMajor = 2
 	req.ProtoMinor = 0
@@ -188,7 +193,11 @@ func (c *proxyDialer) connectHTTP2(req *http.Request, conn net.Conn, h2clientCon
 	if err != nil {
 		_ = pw.Close()
 		_ = pr.Close()
-		_ = conn.Close()
+
+		if closeOnError {
+			_ = conn.Close()
+		}
+
 		return nil, err
 	}
 
@@ -196,7 +205,11 @@ func (c *proxyDialer) connectHTTP2(req *http.Request, conn net.Conn, h2clientCon
 		_ = pw.Close()
 		_ = pr.Close()
 		_ = resp.Body.Close()
-		_ = conn.Close()
+
+		if closeOnError {
+			_ = conn.Close()
+		}
+
 		return nil, &ErrProxyStatus{resp.Status}
 	}
 
@@ -253,16 +266,19 @@ func (c *proxyDialer) DialContext(ctx context.Context, network, address string) 
 		cc := c.h2Conn
 		c.h2Mu.Unlock()
 		unlocked = true
-		proxyConn, err := c.connectHTTP2(req, rc, cc)
+		proxyConn, err := c.connectHTTP2(req, rc, cc, false)
 		if err == nil {
 			return proxyConn, nil
 		}
 
 		c.h2Mu.Lock()
-		if c.conn == rc {
+
+		if c.conn == rc && c.h2Conn == cc {
+			_ = rc.Close()
 			c.conn = nil
 			c.h2Conn = nil
 		}
+
 		c.h2Mu.Unlock()
 	}
 
@@ -336,14 +352,20 @@ func (c *proxyDialer) connect(req *http.Request, conn net.Conn, negotiatedProtoc
 			return nil, err
 		}
 
-		proxyConn, err := c.connectHTTP2(req, conn, h2clientConn)
+		proxyConn, err := c.connectHTTP2(req, conn, h2clientConn, true)
 		if err != nil {
 			return nil, err
 		}
 
 		c.h2Mu.Lock()
-		c.h2Conn = h2clientConn
-		c.conn = conn
+
+		if c.conn == nil {
+			c.h2Conn = h2clientConn
+			c.conn = conn
+		} else {
+			proxyConn.(*http2Conn).ownsConn = true
+		}
+
 		c.h2Mu.Unlock()
 
 		return proxyConn, nil
@@ -356,19 +378,38 @@ func (c *proxyDialer) connect(req *http.Request, conn net.Conn, negotiatedProtoc
 	return conn, nil
 }
 
+func (c *proxyDialer) Close() error {
+	c.h2Mu.Lock()
+	defer c.h2Mu.Unlock()
+
+	if c.conn != nil {
+		err := c.conn.Close()
+		c.conn = nil
+		c.h2Conn = nil
+		return err
+	}
+
+	return nil
+}
+
 func newHTTP2Conn(c net.Conn, pipedReqBody *io.PipeWriter, respBody io.ReadCloser) net.Conn {
 	return &http2Conn{Conn: c, in: pipedReqBody, out: respBody}
 }
 
 type http2Conn struct {
 	net.Conn
-	in  *io.PipeWriter
-	out io.ReadCloser
+	in       *io.PipeWriter
+	out      io.ReadCloser
+	ownsConn bool
 }
 
 func (h *http2Conn) Close() error {
 	err1 := h.in.Close()
 	err2 := h.out.Close()
+	if h.ownsConn {
+		return errors.Join(err1, err2, h.Conn.Close())
+	}
+
 	return errors.Join(err1, err2)
 }
 
