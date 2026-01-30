@@ -2,6 +2,7 @@ package surf_test
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -39,8 +40,12 @@ func TestBodyString(t *testing.T) {
 
 	// Test String()
 	content := body.String()
-	if content != "test body content" {
-		t.Errorf("expected 'test body content', got %s", content)
+	if content.IsErr() {
+		t.Fatal(content.Err())
+	}
+
+	if content.Ok() != "test body content" {
+		t.Errorf("expected 'test body content', got %s", content.Ok())
 	}
 }
 
@@ -65,103 +70,17 @@ func TestBodyBytes(t *testing.T) {
 
 	// Test Bytes()
 	bytes := body.Bytes()
-	if string(bytes) != "byte content" {
-		t.Errorf("expected 'byte content', got %s", string(bytes))
+	if bytes.IsErr() {
+		t.Fatal(bytes.Err())
+	}
+	if string(bytes.Ok()) != "byte content" {
+		t.Errorf("expected 'byte content', got %s", string(bytes.Ok()))
 	}
 
-	// Without cache, second call to Bytes() returns nil as body is consumed
+	// Without cache, second call to Bytes() returns error as body is consumed
 	bytes2 := body.Bytes()
-	if !bytes2.IsEmpty() {
-		t.Error("expected len == 0 on second call to Bytes() without cache")
-	}
-}
-
-func TestBodyMD5(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "hello")
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	client := surf.NewClient()
-	resp := client.Get(g.String(ts.URL)).Do()
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	body := resp.Ok().Body
-
-	// Test MD5()
-	md5 := body.MD5()
-	// MD5 of "hello" is "5d41402abc4b2a76b9719d911017c592"
-	expected := "5d41402abc4b2a76b9719d911017c592"
-	if md5.Std() != expected {
-		t.Errorf("expected MD5 %s, got %s", expected, md5.Std())
-	}
-}
-
-func TestBodyMD5EdgeCases(t *testing.T) {
-	t.Parallel()
-
-	testCases := []struct {
-		name     string
-		content  string
-		expected string
-	}{
-		{
-			"Empty string",
-			"",
-			"d41d8cd98f00b204e9800998ecf8427e",
-		},
-		{
-			"Single character",
-			"a",
-			"0cc175b9c0f1b6a831c399e269772661",
-		},
-		{
-			"Unicode content",
-			"🦄🌈",
-			"b0507043024f253bba6562cd35600423",
-		},
-		{
-			"JSON content",
-			`{"key": "value"}`,
-			"88bac95f31528d13a072c05f2a1cf371",
-		},
-		{
-			"Large content",
-			strings.Repeat("x", 10000),
-			"b567fcb68d8555227123ab87e255872e",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			handler := func(w http.ResponseWriter, _ *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				fmt.Fprint(w, tc.content)
-			}
-
-			ts := httptest.NewServer(http.HandlerFunc(handler))
-			defer ts.Close()
-
-			client := surf.NewClient()
-			resp := client.Get(g.String(ts.URL)).Do()
-			if resp.IsErr() {
-				t.Fatal(resp.Err())
-			}
-
-			body := resp.Ok().Body
-			md5 := body.MD5()
-
-			if md5.Std() != tc.expected {
-				t.Errorf("MD5 for %s: expected %s, got %s", tc.name, tc.expected, md5.Std())
-			}
-		})
+	if bytes2.IsOk() && !bytes2.Ok().IsEmpty() {
+		t.Error("expected error or empty on second call to Bytes() without cache")
 	}
 }
 
@@ -358,8 +277,11 @@ func TestBodyLimit(t *testing.T) {
 	body.Limit(50)
 
 	content := body.Bytes()
-	if len(content) != 50 {
-		t.Errorf("expected 50 bytes with limit, got %d", len(content))
+	if content.IsErr() {
+		t.Fatal(content.Err())
+	}
+	if len(content.Ok()) != 50 {
+		t.Errorf("expected 50 bytes with limit, got %d", len(content.Ok()))
 	}
 }
 
@@ -388,10 +310,10 @@ func TestBodyClose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// After close, Bytes() should return len == 0
+	// After close, Bytes() should return error or empty
 	content := body.Bytes()
-	if !content.IsEmpty() {
-		t.Error("expected len == 0 after Close(), got content")
+	if content.IsOk() && !content.Ok().IsEmpty() {
+		t.Error("expected error or empty after Close(), got content")
 	}
 }
 
@@ -547,7 +469,10 @@ func TestBodyUTF8(t *testing.T) {
 
 	// Test UTF8()
 	content := body.UTF8()
-	if content == "" {
+	if content.IsErr() {
+		t.Fatal(content.Err())
+	}
+	if content.Ok() == "" {
 		t.Error("UTF8() returned empty string")
 	}
 }
@@ -558,8 +483,8 @@ func TestBodyUTF8Nil(t *testing.T) {
 	// Test UTF8() on nil body
 	var body *surf.Body
 	content := body.UTF8()
-	if content != "" {
-		t.Error("expected empty string for nil body")
+	if content.IsOk() && content.Ok() != "" {
+		t.Error("expected error or empty string for nil body")
 	}
 }
 
@@ -587,14 +512,20 @@ func TestBodyCache(t *testing.T) {
 
 	// First call to Bytes()
 	content1 := body.Bytes()
-	if string(content1) != "call 1" {
-		t.Errorf("expected 'call 1', got %s", string(content1))
+	if content1.IsErr() {
+		t.Fatal(content1.Err())
+	}
+	if string(content1.Ok()) != "call 1" {
+		t.Errorf("expected 'call 1', got %s", string(content1.Ok()))
 	}
 
 	// Second call should return cached content
 	content2 := body.Bytes()
-	if string(content2) != "call 1" {
-		t.Errorf("expected cached 'call 1', got %s", string(content2))
+	if content2.IsErr() {
+		t.Fatal(content2.Err())
+	}
+	if string(content2.Ok()) != "call 1" {
+		t.Errorf("expected cached 'call 1', got %s", string(content2.Ok()))
 	}
 
 	// Make another request to verify server was called only once
@@ -604,8 +535,11 @@ func TestBodyCache(t *testing.T) {
 	}
 
 	content3 := resp2.Ok().Body.String()
-	if content3 != "call 2" {
-		t.Errorf("expected 'call 2' for new request, got %s", content3)
+	if content3.IsErr() {
+		t.Fatal(content3.Err())
+	}
+	if content3.Ok() != "call 2" {
+		t.Errorf("expected 'call 2' for new request, got %s", content3.Ok())
 	}
 }
 
@@ -631,14 +565,17 @@ func TestBodyWithoutCache(t *testing.T) {
 
 	// First call to Bytes()
 	content1 := body.Bytes()
-	if string(content1) != "content" {
-		t.Errorf("expected 'content', got %s", string(content1))
+	if content1.IsErr() {
+		t.Fatal(content1.Err())
+	}
+	if string(content1.Ok()) != "content" {
+		t.Errorf("expected 'content', got %s", string(content1.Ok()))
 	}
 
-	// Second call returns nil because body was consumed
+	// Second call returns error because body was consumed
 	content2 := body.Bytes()
-	if !content2.IsEmpty() {
-		t.Error("expected len == 0 for second call without cache")
+	if content2.IsOk() && !content2.Ok().IsEmpty() {
+		t.Error("expected error or empty for second call without cache")
 	}
 }
 
@@ -648,35 +585,16 @@ func TestBodyNilOperations(t *testing.T) {
 	// Test all methods on nil body
 	var body *surf.Body
 
-	// MD5() should panic or return consistent value
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				// Expected panic is ok for nil body
-				return
-			}
-		}()
-		// If it doesn't panic, just verify it returns some consistent value
-		body.MD5()
-	}()
-
-	// Bytes() should return len == 0
-	if !body.Bytes().IsEmpty() {
-		t.Error("expected len == 0 Bytes() for nil body")
+	// Bytes() should return error for nil body
+	if body.Bytes().IsOk() && !body.Bytes().Ok().IsEmpty() {
+		t.Error("expected error or empty Bytes() for nil body")
 	}
 
-	// String() should return empty or panic
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				// Expected panic is ok
-			}
-		}()
-		str := body.String()
-		if str != "" {
-			t.Error("expected empty String() for nil body")
-		}
-	}()
+	// String() should return error for nil body
+	str := body.String()
+	if str.IsOk() && str.Ok() != "" {
+		t.Error("expected error or empty String() for nil body")
+	}
 
 	// Stream() should return nil
 	if body.Stream() != nil {
@@ -708,8 +626,11 @@ func TestBodyLimitChaining(t *testing.T) {
 
 	// Test Limit() chaining
 	content := resp.Ok().Body.Limit(100).Bytes()
-	if len(content) != 100 {
-		t.Errorf("expected 100 bytes with limit chain, got %d", len(content))
+	if content.IsErr() {
+		t.Fatal(content.Err())
+	}
+	if len(content.Ok()) != 100 {
+		t.Errorf("expected 100 bytes with limit chain, got %d", len(content.Ok()))
 	}
 }
 
@@ -737,8 +658,8 @@ func TestBodyClosedBody(t *testing.T) {
 
 	// Try to read after close
 	content := body.Bytes()
-	if !content.IsEmpty() {
-		t.Error("expected len == 0 after body closed")
+	if content.IsOk() && !content.Ok().IsEmpty() {
+		t.Error("expected error or empty after body closed")
 	}
 }
 
@@ -1189,8 +1110,11 @@ func TestBodyLimitEdgeCases(t *testing.T) {
 			body := resp.Ok().Body.Limit(tc.limit)
 			result := body.Bytes()
 
-			if len(result) != tc.expectedLen {
-				t.Errorf("expected %d bytes, got %d", tc.expectedLen, len(result))
+			if result.IsErr() {
+				t.Fatal(result.Err())
+			}
+			if len(result.Ok()) != tc.expectedLen {
+				t.Errorf("expected %d bytes, got %d", tc.expectedLen, len(result.Ok()))
 			}
 		})
 	}
@@ -1251,55 +1175,197 @@ func TestBodyContainsEdgeCases(t *testing.T) {
 	}
 }
 
-func TestBodyMD5Hash(t *testing.T) {
+func TestBodyWithContextCancellation(t *testing.T) {
 	t.Parallel()
 
-	testCases := []struct {
-		name     string
-		content  string
-		expected string
-	}{
-		{"Simple text", "hello world", "5d41402abc4b2a76b9719d911017c592"},
-		{"Empty string", "", "d41d8cd98f00b204e9800998ecf8427e"},
-		{"Numbers", "123456", "e10adc3949ba59abbe56e057f20f883e"},
-		{"Unicode", "🦄🌈", ""}, // Will have some hash
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		// Simulate slow response
+		time.Sleep(200 * time.Millisecond)
+		fmt.Fprint(w, "slow response")
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			handler := func(w http.ResponseWriter, _ *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				fmt.Fprint(w, tc.content)
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Create a context that will be cancelled quickly
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).WithContext(ctx).Do()
+
+	// Request should fail due to context timeout
+	if !resp.IsErr() {
+		// If request somehow completed, body should still handle context properly
+		body := resp.Ok().Body
+		if body != nil {
+			// Give context time to be cancelled
+			time.Sleep(100 * time.Millisecond)
+			content := body.Bytes()
+			// After context cancellation, bytes should be empty or partial
+			if content.IsOk() {
+				t.Logf("Body content after context cancellation: %d bytes", len(content.Ok()))
+			} else {
+				t.Logf("Body content error after context cancellation: %v", content.Err())
 			}
+		}
+	}
+}
 
-			ts := httptest.NewServer(http.HandlerFunc(handler))
-			defer ts.Close()
+func TestStreamReaderClose(t *testing.T) {
+	t.Parallel()
 
-			client := surf.NewClient()
-			resp := client.Get(g.String(ts.URL)).Do()
-			if resp.IsErr() {
-				t.Fatal(resp.Err())
-			}
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "stream content")
+	}
 
-			body := resp.Ok().Body
-			hash := body.MD5()
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
 
-			if hash.Std() == "" {
-				t.Error("expected MD5 hash to be generated")
-			}
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
 
-			// Test that hash has correct length (32 chars for MD5)
-			if len(hash.Std()) != 32 {
-				t.Errorf("expected MD5 hash length 32, got %d", len(hash.Std()))
-			}
+	body := resp.Ok().Body
+	stream := body.Stream()
+	if stream == nil {
+		t.Fatal("Stream() returned nil")
+	}
 
-			// MD5 should contain only hex characters
-			for _, char := range hash.Std() {
-				if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f')) {
-					t.Errorf("MD5 hash should contain only hex characters, got %s", hash.Std())
-					break
-				}
-			}
-		})
+	// Read some data
+	buf := make([]byte, 6)
+	n, err := stream.Read(buf)
+	if err != nil {
+		t.Fatalf("Read error: %v", err)
+	}
+	if string(buf[:n]) != "stream" {
+		t.Errorf("expected 'stream', got %s", string(buf[:n]))
+	}
+
+	// Close via StreamReader
+	if err := stream.Close(); err != nil {
+		t.Fatalf("StreamReader.Close() error: %v", err)
+	}
+
+	// Multiple Close() calls should be safe
+	if err := stream.Close(); err != nil {
+		t.Fatalf("second StreamReader.Close() error: %v", err)
+	}
+}
+
+func TestBodyMultipleClose(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "test content")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body
+
+	// First close should succeed
+	if err := body.Close(); err != nil {
+		t.Fatalf("first Close() error: %v", err)
+	}
+
+	// Second close should also succeed (no-op via closeOnce)
+	if err := body.Close(); err != nil {
+		t.Fatalf("second Close() error: %v", err)
+	}
+
+	// Third close should also succeed
+	if err := body.Close(); err != nil {
+		t.Fatalf("third Close() error: %v", err)
+	}
+}
+
+func TestBodyContextCancellationDuringRead(t *testing.T) {
+	t.Parallel()
+
+	// Handler that sends data slowly
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Length", "1000")
+		w.WriteHeader(http.StatusOK)
+
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			t.Log("ResponseWriter doesn't support Flusher")
+			return
+		}
+
+		// Send data slowly
+		for range 10 {
+			fmt.Fprint(w, strings.Repeat("x", 100))
+			flusher.Flush()
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Context that will be cancelled during body read
+	ctx, cancel := context.WithCancel(context.Background())
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).WithContext(ctx).Do()
+
+	if resp.IsErr() {
+		t.Fatalf("request error: %v", resp.Err())
+	}
+
+	body := resp.Ok().Body
+
+	// Cancel context after short delay (during body read)
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		cancel()
+	}()
+
+	// Try to read body - should fail or return partial data
+	start := time.Now()
+	content := body.Bytes()
+	elapsed := time.Since(start)
+
+	// Should complete relatively quickly due to cancellation
+	if elapsed > 400*time.Millisecond {
+		t.Errorf("read took too long: %v (expected < 400ms due to cancellation)", elapsed)
+	}
+
+	if content.IsErr() {
+		t.Logf("read error (expected): %v", content.Err())
+	} else {
+		t.Logf("read completed with %d bytes (partial data due to cancellation)", len(content.Ok()))
+	}
+}
+
+func TestStreamReaderFromNilBody(t *testing.T) {
+	t.Parallel()
+
+	// Test Stream() on nil body returns nil
+	var body *surf.Body
+	stream := body.Stream()
+	if stream != nil {
+		t.Error("expected nil StreamReader for nil body")
+	}
+
+	// Test Stream() on body with nil Reader returns nil
+	body = &surf.Body{}
+	stream = body.Stream()
+	if stream != nil {
+		t.Error("expected nil StreamReader for body with nil Reader")
 	}
 }

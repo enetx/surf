@@ -114,7 +114,7 @@ func main() {
         log.Fatal(resp.Err())
     }
 
-    fmt.Println(resp.Ok().Body.String())
+    fmt.Println(resp.Ok().Body.String().Unwrap())
 }
 ```
 
@@ -569,17 +569,20 @@ resp := surf.NewClient().Get("https://example.com/data").Do()
 if resp.IsOk() {
     body := resp.Ok().Body
 
-    // As string
-    content := body.String()
+    // As string (returns g.Result[g.String])
+    if content := body.String(); content.IsOk() {
+        fmt.Println(content.Ok())
+    }
 
-    // As bytes
-    data := body.Bytes()
+    // As bytes (returns g.Result[g.Bytes])
+    if data := body.Bytes(); data.IsOk() {
+        fmt.Println(len(data.Ok()))
+    }
 
-    // MD5 hash
-    hash := body.MD5()
-
-    // UTF-8 conversion
-    utf8Content := body.UTF8()
+    // UTF-8 conversion (returns g.Result[g.String])
+    if utf8Content := body.UTF8(); utf8Content.IsOk() {
+        fmt.Println(utf8Content.Ok())
+    }
 
     // Check content
     if body.Contains("success") {
@@ -596,9 +599,10 @@ if resp.IsOk() {
 ```go
 resp := surf.NewClient().Get("https://example.com/large-file").Do()
 if resp.IsOk() {
-    reader := resp.Ok().Body.Stream()
+    stream := resp.Ok().Body.Stream()
+    defer stream.Close()
 
-    scanner := bufio.NewScanner(reader)
+    scanner := bufio.NewScanner(stream)
     for scanner.Scan() {
         fmt.Println(scanner.Text())
     }
@@ -686,10 +690,10 @@ client := surf.NewClient().
 resp := client.Get("https://api.example.com/data").Do()
 if resp.IsOk() {
     // First access reads from network
-    data1 := resp.Ok().Body.Bytes()
+    data1 := resp.Ok().Body.Bytes().Unwrap()
 
     // Subsequent accesses use cache
-    data2 := resp.Ok().Body.Bytes()  // No network I/O
+    data2 := resp.Ok().Body.Bytes().Unwrap()  // No network I/O
 }
 ```
 
@@ -878,13 +882,12 @@ resp := surf.NewClient().
 
 | Method | Description |
 |--------|-------------|
-| `String()` | Get body as string |
-| `Bytes()` | Get body as bytes |
+| `String()` | Get body as string (returns `g.Result[g.String]`) |
+| `Bytes()` | Get body as bytes (returns `g.Result[g.Bytes]`) |
 | `JSON(v)` | Decode JSON into struct |
 | `XML(v)` | Decode XML into struct |
-| `MD5()` | Calculate MD5 hash |
-| `UTF8()` | Convert to UTF-8 |
-| `Stream()` | Get buffered reader |
+| `UTF8()` | Convert to UTF-8 (returns `g.Result[g.String]`) |
+| `Stream()` | Get StreamReader for streaming (with Close support) |
 | `SSE(fn)` | Process Server-Sent Events |
 | `Dump(file)` | Save to file |
 | `Contains(pattern)` | Check if contains pattern |

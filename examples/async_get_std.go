@@ -43,7 +43,7 @@ func main() {
 				}
 
 				resp := r.Ok()
-				resp.Body.Limit(10).String().Print()
+				resp.Body.Limit(10).String().Unwrap().Print()
 			}
 		}()
 	}

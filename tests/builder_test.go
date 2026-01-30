@@ -514,13 +514,13 @@ func TestBuilderCacheBody(t *testing.T) {
 
 	// First read
 	content1 := resp.Ok().Body.String()
-	if content1 != "cached content" {
+	if content1.Unwrap() != "cached content" {
 		t.Errorf("expected 'cached content', got %s", content1)
 	}
 
 	// Second read should return cached content
 	content2 := resp.Ok().Body.String()
-	if content2 != "cached content" {
+	if content2.Unwrap() != "cached content" {
 		t.Error("expected cached content on second read")
 	}
 }

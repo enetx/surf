@@ -56,7 +56,9 @@ func (d *Debug) Response(verbos ...bool) *Debug {
 	_ = g.Write(&d.print, g.String(body).Trim())
 
 	if len(verbos) != 0 && verbos[0] && d.resp.Body != nil {
-		_ = g.Write(&d.print, d.resp.Body.String().Trim().Prepend("\n\n"))
+		if bodyStr := d.resp.Body.String(); bodyStr.IsOk() {
+			_ = g.Write(&d.print, bodyStr.Ok().Trim().Prepend("\n\n"))
+		}
 	}
 
 	return d

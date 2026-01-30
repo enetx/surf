@@ -15,7 +15,7 @@ func main() {
 	r.Body.Close()
 
 	r = r.Get(url).Do().Unwrap()
-	fmt.Println(r.Body.String()) // check if cookies in response {"name1":"value1","name2":"value2"}
+	fmt.Println(r.Body.String().Unwrap()) // check if cookies in response {"name1":"value1","name2":"value2"}
 
 	// example 2
 	// split session
@@ -25,5 +25,5 @@ func main() {
 	s.Body.Close()
 
 	s = cli.Get(url).Do().Unwrap()
-	fmt.Println(s.Body.String()) // check if cookies in response {"name1":"value1","name2":"value2"}
+	fmt.Println(s.Body.String().Unwrap()) // check if cookies in response {"name1":"value1","name2":"value2"}
 }

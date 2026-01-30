@@ -45,7 +45,7 @@ func TestJAChrome144(t *testing.T) {
 	// JA fingerprint should be applied at TLS level
 	// We can't easily verify the actual fingerprint without a specialized server
 	// but we can verify the request completes successfully with JA configured
-	if resp.Ok().Body.String().IsEmpty() {
+	if resp.Ok().Body.String().Ok().IsEmpty() {
 		t.Error("expected response body to contain data")
 	}
 }
@@ -368,7 +368,7 @@ func TestJAFirefox147(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	if resp.Ok().Body.String().IsEmpty() {
+	if resp.Ok().Body.String().Ok().IsEmpty() {
 		t.Error("expected response body to contain data")
 	}
 }
@@ -403,7 +403,7 @@ func TestJAWithImpersonate(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	if resp.Ok().Body.String().IsEmpty() {
+	if resp.Ok().Body.String().Ok().IsEmpty() {
 		t.Error("expected response body to contain data")
 	}
 }
@@ -440,7 +440,7 @@ func TestJAMultipleCalls(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	if resp.Ok().Body.String().IsEmpty() {
+	if resp.Ok().Body.String().Ok().IsEmpty() {
 		t.Error("expected response body to contain data")
 	}
 }
@@ -479,7 +479,7 @@ func TestJAWithHTTP2(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	if resp.Ok().Body.String().IsEmpty() {
+	if resp.Ok().Body.String().Ok().IsEmpty() {
 		t.Error("expected response body to contain data")
 	}
 }

@@ -16,12 +16,7 @@ func main() {
 		// Proxy("socks5h://127.0.0.1:2080").
 		// Proxy("http://127.0.0.1:2080").
 
-		// "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p",
-		// "perk_hash": "e9ebca6992bfd86ffa0663c1359de7d0",
 		// Impersonate().Firefox().HTTP3().
-
-		// "perk_text": "1:65536;6:262144;7:100;51:1;GREASE|m,a,s,p",
-		// "perk_hash": "e1d11ee6f2f4c7b1f11bfaaf4dbbc211",
 		Impersonate().Chrome().HTTP3().
 		Build().
 		Unwrap()
@@ -36,7 +31,7 @@ func main() {
 		fmt.Printf("H3 Status Code: %d\n", resp.StatusCode)
 		fmt.Printf("H3 Protocol: %s\n", resp.Proto)
 		fmt.Printf("H3 Server: %s\n", resp.Headers.Get("server"))
-		fmt.Println(r.Ok().Body.String())
+		fmt.Println(r.Ok().Body.String().Unwrap())
 	case r.IsErr():
 		log.Printf("H3 request failed: %v", r.Err())
 	}

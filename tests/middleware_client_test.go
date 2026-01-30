@@ -239,7 +239,7 @@ func TestMiddlewareClientH2CWithHTTP2Settings(t *testing.T) {
 		},
 	}
 
-	handler := func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, "h2c test")
 	}
@@ -266,7 +266,7 @@ func TestMiddlewareClientH2CWithHTTP2Settings(t *testing.T) {
 				t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 			}
 
-			body := resp.Ok().Body.String()
+			body := resp.Ok().Body.String().Unwrap()
 			if body.Std() != "h2c test" {
 				t.Errorf("expected body 'h2c test', got %s", body.Std())
 			}
@@ -361,7 +361,7 @@ func TestMiddlewareClientH2CCompatibilityChecks(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if !strings.Contains(body.Std(), "host") {
 		t.Error("expected response to contain host information")
 	}

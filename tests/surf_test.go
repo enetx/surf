@@ -297,7 +297,7 @@ func TestMultipart(t *testing.T) {
 		return
 	}
 
-	if r.Ok().Body.String() != values {
+	if r.Ok().Body.String().Unwrap() != values {
 		t.Error()
 	}
 }
@@ -343,7 +343,7 @@ func TestFileUpload(t *testing.T) {
 		return
 	}
 
-	if r.Ok().Body.String() != "justfile" || r2.Ok().Body.String() != "valuesmultipart" {
+	if r.Ok().Body.String().Unwrap() != "justfile" || r2.Ok().Body.String().Unwrap() != "valuesmultipart" {
 		t.Error()
 	}
 }

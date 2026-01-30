@@ -20,5 +20,5 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Ok().Body.String())
+	fmt.Println(r.Ok().Body.String().Unwrap())
 }

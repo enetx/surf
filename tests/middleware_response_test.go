@@ -41,7 +41,7 @@ func TestMiddlewareResponseCloseIdleConnections(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if !strings.Contains(body.Std(), "close_idle") {
 		t.Error("expected response body to contain test data")
 	}
@@ -127,7 +127,7 @@ func TestMiddlewareResponseDecodeBodyGzip(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected decompressed body %q, got %q", originalData, body.Std())
 	}
@@ -161,7 +161,7 @@ func TestMiddlewareResponseDecodeBodyDeflate(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected decompressed body %q, got %q", originalData, body.Std())
 	}
@@ -195,7 +195,7 @@ func TestMiddlewareResponseDecodeBodyBrotli(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected decompressed body %q, got %q", originalData, body.Std())
 	}
@@ -232,7 +232,7 @@ func TestMiddlewareResponseDecodeBodyZstd(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected decompressed body %q, got %q", originalData, body.Std())
 	}
@@ -259,7 +259,7 @@ func TestMiddlewareResponseDecodeBodyNoCompression(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected body %q, got %q", originalData, body.Std())
 	}
@@ -290,7 +290,7 @@ func TestMiddlewareResponseDecodeBodyEmptyBody(t *testing.T) {
 	}
 
 	// Body should be empty
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if !body.IsEmpty() {
 		t.Errorf("expected empty body, got %q", body.Std())
 	}
@@ -395,7 +395,7 @@ func TestMiddlewareResponseDecodeBodyUnknownEncoding(t *testing.T) {
 	}
 
 	// Should pass through without decoding
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected body %q, got %q", originalData, body.Std())
 	}
@@ -425,7 +425,7 @@ func TestMiddlewareResponseDecodeBodyMultipleEncodings(t *testing.T) {
 	}
 
 	// Should handle or pass through gracefully
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected body %q, got %q", originalData, body.Std())
 	}
@@ -461,7 +461,7 @@ func TestMiddlewareResponseDecodeBodyCaseInsensitiveEncoding(t *testing.T) {
 	}
 
 	// Should handle case-insensitive encoding
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected decompressed body %q, got %q", originalData, body.Std())
 	}
@@ -496,7 +496,7 @@ func TestMiddlewareResponseDecodeBodyLargeData(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Error("large gzip decompression failed")
 	}
@@ -592,7 +592,7 @@ func TestMiddlewareResponseChaining(t *testing.T) {
 	}
 
 	// Verify decompression still works with custom middleware
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if !body.Contains("middleware chaining test") {
 		t.Error("body decompression failed with middleware chaining")
 	}
@@ -661,8 +661,8 @@ func TestMiddlewareResponseBodyCache(t *testing.T) {
 	response := resp.Ok()
 
 	// Read body multiple times to test caching
-	body1 := response.Body.String()
-	body2 := response.Body.String()
+	body1 := response.Body.String().Unwrap()
+	body2 := response.Body.String().Unwrap()
 
 	if body1.Std() != originalData || body2.Std() != originalData {
 		t.Error("body caching not working properly")
@@ -730,7 +730,7 @@ func TestMiddlewareResponseCompressionMiddleware(t *testing.T) {
 	}
 
 	// Response should be automatically decompressed by middleware
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Error("automatic decompression by middleware failed")
 	}

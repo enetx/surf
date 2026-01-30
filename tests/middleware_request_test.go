@@ -43,7 +43,7 @@ func TestMiddlewareRequestUserAgent(t *testing.T) {
 				t.Fatal(resp.Err())
 			}
 
-			body := resp.Ok().Body.String()
+			body := resp.Ok().Body.String().Unwrap()
 			if !strings.Contains(body.Std(), tc.userAgent) && tc.userAgent != "" {
 				t.Errorf("expected user agent %s in response", tc.userAgent)
 			}
@@ -71,7 +71,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 			t.Fatal(resp.Err())
 		}
 
-		body := resp.Ok().Body.String()
+		body := resp.Ok().Body.String().Unwrap()
 		if !strings.Contains(body.Std(), "gString-UserAgent/1.0") {
 			t.Error("expected g.String user agent in response")
 		}
@@ -89,7 +89,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 				t.Fatal(resp.Err())
 			}
 
-			body := resp.Ok().Body.String()
+			body := resp.Ok().Body.String().Unwrap()
 			for _, agent := range userAgents {
 				if strings.Contains(body.Std(), agent) {
 					foundAgents[agent] = true
@@ -112,7 +112,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 			t.Fatal(resp.Err())
 		}
 
-		body := resp.Ok().Body.String()
+		body := resp.Ok().Body.String().Unwrap()
 		hasAgent := strings.Contains(body.Std(), "gSliceAgent1/1.0") ||
 			strings.Contains(body.Std(), "gSliceAgent2/1.0")
 		if !hasAgent {
@@ -129,7 +129,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 			t.Fatal(resp.Err())
 		}
 
-		body := resp.Ok().Body.String()
+		body := resp.Ok().Body.String().Unwrap()
 		hasAgent := strings.Contains(body.Std(), "gStringSliceAgent1/1.0") ||
 			strings.Contains(body.Std(), "gStringSliceAgent2/1.0")
 		if !hasAgent {
@@ -141,7 +141,7 @@ func TestMiddlewareRequestUserAgentTypes(t *testing.T) {
 func TestMiddlewareRequestUserAgentErrors(t *testing.T) {
 	t.Parallel()
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer ts.Close()
@@ -213,7 +213,7 @@ func TestMiddlewareRequestBearerAuth(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if !strings.Contains(body.Std(), "test-token-123") {
 		t.Error("expected token in response")
 	}
@@ -248,7 +248,7 @@ func TestMiddlewareRequestBasicAuth(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if !strings.Contains(body.Std(), "testuser") {
 		t.Error("expected username in response")
 	}
@@ -289,7 +289,7 @@ func TestMiddlewareRequestContentType(t *testing.T) {
 				t.Fatal(resp.Err())
 			}
 
-			body := resp.Ok().Body.String()
+			body := resp.Ok().Body.String().Unwrap()
 			if !strings.Contains(body.Std(), tc.contentType) {
 				t.Errorf("expected content type %s in response", tc.contentType)
 			}
@@ -388,7 +388,7 @@ func TestMiddlewareRequestGot101ResponseEdgeCases(t *testing.T) {
 	client := surf.NewClient()
 
 	// Simple test to verify the middleware doesn't break normal requests
-	handler := func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, "success")
 	}
@@ -407,7 +407,7 @@ func TestMiddlewareRequestGot101ResponseEdgeCases(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != "success" {
 		t.Errorf("expected body 'success', got %s", body.Std())
 	}
@@ -417,7 +417,7 @@ func TestMiddlewareRequestGot101ResponseMiddlewareIntegration(t *testing.T) {
 	t.Parallel()
 
 	// Test the middleware by doing a request with a mock server that fails fast
-	handler := func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, "test")
 	}
@@ -488,7 +488,7 @@ func TestMiddlewareRequestGot101ResponseWithDifferentMethods(t *testing.T) {
 	t.Parallel()
 
 	// Test the middleware by creating a simple handler that just returns OK
-	handler := func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}
 
@@ -580,7 +580,7 @@ func TestMiddlewareRequestDefaultUserAgent(t *testing.T) {
 		t.Error("expected default user agent to be set")
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 	// Should have some user agent
 	if !strings.Contains(body.Std(), "Mozilla") && !strings.Contains(body.Std(), "surf") {
 		t.Log("Default user agent format may have changed")
@@ -623,7 +623,7 @@ func TestMiddlewareRequestHeaders(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Unwrap()
 
 	// Check all headers were sent
 	if !strings.Contains(body.Std(), "X-First") {

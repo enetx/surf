@@ -29,7 +29,7 @@ func main() {
 		Parallel(10).
 		ForEach(func(s g.String) {
 			if r := cli.Get(s).Do(); r.IsOk() {
-				r.Ok().Body.Limit(10).String().Println()
+				r.Ok().Body.Limit(10).String().Unwrap().Println()
 			}
 		})
 
@@ -55,7 +55,7 @@ func main() {
 	//
 	// for r := range pool.Wait() {
 	// 	if r.IsOk() {
-	// 		r.Ok().Body.Limit(10).String().Print()
+	// 		r.Ok().Body.Limit(10).String().Unwrap().Print()
 	// 	}
 	// }
 	//

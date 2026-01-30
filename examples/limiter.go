@@ -13,5 +13,5 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Ok().Body.Limit(10).String())
+	fmt.Println(r.Ok().Body.Limit(10).String().Unwrap())
 }

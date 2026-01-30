@@ -13,5 +13,5 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Ok().Body.MD5())
+	fmt.Println(r.Ok().Body.String().Unwrap().Hash().MD5())
 }

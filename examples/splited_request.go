@@ -12,7 +12,7 @@ func main() {
 	resp := req.Do().Unwrap()
 
 	fmt.Println(resp.StatusCode)
-	fmt.Println(resp.Body.String())
+	fmt.Println(resp.Body.String().Unwrap())
 	fmt.Println(resp.Cookies)
 	fmt.Println(resp.Headers)
 	fmt.Println(resp.URL)

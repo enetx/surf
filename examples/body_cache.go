@@ -20,6 +20,6 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Ok().Body.Limit(10).String())
-	fmt.Println(r.Ok().Body.String()) // print cached body
+	fmt.Println(r.Ok().Body.Limit(10).String().Unwrap())
+	fmt.Println(r.Ok().Body.String().Unwrap()) // print cached body
 }

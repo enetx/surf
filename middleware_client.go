@@ -329,8 +329,8 @@ func h2cMW(client *Client) error {
 	t2.IdleConnTimeout = client.transport.(*http.Transport).IdleConnTimeout
 
 	// Override TLS dial to use plain text connections
-	t2.DialTLSContext = func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
-		return net.Dial(network, addr)
+	t2.DialTLSContext = func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(ctx, network, addr)
 	}
 
 	// Apply HTTP/2 settings if configured

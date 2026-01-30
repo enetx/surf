@@ -50,5 +50,5 @@ PB0KuEzBx1LQzkE8M0MToiGLsR2iK7x1KsWqbf7+5Y2Zqm5qmOfDm+71WnmIprnU
 		log.Fatal(r.Err())
 	}
 
-	fmt.Println(r.Ok().Body.String())
+	fmt.Println(r.Ok().Body.String().Unwrap())
 }

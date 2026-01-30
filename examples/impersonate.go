@@ -53,7 +53,7 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
-	r.Ok().Body.String().Println()
+	r.Ok().Body.String().Unwrap().Println()
 
 	// fmt.Println(r.Ok().Time)
 

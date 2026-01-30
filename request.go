@@ -106,20 +106,14 @@ retry:
 	}
 
 	if req.request.Method != http.MethodHead {
-		body := &Body{
+		response.Body = &Body{
 			Reader:        resp.Body,
 			cache:         builder != nil && builder.cacheBody,
 			contentType:   resp.Header.Get(header.CONTENT_TYPE),
 			contentLength: resp.ContentLength,
 			limit:         -1,
+			ctx:           req.request.Context(),
 		}
-
-		ctx := req.request.Context()
-		if ctx != context.Background() && ctx != context.TODO() {
-			body.ctx = ctx
-		}
-
-		response.Body = body
 	}
 
 	if err := req.cli.applyRespMW(response); err != nil {

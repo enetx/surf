@@ -11,54 +11,107 @@ import (
 	"math"
 	"regexp"
 	"sync"
+	"time"
 
 	"github.com/enetx/g"
 	"github.com/enetx/surf/pkg/sse"
 	"golang.org/x/net/html/charset"
 )
 
-// reader is a wrapper around an io.Reader that supports cancellation via context.Context.
-// It allows blocking read operations to be interrupted if the context is canceled or times out.
-type reader struct {
-	r   io.Reader       // The underlying data source
-	ctx context.Context // Context used for canceling the read
-}
-
-// Read reads data from the internal io.Reader into the provided buffer p.
-// If the context ctx is canceled, Read immediately returns ctx.Err().
-// Otherwise, it behaves like a normal io.Reader, returning the number of bytes read
-// and any read error encountered.
-func (c *reader) Read(p []byte) (int, error) {
-	select {
-	case <-c.ctx.Done():
-		return 0, c.ctx.Err()
-	default:
-		return c.r.Read(p)
-	}
-}
-
 // Body represents an HTTP response body with enhanced functionality and automatic caching.
 // Provides convenient methods for parsing common data formats (JSON, XML, text) and includes
 // features like automatic decompression, content caching, character set detection, and size limits.
 type Body struct {
-	content       g.Bytes         // Cached body content (populated when cache is enabled)
-	contentType   string          // MIME content type from Content-Type header
-	ctx           context.Context // Context associated with this Body
-	Reader        io.ReadCloser   // ReadCloser for accessing the raw body content
-	once          sync.Once       // Ensures the body is read and cached exactly once
-	contentLength int64           // Content length in bytes from Content-Length header (-1 if unknown)
-	limit         int64           // Maximum allowed body size in bytes (-1 for unlimited)
-	cache         bool            // Whether to cache the body content in memory for reuse
+	// Cached body content.
+	// Populated only when cache == true and the body has been read.
+	// Uses g.Result to store either the bytes or an error.
+	content g.Result[g.Bytes]
+
+	// MIME content type extracted from the Content-Type response header.
+	// Used for charset detection and UTF-8 conversion.
+	contentType string
+
+	// Context associated with this body.
+	// Used to support cancellation of read operations.
+	ctx context.Context
+
+	// Underlying body reader (usually http.Response.Body).
+	// Provides access to the raw response stream.
+	Reader io.ReadCloser
+
+	// Ensures the body is read and cached exactly once when cache == true.
+	// Prevents duplicate reads of the underlying stream.
+	readOnce sync.Once
+
+	// Ensures the underlying reader is closed exactly once.
+	// Protects against multiple Close() calls.
+	closeOnce sync.Once
+
+	// Ensures context cancellation monitoring is set up only once.
+	// Prevents spawning multiple goroutines for the same body.
+	setupOnce sync.Once
+
+	// Content length in bytes as reported by the Content-Length header.
+	// A value of -1 means the length is unknown.
+	contentLength int64
+
+	// Maximum allowed body size in bytes.
+	// A value of -1 means no limit (unbounded).
+	limit int64
+
+	// Enables in-memory caching of the body content.
+	// When true, the body can be read multiple times via Bytes(), String(), JSON(), etc.
+	cache bool
+
+	// Channel used to signal cancellation of an ongoing read operation.
+	// Closed when the body is closed or the context is done.
+	cancelRead chan g.Unit
+}
+
+// setupContextCancel initializes context cancellation monitoring.
+func (b *Body) setupContextCancel() {
+	b.setupOnce.Do(func() {
+		if b.ctx == nil || b.Reader == nil {
+			return
+		}
+
+		conn, ok := b.Reader.(interface{ SetReadDeadline(time.Time) error })
+		if !ok {
+			return
+		}
+
+		b.cancelRead = make(chan g.Unit)
+
+		go func() {
+			select {
+			case <-b.ctx.Done():
+				conn.SetReadDeadline(time.Now().Add(-time.Second))
+			case <-b.cancelRead:
+			}
+		}()
+	})
+}
+
+// checkContext returns context error if context is cancelled.
+func (b *Body) checkContext() error {
+	if b.ctx != nil {
+		return b.ctx.Err()
+	}
+
+	return nil
 }
 
 // Bytes returns the body's content as a byte slice.
-func (b *Body) Bytes() g.Bytes {
+func (b *Body) Bytes() g.Result[g.Bytes] {
 	if b == nil {
-		return g.Bytes{}
+		return g.Err[g.Bytes](errors.New("body is nil"))
 	}
 
 	if b.cache {
-		b.once.Do(func() { b.content = b.read() })
+		b.readOnce.Do(func() {
+			b.content = b.read()
+		})
+
 		return b.content
 	}
 
@@ -69,17 +122,18 @@ func (b *Body) Bytes() g.Bytes {
 // It closes the underlying reader when finished. If a context is provided,
 // reading will be canceled if the context is done.
 // The read is limited by b.limit (if -1, unlimited), and io.LimitReader ensures the size limit.
-func (b *Body) read() g.Bytes {
+func (b *Body) read() g.Result[g.Bytes] {
 	if b.Reader == nil {
-		return g.Bytes{}
+		return g.Err[g.Bytes](errors.New("body reader is nil"))
 	}
 
 	defer b.Close()
 
-	var r io.Reader = b.Reader
-	if b.ctx != nil {
-		r = &reader{ctx: b.ctx, r: b.Reader}
+	if err := b.checkContext(); err != nil {
+		return g.Err[g.Bytes](err)
 	}
+
+	b.setupContextCancel()
 
 	limit := b.limit
 	if limit == -1 {
@@ -93,42 +147,87 @@ func (b *Body) read() g.Bytes {
 		buf.Grow(16384)
 	}
 
-	io.Copy(buf, io.LimitReader(r, limit))
-	return buf.Bytes()
+	_, err := io.Copy(buf, io.LimitReader(b.Reader, limit))
+	if err != nil {
+		return g.Err[g.Bytes](err)
+	}
+
+	return g.Ok[g.Bytes](buf.Bytes())
 }
 
-// MD5 returns the MD5 hash of the body's content as a g.String.
-func (b *Body) MD5() g.String { return b.String().Hash().MD5() }
-
 // XML decodes the body's content as XML into the provided data structure.
-func (b *Body) XML(data any) error { return xml.Unmarshal(b.Bytes(), data) }
+func (b *Body) XML(data any) error {
+	r := b.Bytes()
+	if r.IsErr() {
+		return r.Err()
+	}
+
+	return xml.Unmarshal(r.Ok(), data)
+}
 
 // JSON decodes the body's content as JSON into the provided data structure.
-func (b *Body) JSON(data any) error { return json.Unmarshal(b.Bytes(), data) }
+func (b *Body) JSON(data any) error {
+	r := b.Bytes()
+	if r.IsErr() {
+		return r.Err()
+	}
+
+	return json.Unmarshal(r.Ok(), data)
+}
 
 // Stream returns a bufio.Reader for streaming the body content.
 // IMPORTANT: Call this method once and reuse the returned reader.
 // Each call creates a new bufio.Reader; calling repeatedly in a loop will lose buffered data.
-func (b *Body) Stream() *bufio.Reader {
+func (b *Body) Stream() *StreamReader {
 	if b == nil || b.Reader == nil {
 		return nil
 	}
 
-	var r io.Reader = b.Reader
-	if b.ctx != nil {
-		r = &reader{ctx: b.ctx, r: b.Reader}
-	}
+	b.setupContextCancel()
 
-	return bufio.NewReader(r)
+	return &StreamReader{
+		Reader: bufio.NewReader(b.Reader),
+		body:   b,
+	}
+}
+
+// StreamReader wraps bufio.Reader with Close support.
+type StreamReader struct {
+	*bufio.Reader
+	body *Body
+}
+
+// Close closes the underlying body.
+func (s *StreamReader) Close() error {
+	if s.body != nil {
+		return s.body.Close()
+	}
+	return nil
 }
 
 // SSE reads the body's content as Server-Sent Events (SSE) and calls the provided function for each event.
 // It expects the function to take an *sse.Event pointer as its argument and return a boolean value.
 // If the function returns false, the SSE reading stops.
-func (b *Body) SSE(fn func(event *sse.Event) bool) error { return sse.Read(b.Stream(), fn) }
+func (b *Body) SSE(fn func(event *sse.Event) bool) error {
+	stream := b.Stream()
+	if stream == nil {
+		return errors.New("sse: body is empty")
+	}
+
+	defer stream.Close()
+
+	return sse.Read(stream.Reader, fn)
+}
 
 // String returns the body's content as a g.String.
-func (b *Body) String() g.String { return b.Bytes().String() }
+func (b *Body) String() g.Result[g.String] {
+	r := b.Bytes()
+	if r.IsErr() {
+		return g.Err[g.String](r.Err())
+	}
+
+	return g.Ok(r.Ok().String())
+}
 
 // Limit sets the body's size limit and returns the modified body.
 func (b *Body) Limit(limit int64) *Body {
@@ -140,42 +239,68 @@ func (b *Body) Limit(limit int64) *Body {
 }
 
 // Close closes the body and returns any error encountered.
+// It drains remaining data for connection reuse, but respects context cancellation.
 func (b *Body) Close() error {
 	if b == nil || b.Reader == nil {
 		return nil
 	}
 
-	io.Copy(io.Discard, b.Reader)
-	return b.Reader.Close()
+	var err error
+
+	b.closeOnce.Do(func() {
+		if b.cancelRead != nil {
+			close(b.cancelRead)
+		}
+
+		if b.ctx == nil || b.ctx.Err() == nil {
+			io.CopyN(io.Discard, b.Reader, 256*1024)
+		}
+
+		err = b.Reader.Close()
+	})
+
+	return err
 }
 
 // UTF8 converts the body's content to UTF-8 encoding and returns it as a string.
-func (b *Body) UTF8() g.String {
+func (b *Body) UTF8() g.Result[g.String] {
 	if b == nil {
-		return ""
+		return g.Err[g.String](errors.New("body is nil"))
 	}
 
-	reader, err := charset.NewReader(b.Bytes().Reader(), b.contentType)
+	r := b.Bytes()
+	if r.IsErr() {
+		return g.Err[g.String](r.Err())
+	}
+
+	reader, err := charset.NewReader(r.Ok().Reader(), b.contentType)
 	if err != nil {
-		return b.String()
+		return g.Err[g.String](err)
 	}
 
 	content, err := io.ReadAll(reader)
 	if err != nil {
-		return b.String()
+		return g.Err[g.String](err)
 	}
 
-	return g.String(content)
+	return g.Ok(g.String(content))
 }
 
 // Dump dumps the body's content to a file with the given filename.
 func (b *Body) Dump(filename g.String) error {
 	if b == nil || b.Reader == nil {
-		return errors.New("cannot dump: body is empty or contains no content")
+		return errors.New("body reader is nil")
 	}
 
-	if b.cache && b.content != nil {
-		return g.NewFile(filename).Write(b.content.String()).Err()
+	if b.cache {
+		content := b.Bytes()
+		if content.IsErr() {
+			return content.Err()
+		}
+
+		if !content.Ok().IsEmpty() {
+			return g.NewFile(filename).Write(content.Ok().String()).Err()
+		}
 	}
 
 	defer b.Close()
@@ -190,17 +315,22 @@ func (b *Body) Contains(pattern any) bool {
 		return false
 	}
 
+	r := b.Bytes()
+	if r.IsErr() {
+		return false
+	}
+
 	switch p := pattern.(type) {
 	case []byte:
-		return b.Bytes().Lower().Contains(g.Bytes(p).Lower())
+		return r.Ok().Lower().Contains(g.Bytes(p).Lower())
 	case g.Bytes:
-		return b.Bytes().Lower().Contains(p.Lower())
+		return r.Ok().Lower().Contains(p.Lower())
 	case string:
-		return b.String().Lower().Contains(g.String(p).Lower())
+		return r.Ok().String().Lower().Contains(g.String(p).Lower())
 	case g.String:
-		return b.String().Lower().Contains(p.Lower())
+		return r.Ok().String().Lower().Contains(p.Lower())
 	case *regexp.Regexp:
-		return b.String().Regexp().Match(p)
+		return r.Ok().String().Regexp().Match(p)
 	}
 
 	return false

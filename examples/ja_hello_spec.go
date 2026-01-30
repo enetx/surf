@@ -119,5 +119,5 @@ func main() {
 	//   "akamai_hash": "cbcbfae223bb97a0cc79109588321a5c",
 	//   "peetprint_hash": "618e6b31ed28ba8b6ecd19f29fc8de50"
 
-	r.Ok().Body.String().Print()
+	r.Ok().Body.String().Unwrap().Print()
 }

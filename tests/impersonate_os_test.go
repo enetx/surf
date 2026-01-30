@@ -80,7 +80,7 @@ func TestImpersonateOSIntegration(t *testing.T) {
 				t.Errorf("%s: expected success, got %d", tc.name, resp.Ok().StatusCode)
 			}
 
-			body := resp.Ok().Body.String().Std()
+			body := resp.Ok().Body.String().Unwrap().Std()
 			if !strings.Contains(body, tc.expectedUA) {
 				t.Logf("%s: Expected user agent to contain '%s', got: %s",
 					tc.name, tc.expectedUA, body)
@@ -153,7 +153,7 @@ func TestImpersonateOSMobileVsDesktop(t *testing.T) {
 				t.Errorf("%s: expected success, got %d", tc.name, resp.Ok().StatusCode)
 			}
 
-			body := resp.Ok().Body.String().Std()
+			body := resp.Ok().Body.String().Unwrap().Std()
 			if !strings.Contains(body, tc.expectedUA) {
 				t.Logf("%s: Expected to find '%s' in response: %s",
 					tc.name, tc.expectedUA, body)
@@ -215,7 +215,7 @@ func TestImpersonateOSBrowserEngineIdentifiers(t *testing.T) {
 				t.Fatalf("%s request failed: %v", tc.name, resp.Err())
 			}
 
-			body := resp.Ok().Body.String().Std()
+			body := resp.Ok().Body.String().Unwrap().Std()
 			if !strings.Contains(body, tc.expected) {
 				t.Logf("%s: Expected to find '%s' in user agent: %s",
 					tc.name, tc.expected, body)

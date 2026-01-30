@@ -19,5 +19,5 @@ Connection: close`
 		log.Fatal(r.Err())
 	}
 
-	r.Ok().Body.String().Print()
+	r.Ok().Body.String().Unwrap().Print()
 }

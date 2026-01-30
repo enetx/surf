@@ -9,6 +9,7 @@ import (
 func main() {
 	r := surf.NewClient().
 		Builder().
+		Impersonate().Chrome().
 		NotFollowRedirects().
 		Build().
 		Unwrap().

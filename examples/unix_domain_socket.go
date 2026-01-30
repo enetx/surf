@@ -17,5 +17,5 @@ func main() {
 		Get("http://localhost/v1.41/containers/json").
 		Do()
 
-	fmt.Println(r.Unwrap().Body.String())
+	fmt.Println(r.Unwrap().Body.String().Unwrap())
 }

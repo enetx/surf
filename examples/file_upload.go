@@ -17,7 +17,7 @@ func main() {
 	// without physical file
 	surf.NewClient().
 		FileUpload(URL, "filefield", "info.txt", "Hello from surf!").
-		Do().Unwrap().Body.String().Print()
+		Do().Unwrap().Body.String().Unwrap().Print()
 
 	// with multipart data
 	multipartData := g.NewMapOrd[string, string]()

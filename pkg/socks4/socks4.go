@@ -2,11 +2,13 @@ package socks4
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"io"
 	"net"
 	"net/url"
 	"strconv"
+	"time"
 
 	"golang.org/x/net/proxy"
 )
@@ -41,13 +43,19 @@ type socks4 struct {
 	dialer proxy.Dialer
 }
 
-// Dial implements proxy.Dialer interface
-func (s socks4) Dial(network, addr string) (c net.Conn, err error) {
+// DialContext implements proxy.ContextDialer interface
+func (s socks4) DialContext(ctx context.Context, network, addr string) (c net.Conn, err error) {
 	if network != "tcp" && network != "tcp4" {
 		return nil, new(ErrWrongNetwork)
 	}
 
-	c, err = s.dialer.Dial(network, s.url.Host)
+	// Use context-aware dialer if available
+	if cd, ok := s.dialer.(proxy.ContextDialer); ok {
+		c, err = cd.DialContext(ctx, network, s.url.Host)
+	} else {
+		c, err = s.dialer.Dial(network, s.url.Host)
+	}
+
 	if err != nil {
 		return nil, &ErrDialFailed{err}
 	}
@@ -59,6 +67,17 @@ func (s socks4) Dial(network, addr string) (c net.Conn, err error) {
 		}
 	}()
 
+	// Set deadline from context
+	if deadline, ok := ctx.Deadline(); ok {
+		c.SetDeadline(deadline)
+		defer c.SetDeadline(time.Time{})
+	}
+
+	// Check context before handshake
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	host, port, err := s.parseAddr(addr)
 	if err != nil {
 		return nil, &ErrWrongAddr{addr, err}
@@ -66,7 +85,7 @@ func (s socks4) Dial(network, addr string) (c net.Conn, err error) {
 
 	ip := net.IPv4(0, 0, 0, 1)
 	if !s.isSocks4a() {
-		if ip, err = s.lookupAddr(host); err != nil {
+		if ip, err = s.lookupAddr(ctx, host); err != nil {
 			return nil, &ErrHostUnknown{host, err}
 		}
 	}
@@ -104,13 +123,25 @@ func (s socks4) Dial(network, addr string) (c net.Conn, err error) {
 	}
 }
 
-func (s socks4) lookupAddr(host string) (net.IP, error) {
-	ip, err := net.ResolveIPAddr("ip4", host)
+// Dial implements proxy.Dialer interface
+func (s socks4) Dial(network, addr string) (net.Conn, error) {
+	return s.DialContext(context.Background(), network, addr)
+}
+
+func (s socks4) lookupAddr(ctx context.Context, host string) (net.IP, error) {
+	resolver := net.DefaultResolver
+	ips, err := resolver.LookupIPAddr(ctx, host)
 	if err != nil {
 		return net.IP{}, err
 	}
 
-	return ip.IP.To4(), nil
+	for _, ip := range ips {
+		if v4 := ip.IP.To4(); v4 != nil {
+			return v4, nil
+		}
+	}
+
+	return net.IP{}, &net.DNSError{Err: "no IPv4 address", Name: host}
 }
 
 func (s socks4) isSocks4a() bool {

@@ -250,7 +250,7 @@ func TestClientContextCancellation(t *testing.T) {
 	defer cancel()
 
 	req := client.Get(g.String(ts.URL))
-	req.GetRequest().WithContext(ctx)
+	req.WithContext(ctx)
 	resp := req.Do()
 	if !resp.IsErr() {
 		t.Log("Expected request to be cancelled, but it succeeded")
@@ -287,7 +287,7 @@ func TestClientRedirects(t *testing.T) {
 		t.Errorf("expected success after redirect, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !body.Contains("final destination") {
 		t.Errorf("expected 'final destination', got %s", body)
 	}

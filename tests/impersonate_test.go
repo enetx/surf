@@ -43,7 +43,7 @@ func TestImpersonateChrome(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Chrome") {
 		t.Error("expected Chrome user agent to be applied")
 	}
@@ -81,7 +81,7 @@ func TestImpersonateFirefox(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Firefox") {
 		t.Error("expected Firefox user agent to be applied")
 	}
@@ -119,7 +119,7 @@ func TestImpersonateWithOS(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Chrome") {
 		t.Error("expected Chrome user agent to be applied")
 	}
@@ -160,7 +160,7 @@ func TestImpersonateMacOS(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Chrome") {
 		t.Error("expected Chrome user agent to be applied")
 	}
@@ -197,7 +197,7 @@ func TestImpersonateLinux(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Chrome") {
 		t.Error("expected Chrome user agent to be applied")
 	}
@@ -234,7 +234,7 @@ func TestImpersonateAndroid(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Chrome") {
 		t.Error("expected Chrome user agent to be applied")
 	}
@@ -271,7 +271,7 @@ func TestImpersonateIOS(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	// For iOS impersonation, expect either Safari or iOS/iPhone in the user agent
 	if !strings.Contains(body.Std(), "Safari") && !strings.Contains(body.Std(), "iPhone") &&
 		!strings.Contains(body.Std(), "iOS") {
@@ -311,7 +311,7 @@ func TestImpersonateRandomOS(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	// RandomOS can select any OS, so just verify that some user agent was set
 	if body.Std() == "" {
 		t.Error("expected user agent to be set")
@@ -352,7 +352,7 @@ func TestImpersonateWithCustomHeaders(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Chrome") {
 		t.Error("expected Chrome user agent to be applied")
 	}
@@ -598,7 +598,7 @@ func TestImpersonateChromeTransportConfiguration(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if body.Std() != "Success" {
 		t.Errorf("expected body 'Success', got: %s", body.Std())
 	}
@@ -672,7 +672,7 @@ func TestImpersonateFirefoxPrivate(t *testing.T) {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
 	}
 
-	body := resp.Ok().Body.String()
+	body := resp.Ok().Body.String().Ok()
 	if !strings.Contains(body.Std(), "Firefox") {
 		t.Error("expected Firefox user agent to be applied")
 	}

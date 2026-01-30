@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -412,9 +413,9 @@ func TestProxyDialerHTTPSWithTLS(t *testing.T) {
 		t.Fatal("expected dialer but got nil")
 	}
 
-	// Test custom DialTLS function
+	// Test custom DialTLSContext function
 	customDialTLSCalled := false
-	dialer.DialTLS = func(network, address string) (net.Conn, string, error) {
+	dialer.DialTLSContext = func(_ context.Context, network, address string) (net.Conn, string, error) {
 		customDialTLSCalled = true
 		return nil, "", net.ErrClosed // Return error to avoid actual connection
 	}
@@ -424,14 +425,14 @@ func TestProxyDialerHTTPSWithTLS(t *testing.T) {
 
 	_, err = dialer.DialContext(ctx, "tcp", "localhost:80")
 
-	// Should have called our custom DialTLS
+	// Should have called our custom DialTLSContext
 	if !customDialTLSCalled {
-		t.Error("expected custom DialTLS to be called")
+		t.Error("expected custom DialTLSContext to be called")
 	}
 
 	// Should get error from our custom function
 	if err == nil {
-		t.Error("expected error from custom DialTLS")
+		t.Error("expected error from custom DialTLSContext")
 	}
 }
 
@@ -1169,5 +1170,338 @@ func TestProxyErrorMessageHandling(t *testing.T) {
 		} else {
 			t.Logf("Got proxy error: %v", err)
 		}
+	}
+}
+
+// TestSOCKS4ContextCancellation tests that SOCKS4 dial respects context cancellation.
+// SOCKS4 doesn't natively support context, so the dialer wraps it with cancellation support.
+func TestSOCKS4ContextCancellation(t *testing.T) {
+	t.Parallel()
+
+	// Create SOCKS4 dialer (SOCKS4 doesn't support ContextDialer interface)
+	dialer, err := connectproxy.NewDialer("socks4://127.0.0.1:65535")
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	// Create context that cancels immediately
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // Cancel immediately
+
+	start := time.Now()
+	_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:80")
+	elapsed := time.Since(start)
+
+	// Should return quickly with context.Canceled error
+	if err == nil {
+		t.Error("expected error due to cancelled context")
+	}
+
+	if err != context.Canceled {
+		t.Logf("Got error: %v (expected context.Canceled)", err)
+	}
+
+	// Should return quickly, not wait for connection timeout
+	if elapsed > 1*time.Second {
+		t.Errorf("context cancellation took too long: %v", elapsed)
+	}
+}
+
+// TestSOCKS4ContextTimeout tests that SOCKS4 dial respects context timeout.
+func TestSOCKS4ContextTimeout(t *testing.T) {
+	t.Parallel()
+
+	dialer, err := connectproxy.NewDialer("socks4://127.0.0.1:65535")
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	// Create context with very short timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:80")
+	elapsed := time.Since(start)
+
+	// Should return with error
+	if err == nil {
+		t.Error("expected error due to context timeout")
+	}
+
+	// Should return around the timeout duration
+	if elapsed > 500*time.Millisecond {
+		t.Errorf("context timeout took too long: %v", elapsed)
+	}
+}
+
+// TestDialTLSContextCancellation tests that custom DialTLSContext receives context and can handle cancellation.
+func TestDialTLSContextCancellation(t *testing.T) {
+	t.Parallel()
+
+	dialer, err := connectproxy.NewDialer("https://127.0.0.1:8443")
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	// Set custom DialTLSContext that respects context cancellation
+	dialStarted := make(chan struct{})
+	dialer.DialTLSContext = func(ctx context.Context, network, address string) (net.Conn, string, error) {
+		close(dialStarted)
+		// Wait for context cancellation (simulating slow TLS handshake that respects context)
+		<-ctx.Done()
+		return nil, "", ctx.Err()
+	}
+
+	// Create context that cancels after short delay
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:443")
+	elapsed := time.Since(start)
+
+	// Wait for dial to start
+	select {
+	case <-dialStarted:
+	case <-time.After(1 * time.Second):
+		t.Fatal("DialTLSContext was not called")
+	}
+
+	// Should return with context error
+	if err == nil {
+		t.Error("expected error due to context cancellation")
+	}
+
+	if err != context.DeadlineExceeded {
+		t.Logf("Got error: %v (expected context.DeadlineExceeded)", err)
+	}
+
+	// Should return around the context timeout
+	if elapsed > 500*time.Millisecond {
+		t.Errorf("context cancellation took too long: %v", elapsed)
+	}
+
+	t.Logf("DialTLSContext cancellation completed in %v", elapsed)
+}
+
+// TestHTTP1ContextCancellation tests that HTTP/1.1 CONNECT respects context cancellation.
+func TestHTTP1ContextCancellation(t *testing.T) {
+	t.Parallel()
+
+	// Create a mock proxy that accepts connection but delays response
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to create listener: %v", err)
+	}
+	defer listener.Close()
+
+	proxyAddr := listener.Addr().String()
+
+	// Start slow proxy server
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			go func(c net.Conn) {
+				defer c.Close()
+				// Read request but delay response
+				buf := make([]byte, 1024)
+				c.Read(buf)
+				// Delay response to simulate slow proxy
+				time.Sleep(5 * time.Second)
+				c.Write([]byte("HTTP/1.1 200 Connection established\r\n\r\n"))
+			}(conn)
+		}
+	}()
+
+	dialer, err := connectproxy.NewDialer("http://" + proxyAddr)
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	// Create context with short timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:443")
+	elapsed := time.Since(start)
+
+	// Should return with error
+	if err == nil {
+		t.Error("expected error due to context timeout")
+	}
+
+	// Should return around the timeout, not wait for slow proxy response
+	if elapsed > 500*time.Millisecond {
+		t.Errorf("context cancellation in HTTP/1.1 CONNECT took too long: %v", elapsed)
+	}
+
+	t.Logf("HTTP/1.1 context cancellation completed in %v with error: %v", elapsed, err)
+}
+
+// TestConcurrentDialContext tests that concurrent DialContext calls are safe.
+// This tests the sync.Once protection for tr2 (HTTP/2 transport).
+func TestConcurrentDialContext(t *testing.T) {
+	t.Parallel()
+
+	dialer, err := connectproxy.NewDialer("http://127.0.0.1:65535")
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	const numGoroutines = 10
+	done := make(chan struct{})
+	errors := make(chan error, numGoroutines)
+
+	// Launch multiple concurrent DialContext calls
+	for i := 0; i < numGoroutines; i++ {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+			defer cancel()
+
+			_, err := dialer.DialContext(ctx, "tcp", "127.0.0.1:80")
+			errors <- err
+			done <- struct{}{}
+		}()
+	}
+
+	// Wait for all goroutines to complete
+	for i := 0; i < numGoroutines; i++ {
+		select {
+		case <-done:
+		case <-time.After(2 * time.Second):
+			t.Fatal("concurrent DialContext timed out")
+		}
+	}
+
+	// All should have returned errors (proxy unavailable)
+	close(errors)
+	for err := range errors {
+		if err == nil {
+			t.Error("expected error for unavailable proxy")
+		}
+	}
+}
+
+// TestSetResolver tests the custom DNS resolver functionality.
+func TestSetResolver(t *testing.T) {
+	t.Parallel()
+
+	dialer, err := connectproxy.NewDialer("http://127.0.0.1:8080")
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	// Create custom resolver
+	resolver := &net.Resolver{
+		PreferGo: true,
+	}
+
+	// Set the resolver
+	dialer.SetResolver(resolver)
+
+	// Verify resolver was set
+	if dialer.Dialer.Resolver != resolver {
+		t.Error("expected resolver to be set")
+	}
+}
+
+// TestSetResolverWithDial tests that custom resolver is used during dial.
+func TestSetResolverWithDial(t *testing.T) {
+	t.Parallel()
+
+	dialer, err := connectproxy.NewDialer("http://127.0.0.1:65535")
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	// Create custom resolver that tracks calls (using atomic for race safety)
+	var resolved atomic.Bool
+	customResolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			resolved.Store(true)
+			// Return error to prevent actual DNS lookup
+			return nil, &net.DNSError{Err: "custom resolver", Name: address, IsNotFound: true}
+		},
+	}
+
+	dialer.SetResolver(customResolver)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	// Try to dial with hostname (not IP) to trigger DNS resolution
+	_, _ = dialer.DialContext(ctx, "tcp", "example.com:80")
+
+	// The resolver's Dial function should have been called for DNS
+	// Note: This may not be called if the proxy connection fails first
+	t.Logf("Custom resolver Dial was called: %v", resolved.Load())
+}
+
+// TestHTTP2ConnectionReuse tests HTTP/2 connection reuse and error handling.
+func TestHTTP2ConnectionReuse(t *testing.T) {
+	t.Parallel()
+
+	// This test verifies that h2Conn/conn are properly reset on errors
+	dialer, err := connectproxy.NewDialer("https://127.0.0.1:65535")
+	if err != nil {
+		t.Fatalf("failed to create dialer: %v", err)
+	}
+
+	// Multiple sequential calls should not panic or deadlock
+	for i := 0; i < 3; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		_, err := dialer.DialContext(ctx, "tcp", "127.0.0.1:443")
+		cancel()
+
+		if err == nil {
+			t.Errorf("iteration %d: expected error for unavailable proxy", i)
+		}
+	}
+}
+
+// TestDialContextWithImmediateCancellation tests immediate context cancellation.
+func TestDialContextWithImmediateCancellation(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		proxyURL string
+	}{
+		{"HTTP proxy", "http://127.0.0.1:65535"},
+		{"HTTPS proxy", "https://127.0.0.1:65535"},
+		{"SOCKS4 proxy", "socks4://127.0.0.1:65535"},
+		{"SOCKS5 proxy", "socks5://127.0.0.1:65535"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			dialer, err := connectproxy.NewDialer(tc.proxyURL)
+			if err != nil {
+				t.Fatalf("failed to create dialer: %v", err)
+			}
+
+			// Cancel context before dial
+			ctx, cancel := context.WithCancel(context.Background())
+			cancel()
+
+			start := time.Now()
+			_, err = dialer.DialContext(ctx, "tcp", "127.0.0.1:80")
+			elapsed := time.Since(start)
+
+			if err == nil {
+				t.Error("expected error for cancelled context")
+			}
+
+			// Should return very quickly
+			if elapsed > 500*time.Millisecond {
+				t.Errorf("cancelled context dial took too long: %v", elapsed)
+			}
+		})
 	}
 }
