@@ -81,6 +81,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	if err == nil {
 		return resp, nil
 	}
+	h2Err := err
 
 	// HTTP/2 failed - fallback to HTTP/1.1
 	if err := req.Context().Err(); err != nil {
@@ -101,7 +102,12 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	// Retry with HTTP/1.1
-	return rt.http1trFallback.RoundTrip(req)
+	resp, err = rt.http1trFallback.RoundTrip(req)
+	if err != nil {
+		return nil, &ErrHTTP2Fallback{HTTP2: h2Err, HTTP1: err}
+	}
+
+	return resp, nil
 }
 
 // CloseIdleConnections closes all idle connections.
