@@ -92,8 +92,8 @@ func TestRoundTripperHTTP2FallbackErrorPreservesHTTP2Error(t *testing.T) {
 	}
 
 	var se http2.StreamError
-	if !errors.As(err, &se) {
-		t.Fatalf("expected to preserve the HTTP/2 stream error, got %T: %v", err, err)
+	if !errors.As(fb.HTTP2, &se) {
+		t.Fatalf("expected HTTP/2 error to be http2.StreamError, got %T: %v", fb.HTTP2, fb.HTTP2)
 	}
 	if se.Code != http2.ErrCodeInternal {
 		t.Fatalf("expected HTTP/2 INTERNAL_ERROR, got %v", se.Code)
