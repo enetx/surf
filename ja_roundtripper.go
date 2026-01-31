@@ -81,6 +81,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	if err == nil {
 		return resp, nil
 	}
+
 	h2Err := err
 
 	// HTTP/2 failed - fallback to HTTP/1.1
