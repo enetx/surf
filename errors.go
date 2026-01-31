@@ -24,8 +24,8 @@ type (
 	// ErrHTTP2Fallback indicates that an HTTPS request attempted HTTP/2 first,
 	// then tried to fall back to HTTP/1.1, but both attempts failed.
 	//
-	// The wrapped (Unwrap) error is the original HTTP/2 failure so callers don't
-	// accidentally treat the overall failure as a timeout coming from the fallback.
+	// Both underlying errors are accessible via Unwrap, enabling
+	// errors.Is and errors.As to match against either the HTTP/2 or HTTP/1.1 failure.
 	ErrHTTP2Fallback struct {
 		HTTP2 error
 		HTTP1 error
@@ -48,4 +48,4 @@ func (e *ErrHTTP2Fallback) Error() string {
 	return fmt.Sprintf("surf: HTTP/2 request failed: %v; HTTP/1.1 fallback failed: %v", e.HTTP2, e.HTTP1)
 }
 
-func (e *ErrHTTP2Fallback) Unwrap() error { return e.HTTP2 }
+func (e *ErrHTTP2Fallback) Unwrap() []error { return []error{e.HTTP2, e.HTTP1} }
