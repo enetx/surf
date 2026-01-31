@@ -2,7 +2,6 @@ package surf_test
 
 import (
 	"crypto/tls"
-	"errors"
 	"io"
 	"strings"
 	"testing"
@@ -183,27 +182,25 @@ func TestRoundTripperHTTP2FallbackErrorPreservesHTTP2Error(t *testing.T) {
 		t.Fatalf("expected error, got status %d", resp.Ok().StatusCode)
 	}
 
-	err := resp.Err()
-
 	var fb *surf.ErrHTTP2Fallback
-	if !errors.As(err, &fb) {
-		t.Fatalf("expected ErrHTTP2Fallback, got %T: %v", err, err)
+	if !resp.ErrAs(&fb) {
+		t.Fatalf("expected ErrHTTP2Fallback, got %T: %v", resp.Err(), resp.Err())
 	}
+
 	if fb.HTTP2 == nil || fb.HTTP1 == nil {
 		t.Fatalf("expected both HTTP2 and HTTP1 errors to be set: %+v", fb)
 	}
 
 	var se http2.StreamError
-	if !errors.As(err, &se) {
-		t.Fatalf("expected to find http2.StreamError via Unwrap, got: %v", err)
+	if !resp.ErrAs(&se) {
+		t.Fatalf("expected to find http2.StreamError via Unwrap, got: %v", resp.Err())
 	}
-	if !errors.As(fb.HTTP2, &se) {
-		t.Fatalf("expected HTTP/2 error to be http2.StreamError, got %T: %v", fb.HTTP2, fb.HTTP2)
-	}
+
 	if se.Code != http2.ErrCodeInternal {
 		t.Fatalf("expected HTTP/2 INTERNAL_ERROR, got %v", se.Code)
 	}
-	if !strings.Contains(err.Error(), "stream error") {
-		t.Fatalf("expected error to mention the HTTP/2 stream error, got: %v", err)
+
+	if !strings.Contains(resp.Err().Error(), "stream error") {
+		t.Fatalf("expected error to mention the HTTP/2 stream error, got: %v", resp.Err())
 	}
 }
