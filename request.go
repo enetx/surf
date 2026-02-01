@@ -65,7 +65,7 @@ func (req *Request) prepareMultipart() {
 	pr, contentType := req.multipart.prepareWriter(req.cli.boundary)
 
 	req.request.Body = pr
-	req.request.Header.Set("Content-Type", contentType)
+	req.request.Header.Set(header.CONTENT_TYPE, contentType)
 }
 
 // Do executes the HTTP request and returns a Response wrapped in a Result type.
