@@ -62,7 +62,11 @@ func (req *Request) prepareMultipart() {
 		return
 	}
 
-	pr, contentType := req.multipart.prepareWriter(req.cli.boundary)
+	pr, contentType, err := req.multipart.prepareWriter(req.cli.boundary)
+	if err != nil {
+		req.err = err
+		return
+	}
 
 	req.request.Body = pr
 	req.request.Header.Set(header.CONTENT_TYPE, contentType)

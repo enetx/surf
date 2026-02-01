@@ -109,7 +109,7 @@ func (m *Multipart) FileName(name g.String) *Multipart {
 }
 
 // prepareWriter writes the multipart data to a writer and returns the content type and write error.
-func (m *Multipart) prepareWriter(boundary func() g.String) (io.ReadCloser, string) {
+func (m *Multipart) prepareWriter(boundary func() g.String) (io.ReadCloser, string, error) {
 	pr, pw := io.Pipe()
 	writer := multipart.NewWriter(pw)
 
@@ -117,7 +117,7 @@ func (m *Multipart) prepareWriter(boundary func() g.String) (io.ReadCloser, stri
 		if err := writer.SetBoundary(boundary().Std()); err != nil {
 			_ = pw.CloseWithError(err)
 			_ = pr.Close()
-			return nil, ""
+			return nil, "", err
 		}
 	}
 
@@ -189,7 +189,7 @@ func (m *Multipart) prepareWriter(boundary func() g.String) (io.ReadCloser, stri
 		pw.CloseWithError(err)
 	}()
 
-	return pr, writer.FormDataContentType()
+	return pr, writer.FormDataContentType(), nil
 }
 
 func escapeQuotes(s g.String) string { return s.ReplaceMulti(`\`, `\\`, `"`, `\"`).Std() }
