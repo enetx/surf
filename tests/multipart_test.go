@@ -684,7 +684,6 @@ func TestMultipartWithImpersonate(t *testing.T) {
 	}
 }
 
-
 func TestMultipartAndBodyMutuallyExclusive(t *testing.T) {
 	t.Parallel()
 

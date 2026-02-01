@@ -7,8 +7,6 @@ import (
 	"mime/multipart"
 	"net/textproto"
 	"path/filepath"
-	"strings"
-	"sync"
 
 	"github.com/enetx/g"
 )
@@ -111,102 +109,87 @@ func (m *Multipart) FileName(name g.String) *Multipart {
 }
 
 // prepareWriter writes the multipart data to a writer and returns the content type and write error.
-func (m *Multipart) prepareWriter(boundary func() g.String) (io.ReadCloser, string, *error) {
+func (m *Multipart) prepareWriter(boundary func() g.String) (io.ReadCloser, string) {
 	pr, pw := io.Pipe()
 	writer := multipart.NewWriter(pw)
 
-	var (
-		writeErr error
-		once     sync.Once
-	)
-
 	if boundary != nil {
 		if err := writer.SetBoundary(boundary().Std()); err != nil {
-			pw.Close()
-			pr.Close()
-			writeErr = err
-			return nil, "", &writeErr
-		}
-	}
-
-	setWriteErr := func(err error) {
-		if err != nil {
-			once.Do(func() { writeErr = err })
+			_ = pw.CloseWithError(err)
+			_ = pr.Close()
+			return nil, ""
 		}
 	}
 
 	go func() {
-		defer func() {
-			setWriteErr(writer.Close())
-			pw.Close()
-		}()
-
-		for key, value := range m.fields.Iter() {
-			fw, err := writer.CreateFormField(key.Std())
-			if err != nil {
-				setWriteErr(err)
-				return
-			}
-
-			if _, err := io.Copy(fw, value.Reader()); err != nil {
-				setWriteErr(err)
-				return
-			}
-		}
-
-		for f := range m.files.Iter() {
-			var reader io.Reader
-
-			if f.file != nil {
-				r := f.file.Open()
-				if r.IsErr() {
-					setWriteErr(fmt.Errorf("cannot open file %s: %w", f.file.Name(), r.Err()))
-					return
+		err := func() error {
+			for key, val := range m.fields.Iter() {
+				part, err := writer.CreateFormField(key.Std())
+				if err != nil {
+					return err
 				}
 
-				file := r.Ok()
-				defer file.Close()
-
-				reader = file.Std()
-			} else {
-				reader = f.reader
+				if _, err := io.Copy(part, val.Reader()); err != nil {
+					return err
+				}
 			}
 
-			fw, err := createFormFile(writer, f.fieldName.Std(), f.fileName.Std(), f.contentType.Std())
-			if err != nil {
-				setWriteErr(err)
-				return
+			for file := range m.files.Iter() {
+				var reader io.Reader
+
+				if file.file != nil {
+					res := file.file.Open()
+					if res.IsErr() {
+						return fmt.Errorf("cannot open file %q: %w", file.file.Name(), res.Err())
+					}
+
+					opened := res.Ok()
+					defer opened.Close()
+
+					reader = opened.Std()
+				} else if file.reader != nil {
+					reader = file.reader
+				} else {
+					return fmt.Errorf("multipart file %q has no content source", file.fileName.Std())
+				}
+
+				ct := file.contentType.Std()
+				if ct == "" {
+					ext := filepath.Ext(file.fileName.Std())
+					ct = mime.TypeByExtension(ext)
+					if ct == "" {
+						ct = "application/octet-stream"
+					}
+				}
+
+				disposition := fmt.Sprintf(
+					`form-data; name="%s"; filename="%s"`,
+					escapeQuotes(file.fieldName),
+					escapeQuotes(file.fileName),
+				)
+
+				h := textproto.MIMEHeader{
+					"Content-Disposition": {disposition},
+					"Content-Type":        {ct},
+				}
+
+				part, err := writer.CreatePart(h)
+				if err != nil {
+					return err
+				}
+
+				if _, err := io.Copy(part, reader); err != nil {
+					return err
+				}
 			}
 
-			if _, err := io.Copy(fw, reader); err != nil {
-				setWriteErr(err)
-				return
-			}
-		}
+			return writer.Close()
+		}()
+
+		pw.CloseWithError(err)
 	}()
 
-	return pr, writer.FormDataContentType(), &writeErr
+	return pr, writer.FormDataContentType()
 }
 
-// createFormFile creates a form file with custom content type support.
-func createFormFile(w *multipart.Writer, fieldName, fileName, contentType string) (io.Writer, error) {
-	h := make(textproto.MIMEHeader)
-	h.Set(
-		"Content-Disposition",
-		fmt.Sprintf(`form-data; name="%s"; filename="%s"`, escapeQuotes(fieldName), escapeQuotes(fileName)),
-	)
-
-	if contentType == "" {
-		contentType = mime.TypeByExtension(filepath.Ext(fileName))
-		if contentType == "" {
-			contentType = "application/octet-stream"
-		}
-	}
-
-	h.Set("Content-Type", contentType)
-	return w.CreatePart(h)
-}
-
-var quoteEscaper = strings.NewReplacer(`\`, `\\`, `"`, `\"`)
-
-func escapeQuotes(s string) string { return quoteEscaper.Replace(s) }
+func escapeQuotes(s g.String) string { return s.ReplaceMulti(`\`, `\\`, `"`, `\"`).Std() }

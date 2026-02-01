@@ -25,7 +25,6 @@ type Request struct {
 	bodyBytes  []byte        // Cached body bytes for retry support
 	request    *http.Request // The underlying standard HTTP request
 	cli        *Client       // The associated surf client for this request
-	werr       *error        // Pointer to error encountered during request writing/preparation
 	multipart  *Multipart    // Multipart form data for file uploads and form submissions
 }
 
@@ -52,7 +51,6 @@ func (req *Request) Multipart(m *Multipart) *Request {
 
 // prepareMultipart prepares the multipart body for the request.
 // It sets up the request body with a pipe reader and configures the Content-Type header.
-// Any errors during preparation are stored in req.err or req.werr.
 // Returns an error if both Body() and Multipart() were called, as they are mutually exclusive.
 func (req *Request) prepareMultipart() {
 	if req.multipart == nil {
@@ -64,15 +62,10 @@ func (req *Request) prepareMultipart() {
 		return
 	}
 
-	pr, contentType, werr := req.multipart.prepareWriter(req.cli.boundary)
-	if werr != nil && *werr != nil {
-		req.err = *werr
-		return
-	}
+	pr, contentType := req.multipart.prepareWriter(req.cli.boundary)
 
 	req.request.Body = pr
-	req.request.Header.Set(header.CONTENT_TYPE, contentType)
-	req.werr = werr
+	req.request.Header.Set("Content-Type", contentType)
 }
 
 // Do executes the HTTP request and returns a Response wrapped in a Result type.
@@ -138,12 +131,6 @@ retry:
 
 		time.Sleep(builder.retryWait)
 		goto retry
-	}
-
-	// Check for write errors that occurred during request preparation
-	if req.werr != nil && *req.werr != nil {
-		resp.Body.Close()
-		return g.Err[*Response](*req.werr)
 	}
 
 	response := &Response{
