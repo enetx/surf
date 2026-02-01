@@ -282,7 +282,7 @@ func TestMiddlewareRequestContentType(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			client := surf.NewClient().Builder().ContentType(g.String(tc.contentType)).Build().Unwrap()
-			req := client.Post(g.String(ts.URL), g.String("test data"))
+			req := client.Post(g.String(ts.URL)).Body("test data")
 			resp := req.Do()
 
 			if resp.IsErr() {
@@ -515,9 +515,9 @@ func TestMiddlewareRequestGot101ResponseWithDifferentMethods(t *testing.T) {
 			case "GET":
 				req = client.Get(g.String(ts.URL))
 			case "POST":
-				req = client.Post(g.String(ts.URL), g.String("test data"))
+				req = client.Post(g.String(ts.URL)).Body("test data")
 			case "PUT":
-				req = client.Put(g.String(ts.URL), g.String("test data"))
+				req = client.Put(g.String(ts.URL)).Body("test data")
 			case "DELETE":
 				req = client.Delete(g.String(ts.URL))
 			}

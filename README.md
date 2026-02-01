@@ -467,37 +467,51 @@ resp := surf.NewClient().
 
 ```go
 // Single file upload
+mp := surf.NewMultipart().
+    File("file", g.NewFile("/path/to/file.pdf"))
+
 resp := surf.NewClient().
-    FileUpload(
-        "https://api.example.com/upload",
-        "file",                    // field name
-        "/path/to/file.pdf",       // file path
-    ).Do()
+    Post("https://api.example.com/upload").
+    Multipart(mp).
+    Do()
 
 // With additional form fields
-extraData := g.MapOrd[string, string]{
-    "description": "Important document",
-    "category": "reports",
-}
+mp := surf.NewMultipart().
+    Field("description", "Important document").
+    Field("category", "reports").
+    File("file", g.NewFile("/path/to/file.pdf"))
 
 resp := surf.NewClient().
-    FileUpload(
-        "https://api.example.com/upload",
-        "file",
-        "/path/to/file.pdf",
-        extraData,
-    ).Do()
+    Post("https://api.example.com/upload").
+    Multipart(mp).
+    Do()
 ```
 
 ### Multipart Form
 
 ```go
-fields := g.NewMapOrd[g.String, g.String]()
-fields.Insert("field1", "value1")
-fields.Insert("field2", "value2")
+// Simple multipart form with fields only
+mp := surf.NewMultipart().
+    Field("field1", "value1").
+    Field("field2", "value2")
 
 resp := surf.NewClient().
-    Multipart("https://api.example.com/form", fields).
+    Post("https://api.example.com/form").
+    Multipart(mp).
+    Do()
+
+// Advanced multipart with files from different sources
+mp := surf.NewMultipart().
+    Field("description", "Multiple files").
+    File("document", g.NewFile("/path/to/doc.pdf")).               // Physical file
+    FileBytes("data", "data.json", g.Bytes(`{"key": "value"}`)).   // Bytes with custom filename
+    FileString("text", "note.txt", "Hello, World!").               // String content
+    FileReader("stream", "upload.bin", someReader).                // io.Reader
+    ContentType("application/pdf")                                 // Custom Content-Type for last file
+
+resp := surf.NewClient().
+    Post("https://api.example.com/upload").
+    Multipart(mp).
     Do()
 ```
 
@@ -810,9 +824,8 @@ resp := surf.NewClient().
 | `Patch(url, data)` | Creates a PATCH request |
 | `Delete(url, data...)` | Creates a DELETE request |
 | `Head(url)` | Creates a HEAD request |
-| `FileUpload(url, field, path, data...)` | Creates a multipart file upload |
-| `Multipart(url, fields)` | Creates a multipart form request |
 | `Raw(raw, scheme)` | Creates a request from raw HTTP |
+| `NewMultipart()` | Creates a new Multipart builder for file uploads |
 
 ### Builder Methods
 
@@ -863,6 +876,20 @@ resp := surf.NewClient().
 | `SetHeaders(headers...)` | Set request headers |
 | `AddHeaders(headers...)` | Add request headers |
 | `AddCookies(cookies...)` | Add cookies to request |
+| `Multipart(mp)` | Set multipart form data for request |
+
+### Multipart Methods
+
+| Method | Description |
+|--------|-------------|
+| `NewMultipart()` | Creates a new Multipart builder |
+| `Field(name, value)` | Adds a form field |
+| `File(fieldName, file)` | Adds a file from `*g.File` |
+| `FileReader(fieldName, fileName, reader)` | Adds a file from `io.Reader` |
+| `FileString(fieldName, fileName, content)` | Adds a file from string content |
+| `FileBytes(fieldName, fileName, data)` | Adds a file from byte slice |
+| `ContentType(ct)` | Sets custom Content-Type for the last added file |
+| `FileName(name)` | Overrides filename for the last added file |
 
 ### Response Properties
 

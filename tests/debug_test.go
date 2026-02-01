@@ -53,7 +53,7 @@ func TestDebugRequest(t *testing.T) {
 	client := surf.NewClient().Builder().
 		ContentType("application/json").
 		Build().Unwrap()
-	req := client.Post(g.String(ts.URL), g.String(`{"test": "data"}`))
+	req := client.Post(g.String(ts.URL)).Body(`{"test": "data"}`)
 
 	resp := req.Do()
 
@@ -85,7 +85,7 @@ func TestDebugRequestVerbose(t *testing.T) {
 	client := surf.NewClient().Builder().
 		ContentType("application/json").
 		Build().Unwrap()
-	req := client.Post(g.String(ts.URL), g.String(`{"verbose": "test"}`))
+	req := client.Post(g.String(ts.URL)).Body(`{"verbose": "test"}`)
 
 	resp := req.Do()
 
@@ -176,7 +176,7 @@ func TestDebugChaining(t *testing.T) {
 		CacheBody().
 		ContentType("application/json").
 		Build().Unwrap()
-	req := client.Post(g.String(ts.URL), g.String(`{"request": "data"}`))
+	req := client.Post(g.String(ts.URL)).Body(`{"request": "data"}`)
 
 	resp := req.Do()
 

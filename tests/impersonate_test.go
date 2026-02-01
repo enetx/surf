@@ -433,31 +433,22 @@ func TestImpersonateChromeHeaders(t *testing.T) {
 func TestImpersonateChromeBoundaryGeneration(t *testing.T) {
 	t.Parallel()
 
-	// Test that Chrome boundary generation works correctly
-	client := surf.NewClient().Builder().
-		Impersonate().Chrome().
-		Build().Unwrap()
-
-	// Create multiple multipart requests to test boundary uniqueness
-	formData := g.NewMapOrd[g.String, g.String](2)
-	formData.Insert(g.String("field1"), g.String("value1"))
-	formData.Insert(g.String("field2"), g.String("value2"))
-
 	boundaries := make(map[string]bool)
 
-	for range 10 {
-		req := client.Multipart("http://localhost/test", formData)
-
-		// Get the boundary from the request
-		contentType := req.GetRequest().Header.Get("Content-Type")
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		contentType := r.Header.Get("Content-Type")
 		if !strings.Contains(contentType, "boundary=") {
-			t.Fatal("expected Content-Type to contain boundary")
+			t.Error("expected Content-Type to contain boundary")
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
 
 		// Extract boundary
 		parts := strings.Split(contentType, "boundary=")
 		if len(parts) != 2 {
-			t.Fatal("expected boundary in Content-Type")
+			t.Error("expected boundary in Content-Type")
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
 		boundary := parts[1]
 
@@ -466,16 +457,36 @@ func TestImpersonateChromeBoundaryGeneration(t *testing.T) {
 			t.Errorf("expected Chrome boundary to start with ----WebKitFormBoundary, got: %s", boundary)
 		}
 
+		// Verify length (----WebKitFormBoundary + 16 random characters)
+		expectedLength := len("----WebKitFormBoundary") + 16
+		if len(boundary) != expectedLength {
+			t.Errorf("expected boundary length %d, got %d for boundary: %s", expectedLength, len(boundary), boundary)
+		}
+
 		// Check uniqueness
 		if boundaries[boundary] {
 			t.Error("expected unique boundaries, but found duplicate")
 		}
 		boundaries[boundary] = true
 
-		// Verify length (----WebKitFormBoundary + 16 random characters)
-		expectedLength := len("----WebKitFormBoundary") + 16
-		if len(boundary) != expectedLength {
-			t.Errorf("expected boundary length %d, got %d for boundary: %s", expectedLength, len(boundary), boundary)
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Impersonate().Chrome().
+		Build().Unwrap()
+
+	for range 10 {
+		mp := surf.NewMultipart().
+			Field("field1", "value1").
+			Field("field2", "value2")
+
+		resp := client.Post(g.String(ts.URL)).Multipart(mp).Do()
+		if resp.IsErr() {
+			t.Fatal(resp.Err())
 		}
 	}
 }

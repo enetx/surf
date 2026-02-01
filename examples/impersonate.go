@@ -46,7 +46,7 @@ func main() {
 
 	r := cli.
 		Get(url).
-		// Post(url, g.String("test").Encode().JSON().Ok()).
+		// Post(url).Body(g.String("test").Encode().JSON().Ok()).
 		Do()
 
 	if r.IsErr() {

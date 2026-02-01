@@ -1,8 +1,6 @@
 package surf
 
 import (
-	"io"
-
 	"github.com/enetx/g"
 	"github.com/enetx/http/httputil"
 )
@@ -32,11 +30,9 @@ func (d *Debug) Request(verbos ...bool) *Debug {
 
 	_ = g.Writeln(&d.print, "{}", g.String(body).Trim())
 
-	if len(verbos) != 0 && verbos[0] && d.resp.request.body != nil {
-		if bytes, err := io.ReadAll(d.resp.request.body); err == nil {
-			reqBody := g.Bytes(bytes).Trim()
-			_ = g.Writeln(&d.print, "\n{}", reqBody.String())
-		}
+	if len(verbos) != 0 && verbos[0] && d.resp.request.bodyBytes != nil {
+		reqBody := g.Bytes(d.resp.request.bodyBytes).Trim()
+		_ = g.Writeln(&d.print, "\n{}", reqBody.String())
 	}
 
 	return d

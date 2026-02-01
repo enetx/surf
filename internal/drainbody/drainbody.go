@@ -7,11 +7,10 @@ import (
 	"github.com/enetx/http"
 )
 
-// drainBody reads all of b to memory and then returns two equivalent
-// ReadClosers yielding the same bytes.
-// It returns an error if the initial slurp of all bytes fails. It does not attempt
-// to make the returned ReadClosers have identical error-matching behavior.
-func DrainBody(b io.ReadCloser) (io.ReadCloser, io.ReadCloser, error) {
+// DrainBody reads all of b to memory and returns the bytes and a new ReadCloser.
+// It returns an error if the initial slurp of all bytes fails.
+// The returned bytes can be reused for retry support.
+func DrainBody(b io.ReadCloser) ([]byte, io.ReadCloser, error) {
 	if b == nil || b == http.NoBody {
 		return nil, nil, nil
 	}
@@ -26,5 +25,7 @@ func DrainBody(b io.ReadCloser) (io.ReadCloser, io.ReadCloser, error) {
 		return nil, nil, err
 	}
 
-	return io.NopCloser(&buf), io.NopCloser(bytes.NewReader(buf.Bytes())), nil
+	data := buf.Bytes()
+
+	return data, io.NopCloser(bytes.NewReader(data)), nil
 }

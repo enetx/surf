@@ -486,7 +486,7 @@ func TestBuilderContentType(t *testing.T) {
 		ContentType(g.String(contentType)).
 		Build().Unwrap()
 
-	resp := client.Post(g.String(ts.URL), "data").Do()
+	resp := client.Post(g.String(ts.URL)).Body("data").Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
@@ -831,10 +831,9 @@ func TestBuilderBoundary(t *testing.T) {
 		Build().Unwrap()
 
 	// Test with multipart
-	data := g.NewMapOrd[g.String, g.String](1)
-	data.Insert("field", "value")
+	mp := surf.NewMultipart().Field("field", "value")
 
-	resp := client.Multipart(g.String(ts.URL), data).Do()
+	resp := client.Post(g.String(ts.URL)).Multipart(mp).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}

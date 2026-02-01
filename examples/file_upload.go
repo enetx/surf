@@ -8,38 +8,58 @@ import (
 func main() {
 	const URL = "https://httpbingo.org/anything"
 
-	// with file path
+	// With physical file
+	mp := surf.NewMultipart().
+		File("filefield", g.NewFile("/path/to/file.txt"))
+
 	surf.NewClient().
-		FileUpload(URL, "filefield", "/path/to/file.txt").
-		// FileUpload(URL, "filefield", "/Users/user/Desktop/1.txt").
+		Post(URL).
+		Multipart(mp).
 		Do()
 
-	// without physical file
+	// Without physical file (from string)
+	mp2 := surf.NewMultipart().
+		FileString("filefield", "info.txt", "Hello from surf!")
+
 	surf.NewClient().
-		FileUpload(URL, "filefield", "info.txt", "Hello from surf!").
+		Post(URL).
+		Multipart(mp2).
 		Do().Unwrap().Body.String().Unwrap().Print()
 
-	// with multipart data
-	multipartData := g.NewMapOrd[string, string]()
+	// With form fields and file
+	mp3 := surf.NewMultipart().
+		Field("_wpcf7", "36484").
+		Field("_wpcf7_version", "5.4").
+		Field("_wpcf7_locale", "ru_RU").
+		Field("_wpcf7_unit_tag", "wpcf7-f36484-o1").
+		Field("_wpcf7_container_post", "0").
+		Field("_wpcf7_posted_data_hash", "").
+		Field("your-name", "name").
+		Field("retreat", "P48").
+		Field("your-message", "message").
+		File("filefield", g.NewFile("/path/to/file.txt"))
 
-	multipartData.Insert("_wpcf7", "36484")
-	multipartData.Insert("_wpcf7_version", "5.4")
-	multipartData.Insert("_wpcf7_locale", "ru_RU")
-	multipartData.Insert("_wpcf7_unit_tag", "wpcf7-f36484-o1")
-	multipartData.Insert("_wpcf7_container_post", "0")
-	multipartData.Insert("_wpcf7_posted_data_hash", "")
-	multipartData.Insert("your-name", "name")
-	multipartData.Insert("retreat", "P48")
-	multipartData.Insert("your-message", "message")
-
-	// with file path
 	surf.NewClient().
-		FileUpload(URL, "filefield", "/path/to/file.txt", multipartData).
+		Post(URL).
+		Multipart(mp3).
 		Do()
 
-	// without physical file
+	// With form fields and file from string
+	mp4 := surf.NewMultipart().
+		Field("_wpcf7", "36484").
+		Field("_wpcf7_version", "5.4").
+		Field("_wpcf7_locale", "ru_RU").
+		Field("_wpcf7_unit_tag", "wpcf7-f36484-o1").
+		Field("_wpcf7_container_post", "0").
+		Field("_wpcf7_posted_data_hash", "").
+		Field("your-name", "name").
+		Field("retreat", "P48").
+		Field("your-message", "message").
+		FileString("filefield", "info.txt", "Hello from surf again!")
+
 	r := surf.NewClient().
-		FileUpload(URL, "filefield", "info.txt", "Hello from surf again!", multipartData).
+		Post(URL).
+		Multipart(mp4).
 		Do().
 		Unwrap()
 

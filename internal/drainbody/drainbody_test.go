@@ -14,30 +14,30 @@ import (
 func TestDrainBodyNil(t *testing.T) {
 	t.Parallel()
 
-	r1, r2, err := drainbody.DrainBody(nil)
+	data, r, err := drainbody.DrainBody(nil)
 	if err != nil {
 		t.Errorf("expected no error for nil body, got %v", err)
 	}
-	if r1 != nil {
-		t.Error("expected nil r1 for nil body")
+	if data != nil {
+		t.Error("expected nil data for nil body")
 	}
-	if r2 != nil {
-		t.Error("expected nil r2 for nil body")
+	if r != nil {
+		t.Error("expected nil reader for nil body")
 	}
 }
 
 func TestDrainBodyNoBody(t *testing.T) {
 	t.Parallel()
 
-	r1, r2, err := drainbody.DrainBody(http.NoBody)
+	data, r, err := drainbody.DrainBody(http.NoBody)
 	if err != nil {
 		t.Errorf("expected no error for NoBody, got %v", err)
 	}
-	if r1 != nil {
-		t.Error("expected nil r1 for NoBody")
+	if data != nil {
+		t.Error("expected nil data for NoBody")
 	}
-	if r2 != nil {
-		t.Error("expected nil r2 for NoBody")
+	if r != nil {
+		t.Error("expected nil reader for NoBody")
 	}
 }
 
@@ -47,42 +47,35 @@ func TestDrainBodyNormalOperation(t *testing.T) {
 	originalData := "test data for draining"
 	body := io.NopCloser(strings.NewReader(originalData))
 
-	r1, r2, err := drainbody.DrainBody(body)
+	data, r, err := drainbody.DrainBody(body)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if r1 == nil {
-		t.Fatal("expected non-nil r1")
+	if data == nil {
+		t.Fatal("expected non-nil data")
 	}
-	if r2 == nil {
-		t.Fatal("expected non-nil r2")
+	if r == nil {
+		t.Fatal("expected non-nil reader")
 	}
 
-	// Read from first reader
-	data1, err := io.ReadAll(r1)
+	// Check bytes match
+	if string(data) != originalData {
+		t.Errorf("expected %q from data, got %q", originalData, string(data))
+	}
+
+	// Read from reader
+	readData, err := io.ReadAll(r)
 	if err != nil {
-		t.Fatalf("error reading from r1: %v", err)
+		t.Fatalf("error reading from reader: %v", err)
 	}
-	if string(data1) != originalData {
-		t.Errorf("expected %q from r1, got %q", originalData, string(data1))
-	}
-
-	// Read from second reader
-	data2, err := io.ReadAll(r2)
-	if err != nil {
-		t.Fatalf("error reading from r2: %v", err)
-	}
-	if string(data2) != originalData {
-		t.Errorf("expected %q from r2, got %q", originalData, string(data2))
+	if string(readData) != originalData {
+		t.Errorf("expected %q from reader, got %q", originalData, string(readData))
 	}
 
-	// Close both readers
-	if err := r1.Close(); err != nil {
-		t.Errorf("error closing r1: %v", err)
-	}
-	if err := r2.Close(); err != nil {
-		t.Errorf("error closing r2: %v", err)
+	// Close reader
+	if err := r.Close(); err != nil {
+		t.Errorf("error closing reader: %v", err)
 	}
 }
 
@@ -91,33 +84,29 @@ func TestDrainBodyEmptyBody(t *testing.T) {
 
 	body := io.NopCloser(strings.NewReader(""))
 
-	r1, r2, err := drainbody.DrainBody(body)
+	data, r, err := drainbody.DrainBody(body)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if r1 == nil {
-		t.Fatal("expected non-nil r1")
+	if data == nil {
+		t.Fatal("expected non-nil data (empty slice)")
 	}
-	if r2 == nil {
-		t.Fatal("expected non-nil r2")
-	}
-
-	// Read from both readers - should be empty
-	data1, err := io.ReadAll(r1)
-	if err != nil {
-		t.Fatalf("error reading from r1: %v", err)
-	}
-	if len(data1) != 0 {
-		t.Errorf("expected empty data from r1, got %q", string(data1))
+	if r == nil {
+		t.Fatal("expected non-nil reader")
 	}
 
-	data2, err := io.ReadAll(r2)
-	if err != nil {
-		t.Fatalf("error reading from r2: %v", err)
+	// Should be empty
+	if len(data) != 0 {
+		t.Errorf("expected empty data, got %q", string(data))
 	}
-	if len(data2) != 0 {
-		t.Errorf("expected empty data from r2, got %q", string(data2))
+
+	readData, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("error reading from reader: %v", err)
+	}
+	if len(readData) != 0 {
+		t.Errorf("expected empty read data, got %q", string(readData))
 	}
 }
 
@@ -128,35 +117,31 @@ func TestDrainBodyLargeData(t *testing.T) {
 	largeData := strings.Repeat("abcdefghij", 100*1024)
 	body := io.NopCloser(strings.NewReader(largeData))
 
-	r1, r2, err := drainbody.DrainBody(body)
+	data, r, err := drainbody.DrainBody(body)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Read from first reader
-	data1, err := io.ReadAll(r1)
-	if err != nil {
-		t.Fatalf("error reading from r1: %v", err)
-	}
-	if string(data1) != largeData {
-		t.Error("r1 data doesn't match original")
+	// Check bytes
+	if string(data) != largeData {
+		t.Error("data doesn't match original")
 	}
 
-	// Read from second reader
-	data2, err := io.ReadAll(r2)
+	// Read from reader
+	readData, err := io.ReadAll(r)
 	if err != nil {
-		t.Fatalf("error reading from r2: %v", err)
+		t.Fatalf("error reading from reader: %v", err)
 	}
-	if string(data2) != largeData {
-		t.Error("r2 data doesn't match original")
+	if string(readData) != largeData {
+		t.Error("reader data doesn't match original")
 	}
 
 	// Verify lengths
-	if len(data1) != len(largeData) {
-		t.Errorf("expected length %d from r1, got %d", len(largeData), len(data1))
+	if len(data) != len(largeData) {
+		t.Errorf("expected length %d from data, got %d", len(largeData), len(data))
 	}
-	if len(data2) != len(largeData) {
-		t.Errorf("expected length %d from r2, got %d", len(largeData), len(data2))
+	if len(readData) != len(largeData) {
+		t.Errorf("expected length %d from reader, got %d", len(largeData), len(readData))
 	}
 }
 
@@ -189,18 +174,18 @@ func TestDrainBodyReadError(t *testing.T) {
 		readErr: readErr,
 	}
 
-	r1, r2, err := drainbody.DrainBody(body)
+	data, r, err := drainbody.DrainBody(body)
 	if err == nil {
 		t.Fatal("expected error for read failure")
 	}
 	if err != readErr {
 		t.Errorf("expected read error, got %v", err)
 	}
-	if r1 != nil {
-		t.Error("expected nil r1 on read error")
+	if data != nil {
+		t.Error("expected nil data on read error")
 	}
-	if r2 != nil {
-		t.Error("expected nil r2 on read error")
+	if r != nil {
+		t.Error("expected nil reader on read error")
 	}
 }
 
@@ -213,18 +198,18 @@ func TestDrainBodyCloseError(t *testing.T) {
 		closeErr: closeErr,
 	}
 
-	r1, r2, err := drainbody.DrainBody(body)
+	data, r, err := drainbody.DrainBody(body)
 	if err == nil {
 		t.Fatal("expected error for close failure")
 	}
 	if err != closeErr {
 		t.Errorf("expected close error, got %v", err)
 	}
-	if r1 != nil {
-		t.Error("expected nil r1 on close error")
+	if data != nil {
+		t.Error("expected nil data on close error")
 	}
-	if r2 != nil {
-		t.Error("expected nil r2 on close error")
+	if r != nil {
+		t.Error("expected nil reader on close error")
 	}
 }
 
@@ -235,108 +220,63 @@ func TestDrainBodyBinaryData(t *testing.T) {
 	binaryData := []byte{0, 1, 2, 3, 255, 254, 253, 0, 127, 128}
 	body := io.NopCloser(bytes.NewReader(binaryData))
 
-	r1, r2, err := drainbody.DrainBody(body)
+	data, r, err := drainbody.DrainBody(body)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
-	}
-
-	// Read from both readers
-	data1, err := io.ReadAll(r1)
-	if err != nil {
-		t.Fatalf("error reading from r1: %v", err)
-	}
-
-	data2, err := io.ReadAll(r2)
-	if err != nil {
-		t.Fatalf("error reading from r2: %v", err)
 	}
 
 	// Verify binary data matches
-	if !bytes.Equal(data1, binaryData) {
-		t.Error("r1 binary data doesn't match original")
+	if !bytes.Equal(data, binaryData) {
+		t.Error("data binary doesn't match original")
 	}
-	if !bytes.Equal(data2, binaryData) {
-		t.Error("r2 binary data doesn't match original")
+
+	readData, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("error reading from reader: %v", err)
+	}
+	if !bytes.Equal(readData, binaryData) {
+		t.Error("reader binary data doesn't match original")
 	}
 }
 
-func TestDrainBodyMultipleReads(t *testing.T) {
+func TestDrainBodyRetrySupport(t *testing.T) {
 	t.Parallel()
 
-	originalData := "test data for multiple reads"
+	originalData := "data for retry test"
 	body := io.NopCloser(strings.NewReader(originalData))
 
-	r1, r2, err := drainbody.DrainBody(body)
+	// First drain
+	data, r1, err := drainbody.DrainBody(body)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Read from r1 in chunks
-	var buf1 bytes.Buffer
-	chunk := make([]byte, 5)
-	for {
-		n, err := r1.Read(chunk)
-		if n > 0 {
-			buf1.Write(chunk[:n])
-		}
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			t.Fatalf("error reading chunk from r1: %v", err)
-		}
+	// Read from first reader (simulating first request)
+	readData1, err := io.ReadAll(r1)
+	if err != nil {
+		t.Fatalf("error reading from r1: %v", err)
+	}
+	if string(readData1) != originalData {
+		t.Errorf("first read doesn't match: %q", string(readData1))
 	}
 
-	// Read from r2 all at once
-	data2, err := io.ReadAll(r2)
+	// Create new reader from saved bytes (simulating retry)
+	r2 := io.NopCloser(bytes.NewReader(data))
+	readData2, err := io.ReadAll(r2)
 	if err != nil {
 		t.Fatalf("error reading from r2: %v", err)
 	}
-
-	// Verify both match original
-	if buf1.String() != originalData {
-		t.Errorf("expected %q from r1 chunks, got %q", originalData, buf1.String())
+	if string(readData2) != originalData {
+		t.Errorf("retry read doesn't match: %q", string(readData2))
 	}
-	if string(data2) != originalData {
-		t.Errorf("expected %q from r2, got %q", originalData, string(data2))
-	}
-}
 
-func TestDrainBodyReadersAreIndependent(t *testing.T) {
-	t.Parallel()
-
-	originalData := "independent readers test"
-	body := io.NopCloser(strings.NewReader(originalData))
-
-	r1, r2, err := drainbody.DrainBody(body)
+	// Can create multiple readers from same bytes
+	r3 := io.NopCloser(bytes.NewReader(data))
+	readData3, err := io.ReadAll(r3)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("error reading from r3: %v", err)
 	}
-
-	// Read partial from r1
-	partial := make([]byte, 5)
-	n1, err := r1.Read(partial)
-	if err != nil && err != io.EOF {
-		t.Fatalf("error reading partial from r1: %v", err)
-	}
-
-	// Read full from r2 - should not be affected by r1's partial read
-	data2, err := io.ReadAll(r2)
-	if err != nil {
-		t.Fatalf("error reading from r2: %v", err)
-	}
-	if string(data2) != originalData {
-		t.Errorf("r2 should have full data despite r1 partial read, got %q", string(data2))
-	}
-
-	// Continue reading r1
-	remaining, err := io.ReadAll(r1)
-	if err != nil {
-		t.Fatalf("error reading remaining from r1: %v", err)
-	}
-
-	fullR1 := string(partial[:n1]) + string(remaining)
-	if fullR1 != originalData {
-		t.Errorf("r1 full read doesn't match original: %q", fullR1)
+	if string(readData3) != originalData {
+		t.Errorf("third read doesn't match: %q", string(readData3))
 	}
 }

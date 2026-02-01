@@ -1,6 +1,7 @@
 package surf
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -21,15 +22,58 @@ import (
 type Request struct {
 	err        error         // General error associated with the request (validation, setup, etc.)
 	remoteAddr net.Addr      // Remote server address captured during connection
-	body       io.ReadCloser // Request body reader (for retry support and body preservation)
+	bodyBytes  []byte        // Cached body bytes for retry support
 	request    *http.Request // The underlying standard HTTP request
 	cli        *Client       // The associated surf client for this request
 	werr       *error        // Pointer to error encountered during request writing/preparation
+	multipart  *Multipart    // Multipart form data for file uploads and form submissions
 }
 
 // GetRequest returns the underlying standard http.Request.
 // Provides access to the wrapped HTTP request for advanced use cases.
 func (req *Request) GetRequest() *http.Request { return req.request }
+
+// Multipart sets multipart form data for the request.
+// The provided Multipart object contains form fields and files to be sent.
+// Returns the request for method chaining. If m is nil, an error is set on the request.
+func (req *Request) Multipart(m *Multipart) *Request {
+	if req.err != nil {
+		return req
+	}
+
+	if m == nil {
+		req.err = fmt.Errorf("multipart is nil")
+		return req
+	}
+
+	req.multipart = m
+	return req
+}
+
+// prepareMultipart prepares the multipart body for the request.
+// It sets up the request body with a pipe reader and configures the Content-Type header.
+// Any errors during preparation are stored in req.err or req.werr.
+// Returns an error if both Body() and Multipart() were called, as they are mutually exclusive.
+func (req *Request) prepareMultipart() {
+	if req.multipart == nil {
+		return
+	}
+
+	if req.request.Body != nil {
+		req.err = fmt.Errorf("cannot use both Body() and Multipart() - they are mutually exclusive")
+		return
+	}
+
+	pr, contentType, werr := req.multipart.prepareWriter(req.cli.boundary)
+	if werr != nil && *werr != nil {
+		req.err = *werr
+		return
+	}
+
+	req.request.Body = pr
+	req.request.Header.Set(header.CONTENT_TYPE, contentType)
+	req.werr = werr
+}
 
 // Do executes the HTTP request and returns a Response wrapped in a Result type.
 // This is the main method that performs the actual HTTP request with full surf functionality:
@@ -44,6 +88,11 @@ func (req *Request) Do() g.Result[*Response] {
 		return g.Err[*Response](req.err)
 	}
 
+	req.prepareMultipart()
+	if req.err != nil {
+		return g.Err[*Response](req.err)
+	}
+
 	// Apply all configured request middleware
 	if err := req.cli.applyReqMW(req); err != nil {
 		return g.Err[*Response](err)
@@ -51,7 +100,7 @@ func (req *Request) Do() g.Result[*Response] {
 
 	// Preserve request body for retries (except HEAD requests which have no body)
 	if req.request.Method != http.MethodHead {
-		req.body, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
+		req.bodyBytes, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
 		if req.err != nil {
 			return g.Err[*Response](req.err)
 		}
@@ -70,6 +119,11 @@ func (req *Request) Do() g.Result[*Response] {
 
 	// Execute request with retry logic
 retry:
+	// Restore body from saved bytes for retry attempts
+	if attempts > 0 && req.bodyBytes != nil {
+		req.request.Body = io.NopCloser(bytes.NewReader(req.bodyBytes))
+	}
+
 	resp, err = cli.Do(req.request)
 	if err != nil {
 		return g.Err[*Response](err)
@@ -78,6 +132,8 @@ retry:
 	// Check if retry is needed based on status code and retry configuration
 	if builder != nil && builder.retryMax != 0 && attempts < builder.retryMax && !builder.retryCodes.IsEmpty() &&
 		builder.retryCodes.Contains(resp.StatusCode) {
+		io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
 		attempts++
 
 		time.Sleep(builder.retryWait)
@@ -86,6 +142,7 @@ retry:
 
 	// Check for write errors that occurred during request preparation
 	if req.werr != nil && *req.werr != nil {
+		resp.Body.Close()
 		return g.Err[*Response](*req.werr)
 	}
 

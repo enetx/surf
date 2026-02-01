@@ -19,7 +19,7 @@ func main() {
 		AddCookies(&http.Cookie{Name: "test", Value: "rest"}).
 		Build().
 		Unwrap().
-		Post(url, body)
+		Post(url).Body(body)
 
 	r := req.Do()
 	if r.IsErr() {
@@ -28,8 +28,8 @@ func main() {
 
 	d := r.Ok().Debug()
 
-	d.Request(true) // true for verbose output with request body if set
-	d.Response()    // true for verbose output with response body
+	d.Request(true)  // true for verbose output with request body if set
+	d.Response(true) // true for verbose output with response body
 
 	d.Print()
 

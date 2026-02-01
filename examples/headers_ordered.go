@@ -35,7 +35,7 @@ func main() {
 		Build().
 		Unwrap().
 		// Get(url).
-		Post(url, "surf").
+		Post(url).Body("surf").
 		Do()
 
 	if r.IsErr() {

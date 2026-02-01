@@ -287,11 +287,10 @@ func TestMultipart(t *testing.T) {
 
 	defer ts.Close()
 
-	multipartData := g.NewMapOrd[g.String, g.String]()
-	multipartData.Insert(some, values)
+	mp := surf.NewMultipart().Field(some, values)
 
 	r := surf.NewClient().Builder().Impersonate().Firefox().Build().Unwrap().
-		Multipart(g.String(ts.URL), multipartData).Do()
+		Post(g.String(ts.URL)).Multipart(mp).Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
@@ -322,21 +321,22 @@ func TestFileUpload(t *testing.T) {
 
 	defer ts.Close()
 
+	mp := surf.NewMultipart().FileString("file", "info.txt", "justfile")
+
 	r := surf.NewClient().Builder().Impersonate().Firefox().CacheBody().Build().Unwrap().
-		FileUpload(g.String(ts.URL), "file", "info.txt", "justfile").
-		Do()
+		Post(g.String(ts.URL)).Multipart(mp).Do()
 
 	if r.IsErr() {
 		t.Error(r.Err())
 		return
 	}
 
-	multipartData := g.NewMapOrd[string, string]()
-	multipartData.Insert("some", "values")
+	mp2 := surf.NewMultipart().
+		Field("some", "values").
+		FileString("file", "info.txt", "multipart")
 
 	r2 := surf.NewClient().
-		FileUpload(g.String(ts.URL), "file", "info.txt", "multipart", multipartData).
-		Do()
+		Post(g.String(ts.URL)).Multipart(mp2).Do()
 
 	if r2.IsErr() {
 		t.Error(r2.Err())
@@ -779,7 +779,7 @@ func TestPost(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	r := surf.NewClient().Post(g.String(ts.URL), "test=data").Do()
+	r := surf.NewClient().Post(g.String(ts.URL)).Body("test=data").Do()
 	if r.IsErr() {
 		t.Error(r.Err())
 		return

@@ -70,17 +70,19 @@ var HelloFirefox_147 = utls.ClientHelloSpec{
 		},
 		&utls.SCTExtension{},
 		&utls.KeyShareExtensionExtended{
-			KeyShareExtension: &utls.KeyShareExtension{KeyShares: []utls.KeyShare{
-				{
-					Group: utls.X25519MLKEM768,
+			KeyShareExtension: &utls.KeyShareExtension{
+				KeyShares: []utls.KeyShare{
+					{
+						Group: utls.X25519MLKEM768,
+					},
+					{
+						Group: utls.X25519,
+					},
+					{
+						Group: utls.CurveP256,
+					},
 				},
-				{
-					Group: utls.X25519,
-				},
-				{
-					Group: utls.CurveP256,
-				},
-			}},
+			},
 			HybridReuseKey: true,
 		},
 		&utls.SupportedVersionsExtension{
@@ -104,17 +106,21 @@ var HelloFirefox_147 = utls.ClientHelloSpec{
 				utls.PKCS1WithSHA1,
 			},
 		},
-		&utls.PSKKeyExchangeModesExtension{Modes: []uint8{
-			utls.PskModeDHE,
-		}},
+		&utls.PSKKeyExchangeModesExtension{
+			Modes: []uint8{
+				utls.PskModeDHE,
+			},
+		},
 		&utls.FakeRecordSizeLimitExtension{
 			Limit: 0x4001,
 		},
-		&utls.UtlsCompressCertExtension{Algorithms: []utls.CertCompressionAlgo{
-			utls.CertCompressionZlib,
-			utls.CertCompressionBrotli,
-			utls.CertCompressionZstd,
-		}},
+		&utls.UtlsCompressCertExtension{
+			Algorithms: []utls.CertCompressionAlgo{
+				utls.CertCompressionZlib,
+				utls.CertCompressionBrotli,
+				utls.CertCompressionZstd,
+			},
+		},
 		&utls.GREASEEncryptedClientHelloExtension{
 			CandidateCipherSuites: []utls.HPKESymmetricCipherSuite{
 				{
@@ -196,17 +202,19 @@ var HelloFirefoxPrivate_147 = utls.ClientHelloSpec{
 		},
 		&utls.SCTExtension{},
 		&utls.KeyShareExtensionExtended{
-			KeyShareExtension: &utls.KeyShareExtension{KeyShares: []utls.KeyShare{
-				{
-					Group: utls.X25519MLKEM768,
+			KeyShareExtension: &utls.KeyShareExtension{
+				KeyShares: []utls.KeyShare{
+					{
+						Group: utls.X25519MLKEM768,
+					},
+					{
+						Group: utls.X25519,
+					},
+					{
+						Group: utls.CurveP256,
+					},
 				},
-				{
-					Group: utls.X25519,
-				},
-				{
-					Group: utls.CurveP256,
-				},
-			}},
+			},
 			HybridReuseKey: true,
 		},
 		&utls.SupportedVersionsExtension{
@@ -233,11 +241,13 @@ var HelloFirefoxPrivate_147 = utls.ClientHelloSpec{
 		&utls.FakeRecordSizeLimitExtension{
 			Limit: 0x4001,
 		},
-		&utls.UtlsCompressCertExtension{Algorithms: []utls.CertCompressionAlgo{
-			utls.CertCompressionZlib,
-			utls.CertCompressionBrotli,
-			utls.CertCompressionZstd,
-		}},
+		&utls.UtlsCompressCertExtension{
+			Algorithms: []utls.CertCompressionAlgo{
+				utls.CertCompressionZlib,
+				utls.CertCompressionBrotli,
+				utls.CertCompressionZstd,
+			},
+		},
 		&utls.GREASEEncryptedClientHelloExtension{
 			CandidateCipherSuites: []utls.HPKESymmetricCipherSuite{
 				{

@@ -598,7 +598,7 @@ func TestRequestHeaderOrderMixedTypes(t *testing.T) {
 func TestRequestWithWriteError(t *testing.T) {
 	t.Parallel()
 
-	// Test FileUpload with write error simulation
+	// Test multipart with write error simulation
 	handler := func(w http.ResponseWriter, _ *http.Request) {
 		// Force connection close to simulate write error
 		if hijacker, ok := w.(http.Hijacker); ok {
@@ -615,12 +615,10 @@ func TestRequestWithWriteError(t *testing.T) {
 	// Use a reader that will fail during read
 	failingReader := &failingReader{err: errors.New("read error")}
 
-	resp := client.FileUpload(
-		g.String(ts.URL),
-		"file",
-		"test.txt",
-		failingReader,
-	).Do()
+	mp := surf.NewMultipart().
+		FileReader("file", "test.txt", failingReader)
+
+	resp := client.Post(g.String(ts.URL)).Multipart(mp).Do()
 
 	// Should get an error
 	if !resp.IsErr() {

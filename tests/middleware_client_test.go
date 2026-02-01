@@ -299,8 +299,8 @@ func TestMiddlewareClientH2CHTTPMethods(t *testing.T) {
 		reqFunc func(string) *surf.Request
 	}{
 		{"GET", func(url string) *surf.Request { return client.Get(g.String(url)) }},
-		{"POST", func(url string) *surf.Request { return client.Post(g.String(url), g.String("test")) }},
-		{"PUT", func(url string) *surf.Request { return client.Put(g.String(url), g.String("test")) }},
+		{"POST", func(url string) *surf.Request { return client.Post(g.String(url)).Body("test") }},
+		{"PUT", func(url string) *surf.Request { return client.Put(g.String(url)).Body("test") }},
 		{"DELETE", func(url string) *surf.Request { return client.Delete(g.String(url)) }},
 	}
 

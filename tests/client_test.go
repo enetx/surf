@@ -1,7 +1,6 @@
 package surf_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -111,7 +110,7 @@ func TestClientGetWithParams(t *testing.T) {
 	params.Insert("name", "test")
 	params.Insert("value", "123")
 
-	resp := client.Get(g.String(ts.URL), params).Do()
+	resp := client.Get(g.String(ts.URL)).Body(params).Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
@@ -495,7 +494,7 @@ func TestClientPostWithData(t *testing.T) {
 			defer ts.Close()
 
 			client := surf.NewClient()
-			resp := client.Post(g.String(ts.URL), tt.data).Do()
+			resp := client.Post(g.String(ts.URL)).Body(tt.data).Do()
 			if resp.IsErr() {
 				// For XML struct test, automatic detection might not work
 				if tt.name == "XML struct" && strings.Contains(resp.Err().Error(), "data type not detected") {
@@ -518,7 +517,7 @@ func TestClientPutPatch(t *testing.T) {
 	tests := []struct {
 		name   string
 		method string
-		fn     func(*surf.Client, g.String, any) *surf.Request
+		fn     func(*surf.Client, g.String) *surf.Request
 	}{
 		{"PUT", "PUT", (*surf.Client).Put},
 		{"PATCH", "PATCH", (*surf.Client).Patch},
@@ -541,7 +540,9 @@ func TestClientPutPatch(t *testing.T) {
 			defer ts.Close()
 
 			client := surf.NewClient()
-			resp := tt.fn(client, g.String(ts.URL), "test data").Do()
+
+			req := tt.fn(client, g.String(ts.URL)).Body("test data")
+			resp := req.Do()
 			if resp.IsErr() {
 				t.Fatal(resp.Err())
 			}
@@ -597,7 +598,7 @@ func TestClientDeleteWithData(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient()
-	resp := client.Delete(g.String(ts.URL), "delete data").Do()
+	resp := client.Delete(g.String(ts.URL)).Body("delete data").Do()
 	if resp.IsErr() {
 		t.Fatal(resp.Err())
 	}
@@ -640,261 +641,6 @@ X-Custom: test
 
 	if !resp.Ok().Body.Contains("raw response") {
 		t.Error("expected 'raw response' in body")
-	}
-}
-
-func TestClientMultipart(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			t.Fatal(err)
-		}
-
-		if r.FormValue("field1") != "value1" {
-			t.Errorf("expected field1=value1, got %s", r.FormValue("field1"))
-		}
-		if r.FormValue("field2") != "value2" {
-			t.Errorf("expected field2=value2, got %s", r.FormValue("field2"))
-		}
-
-		w.WriteHeader(http.StatusOK)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	client := surf.NewClient()
-
-	data := g.NewMapOrd[g.String, g.String](2)
-	data.Insert("field1", "value1")
-	data.Insert("field2", "value2")
-
-	resp := client.Multipart(g.String(ts.URL), data).Do()
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	if !resp.Ok().StatusCode.IsSuccess() {
-		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-	}
-}
-
-func TestClientMultipartEdgeCases(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			t.Fatal(err)
-		}
-		w.WriteHeader(http.StatusOK)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	client := surf.NewClient()
-
-	// Test with empty multipart data
-	emptyData := g.NewMapOrd[g.String, g.String](0)
-	resp := client.Multipart(g.String(ts.URL), emptyData).Do()
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	// Test with special characters in field names and values
-	specialData := g.NewMapOrd[g.String, g.String](3)
-	specialData.Insert("field with spaces", "value with spaces")
-	specialData.Insert("field_with_unicode", "value with 特殊字符 🚀")
-	specialData.Insert("empty_field", "")
-
-	resp = client.Multipart(g.String(ts.URL), specialData).Do()
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	if !resp.Ok().StatusCode.IsSuccess() {
-		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-	}
-}
-
-func TestClientMultipartWithCustomBoundary(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		contentType := r.Header.Get("Content-Type")
-		if !strings.Contains(contentType, "multipart/form-data") {
-			t.Errorf("expected multipart/form-data content type, got %s", contentType)
-		}
-		if !strings.Contains(contentType, "boundary=") {
-			t.Error("expected boundary in content type")
-		}
-		w.WriteHeader(http.StatusOK)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	client := surf.NewClient().Builder().
-		Boundary(func() g.String { return "custom-boundary-123" }).
-		Build().Unwrap()
-
-	data := g.NewMapOrd[g.String, g.String](1)
-	data.Insert("test_field", "test_value")
-
-	resp := client.Multipart(g.String(ts.URL), data).Do()
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	if !resp.Ok().StatusCode.IsSuccess() {
-		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-	}
-}
-
-func TestClientMultipartInvalidURL(t *testing.T) {
-	t.Parallel()
-
-	client := surf.NewClient()
-
-	data := g.NewMapOrd[g.String, g.String](1)
-	data.Insert("field", "value")
-
-	// Test with invalid URL
-	resp := client.Multipart("invalid://url with spaces", data).Do()
-	if resp.IsOk() {
-		t.Error("expected error for invalid URL")
-	}
-}
-
-func TestClientFileUpload(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			t.Fatal(err)
-		}
-
-		file, header, err := r.FormFile("file")
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer file.Close()
-
-		if header.Filename != "test.txt" {
-			t.Errorf("expected filename test.txt, got %s", header.Filename)
-		}
-
-		content, _ := io.ReadAll(file)
-		if string(content) != "test content" {
-			t.Errorf("expected 'test content', got %s", string(content))
-		}
-
-		if r.FormValue("field") != "value" {
-			t.Errorf("expected field=value, got %s", r.FormValue("field"))
-		}
-
-		w.WriteHeader(http.StatusOK)
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	client := surf.NewClient()
-
-	// Test with io.Reader
-	reader := strings.NewReader("test content")
-	data := g.NewMapOrd[g.String, g.String](1)
-	data.Insert("field", "value")
-
-	resp := client.FileUpload(
-		g.String(ts.URL),
-		"file",
-		"test.txt",
-		reader,
-		data,
-	).Do()
-
-	if resp.IsErr() {
-		t.Fatal(resp.Err())
-	}
-
-	if !resp.Ok().StatusCode.IsSuccess() {
-		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-	}
-}
-
-func TestClientFileUploadVariants(t *testing.T) {
-	t.Parallel()
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		r.ParseMultipartForm(10 << 20)
-		file, _, _ := r.FormFile("file")
-		if file != nil {
-			content, _ := io.ReadAll(file)
-			w.Write(content)
-		}
-	}
-
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	defer ts.Close()
-
-	client := surf.NewClient()
-
-	tests := []struct {
-		name string
-		data []any
-	}{
-		{
-			name: "string content",
-			data: []any{"string content"},
-		},
-		{
-			name: "g.String content",
-			data: []any{g.String("g.String content")},
-		},
-		{
-			name: "io.Reader content",
-			data: []any{bytes.NewReader([]byte("reader content"))},
-		},
-		{
-			name: "with MapOrd[string, string]",
-			data: []any{
-				"content",
-				func() g.MapOrd[string, string] {
-					m := g.NewMapOrd[string, string](1)
-					m.Insert("key", "value")
-					return m
-				}(),
-			},
-		},
-		{
-			name: "byte content",
-			data: []any{bytes.NewReader([]byte("byte content"))},
-		},
-		{
-			name: "g.Bytes content",
-			data: []any{bytes.NewReader(g.Bytes("g.bytes content").Std())},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			resp := client.FileUpload(
-				g.String(ts.URL),
-				"file",
-				"test.txt",
-				tt.data...,
-			).Do()
-
-			if resp.IsErr() {
-				t.Fatal(resp.Err())
-			}
-
-			if !resp.Ok().StatusCode.IsSuccess() {
-				t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
-			}
-		})
 	}
 }
 
@@ -1002,8 +748,9 @@ func TestClientInvalidRequests(t *testing.T) {
 		t.Error("expected error for invalid raw request")
 	}
 
-	// Test FileUpload with non-existent file
-	resp = client.FileUpload("http://localhost:9999", "field", "/non/existent/file.txt").Do()
+	// Test multipart with non-existent file
+	mp := surf.NewMultipart().File("field", g.NewFile("/non/existent/file.txt"))
+	resp = client.Post("http://localhost:9999").Multipart(mp).Do()
 	if !resp.IsErr() {
 		t.Error("expected error for non-existent file")
 	}
