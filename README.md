@@ -435,7 +435,8 @@ user := map[string]string{
 }
 
 resp := surf.NewClient().
-    Post("https://api.example.com/users", user).
+    Post("https://api.example.com/users").
+    Body(user).
     Do()
 ```
 
@@ -449,7 +450,8 @@ formData := map[string]string{
 }
 
 resp := surf.NewClient().
-    Post("https://example.com/login", formData).
+    Post("https://example.com/login").
+    Body(formData).
     Do()
 
 // Ordered form data (preserves field insertion order)
@@ -459,7 +461,8 @@ orderedForm.Insert("password", "secret")
 orderedForm.Insert("remember_me", "true")
 
 resp := surf.NewClient().
-    Post("https://example.com/login", orderedForm).
+    Post("https://example.com/login").
+    Body(orderedForm).
     Do()
 ```
 
@@ -527,7 +530,7 @@ client := surf.NewClient().
     Unwrap()
 
 // Login
-client.Post("https://example.com/login", credentials).Do()
+client.Post("https://example.com/login").Body(credentials).Do()
 
 // Subsequent requests will include session cookies
 resp := client.Get("https://example.com/dashboard").Do()
@@ -818,11 +821,11 @@ resp := surf.NewClient().
 | Method | Description |
 |--------|-------------|
 | `NewClient()` | Creates a new HTTP client with defaults |
-| `Get(url, params...)` | Creates a GET request |
-| `Post(url, data)` | Creates a POST request |
-| `Put(url, data)` | Creates a PUT request |
-| `Patch(url, data)` | Creates a PATCH request |
-| `Delete(url, data...)` | Creates a DELETE request |
+| `Get(url)` | Creates a GET request |
+| `Post(url)` | Creates a POST request |
+| `Put(url)` | Creates a PUT request |
+| `Patch(url)` | Creates a PATCH request |
+| `Delete(url)` | Creates a DELETE request |
 | `Head(url)` | Creates a HEAD request |
 | `Raw(raw, scheme)` | Creates a request from raw HTTP |
 | `NewMultipart()` | Creates a new Multipart builder for file uploads |
@@ -873,6 +876,7 @@ resp := surf.NewClient().
 |--------|-------------|
 | `Do()` | Execute the request |
 | `WithContext(ctx)` | Add context to request |
+| `Body(data)` | Set request body (JSON, form data, bytes, string) |
 | `SetHeaders(headers...)` | Set request headers |
 | `AddHeaders(headers...)` | Add request headers |
 | `AddCookies(cookies...)` | Add cookies to request |
