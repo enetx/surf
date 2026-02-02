@@ -97,12 +97,15 @@ func (req *Request) Do() g.Result[*Response] {
 
 	// Preserve request body for retries (except HEAD requests which have no body)
 	if req.request.Method != http.MethodHead {
-		req.bodyBytes, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
-		if req.err != nil {
-			return g.Err[*Response](req.err)
+		if req.multipart == nil || req.multipart.retry {
+			req.bodyBytes, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
+			if req.err != nil {
+				return g.Err[*Response](req.err)
+			}
 		}
 	}
 
+	// Preserve request body for retries (except HEAD requests which have no body)
 	var (
 		resp     *http.Response
 		attempts int

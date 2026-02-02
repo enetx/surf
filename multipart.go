@@ -15,6 +15,7 @@ import (
 type Multipart struct {
 	fields g.MapOrd[g.String, g.String]
 	files  g.Slice[*MultipartFile]
+	retry  bool
 }
 
 // MultipartFile represents a single file for multipart upload.
@@ -105,6 +106,20 @@ func (m *Multipart) FileName(name g.String) *Multipart {
 		last.Some().fileName = name
 	}
 
+	return m
+}
+
+// Retry controls whether the multipart body should be buffered in memory
+// to support retries on status codes (429, 503, 5xx, etc.).
+//
+// When set to true, the body is fully read into memory before sending,
+// allowing the client to replay it on retry.
+//
+// Default: false (streaming mode, no status-code retry support).
+//
+// Recommended only for small requests (≤ 5–10 MB).
+func (m *Multipart) Retry(enable bool) *Multipart {
+	m.retry = enable
 	return m
 }
 

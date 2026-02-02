@@ -125,7 +125,8 @@ func multipartRetry() {
 
 	mp := surf.NewMultipart().
 		Field("username", "john_doe").
-		FileString("document", "report.txt", "This is the file content for upload")
+		FileString("document", "report.txt", "This is the file content for upload").
+		Retry(true)
 
 	r := cli.Post("http://localhost:18081/upload").Multipart(mp).Do()
 	if r.IsErr() {
