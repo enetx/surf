@@ -90,12 +90,10 @@ func (req *Request) Do() g.Result[*Response] {
 		return g.Err[*Response](req.err)
 	}
 
-	// Apply all configured request middleware
 	if err := req.cli.applyReqMW(req); err != nil {
 		return g.Err[*Response](err)
 	}
 
-	// Preserve request body for retries (except HEAD requests which have no body)
 	if req.request.Method != http.MethodHead {
 		if req.multipart == nil || req.multipart.retry {
 			req.bodyBytes, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
@@ -105,7 +103,6 @@ func (req *Request) Do() g.Result[*Response] {
 		}
 	}
 
-	// Preserve request body for retries (except HEAD requests which have no body)
 	var (
 		resp     *http.Response
 		attempts int
@@ -117,7 +114,6 @@ func (req *Request) Do() g.Result[*Response] {
 
 	builder := req.cli.builder
 
-	// Execute request with retry logic
 retry:
 	// Restore body from saved bytes for retry attempts
 	if attempts > 0 && req.bodyBytes != nil {
