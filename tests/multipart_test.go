@@ -526,7 +526,7 @@ func TestMultipartRetry(t *testing.T) {
 		Retry(2, 10*time.Millisecond, 500).
 		Build().Unwrap()
 
-	mp := surf.NewMultipart().Field("field", g.String(expectedData))
+	mp := surf.NewMultipart().Field("field", g.String(expectedData)).Retry(true)
 
 	resp := client.Post(g.String(ts.URL)).Multipart(mp).Do()
 	if resp.IsErr() {
@@ -588,7 +588,7 @@ func TestMultipartRetryWithFile(t *testing.T) {
 		Build().Unwrap()
 
 	mp := surf.NewMultipart().
-		FileString("upload", "test.txt", g.String(expectedContent))
+		FileString("upload", "test.txt", g.String(expectedContent)).Retry(true)
 
 	resp := client.Post(g.String(ts.URL)).Multipart(mp).Do()
 	if resp.IsErr() {
@@ -687,7 +687,7 @@ func TestMultipartWithImpersonate(t *testing.T) {
 func TestMultipartAndBodyMutuallyExclusive(t *testing.T) {
 	t.Parallel()
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer ts.Close()
