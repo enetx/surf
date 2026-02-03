@@ -526,7 +526,7 @@ func TestMultipartRetry(t *testing.T) {
 		Retry(2, 10*time.Millisecond, 500).
 		Build().Unwrap()
 
-	mp := surf.NewMultipart().Field("field", g.String(expectedData)).Retry(true)
+	mp := surf.NewMultipart().Field("field", g.String(expectedData)).Retry()
 
 	resp := client.Post(g.String(ts.URL)).Multipart(mp).Do()
 	if resp.IsErr() {
@@ -588,7 +588,7 @@ func TestMultipartRetryWithFile(t *testing.T) {
 		Build().Unwrap()
 
 	mp := surf.NewMultipart().
-		FileString("upload", "test.txt", g.String(expectedContent)).Retry(true)
+		FileString("upload", "test.txt", g.String(expectedContent)).Retry()
 
 	resp := client.Post(g.String(ts.URL)).Multipart(mp).Do()
 	if resp.IsErr() {

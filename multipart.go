@@ -112,14 +112,12 @@ func (m *Multipart) FileName(name g.String) *Multipart {
 // Retry controls whether the multipart body should be buffered in memory
 // to support retries on status codes (429, 503, 5xx, etc.).
 //
-// When set to true, the body is fully read into memory before sending,
+// When set, the body is fully read into memory before sending,
 // allowing the client to replay it on retry.
 //
-// Default: false (streaming mode, no status-code retry support).
-//
 // Recommended only for small requests (≤ 5–10 MB).
-func (m *Multipart) Retry(enable bool) *Multipart {
-	m.retry = enable
+func (m *Multipart) Retry() *Multipart {
+	m.retry = true
 	return m
 }
 
