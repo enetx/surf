@@ -132,7 +132,18 @@ retry:
 		resp.Body.Close()
 		attempts++
 
-		time.Sleep(builder.retryWait)
+		if builder.retryWait > 0 {
+			timer := time.NewTimer(builder.retryWait)
+			select {
+			case <-timer.C:
+			case <-req.request.Context().Done():
+				timer.Stop()
+				return g.Err[*Response](req.request.Context().Err())
+			}
+		} else if ctx := req.request.Context(); ctx.Err() != nil {
+			return g.Err[*Response](ctx.Err())
+		}
+
 		goto retry
 	}
 

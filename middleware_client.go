@@ -69,18 +69,18 @@ func boundaryMW(client *Client, boundary func() g.String) error {
 	return nil
 }
 
-// forseHTTP1MW configures the client to use HTTP/1.1 forcefully.
+// forceHTTP1MW configures the client to use HTTP/1.1 forcefully.
 // Disables HTTP/2 and forces the client to use only HTTP/1.1 protocol.
-func forseHTTP1MW(client *Client) error {
+func forceHTTP1MW(client *Client) error {
 	transport := client.GetTransport().(*http.Transport)
 	transport.Protocols = new(http.Protocols)
 	transport.Protocols.SetHTTP1(true)
 	return nil
 }
 
-// forseHTTP2MW configures the client to use HTTP/2 forcefully.
+// forceHTTP2MW configures the client to use HTTP/2 forcefully.
 // Disables HTTP/1.1 and forces the client to use only HTTP/2 protocol.
-func forseHTTP2MW(client *Client) error {
+func forceHTTP2MW(client *Client) error {
 	transport := client.GetTransport().(*http.Transport)
 	transport.Protocols = new(http.Protocols)
 	transport.Protocols.SetHTTP2(true)

@@ -292,16 +292,16 @@ func (b *Builder) Retry(retryMax int, retryWait time.Duration, codes ...int) *Bu
 // ForceHTTP1 configures the client to use HTTP/1.1 forcefully.
 func (b *Builder) ForceHTTP1() *Builder {
 	b.forceHTTP1 = true
-	return b.addCliMW(forseHTTP1MW, 0)
+	return b.addCliMW(forceHTTP1MW, 0)
 }
 
 // ForceHTTP2 configures the client to use HTTP/2 forcefully.
 func (b *Builder) ForceHTTP2() *Builder {
 	b.forceHTTP2 = true
-	return b.addCliMW(forseHTTP2MW, 0)
+	return b.addCliMW(forceHTTP2MW, 0)
 }
 
-// ForceHTTP3 configures the client to use HTTP/2 forcefully.
+// ForceHTTP3 configures the client to use HTTP/3 forcefully.
 func (b *Builder) ForceHTTP3() *Builder {
 	b.forceHTTP3 = true
 	return b

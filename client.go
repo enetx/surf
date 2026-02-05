@@ -282,9 +282,10 @@ func buildStringBody[T ~string](data T) (io.Reader, string, error) {
 
 	contentType := detectContentType(s.Bytes())
 
-	// if post encoded data aaa=bbb&ddd=ccc
-	if contentType == "text/plain; charset=utf-8" && s.ContainsAnyChars("=&") {
-		contentType = "application/x-www-form-urlencoded"
+	if contentType == "text/plain; charset=utf-8" && s.Contains("=") {
+		if _, err := url.ParseQuery(s.Std()); err == nil {
+			contentType = "application/x-www-form-urlencoded"
+		}
 	}
 
 	return s.Reader(), contentType, nil
