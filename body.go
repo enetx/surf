@@ -11,6 +11,7 @@ import (
 	"math"
 	"regexp"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/enetx/g"
@@ -66,11 +67,17 @@ type Body struct {
 	// Channel used to signal cancellation of an ongoing read operation.
 	// Closed when the body is closed or the context is done.
 	cancelRead chan g.Unit
+
+	// Indicates whether body reading has started.
+	// Used to prevent context changes after read operations begin.
+	readStarted atomic.Bool
 }
 
 // setupContextCancel initializes context cancellation monitoring.
 func (b *Body) setupContextCancel() {
 	b.setupOnce.Do(func() {
+		b.readStarted.Store(true)
+
 		if b.ctx == nil || b.Reader == nil {
 			return
 		}
@@ -233,6 +240,22 @@ func (b *Body) String() g.Result[g.String] {
 func (b *Body) Limit(limit int64) *Body {
 	if b != nil {
 		b.limit = limit
+	}
+
+	return b
+}
+
+// WithContext sets the context for cancellation of read operations.
+//
+// Must be called BEFORE reading the body (Bytes(), String(), Stream(), etc.).
+// Silently ignored if reading has already started.
+func (b *Body) WithContext(ctx context.Context) *Body {
+	if b == nil {
+		return nil
+	}
+
+	if !b.readStarted.Load() {
+		b.ctx = ctx
 	}
 
 	return b

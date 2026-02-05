@@ -569,7 +569,7 @@ if resp.IsOk() {
     switch {
     case resp.Ok().StatusCode.IsSuccess():
         fmt.Println("Success!")
-    case resp.Ok().StatusCode.IsRedirect():
+    case resp.Ok().StatusCode.IsRedirection():
         fmt.Println("Redirected to:", resp.Ok().Location())
     case resp.Ok().StatusCode.IsClientError():
         fmt.Println("Client error:", resp.Ok().StatusCode)
@@ -720,7 +720,6 @@ if resp.IsOk() {
 client := surf.NewClient().
     Builder().
     Retry(3, 2*time.Second).           // Max 3 retries, 2 second wait
-    RetryCodes(http.StatusTooManyRequests, http.StatusServiceUnavailable).
     Build().
     Unwrap()
 ```
@@ -772,7 +771,7 @@ client := surf.NewClient().
 ```go
 client := surf.NewClient().
     Builder().
-    DNSOverTLS("1.1.1.1:853").  // Cloudflare DoT
+    DNSOverTLS().Cloudflare().  // Cloudflare DoT
     Build().
     Unwrap()
 ```
@@ -828,7 +827,10 @@ resp := surf.NewClient().
 | `Delete(url)` | Creates a DELETE request |
 | `Head(url)` | Creates a HEAD request |
 | `Raw(raw, scheme)` | Creates a request from raw HTTP |
-| `NewMultipart()` | Creates a new Multipart builder for file uploads |
+| `Builder()` | Returns a new Builder for client configuration |
+| `Std()` | Convert to standard `*net/http.Client` |
+| `CloseIdleConnections()` | Closes idle connections while keeping client usable |
+| `Close()` | Completely shuts down the client and releases all resources |
 
 ### Builder Methods
 
@@ -865,10 +867,11 @@ resp := surf.NewClient().
 | `DisableKeepAlive()` | Disable keep-alive |
 | `DisableCompression()` | Disable compression |
 | `ForceHTTP1()` | Force HTTP/1.1 |
-| `UnixDomainSocket(path)` | Use Unix socket |
+| `ForceHTTP2()` | Force HTTP/2 |
+| `ForceHTTP3()` | Force HTTP/3 |
+| `UnixSocket(path)` | Use Unix socket |
 | `InterfaceAddr(addr)` | Bind to network interface |
 | `Boundary(fn)` | Custom multipart boundary generator |
-| `Std()` | Convert to standard net/http.Client |
 
 ### Request Methods
 
@@ -881,6 +884,7 @@ resp := surf.NewClient().
 | `AddHeaders(headers...)` | Add request headers |
 | `AddCookies(cookies...)` | Add cookies to request |
 | `Multipart(mp)` | Set multipart form data for request |
+| `GetRequest()` | Returns underlying `*http.Request` |
 
 ### Multipart Methods
 
@@ -894,6 +898,7 @@ resp := surf.NewClient().
 | `FileBytes(fieldName, fileName, data)` | Adds a file from byte slice |
 | `ContentType(ct)` | Sets custom Content-Type for the last added file |
 | `FileName(name)` | Overrides filename for the last added file |
+| `Retry()` | Buffers multipart body for retry support |
 
 ### Response Properties
 
@@ -909,6 +914,19 @@ resp := surf.NewClient().
 | `Proto` | `string` | HTTP protocol version |
 | `Attempts` | `int` | Number of retry attempts |
 
+### Response Methods
+
+| Method | Description |
+|--------|-------------|
+| `Debug()` | Returns debug info for request/response inspection |
+| `Location()` | Returns the Location header (redirect URL) |
+| `TLSGrabber()` | Returns TLS connection information |
+| `Referer()` | Returns HTTP Referer header from original request |
+| `GetResponse()` | Returns underlying `*http.Response` |
+| `GetCookies(url)` | Returns cookies for a specific URL |
+| `SetCookies(url, cookies)` | Stores cookies in client's cookie jar |
+| `RemoteAddress()` | Returns remote server address |
+
 ### Body Methods
 
 | Method | Description |
@@ -923,6 +941,7 @@ resp := surf.NewClient().
 | `Dump(file)` | Save to file |
 | `Contains(pattern)` | Check if contains pattern |
 | `Limit(n)` | Limit body size |
+| `WithContext(ctx)` | Set context for cancellation of read operations |
 | `Close()` | Close body reader |
 
 ## 🤝 Contributing

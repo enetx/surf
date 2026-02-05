@@ -15,22 +15,14 @@ func main() {
 
 	const url = "https://check.torproject.org/api/ip"
 
-	// for random select proxy from slice
 	r := surf.NewClient().
 		Builder().
 		// Proxy("http://127.0.0.1:2080").
-		Proxy("invalid://proxy").
-		// Proxy("socks5://127.0.0.1:9050").
+		// Proxy("invalid://proxy").
+		Proxy("socks5://127.0.0.1:9050").
 		Build().Unwrap().
 		Get(url).
 		Do()
-
-	// r := surf.NewClient().
-	// 	Builder().
-	// 	Proxy("http://127.0.0.1:8080").
-	// 	Build().
-	// 	Get(url).
-	// 	Do()
 
 	if r.IsErr() {
 		log.Fatal(r.Err())

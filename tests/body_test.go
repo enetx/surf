@@ -9,6 +9,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -1175,41 +1176,148 @@ func TestBodyContainsEdgeCases(t *testing.T) {
 	}
 }
 
-func TestBodyWithContextCancellation(t *testing.T) {
+func TestBodyWithContextTimeout(t *testing.T) {
 	t.Parallel()
 
+	// Test that context timeout is checked before reading starts
 	handler := func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		// Simulate slow response
-		time.Sleep(200 * time.Millisecond)
-		fmt.Fprint(w, "slow response")
+		fmt.Fprint(w, "response")
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Create a context that will be cancelled quickly
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	// Create already expired context
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Nanosecond)
 	defer cancel()
+	time.Sleep(10 * time.Millisecond) // Ensure timeout has passed
 
 	client := surf.NewClient()
-	resp := client.Get(g.String(ts.URL)).WithContext(ctx).Do()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
 
-	// Request should fail due to context timeout
-	if !resp.IsErr() {
-		// If request somehow completed, body should still handle context properly
-		body := resp.Ok().Body
-		if body != nil {
-			// Give context time to be cancelled
-			time.Sleep(100 * time.Millisecond)
-			content := body.Bytes()
-			// After context cancellation, bytes should be empty or partial
-			if content.IsOk() {
-				t.Logf("Body content after context cancellation: %d bytes", len(content.Ok()))
-			} else {
-				t.Logf("Body content error after context cancellation: %v", content.Err())
-			}
+	body := resp.Ok().Body.WithContext(ctx)
+	content := body.Bytes()
+
+	// Should return context error immediately
+	if content.IsOk() {
+		t.Error("expected error for expired context timeout")
+	} else {
+		if content.Err() != context.DeadlineExceeded {
+			t.Errorf("expected context.DeadlineExceeded, got: %v", content.Err())
 		}
+	}
+}
+
+func TestBodyWithContextCancel(t *testing.T) {
+	t.Parallel()
+
+	// Test that pre-cancelled context is detected
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "response")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	// Create and immediately cancel context
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.WithContext(ctx)
+	content := body.Bytes()
+
+	// Should return context error immediately
+	if content.IsOk() {
+		t.Error("expected error for cancelled context")
+	} else {
+		if content.Err() != context.Canceled {
+			t.Errorf("expected context.Canceled, got: %v", content.Err())
+		}
+	}
+}
+
+func TestBodyWithContextNoCancel(t *testing.T) {
+	t.Parallel()
+
+	expectedContent := "full response content"
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, expectedContent)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	// Context without timeout - should complete normally
+	ctx := context.Background()
+	body := resp.Ok().Body.WithContext(ctx)
+
+	content := body.Bytes()
+
+	if content.IsErr() {
+		t.Fatalf("unexpected error: %v", content.Err())
+	}
+
+	if string(content.Ok()) != expectedContent {
+		t.Errorf("expected %q, got %q", expectedContent, string(content.Ok()))
+	}
+}
+
+func TestBodyStreamWithContextCancel(t *testing.T) {
+	t.Parallel()
+
+	// Test that Stream works with valid context
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		for i := range 5 {
+			fmt.Fprintf(w, "line-%d\n", i)
+		}
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	ctx := context.Background()
+	body := resp.Ok().Body.WithContext(ctx)
+
+	stream := body.Stream()
+	if stream == nil {
+		t.Fatal("Stream() returned nil")
+	}
+	defer stream.Close()
+
+	lineCount := 0
+	scanner := bufio.NewScanner(stream)
+	for scanner.Scan() {
+		lineCount++
+	}
+
+	if lineCount != 5 {
+		t.Errorf("expected 5 lines, got %d", lineCount)
 	}
 }
 
@@ -1292,63 +1400,37 @@ func TestBodyMultipleClose(t *testing.T) {
 	}
 }
 
-func TestBodyContextCancellationDuringRead(t *testing.T) {
+func TestBodyContextAlreadyCancelled(t *testing.T) {
 	t.Parallel()
 
-	// Handler that sends data slowly
 	handler := func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Length", "1000")
 		w.WriteHeader(http.StatusOK)
-
-		flusher, ok := w.(http.Flusher)
-		if !ok {
-			t.Log("ResponseWriter doesn't support Flusher")
-			return
-		}
-
-		// Send data slowly
-		for range 10 {
-			fmt.Fprint(w, strings.Repeat("x", 100))
-			flusher.Flush()
-			time.Sleep(50 * time.Millisecond)
-		}
+		fmt.Fprint(w, "response content")
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(handler))
 	defer ts.Close()
 
-	// Context that will be cancelled during body read
+	// Create already cancelled context
 	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // Cancel immediately
 
 	client := surf.NewClient()
-	resp := client.Get(g.String(ts.URL)).WithContext(ctx).Do()
-
+	resp := client.Get(g.String(ts.URL)).Do()
 	if resp.IsErr() {
-		t.Fatalf("request error: %v", resp.Err())
+		t.Fatal(resp.Err())
 	}
 
-	body := resp.Ok().Body
-
-	// Cancel context after short delay (during body read)
-	go func() {
-		time.Sleep(100 * time.Millisecond)
-		cancel()
-	}()
-
-	// Try to read body - should fail or return partial data
-	start := time.Now()
+	body := resp.Ok().Body.WithContext(ctx)
 	content := body.Bytes()
-	elapsed := time.Since(start)
 
-	// Should complete relatively quickly due to cancellation
-	if elapsed > 400*time.Millisecond {
-		t.Errorf("read took too long: %v (expected < 400ms due to cancellation)", elapsed)
-	}
-
-	if content.IsErr() {
-		t.Logf("read error (expected): %v", content.Err())
+	// Should return context cancelled error
+	if content.IsOk() {
+		t.Error("expected error for already cancelled context")
 	} else {
-		t.Logf("read completed with %d bytes (partial data due to cancellation)", len(content.Ok()))
+		if content.Err() != context.Canceled {
+			t.Errorf("expected context.Canceled, got: %v", content.Err())
+		}
 	}
 }
 
@@ -1367,5 +1449,112 @@ func TestStreamReaderFromNilBody(t *testing.T) {
 	stream = body.Stream()
 	if stream != nil {
 		t.Error("expected nil StreamReader for body with nil Reader")
+	}
+}
+
+// simpleMockReader is a mock reader that implements SetReadDeadline.
+type simpleMockReader struct {
+	reader   io.Reader
+	deadline time.Time
+	mu       sync.Mutex
+}
+
+func (m *simpleMockReader) Read(p []byte) (n int, err error) {
+	m.mu.Lock()
+	d := m.deadline
+	m.mu.Unlock()
+
+	if !d.IsZero() && time.Now().After(d) {
+		return 0, context.DeadlineExceeded
+	}
+
+	return m.reader.Read(p)
+}
+
+func (m *simpleMockReader) Close() error {
+	return nil
+}
+
+func (m *simpleMockReader) SetReadDeadline(t time.Time) error {
+	m.mu.Lock()
+	m.deadline = t
+	m.mu.Unlock()
+	return nil
+}
+
+func TestBodyWithContextAfterReadStarted(t *testing.T) {
+	t.Parallel()
+
+	// Create a body with a mock reader that supports SetReadDeadline
+	mockReader := &simpleMockReader{
+		reader: strings.NewReader("test content"),
+	}
+
+	body := &surf.Body{
+		Reader: mockReader,
+	}
+
+	// Set context first
+	ctx := context.Background()
+	body.WithContext(ctx)
+
+	// Start reading by calling Stream() which initializes cancelRead
+	stream := body.Stream()
+	if stream == nil {
+		t.Fatal("Stream() returned nil")
+	}
+	defer stream.Close()
+
+	// WithContext after read started should not panic (no-op)
+	result := body.WithContext(context.Background())
+	if result != body {
+		t.Error("expected WithContext to return same body")
+	}
+}
+
+func TestBodyWithContextNil(t *testing.T) {
+	t.Parallel()
+
+	// Test WithContext on nil body returns nil
+	var body *surf.Body
+	result := body.WithContext(context.Background())
+	if result != nil {
+		t.Error("expected nil when calling WithContext on nil body")
+	}
+}
+
+func TestBodyWithContextBeforeRead(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "test content")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body
+
+	// WithContext before read should work without panic
+	ctx := context.Background()
+	result := body.WithContext(ctx)
+	if result != body {
+		t.Error("expected WithContext to return same body")
+	}
+
+	// Now read should work
+	content := body.Bytes()
+	if content.IsErr() {
+		t.Fatal(content.Err())
+	}
+	if string(content.Ok()) != "test content" {
+		t.Errorf("expected 'test content', got %s", string(content.Ok()))
 	}
 }
