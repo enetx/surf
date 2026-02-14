@@ -154,6 +154,16 @@ func timeoutMW(client *Client, timeout time.Duration) error {
 	return nil
 }
 
+// tlsConfigMW configures a custom TLS configuration for the client.
+// This allows setting custom certificates, cipher suites, TLS versions, and other TLS parameters.
+func tlsConfigMW(client *Client, config *tls.Config) error {
+	if config == nil {
+		return errors.New("TLS config is nil")
+	}
+	client.tlsConfig = config
+	return nil
+}
+
 // redirectPolicyMW configures the client's HTTP redirect handling behavior.
 // Sets up redirect policies including maximum redirect count, host-only redirects,
 // header forwarding on redirects, and custom redirect functions.
