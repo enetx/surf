@@ -1,6 +1,7 @@
 package surf_test
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 	"strings"
@@ -1005,5 +1006,37 @@ func TestMiddlewareClientUnixSocketValidation(t *testing.T) {
 				t.Errorf("unexpected error for socket %q: %v", tt.socket, result.Err())
 			}
 		})
+	}
+}
+
+func TestBuilderTLSConfig(t *testing.T) {
+	t.Parallel()
+
+	resultNil := surf.NewClient().Builder().TLSConfig(nil).Build()
+	if resultNil.IsOk() {
+		t.Error("expected error when TLSConfig is nil")
+	}
+
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: false,
+	}
+
+	result := surf.NewClient().
+		Builder().
+		TLSConfig(tlsConfig).
+		Build()
+
+	if result.IsErr() {
+		t.Fatalf("failed to build client with TLSConfig: %v", result.Err())
+	}
+
+	client := result.Ok()
+
+	if client.GetTLSConfig() == nil {
+		t.Fatal("expected TLS config to be set")
+	}
+
+	if client.GetTLSConfig().InsecureSkipVerify {
+		t.Error("expected InsecureSkipVerify to be false")
 	}
 }

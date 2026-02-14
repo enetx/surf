@@ -906,3 +906,16 @@ func TestBuilderForceHTTP3Chaining(t *testing.T) {
 		t.Error("Builder should not return nil client")
 	}
 }
+
+func TestBuilderTLSConfigNil(t *testing.T) {
+	t.Parallel()
+
+	result := surf.NewClient().
+		Builder().
+		TLSConfig(nil).
+		Build()
+
+	if result.IsOk() {
+		t.Fatal("expected error when TLSConfig is nil")
+	}
+}

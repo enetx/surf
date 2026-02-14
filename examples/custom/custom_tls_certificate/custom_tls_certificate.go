@@ -9,10 +9,12 @@ import (
 )
 
 func main() {
-	rootCAs, _ := x509.SystemCertPool()
-	if rootCAs == nil {
-		rootCAs = x509.NewCertPool()
-	}
+	// rootCAs, _ := x509.SystemCertPool()
+	// if rootCAs == nil {
+	// 	rootCAs = x509.NewCertPool()
+	// }
+
+	rootCAs := x509.NewCertPool()
 
 	cert := []byte(`-----BEGIN CERTIFICATE-----
 MIIDqDCCApCgAwIBAgIFAIFlYTIwDQYJKoZIhvcNAQELBQAwgYoxFDASBgNVBAYT
@@ -45,7 +47,7 @@ PB0KuEzBx1LQzkE8M0MToiGLsR2iK7x1KsWqbf7+5Y2Zqm5qmOfDm+71WnmIprnU
 	tc.InsecureSkipVerify = false
 	tc.RootCAs = rootCAs
 
-	r := cli.Get("https://www.google.com").Do()
+	r := cli.Get("https://www.google.com").Do() // certificate signed by unknown authority
 	if r.IsErr() {
 		log.Fatal(r.Err())
 	}
