@@ -2,6 +2,7 @@ package surf
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"time"
 
@@ -179,6 +180,11 @@ func (b *Builder) DNSOverTLS() *DNSOverTLS { return &DNSOverTLS{builder: b} }
 // Timeout sets the timeout duration for the client.
 func (b *Builder) Timeout(timeout time.Duration) *Builder {
 	return b.addCliMW(func(client *Client) error { return timeoutMW(client, timeout) }, 0)
+}
+
+// TLSConfig sets a custom TLS configuration for the client.
+func (b *Builder) TLSConfig(config *tls.Config) *Builder {
+	return b.addCliMW(func(client *Client) error { return tlsConfigMW(client, config) }, 0)
 }
 
 // InterfaceAddr sets the local network interface for outbound connections.
