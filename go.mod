@@ -4,9 +4,9 @@ go 1.24.0
 
 require (
 	github.com/andybalholm/brotli v1.2.0
-	github.com/enetx/g v1.0.209
-	github.com/enetx/http v1.0.25
-	github.com/enetx/http2 v1.0.25
+	github.com/enetx/g v1.0.211
+	github.com/enetx/http v1.0.26
+	github.com/enetx/http2 v1.0.26
 	github.com/enetx/http3 v1.0.7
 	github.com/enetx/utls v0.0.0-20260115181616-c525a7d559c8
 	github.com/klauspost/compress v1.18.4
