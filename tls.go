@@ -28,7 +28,7 @@ type TLSData struct {
 func tlsGrabber(cs *tls.ConnectionState) *TLSData {
 	var td TLSData
 
-	if cs != nil {
+	if cs != nil && len(cs.PeerCertificates) > 0 {
 		cert := cs.PeerCertificates[0]
 		td.DNSNames = append(td.DNSNames, cert.DNSNames...)
 		td.Emails = append(td.Emails, cert.EmailAddresses...)

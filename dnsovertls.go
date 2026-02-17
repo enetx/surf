@@ -112,8 +112,10 @@ func dial(serverName string, addresses ...string) func(context.Context, string, 
 
 		const keepAlivePeriod = 3 * time.Minute
 
-		_ = conn.(*net.TCPConn).SetKeepAlive(true)
-		_ = conn.(*net.TCPConn).SetKeepAlivePeriod(keepAlivePeriod)
+		if tc, ok := conn.(*net.TCPConn); ok {
+			_ = tc.SetKeepAlive(true)
+			_ = tc.SetKeepAlivePeriod(keepAlivePeriod)
+		}
 
 		return tls.Client(conn, &tls.Config{
 			ServerName:         serverName,

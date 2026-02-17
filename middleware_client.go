@@ -160,7 +160,13 @@ func tlsConfigMW(client *Client, config *tls.Config) error {
 	if config == nil {
 		return errors.New("TLS config is nil")
 	}
+
 	client.tlsConfig = config
+
+	if transport, ok := client.GetTransport().(*http.Transport); ok {
+		transport.TLSClientConfig = config
+	}
+
 	return nil
 }
 

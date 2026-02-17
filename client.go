@@ -15,8 +15,6 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
-	"sync"
-
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/surf/header"
@@ -34,7 +32,6 @@ type Client struct {
 	reqMWs    *middleware[*Request]  // Priority-ordered request middlewares
 	respMWs   *middleware[*Response] // Priority-ordered response middlewares
 	boundary  func() g.String        // Custom boundary generator for multipart requests
-	mwMutex   sync.Mutex             // Mutex for thread-safe middleware operations
 }
 
 // NewClient creates a new Client with sensible default settings including
@@ -63,18 +60,12 @@ func NewClient() *Client {
 // applyReqMW applies all registered request middlewares to the given request in priority order.
 // Middlewares are sorted by priority before execution, and processing stops on first error.
 func (c *Client) applyReqMW(req *Request) error {
-	c.mwMutex.Lock()
-	defer c.mwMutex.Unlock()
-
 	return c.reqMWs.run(req)
 }
 
 // applyRespMW applies all registered response middlewares to the given response in priority order.
 // Middlewares are sorted by priority before execution, and processing stops on first error.
 func (c *Client) applyRespMW(resp *Response) error {
-	c.mwMutex.Lock()
-	defer c.mwMutex.Unlock()
-
 	return c.respMWs.run(resp)
 }
 
@@ -155,6 +146,18 @@ func (c *Client) Put(rawURL g.String) *Request { return c.newRequest(http.Method
 // Patch creates a new HTTP PATCH request for the specified URL.
 // PATCH requests are used to apply partial modifications to a resource.
 func (c *Client) Patch(rawURL g.String) *Request { return c.newRequest(http.MethodPatch, rawURL) }
+
+// Options creates a new HTTP OPTIONS request for the specified URL.
+// OPTIONS requests are used to describe the communication options for a resource.
+func (c *Client) Options(rawURL g.String) *Request { return c.newRequest(http.MethodOptions, rawURL) }
+
+// Connect creates a new HTTP CONNECT request for the specified URL.
+// CONNECT requests are used to establish a tunnel to the server.
+func (c *Client) Connect(rawURL g.String) *Request { return c.newRequest(http.MethodConnect, rawURL) }
+
+// Trace creates a new HTTP TRACE request for the specified URL.
+// TRACE requests are used to perform a message loop-back test along the path to the target resource.
+func (c *Client) Trace(rawURL g.String) *Request { return c.newRequest(http.MethodTrace, rawURL) }
 
 // getCookies returns cookies for the specified URL.
 func (c *Client) getCookies(rawURL g.String) []*http.Cookie {
@@ -307,13 +310,39 @@ func buildStringBody[T ~string](data T) (io.Reader, string, error) {
 
 	contentType := detectContentType(s.Bytes())
 
-	if contentType == "text/plain; charset=utf-8" && s.Contains("=") {
-		if _, err := url.ParseQuery(s.Std()); err == nil {
-			contentType = "application/x-www-form-urlencoded"
-		}
+	if contentType == "text/plain; charset=utf-8" && isFormEncoded(s) {
+		contentType = "application/x-www-form-urlencoded"
 	}
 
 	return s.Reader(), contentType, nil
+}
+
+// isFormEncoded checks if a string looks like valid URL-encoded form data.
+// It verifies that the string consists of key=value pairs separated by &,
+// where keys and values are non-empty and contain no whitespace.
+func isFormEncoded(s g.String) bool {
+	if s.IsEmpty() || !s.Contains("=") {
+		return false
+	}
+
+	pairs := s.Split("&")
+
+	for pair := range pairs {
+		if pair.IsEmpty() {
+			return false
+		}
+
+		eq := pair.IndexRune('=')
+		if eq.Lte(0) {
+			return false
+		}
+
+		if pair.ContainsAny(" \t\n\r") {
+			return false
+		}
+	}
+
+	return true
 }
 
 // detectContentType takes a string and returns the content type of the data by checking if it's a

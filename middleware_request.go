@@ -119,7 +119,10 @@ func basicAuthMW(req *Request, authentication g.String) error {
 
 	var username, password g.String
 
-	authentication.Split(":").Collect().Unpack(&username, &password)
+	if idx := authentication.Index(":"); idx != -1 {
+		username = authentication[:idx]
+		password = authentication[idx+1:]
+	}
 
 	if username == "" || password == "" {
 		return errors.New("basic authorization fields cannot be empty")

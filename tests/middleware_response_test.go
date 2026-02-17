@@ -407,10 +407,21 @@ func TestMiddlewareResponseDecodeBodyMultipleEncodings(t *testing.T) {
 	originalData := "This data has multiple encodings"
 
 	handler := func(w http.ResponseWriter, _ *http.Request) {
-		// Multiple encoding headers (should handle gracefully)
+		// First compress with deflate, then with gzip (inner to outer)
+		var deflateBuf bytes.Buffer
+		deflateWriter := zlib.NewWriter(&deflateBuf)
+		deflateWriter.Write([]byte(originalData))
+		deflateWriter.Close()
+
+		var gzipBuf bytes.Buffer
+		gzipWriter := gzip.NewWriter(&gzipBuf)
+		gzipWriter.Write(deflateBuf.Bytes())
+		gzipWriter.Close()
+
 		w.Header().Set("Content-Encoding", "gzip, deflate")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", gzipBuf.Len()))
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, originalData)
+		w.Write(gzipBuf.Bytes())
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(handler))
@@ -424,7 +435,6 @@ func TestMiddlewareResponseDecodeBodyMultipleEncodings(t *testing.T) {
 		t.Fatal(resp.Err())
 	}
 
-	// Should handle or pass through gracefully
 	body := resp.Ok().Body.String().Unwrap()
 	if body.Std() != originalData {
 		t.Errorf("expected body %q, got %q", originalData, body.Std())

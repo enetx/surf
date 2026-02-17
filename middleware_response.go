@@ -63,26 +63,29 @@ func decodeBodyMW(r *Response) error {
 		return nil
 	}
 
-	var reader g.Result[io.ReadCloser]
+	for enc := range encoding.Split(",") {
+		var reader g.Result[io.ReadCloser]
 
-	switch encoding.Lower() {
-	case "deflate":
-		reader = g.ResultOf(zlib.NewReader(r.Body.Reader))
-	case "gzip":
-		reader = acquireGzipReader(r.Body.Reader)
-	case "br":
-		reader = acquireBrotliReader(r.Body.Reader)
-	case "zstd":
-		reader = acquireZstdReader(r.Body.Reader)
-	default:
-		return nil
+		switch enc.Trim().Lower() {
+		case "deflate":
+			reader = g.ResultOf(zlib.NewReader(r.Body.Reader))
+		case "gzip":
+			reader = acquireGzipReader(r.Body.Reader)
+		case "br":
+			reader = acquireBrotliReader(r.Body.Reader)
+		case "zstd":
+			reader = acquireZstdReader(r.Body.Reader)
+		default:
+			continue
+		}
+
+		if reader.IsErr() {
+			return reader.Err()
+		}
+
+		r.Body.Reader = reader.Ok()
 	}
 
-	if reader.IsErr() {
-		return reader.Err()
-	}
-
-	r.Body.Reader = reader.Ok()
 	r.Headers.Del(header.CONTENT_ENCODING)
 	r.Headers.Del(header.CONTENT_LENGTH)
 	r.ContentLength = -1

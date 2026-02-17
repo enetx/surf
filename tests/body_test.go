@@ -984,12 +984,12 @@ func TestBodySSEEdgeCases(t *testing.T) {
 		{
 			"Events with empty data",
 			"data: \n\ndata: content\n\n",
-			[]string{"", "content"},
+			[]string{"content"},
 		},
 		{
 			"Multiline data",
 			"data: line1\ndata: line2\n\ndata: single\n\n",
-			[]string{"line2", "single"},
+			[]string{"line1\nline2", "single"},
 		},
 		{
 			"Events with IDs",

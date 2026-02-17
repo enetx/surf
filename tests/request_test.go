@@ -456,6 +456,93 @@ func TestRequestHeadMethod(t *testing.T) {
 	}
 }
 
+func TestRequestOptionsMethod(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodOptions {
+			t.Errorf("expected OPTIONS method, got %s", r.Method)
+		}
+		w.Header().Set("Allow", "GET, POST, OPTIONS")
+		w.WriteHeader(http.StatusNoContent)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Options(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if resp.Ok().StatusCode != 204 {
+		t.Errorf("expected 204, got %d", resp.Ok().StatusCode)
+	}
+
+	if resp.Ok().Headers.Get("Allow") != "GET, POST, OPTIONS" {
+		t.Error("expected Allow header")
+	}
+}
+
+func TestRequestTraceMethod(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodTrace {
+			t.Errorf("expected TRACE method, got %s", r.Method)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "TRACE response")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Trace(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+
+	body := resp.Ok().Body.String()
+	if body.IsErr() {
+		t.Fatal(body.Err())
+	}
+
+	if body.Ok().Std() != "TRACE response" {
+		t.Errorf("expected %q, got %q", "TRACE response", body.Ok())
+	}
+}
+
+func TestRequestConnectMethod(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodConnect {
+			t.Errorf("expected CONNECT method, got %s", r.Method)
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Connect(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
 func TestRequestRemoteAddress(t *testing.T) {
 	t.Parallel()
 

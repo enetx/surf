@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/enetx/http"
+	"github.com/enetx/surf/header"
 )
 
 // Std returns a standard net/http.Client that wraps the configured surf client.
@@ -99,8 +100,22 @@ func (s *TransportAdapter) RoundTrip(req *_http.Request) (*_http.Response, error
 		request:    sreq,
 	}
 
+	if _resp.Body != nil {
+		resp.Body = &Body{
+			Reader:        _resp.Body,
+			contentType:   _resp.Header.Get(header.CONTENT_TYPE),
+			contentLength: _resp.ContentLength,
+			limit:         -1,
+			ctx:           req.Context(),
+		}
+	}
+
 	if err := s.client.applyRespMW(resp); err != nil {
 		return nil, err
+	}
+
+	if resp.Body != nil {
+		_resp.Body = resp.Body.Reader
 	}
 
 	return response(resp.response, req), nil

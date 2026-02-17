@@ -35,7 +35,11 @@ func (e *Event) parse(t, data g.String) {
 	case "retry":
 		e.Retry = data.TryInt().UnwrapOr(-1)
 	case "data":
-		e.Data = data
+		if e.Data.IsEmpty() {
+			e.Data = data
+		} else {
+			e.Data = e.Data + "\n" + data
+		}
 	}
 }
 
@@ -63,11 +67,14 @@ func Read(reader io.Reader, fn func(event *Event) bool) error {
 
 		delimiter := line.Index(":")
 		if delimiter == -1 {
-			if !fn(&event) {
-				return nil
+			if event != (Event{}) {
+				if !fn(&event) {
+					return nil
+				}
+
+				event.reset()
 			}
 
-			event.reset()
 			continue
 		}
 

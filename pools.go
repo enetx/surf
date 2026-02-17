@@ -61,9 +61,12 @@ type gzipReadCloser struct {
 
 // Close closes the reader and returns it to the pool.
 func (gr *gzipReadCloser) Close() error {
-	err := gr.Reader.Close()
+	if err := gr.Reader.Close(); err != nil {
+		return err
+	}
+
 	gzipReaderPool.Put(gr.Reader)
-	return err
+	return nil
 }
 
 // brotliReadCloser wraps a brotli reader and returns it to the pool on Close.

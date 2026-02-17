@@ -416,9 +416,10 @@ client := surf.NewClient().
 ```go
 client := surf.NewClient().
     Builder().
-    With(func(client *surf.Client) {
+    With(func(client *surf.Client) error {
         // Modify client configuration
         client.GetClient().Timeout = 30 * time.Second
+        return nil
     }).
     Build().
     Unwrap()
@@ -632,7 +633,7 @@ if resp.IsOk() {
 resp := surf.NewClient().Get("https://example.com/events").Do()
 if resp.IsOk() {
     resp.Ok().Body.SSE(func(event *sse.Event) bool {
-        fmt.Printf("Event: %s, Data: %s\n", event.Name, event.Data)
+        fmt.Printf("Event: %s, Data: %s\n", event.Event, event.Data)
         return true  // Continue reading (false to stop)
     })
 }
@@ -661,13 +662,11 @@ if resp.IsOk() {
 resp := surf.NewClient().Get("https://example.com").Do()
 if resp.IsOk() {
     if tlsInfo := resp.Ok().TLSGrabber(); tlsInfo != nil {
-        fmt.Printf("TLS Version: %s\n", tlsInfo.Version)
-        fmt.Printf("Cipher Suite: %s\n", tlsInfo.CipherSuite)
-        fmt.Printf("Server Name: %s\n", tlsInfo.ServerName)
-
-        for _, cert := range tlsInfo.PeerCertificates {
-            fmt.Printf("Certificate CN: %s\n", cert.Subject.CommonName)
-        }
+        fmt.Printf("TLS Version: %s\n", tlsInfo.TLSVersion)
+        fmt.Printf("Server Name: %s\n", tlsInfo.ExtensionServerName)
+        fmt.Printf("Fingerprint: %s\n", tlsInfo.FingerprintSHA256)
+        fmt.Printf("Common Name: %v\n", tlsInfo.CommonName)
+        fmt.Printf("Organization: %v\n", tlsInfo.Organization)
     }
 }
 ```
@@ -826,6 +825,9 @@ resp := surf.NewClient().
 | `Patch(url)` | Creates a PATCH request |
 | `Delete(url)` | Creates a DELETE request |
 | `Head(url)` | Creates a HEAD request |
+| `Options(url)` | Creates an OPTIONS request |
+| `Connect(url)` | Creates a CONNECT request |
+| `Trace(url)` | Creates a TRACE request |
 | `Raw(raw, scheme)` | Creates a request from raw HTTP |
 | `Builder()` | Returns a new Builder for client configuration |
 | `Std()` | Convert to standard `*net/http.Client` |
@@ -879,7 +881,7 @@ resp := surf.NewClient().
 |--------|-------------|
 | `Do()` | Execute the request |
 | `WithContext(ctx)` | Add context to request |
-| `Body(data)` | Set request body (JSON, form data, bytes, string) |
+| `Body(data)` | Set request body (JSON, form data, bytes, string, io.Reader) |
 | `SetHeaders(headers...)` | Set request headers |
 | `AddHeaders(headers...)` | Add request headers |
 | `AddCookies(cookies...)` | Add cookies to request |
