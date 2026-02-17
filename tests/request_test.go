@@ -1,10 +1,13 @@
 package surf_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net"
+	"os"
 	"slices"
 	"strings"
 	"testing"
@@ -1067,5 +1070,195 @@ func TestRequestContentLengthAndHostInMapOrdHeaders(t *testing.T) {
 
 	if receivedHost == "" {
 		t.Error("expected non-empty host")
+	}
+}
+
+func TestRequestBodyIOReader(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		w.Write(body)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	tests := []struct {
+		name string
+		body io.Reader
+		want string
+	}{
+		{"strings.Reader", strings.NewReader("hello stream"), "hello stream"},
+		{"bytes.Reader", bytes.NewReader([]byte("byte stream")), "byte stream"},
+		{"bytes.Buffer", bytes.NewBufferString("buffer stream"), "buffer stream"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := surf.NewClient()
+			resp := client.Post(g.String(ts.URL)).Body(tt.body).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body.String()
+			if body.IsErr() {
+				t.Fatal(body.Err())
+			}
+
+			if body.Ok().Std() != tt.want {
+				t.Errorf("expected %q, got %q", tt.want, body.Ok())
+			}
+		})
+	}
+}
+
+func TestRequestBodyReadCloser(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		w.Write(body)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	rc := io.NopCloser(strings.NewReader("readcloser data"))
+	resp := client.Post(g.String(ts.URL)).Body(rc).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.String()
+	if body.IsErr() {
+		t.Fatal(body.Err())
+	}
+
+	if body.Ok().Std() != "readcloser data" {
+		t.Errorf("expected %q, got %q", "readcloser data", body.Ok())
+	}
+}
+
+func TestRequestBodyFile(t *testing.T) {
+	t.Parallel()
+
+	content := "file content for streaming"
+
+	tmpfile, err := os.CreateTemp("", "surf-test-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.WriteString(content); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tmpfile.Seek(0, io.SeekStart); err != nil {
+		t.Fatal(err)
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		w.Write(body)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Post(g.String(ts.URL)).Body(tmpfile).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.String()
+	if body.IsErr() {
+		t.Fatal(body.Err())
+	}
+
+	if body.Ok().Std() != content {
+		t.Errorf("expected %q, got %q", content, body.Ok())
+	}
+}
+
+func TestRequestBodyPipe(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		w.Write(body)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	pr, pw := io.Pipe()
+
+	go func() {
+		pw.Write([]byte("piped data"))
+		pw.Close()
+	}()
+
+	client := surf.NewClient()
+	resp := client.Post(g.String(ts.URL)).Body(pr).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.String()
+	if body.IsErr() {
+		t.Fatal(body.Err())
+	}
+
+	if body.Ok().Std() != "piped data" {
+		t.Errorf("expected %q, got %q", "piped data", body.Ok())
+	}
+}
+
+func TestRequestContentLengthStreamBody(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%d", r.ContentLength)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	tests := []struct {
+		name           string
+		body           any
+		expectedLength string
+	}{
+		{"strings.Reader known length", strings.NewReader("hello"), "5"},
+		{"bytes.Reader known length", bytes.NewReader([]byte("test")), "4"},
+		{"bytes.Buffer known length", bytes.NewBufferString("buf"), "3"},
+		{"io.Pipe unknown length", func() io.Reader {
+			pr, pw := io.Pipe()
+			go func() { pw.Write([]byte("x")); pw.Close() }()
+			return pr
+		}(), "-1"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := surf.NewClient()
+			resp := client.Post(g.String(ts.URL)).Body(tt.body).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body.String()
+			if body.IsErr() {
+				t.Fatal(body.Err())
+			}
+
+			if body.Ok().Std() != tt.expectedLength {
+				t.Errorf("expected Content-Length %s, got %s", tt.expectedLength, body.Ok())
+			}
+		})
 	}
 }

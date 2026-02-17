@@ -27,9 +27,12 @@ func main() {
 	oh.Insert("2", "2")
 	oh.Insert(header.CONTENT_TYPE, "")
 	oh.Insert(header.CONTENT_LENGTH, "")
+	oh.Insert(header.TRANSFER_ENCODING, "")
 	oh.Insert("3", "3")
 	oh.Insert(header.HOST, "")
 	oh.Insert("4", "4")
+
+	reader := g.NewFile("headers_ordered.go").Reader().Unwrap()
 
 	r := surf.NewClient().
 		Builder().
@@ -39,7 +42,9 @@ func main() {
 		Build().
 		Unwrap().
 		// Get(url).
-		Post(url).Body("").
+		// Post(url).Body("").
+		// Post(url).Body("root").
+		Post(url).Body(reader).
 		Do()
 
 	if r.IsErr() {

@@ -222,7 +222,7 @@ func (req *Request) Body(data any) *Request {
 		return req
 	}
 
-	var n int64
+	n := int64(-1)
 
 	switch v := body.(type) {
 	case *bytes.Reader:
@@ -238,7 +238,11 @@ func (req *Request) Body(data any) *Request {
 	if n == 0 {
 		req.request.Body = http.NoBody
 	} else {
-		req.request.Body = io.NopCloser(body)
+		if rc, ok := body.(io.ReadCloser); ok {
+			req.request.Body = rc
+		} else {
+			req.request.Body = io.NopCloser(body)
+		}
 	}
 
 	if contentType != "" {
@@ -254,6 +258,10 @@ func (req *Request) Body(data any) *Request {
 func buildBody(data any) (io.Reader, string, error) {
 	if data == nil {
 		return nil, "", nil
+	}
+
+	if r, ok := data.(io.Reader); ok {
+		return r, "", nil
 	}
 
 	switch d := data.(type) {
