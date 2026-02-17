@@ -222,7 +222,24 @@ func (req *Request) Body(data any) *Request {
 		return req
 	}
 
-	req.request.Body = io.NopCloser(body)
+	var n int64
+
+	switch v := body.(type) {
+	case *bytes.Reader:
+		n = int64(v.Len())
+	case *strings.Reader:
+		n = int64(v.Len())
+	case *bytes.Buffer:
+		n = int64(v.Len())
+	}
+
+	req.request.ContentLength = n
+
+	if n == 0 {
+		req.request.Body = http.NoBody
+	} else {
+		req.request.Body = io.NopCloser(body)
+	}
 
 	if contentType != "" {
 		req.request.Header.Set(header.CONTENT_TYPE, contentType)

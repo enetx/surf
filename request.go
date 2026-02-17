@@ -302,7 +302,12 @@ func (req *Request) applyHeaders(
 		updated := updateRequestHeaderOrder(req, h)
 		updated.Iter().ForEach(func(key, value g.String) { setOrAdd(r.Header, key.Std(), value.Std()) })
 	default:
-		panic(fmt.Sprintf("unsupported headers type: expected 'http.Header', 'surf.Headers', 'map[~string]~string', 'Map[~string, ~string]', or 'MapOrd[~string, ~string]', got %T", rawHeaders[0]))
+		panic(
+			fmt.Sprintf(
+				"unsupported headers type: expected 'http.Header', 'surf.Headers', 'map[~string]~string', 'Map[~string, ~string]', or 'MapOrd[~string, ~string]', got %T",
+				rawHeaders[0],
+			),
+		)
 	}
 }
 

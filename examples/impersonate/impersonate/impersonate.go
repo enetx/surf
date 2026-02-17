@@ -35,9 +35,9 @@ func main() {
 		// MacOS().
 		// IOS().
 		// Android().
-		Firefox().
+		// Firefox().
 		// FirefoxPrivate().
-		// Chrome().
+		Chrome().
 		// SetHeaders(map[string]string{
 		// 	"Accept-Encoding": "gzip, deflate",
 		// }).
@@ -45,17 +45,17 @@ func main() {
 		Unwrap()
 
 	r := cli.
-		Get(url).
-		// Post(url).Body(g.String("test").Encode().JSON().Ok()).
+		// Get(url).
+		Post(url).Body(g.String("test").Encode().JSON().Ok()).
 		Do()
 
 	if r.IsErr() {
 		log.Fatal(r.Err())
 	}
 
-	r.Ok().Body.String().Unwrap().Println()
+	// r.Ok().Body.String().Unwrap().Println()
 
 	// fmt.Println(r.Ok().Time)
 
-	// r.Ok().Debug().Request().Response(true).Print()
+	r.Ok().Debug().Request(true).Response(true).Print()
 }

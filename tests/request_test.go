@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
 	"github.com/enetx/surf"
+	"github.com/enetx/surf/header"
 )
 
 func TestRequestDo(t *testing.T) {
@@ -704,5 +707,365 @@ func TestRequestChaining(t *testing.T) {
 
 	if !resp.Ok().StatusCode.IsSuccess() {
 		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
+func TestRequestContentLengthWithBody(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%d", r.ContentLength)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	tests := []struct {
+		name           string
+		body           any
+		expectedLength string
+	}{
+		{"String body", "hello", "5"},
+		{"g.String body", g.String("hello world"), "11"},
+		{"Byte body", []byte("test"), "4"},
+		{"g.Bytes body", g.Bytes("abc"), "3"},
+		{"Long string", strings.Repeat("x", 1000), "1000"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := surf.NewClient()
+			resp := client.Post(g.String(ts.URL)).Body(tt.body).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body.String()
+			if body.IsErr() {
+				t.Fatal(body.Err())
+			}
+
+			if body.Ok().Std() != tt.expectedLength {
+				t.Errorf("expected Content-Length %s, got %s", tt.expectedLength, body.Ok())
+			}
+		})
+	}
+}
+
+func TestRequestContentLengthEmptyBody(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%d", r.ContentLength)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	tests := []struct {
+		name string
+		body any
+	}{
+		{"Empty string", ""},
+		{"Empty g.String", g.String("")},
+		{"Empty bytes", []byte("")},
+		{"Empty g.Bytes", g.Bytes("")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := surf.NewClient()
+			resp := client.Post(g.String(ts.URL)).Body(tt.body).Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+
+			body := resp.Ok().Body.String()
+			if body.IsErr() {
+				t.Fatal(body.Err())
+			}
+
+			if body.Ok().Std() != "0" {
+				t.Errorf("expected Content-Length 0, got %s", body.Ok())
+			}
+		})
+	}
+}
+
+func TestRequestContentLengthNilBody(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%d", r.ContentLength)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+	resp := client.Post(g.String(ts.URL)).Body(nil).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.String()
+	if body.IsErr() {
+		t.Fatal(body.Err())
+	}
+
+	if body.Ok().Std() != "0" {
+		t.Errorf("expected Content-Length 0, got %s", body.Ok())
+	}
+}
+
+func TestRequestContentLengthInMapOrdHeaders(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%d", r.ContentLength)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+
+	headers := g.NewMapOrd[g.String, g.String]()
+	headers.Insert("X-First", "1")
+	headers.Insert(header.CONTENT_LENGTH, "")
+	headers.Insert("X-Last", "2")
+
+	req := client.Post(g.String(ts.URL)).Body("test data").SetHeaders(headers)
+
+	// Verify header order preserves the position: x-first < content-length < x-last
+	headerOrder := req.GetRequest().Header[http.HeaderOrderKey]
+
+	idxFirst := slices.Index(headerOrder, "x-first")
+	idxCL := slices.Index(headerOrder, "content-length")
+	idxLast := slices.Index(headerOrder, "x-last")
+
+	if idxCL == -1 {
+		t.Fatalf("expected content-length in header order, got %v", headerOrder)
+	}
+
+	if idxFirst == -1 || idxLast == -1 {
+		t.Fatalf("expected x-first and x-last in header order, got %v", headerOrder)
+	}
+
+	if !(idxFirst < idxCL && idxCL < idxLast) {
+		t.Errorf("expected order x-first < content-length < x-last, got %v", headerOrder)
+	}
+
+	resp := req.Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.String()
+	if body.IsErr() {
+		t.Fatal(body.Err())
+	}
+
+	if body.Ok().Std() != "9" {
+		t.Errorf("expected Content-Length 9, got %s", body.Ok())
+	}
+}
+
+func TestRequestHostInMapOrdHeaders(t *testing.T) {
+	t.Parallel()
+
+	var receivedHost string
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		receivedHost = r.Host
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+
+	// Host at arbitrary position (between other headers)
+	headers := g.NewMapOrd[g.String, g.String]()
+	headers.Insert("X-Before", "1")
+	headers.Insert(header.HOST, "")
+	headers.Insert("X-After", "2")
+
+	req := client.Get(g.String(ts.URL)).SetHeaders(headers)
+
+	// Verify header order preserves the position: x-before < host < x-after
+	headerOrder := req.GetRequest().Header[http.HeaderOrderKey]
+
+	idxBefore := slices.Index(headerOrder, "x-before")
+	idxHost := slices.Index(headerOrder, "host")
+	idxAfter := slices.Index(headerOrder, "x-after")
+
+	if idxHost == -1 {
+		t.Fatalf("expected host in header order, got %v", headerOrder)
+	}
+
+	if idxBefore == -1 || idxAfter == -1 {
+		t.Fatalf("expected x-before and x-after in header order, got %v", headerOrder)
+	}
+
+	if !(idxBefore < idxHost && idxHost < idxAfter) {
+		t.Errorf("expected order x-before < host < x-after, got %v", headerOrder)
+	}
+
+	resp := req.Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+
+	// The server should still receive a valid host
+	if receivedHost == "" {
+		t.Error("expected non-empty host")
+	}
+}
+
+func TestRequestHostPositionInMapOrdHeaders(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	tests := []struct {
+		name          string
+		buildHeaders  func() g.MapOrd[g.String, g.String]
+		expectedOrder []string
+	}{
+		{
+			name: "Host first",
+			buildHeaders: func() g.MapOrd[g.String, g.String] {
+				h := g.NewMapOrd[g.String, g.String]()
+				h.Insert(header.HOST, "")
+				h.Insert("X-Custom-1", "a")
+				h.Insert("X-Custom-2", "b")
+				return h
+			},
+			expectedOrder: []string{"host", "x-custom-1", "x-custom-2"},
+		},
+		{
+			name: "Host middle",
+			buildHeaders: func() g.MapOrd[g.String, g.String] {
+				h := g.NewMapOrd[g.String, g.String]()
+				h.Insert("X-Custom-1", "a")
+				h.Insert(header.HOST, "")
+				h.Insert("X-Custom-2", "b")
+				return h
+			},
+			expectedOrder: []string{"x-custom-1", "host", "x-custom-2"},
+		},
+		{
+			name: "Host last",
+			buildHeaders: func() g.MapOrd[g.String, g.String] {
+				h := g.NewMapOrd[g.String, g.String]()
+				h.Insert("X-Custom-1", "a")
+				h.Insert("X-Custom-2", "b")
+				h.Insert(header.HOST, "")
+				return h
+			},
+			expectedOrder: []string{"x-custom-1", "x-custom-2", "host"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := surf.NewClient()
+			req := client.Get(g.String(ts.URL)).SetHeaders(tt.buildHeaders())
+
+			// Verify header order on the client request (HeaderOrderKey is client-side only)
+			headerOrder := req.GetRequest().Header[http.HeaderOrderKey]
+
+			orderIdx := 0
+			for _, h := range headerOrder {
+				if orderIdx < len(tt.expectedOrder) && h == tt.expectedOrder[orderIdx] {
+					orderIdx++
+				}
+			}
+
+			if orderIdx != len(tt.expectedOrder) {
+				t.Errorf("expected header order %v, but got %v", tt.expectedOrder, headerOrder)
+			}
+
+			resp := req.Do()
+			if resp.IsErr() {
+				t.Fatal(resp.Err())
+			}
+		})
+	}
+}
+
+func TestRequestContentLengthAndHostInMapOrdHeaders(t *testing.T) {
+	t.Parallel()
+
+	var receivedHost string
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		receivedHost = r.Host
+		fmt.Fprintf(w, "%d", r.ContentLength)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient()
+
+	// Both Host and Content-Length at arbitrary positions
+	headers := g.NewMapOrd[g.String, g.String]()
+	headers.Insert("X-First", "1")
+	headers.Insert(header.CONTENT_LENGTH, "")
+	headers.Insert("X-Middle", "2")
+	headers.Insert(header.HOST, "")
+	headers.Insert("X-Last", "3")
+
+	req := client.Post(g.String(ts.URL)).Body("payload").SetHeaders(headers)
+
+	// Verify order: x-first < content-length < x-middle < host < x-last
+	headerOrder := req.GetRequest().Header[http.HeaderOrderKey]
+
+	idxFirst := slices.Index(headerOrder, "x-first")
+	idxCL := slices.Index(headerOrder, "content-length")
+	idxMiddle := slices.Index(headerOrder, "x-middle")
+	idxHost := slices.Index(headerOrder, "host")
+	idxLast := slices.Index(headerOrder, "x-last")
+
+	if idxCL == -1 {
+		t.Fatalf("expected content-length in header order, got %v", headerOrder)
+	}
+
+	if idxHost == -1 {
+		t.Fatalf("expected host in header order, got %v", headerOrder)
+	}
+
+	if !(idxFirst < idxCL && idxCL < idxMiddle && idxMiddle < idxHost && idxHost < idxLast) {
+		t.Errorf("expected order x-first < content-length < x-middle < host < x-last, got %v", headerOrder)
+	}
+
+	resp := req.Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	body := resp.Ok().Body.String()
+	if body.IsErr() {
+		t.Fatal(body.Err())
+	}
+
+	if body.Ok().Std() != "7" {
+		t.Errorf("expected Content-Length 7, got %s", body.Ok())
+	}
+
+	if receivedHost == "" {
+		t.Error("expected non-empty host")
 	}
 }

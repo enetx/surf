@@ -4,8 +4,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/enetx/g v1.0.211 h1:95inofgdvsxApo5MfK4QVDMilCkbDPAezUpYU8wEihE=
 github.com/enetx/g v1.0.211/go.mod h1:7WJVidg+Qj6+R6DOvrZenFwxGkmrITPWzqc88MPQIF4=
-github.com/enetx/http v1.0.26 h1:BDoPBaSM1a1kvsSIfX/KsgoPjP/BNWvS+yOEViFGJas=
-github.com/enetx/http v1.0.26/go.mod h1:1f4mytfF/SfjATEJnynpwGS6aa1ALjb8DtmYgFVblY0=
+github.com/enetx/http v1.0.27 h1:DW6ztYKiZZA1vz6qlcm2FnWZQHYZssSvaP/NRboxRac=
+github.com/enetx/http v1.0.27/go.mod h1:1f4mytfF/SfjATEJnynpwGS6aa1ALjb8DtmYgFVblY0=
 github.com/enetx/http2 v1.0.26 h1:wy3lYGVwnIUY4Q+gyPPQCJ1a+BMXD1B7Unpyc/Csrxc=
 github.com/enetx/http2 v1.0.26/go.mod h1:t54ex5HIS8V1+2j6cvEOv6umlrHsbUPFKQ54nYB58Nk=
 github.com/enetx/http3 v1.0.7 h1:daFhveKBtv8rRallCjaHErzzSHIrq07ovoSvVkvhcMM=
