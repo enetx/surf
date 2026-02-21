@@ -263,3 +263,75 @@ var HelloFirefoxPrivate_147 = utls.ClientHelloSpec{
 		},
 	},
 }
+
+var HelloFirefox_147QUICS = utls.ClientHelloSpec{
+	CipherSuites: []uint16{
+		utls.TLS_AES_128_GCM_SHA256,
+		utls.TLS_CHACHA20_POLY1305_SHA256,
+		utls.TLS_AES_256_GCM_SHA384,
+	},
+	CompressionMethods: []uint8{0},
+	Extensions: []utls.TLSExtension{
+		&utls.ALPNExtension{
+			AlpnProtocols: []string{"h3"},
+		},
+		&utls.SupportedVersionsExtension{
+			Versions: []uint16{
+				utls.VersionTLS13,
+			},
+		},
+		&utls.UtlsCompressCertExtension{
+			Algorithms: []utls.CertCompressionAlgo{
+				utls.CertCompressionZlib,
+				utls.CertCompressionZstd,
+				utls.CertCompressionBrotli,
+			},
+		},
+		&utls.GenericExtension{
+			Id:   28,
+			Data: []byte{0x40, 0x01},
+		},
+		&utls.SupportedCurvesExtension{
+			Curves: []utls.CurveID{
+				utls.X25519MLKEM768,
+				utls.X25519,
+				utls.CurveP256,
+				utls.CurveP384,
+				utls.CurveP521,
+			},
+		},
+		&utls.KeyShareExtension{
+			KeyShares: []utls.KeyShare{
+				{Group: utls.X25519MLKEM768},
+				{Group: utls.X25519},
+				{Group: utls.CurveP256},
+			},
+		},
+		&utls.ExtendedMasterSecretExtension{},
+		&utls.SignatureAlgorithmsExtension{
+			SupportedSignatureAlgorithms: []utls.SignatureScheme{
+				utls.ECDSAWithP256AndSHA256,
+				utls.ECDSAWithP384AndSHA384,
+				utls.ECDSAWithP521AndSHA512,
+				utls.ECDSAWithSHA1,
+				utls.PSSWithSHA256,
+				utls.PSSWithSHA384,
+				utls.PSSWithSHA512,
+				utls.PKCS1WithSHA256,
+				utls.PKCS1WithSHA384,
+				utls.PKCS1WithSHA512,
+				utls.PKCS1WithSHA1,
+			},
+		},
+		&utls.PSKKeyExchangeModesExtension{
+			Modes: []uint8{1},
+		},
+		&utls.DelegatedCredentialsExtension{},
+		&utls.RenegotiationInfoExtension{
+			Renegotiation: utls.RenegotiateOnceAsClient,
+		},
+		&utls.SNIExtension{},
+		&utls.StatusRequestExtension{},
+		&utls.QUICTransportParametersExtension{},
+	},
+}

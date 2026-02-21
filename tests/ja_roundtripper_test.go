@@ -2,6 +2,7 @@ package surf_test
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"strings"
 	"sync/atomic"
@@ -786,6 +787,216 @@ func TestJARoundtripperSessionCaching(t *testing.T) {
 	req := client.Get(g.String("https://127.0.0.1:8080/get"))
 	if req == nil {
 		t.Fatal("expected request to be created")
+	}
+}
+
+// TestDialTLSHTTP2ALPNGateSuccess verifies that when the server negotiates
+// "h2", the ALPN gate in dialTLSHTTP2 passes the connection through and the
+// request completes over HTTP/2.
+func TestDialTLSHTTP2ALPNGateSuccess(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"alpn":"h2"}`)
+	}))
+
+	ts.TLS = &tls.Config{
+		NextProtos: []string{"h2", "http/1.1"},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome144().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("expected h2 request to succeed: %v", resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected 2xx, got %d", resp.Ok().StatusCode)
+	}
+
+	httpResp := resp.Ok().GetResponse()
+	if httpResp.Proto != "HTTP/2.0" {
+		t.Errorf("expected HTTP/2.0 when server supports h2, got %s", httpResp.Proto)
+	}
+}
+
+// TestDialTLSHTTP2ALPNGateFallback verifies that when a server only negotiates
+// "http/1.1" (no h2), dialTLSHTTP2 rejects the connection and the request
+// successfully falls back to HTTP/1.1.
+func TestDialTLSHTTP2ALPNGateFallback(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"alpn":"gated"}`)
+	}))
+
+	ts.TLS = &tls.Config{
+		NextProtos: []string{"http/1.1"},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome144().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("expected HTTP/1.1 fallback to succeed: %v", resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected 2xx after ALPN gate fallback, got %d", resp.Ok().StatusCode)
+	}
+
+	httpResp := resp.Ok().GetResponse()
+	if httpResp.Proto != "HTTP/1.1" {
+		t.Errorf("expected HTTP/1.1 after ALPN gate, got %s", httpResp.Proto)
+	}
+}
+
+// TestDialTLSHTTP2ALPNGateNoProtocol verifies that when the server does not
+// include any ALPN extension (nil NextProtos), dialTLSHTTP2 also rejects the
+// connection (empty NegotiatedProtocol != "h2") and falls back to HTTP/1.1.
+func TestDialTLSHTTP2ALPNGateNoProtocol(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"alpn":"empty"}`)
+	}))
+
+	// nil (not []string{}) guarantees no ALPN extension in ServerHello.
+	ts.TLS = &tls.Config{
+		NextProtos: nil,
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome144().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("expected HTTP/1.1 fallback to succeed: %v", resp.Err())
+	}
+
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected 2xx after ALPN gate fallback, got %d", resp.Ok().StatusCode)
+	}
+
+	httpResp := resp.Ok().GetResponse()
+	if httpResp.Proto != "HTTP/1.1" {
+		t.Errorf("expected HTTP/1.1 after ALPN gate, got %s", httpResp.Proto)
+	}
+}
+
+// TestDialTLSHTTP2ALPNGateErrorWrapping verifies that when the ALPN gate
+// rejects the HTTP/2 connection AND the HTTP/1.1 fallback also fails, the
+// returned error is an *ErrHTTP2Fallback containing both underlying errors.
+//
+// To achieve this the server stays alive (so TLS handshake succeeds and the
+// ALPN gate fires) but hijacks the HTTP/1.1 fallback connection and closes
+// it immediately, causing the fallback transport to fail as well.
+func TestDialTLSHTTP2ALPNGateErrorWrapping(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		// Hijack and immediately close — the fallback HTTP/1.1 request
+		// will get a connection-reset / EOF.
+		hj, ok := w.(http.Hijacker)
+		if !ok {
+			t.Log("Hijacker not supported, writing 500")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		conn, _, err := hj.Hijack()
+		if err != nil {
+			t.Logf("hijack failed: %v", err)
+			return
+		}
+
+		conn.Close()
+	}))
+
+	// Server only negotiates http/1.1 → ALPN gate will reject the h2 attempt.
+	ts.TLS = &tls.Config{
+		NextProtos: []string{"http/1.1"},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome144().
+		Timeout(2 * time.Second).
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsOk() {
+		t.Fatal("expected error when fallback connection is hijacked and closed")
+	}
+
+	// Verify the error is the combined wrapper produced by handleHTTPSRequest.
+	var fallbackErr *surf.ErrHTTP2Fallback
+	if !errors.As(resp.Err(), &fallbackErr) {
+		t.Fatalf("expected *ErrHTTP2Fallback, got %T: %v", resp.Err(), resp.Err())
+	}
+
+	if fallbackErr.HTTP2 == nil {
+		t.Error("ErrHTTP2Fallback.HTTP2 should contain the ALPN gate error")
+	}
+
+	if fallbackErr.HTTP1 == nil {
+		t.Error("ErrHTTP2Fallback.HTTP1 should contain the fallback error")
+	}
+
+	t.Logf("HTTP2 error: %v", fallbackErr.HTTP2)
+	t.Logf("HTTP1 error: %v", fallbackErr.HTTP1)
+}
+
+// ---------------------------------------------------------------------------
+// 5. forceHTTP1 → no ALPN gate involved, always HTTP/1.1
+// ---------------------------------------------------------------------------
+
+// TestForceHTTP1BypassesALPNGate verifies that when the client forces
+// HTTP/1.1, the ALPN gate is never involved and requests succeed over
+// HTTP/1.1 even when the server supports h2.
+func TestForceHTTP1BypassesALPNGate(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"forced":"http1"}`)
+	}))
+
+	ts.TLS = &tls.Config{
+		NextProtos: []string{"h2", "http/1.1"},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome144().
+		ForceHTTP1().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("expected forced HTTP/1.1 request to succeed: %v", resp.Err())
+	}
+
+	httpResp := resp.Ok().GetResponse()
+	if httpResp.Proto != "HTTP/1.1" {
+		t.Errorf("expected HTTP/1.1 with forceHTTP1, got %s", httpResp.Proto)
 	}
 }
 

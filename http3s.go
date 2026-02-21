@@ -168,6 +168,10 @@ func (ut *uquicTransport) initTransport() error {
 			HandshakeIdleTimeout: _quicHandshakeTimeout,
 			MaxIdleTimeout:       _quicMaxIdleTimeout,
 			KeepAlivePeriod:      _quicKeepAlivePeriod,
+			// InitialStreamReceiveWindow:     6291456,  // initial_max_stream_data_bidi_remote, initial_max_stream_data_bidi_local, initial_max_stream_data_uni
+			// InitialConnectionReceiveWindow: 15728640, // initial_max_data
+			// MaxIncomingStreams:             100,      // initial_max_streams_bidi
+			// MaxIncomingUniStreams:          103,      // initial_max_streams_uni
 		},
 		AdditionalSettings:     ut.settings,
 		MaxResponseHeaderBytes: _maxResponseHeaderBytes,
