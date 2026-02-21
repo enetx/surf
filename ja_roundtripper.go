@@ -130,7 +130,7 @@ func (rt *roundtripper) CloseIdleConnections() {
 func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	t := &http2.Transport{
 		DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
-			return rt.dialTLS(ctx, network, addr)
+			return rt.dialTLSHTTP2(ctx, network, addr)
 		},
 		DisableCompression: rt.http1tr.DisableCompression,
 		IdleConnTimeout:    rt.http1tr.IdleConnTimeout,
@@ -182,6 +182,23 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 // dialTLS performs TLS handshake using uTLS with default ALPN (h2, http/1.1).
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
 	return rt.tlsHandshake(ctx, network, addr, false)
+}
+
+// dialTLSHTTP2 performs TLS handshake and ensures ALPN selected HTTP/2.
+// If ALPN negotiated HTTP/1.1 (or no protocol), this fails before any HTTP/2 bytes are written.
+func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string) (net.Conn, error) {
+	uconn, err := rt.tlsHandshake(ctx, network, addr, false)
+	if err != nil {
+		return nil, err
+	}
+
+	negotiatedProtocol := uconn.ConnectionState().NegotiatedProtocol
+	if negotiatedProtocol != "h2" {
+		uconn.Close()
+		return nil, fmt.Errorf("surf: negotiated ALPN %q, expected h2", negotiatedProtocol)
+	}
+
+	return uconn, nil
 }
 
 // dialTLSHTTP1 performs TLS handshake using uTLS with HTTP/1.1 only ALPN.
