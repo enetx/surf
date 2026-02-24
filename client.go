@@ -222,6 +222,12 @@ func (req *Request) Body(data any) *Request {
 		return req
 	}
 
+	// if Reader implements extra Len() method then set-content length explicitly before wrapping with NopCloser
+	lenReader, hasLen := body.(interface{ Len() int })
+	if hasLen {
+		req.request.ContentLength = int64(lenReader.Len())
+	}
+
 	req.request.Body = io.NopCloser(body)
 
 	if contentType != "" {
