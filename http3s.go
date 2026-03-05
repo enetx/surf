@@ -91,7 +91,7 @@ func (h *HTTP3Settings) Grease() *HTTP3Settings {
 // Set applies the configured HTTP/3 settings to the client's transport.
 func (h *HTTP3Settings) Set() *Builder {
 	return h.builder.addCliMW(func(c *Client) error {
-		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || !h.builder.http3 {
+		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || !h.builder.forceHTTP3 {
 			return nil
 		}
 
@@ -130,9 +130,7 @@ func newUQUICTransport(settings g.MapOrd[uint64, uint64], c *Client, builder *Bu
 		proxy:     builder.proxy.Std(),
 	}
 
-	if !builder.forceHTTP3 {
-		ut.fallbackTransport = c.GetTransport()
-	}
+	ut.fallbackTransport = c.GetTransport()
 
 	if ut.proxy != "" && !isSOCKS5Proxy(ut.proxy) {
 		if ut.fallbackTransport == nil {

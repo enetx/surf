@@ -193,7 +193,7 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     Impersonate().Chrome().
-    HTTP3().    // Auto-detects Chrome and applies appropriate HTTP/3 settings
+    ForceHTTP3().    // Auto-detects Chrome and applies appropriate HTTP/3 settings
     Build().
     Unwrap()
 
@@ -210,7 +210,7 @@ if resp.IsOk() {
 client := surf.NewClient().
     Builder().
     Impersonate().Firefox().
-    HTTP3().    // Auto-detects Firefox and applies Firefox HTTP/3 settings
+    ForceHTTP3().    // Auto-detects Firefox and applies Firefox HTTP/3 settings
     Build().
     Unwrap()
 
@@ -238,7 +238,7 @@ HTTP/3 automatically handles compatibility issues:
 client := surf.NewClient().
     Builder().
     Proxy("http://proxy:8080").    // HTTP proxies incompatible with HTTP/3
-    HTTP3().                       // Will use HTTP/2 instead
+    ForceHTTP3().                  // Will use HTTP/2 instead
     Build().
     Unwrap()
 
@@ -246,7 +246,7 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     Proxy("socks5://127.0.0.1:1080").    // SOCKS5 UDP proxy supports HTTP/3
-    HTTP3().                             // Will use HTTP/3 over SOCKS5
+    ForceHTTP3().                        // Will use HTTP/3 over SOCKS5
     Build().
     Unwrap()
 
@@ -254,7 +254,7 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     DNS("8.8.8.8:53").   // Custom DNS works with HTTP/3
-    HTTP3().
+    ForceHTTP3().
     Build().
     Unwrap()
 
@@ -262,7 +262,7 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     DNSOverTLS().Google().   // DoT works with HTTP/3
-    HTTP3().Set().
+    ForceHTTP3().Set().
     Build().
     Unwrap()
 ```
@@ -274,7 +274,7 @@ client := surf.NewClient().
 - ✅ **Automatic Fallback**: Smart fallback to HTTP/2 when HTTP proxies are configured
 - ✅ **DNS Integration**: Custom DNS and DNS-over-TLS support
 - ✅ **JA4QUIC Support**: Advanced QUIC fingerprinting with Initial Packet + TLS ClientHello
-- ✅ **Order Independence**: `HTTP3()` works regardless of call order
+- ✅ **Order Independence**: `ForceHTTP3()` works regardless of call order
 
 ## 🔧 Advanced Configuration
 
@@ -367,7 +367,7 @@ client := surf.NewClient().
     Builder().
     Proxy("socks5://127.0.0.1:1080").
     Impersonate().Chrome().
-    HTTP3().  // Uses HTTP/3 over SOCKS5 UDP
+    ForceHTTP3().  // Uses HTTP/3 over SOCKS5 UDP
     Build().
     Unwrap()
 
@@ -376,7 +376,7 @@ client := surf.NewClient().
     Builder().
     DNS("8.8.8.8:53").              // Custom DNS resolver
     Proxy("socks5://proxy:1080").   // SOCKS5 UDP proxy
-    HTTP3().                        // HTTP/3 over SOCKS5
+    ForceHTTP3().                   // HTTP/3 over SOCKS5
     Build().
     Unwrap()
 ```
@@ -842,7 +842,6 @@ resp := surf.NewClient().
 | `JA()` | Configure JA3/JA4 fingerprinting |
 | `HTTP2Settings()` | Configure HTTP/2 parameters |
 | `HTTP3Settings()` | Configure HTTP/3 parameters |
-| `HTTP3()` | Enable HTTP/3 with automatic browser detection |
 | `H2C()` | Enable HTTP/2 cleartext |
 | `Proxy(proxy)` | Set proxy configuration |
 | `DNS(dns)` | Set custom DNS resolver |

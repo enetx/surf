@@ -16,8 +16,8 @@ func main() {
 		// Proxy("socks5h://127.0.0.1:2080").
 		// Proxy("http://127.0.0.1:2080").
 
-		// Impersonate().Firefox().HTTP3().
-		Impersonate().Chrome().HTTP3().
+		// Impersonate().Firefox().ForceHTTP3().
+		Impersonate().Chrome().ForceHTTP3().
 		Build().
 		Unwrap()
 

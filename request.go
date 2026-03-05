@@ -319,7 +319,7 @@ func (req *Request) applyHeaders(
 func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[T, T] {
 	if r.cli.builder != nil {
 		method := r.request.Method
-		if r.cli.builder.http3 {
+		if r.cli.builder.forceHTTP3 {
 			method += "http3"
 		}
 

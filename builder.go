@@ -41,7 +41,6 @@ type Builder struct {
 	followOnlyHostRedirects  bool                                       // Only follow redirects within same host
 	forwardHeadersOnRedirect bool                                       // Preserve headers during redirects
 	ja                       bool                                       // Enable JA3 TLS fingerprinting
-	http3                    bool                                       // Enable HTTP/3 with automatic browser detection
 	disableCompression       bool                                       // Disable automatic response body decompression
 }
 
@@ -148,8 +147,9 @@ func (b *Builder) HTTP3Settings() *HTTP3Settings {
 	return h3
 }
 
-func (b *Builder) HTTP3() *Builder {
-	b.http3 = true
+// ForceHTTP3 configures the client to use HTTP/3 forcefully.
+func (b *Builder) ForceHTTP3() *Builder {
+	b.forceHTTP3 = true
 	return b
 }
 
@@ -305,12 +305,6 @@ func (b *Builder) ForceHTTP1() *Builder {
 func (b *Builder) ForceHTTP2() *Builder {
 	b.forceHTTP2 = true
 	return b.addCliMW(forceHTTP2MW, 0)
-}
-
-// ForceHTTP3 configures the client to use HTTP/3 forcefully.
-func (b *Builder) ForceHTTP3() *Builder {
-	b.forceHTTP3 = true
-	return b
 }
 
 // Session configures whether the client should maintain a session.

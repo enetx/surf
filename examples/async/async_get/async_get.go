@@ -5,60 +5,38 @@ import (
 	"time"
 
 	"github.com/enetx/g"
+	"github.com/enetx/g/pool"
 	"github.com/enetx/surf"
 )
 
 func main() {
 	start := time.Now()
 
+	urls := g.SliceOf[g.String]("https://httpbingo.org/get").
+		Iter().
+		Cycle().
+		Take(100).
+		Collect()
+
+	pool := pool.New[*surf.Response]().Limit(10)
+
 	cli := surf.NewClient().
 		Builder().
-		Session().
 		Impersonate().
 		Firefox().
 		Build().
 		Unwrap()
 
-	defer cli.CloseIdleConnections()
+	for _, URL := range urls {
+		pool.Go(cli.Get(URL).Do)
+	}
 
-	g.SliceOf(g.String("httpbingo.org/get")).
-		Iter().
-		Map(func(s g.String) g.String { return "http://" + s }).
-		Cycle().
-		Take(100).
-		Parallel(10).
-		ForEach(func(s g.String) {
-			if r := cli.Get(s).Do(); r.IsOk() {
-				r.Ok().Body.Limit(10).String().Unwrap().Println()
-			}
-		})
+	for r := range pool.Wait() {
+		if r.IsOk() {
+			r.Ok().Body.Limit(10).String().Unwrap().Print()
+		}
+	}
 
-	elapsed := time.Since(start)
-	fmt.Printf("elapsed: %v\n", elapsed)
-
-	// urls := g.SliceOf[g.String]("https://httpbingo.org/get").
-	// 	Iter().
-	// 	Cycle().
-	// 	Take(100).
-	// 	Collect()
-	//
-	// pool := pool.New[*surf.Response]().Limit(10)
-	// cli := surf.NewClient().
-	// 	Builder().
-	// 	Impersonate().
-	// 	Firefox().
-	// 	Build()
-	//
-	// for _, URL := range urls {
-	// 	pool.Go(cli.Get(URL).Do)
-	// }
-	//
-	// for r := range pool.Wait() {
-	// 	if r.IsOk() {
-	// 		r.Ok().Body.Limit(10).String().Unwrap().Print()
-	// 	}
-	// }
-	//
-	// elesped := time.Since(start)
-	// fmt.Printf("elesped: %v\n", elesped)
+	elesped := time.Since(start)
+	fmt.Printf("elesped: %v\n", elesped)
 }
