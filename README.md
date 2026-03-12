@@ -16,7 +16,7 @@
 ## ✨ Key Features
 
 ### 🎭 **Browser Impersonation**
-- **Chrome & Firefox Support**: Accurately mimic Chrome v145 and Firefox v147 browser fingerprints
+- **Chrome & Firefox Support**: Accurately mimic Chrome v145 and Firefox v148 browser fingerprints
 - **Platform Diversity**: Impersonate Windows, macOS, Linux, Android, and iOS devices
 - **TLS Fingerprinting**: Full JA3/JA4 fingerprint customization for enhanced privacy
 - **Automatic Headers**: Proper header ordering and browser-specific values
@@ -54,7 +54,7 @@
 go get -u github.com/enetx/surf
 ```
 
-**Required Go version:** 1.24+
+**Required Go version:** 1.25+
 
 ## 🔄 Standard Library Compatibility
 
@@ -157,7 +157,7 @@ client := surf.NewClient().
     Builder().
     Impersonate().
     RandomOS().      // Randomly selects Windows, macOS, Linux, Android, or iOS
-    Firefox().       // Latest Firefox v147
+    Firefox().       // Latest Firefox v148
     Build().
     Unwrap()
 ```
@@ -262,7 +262,7 @@ client := surf.NewClient().
 client := surf.NewClient().
     Builder().
     DNSOverTLS().Google().   // DoT works with HTTP/3
-    ForceHTTP3().Set().
+    ForceHTTP3()
     Build().
     Unwrap()
 ```
@@ -972,8 +972,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - Built with [enetx/http](https://github.com/enetx/http) for enhanced HTTP functionality
-- HTTP/3 support and complete QUIC fingerprinting powered by [uQUIC](https://github.com/enetx/uquic)
-- TLS fingerprinting powered by [uTLS](https://github.com/enetx/utls)
+- HTTP/3 support and complete QUIC fingerprinting powered by [QUIC-GO](https://github.com/quic-go/quic-go)
+- TLS fingerprinting powered by [uTLS](https://github.com/refraction-networking/utls)
 - Generic utilities from [enetx/g](https://github.com/enetx/g)
 
 ## 📞 Support

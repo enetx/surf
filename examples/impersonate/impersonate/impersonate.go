@@ -35,9 +35,8 @@ func main() {
 		// MacOS().
 		// IOS().
 		// Android().
-		// Firefox().
-		// FirefoxPrivate().
-		Chrome().
+		Firefox().
+		// Chrome().
 		// SetHeaders(map[string]string{
 		// 	"Accept-Encoding": "gzip, deflate",
 		// }).
@@ -53,7 +52,7 @@ func main() {
 		log.Fatal(r.Err())
 	}
 
-	// r.Ok().Body.String().Unwrap().Println()
+	r.Ok().Body.String().Unwrap().Println()
 
 	// fmt.Println(r.Ok().Time)
 

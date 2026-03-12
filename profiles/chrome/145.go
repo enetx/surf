@@ -1,6 +1,6 @@
 package chrome
 
-import utls "github.com/enetx/utls"
+import utls "github.com/refraction-networking/utls"
 
 var HelloChrome_145 = utls.ClientHelloSpec{
 	CipherSuites: []uint16{

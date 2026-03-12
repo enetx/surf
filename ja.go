@@ -6,9 +6,8 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/surf/internal/specclone"
 	"github.com/enetx/surf/profiles/chrome"
-	"github.com/enetx/surf/profiles/firefox"
 
-	utls "github.com/enetx/utls"
+	utls "github.com/refraction-networking/utls"
 )
 
 // JA provides JA3/4 TLS fingerprinting capabilities for HTTP clients.
@@ -180,14 +179,8 @@ func (j *JA) Firefox105() *Builder { return j.SetHelloID(utls.HelloFirefox_105) 
 // Firefox120 sets the JA3/4 fingerprint to mimic Firefox version 120.
 func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) }
 
-// Firefox141 sets the JA3/4 fingerprint to mimic Firefox version 141.
-func (j *JA) Firefox141() *Builder { return j.SetHelloID(utls.HelloFirefox_141) }
-
-// Firefox147 sets the JA3/4 fingerprint to mimic Firefox version 147.
-func (j *JA) Firefox147() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_147) }
-
-// FirefoxPrivate147 sets the JA3/4 fingerprint to mimic Firefox private version 147.
-func (j *JA) FirefoxPrivate147() *Builder { return j.SetHelloSpec(firefox.HelloFirefoxPrivate_147) }
+// Firefox148 sets the JA3/4 fingerprint to mimic Firefox version 148.
+func (j *JA) Firefox148() *Builder { return j.SetHelloID(utls.HelloFirefox_148) }
 
 // IOS sets the JA3/4 fingerprint to mimic the latest iOS Safari browser (auto-detection).
 func (j *JA) IOS() *Builder { return j.SetHelloID(utls.HelloIOS_Auto) }

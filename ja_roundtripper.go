@@ -11,7 +11,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http2"
 
-	utls "github.com/enetx/utls"
+	utls "github.com/refraction-networking/utls"
 )
 
 // roundtripper is a higher-level wrapper around HTTP transports, providing

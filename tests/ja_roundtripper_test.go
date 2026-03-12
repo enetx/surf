@@ -13,7 +13,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
 	"github.com/enetx/surf"
-	utls "github.com/enetx/utls"
+	utls "github.com/refraction-networking/utls"
 )
 
 func TestRoundTripperTransportCaching(t *testing.T) {
@@ -112,7 +112,7 @@ func TestRoundTripperSessionCaching(t *testing.T) {
 		Build().Unwrap()
 
 	// Multiple requests should use session caching
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		resp := client.Get(g.String(ts.URL)).Do()
 		if resp.IsErr() {
 			t.Fatalf("Session cached request %d failed: %v", i, resp.Err())
@@ -344,7 +344,7 @@ func TestRoundTripperProtocolNegotiation(t *testing.T) {
 			"Firefox with HTTP/2",
 			func() *surf.Client {
 				return surf.NewClient().Builder().
-					JA().Firefox147().
+					JA().Firefox148().
 					Build().Unwrap()
 			},
 		},
@@ -540,7 +540,7 @@ func TestJATransportBuilding(t *testing.T) {
 			name: "Firefox with custom timeout",
 			configureJA: func() *surf.Client {
 				return surf.NewClient().Builder().
-					JA().Firefox147().
+					JA().Firefox148().
 					Timeout(5 * time.Second).
 					Build().Unwrap()
 			},
@@ -560,7 +560,7 @@ func TestJATransportBuilding(t *testing.T) {
 			name: "Firefox with custom DNS",
 			configureJA: func() *surf.Client {
 				return surf.NewClient().Builder().
-					JA().Firefox147().
+					JA().Firefox148().
 					DNS("8.8.8.8:53").
 					Build().Unwrap()
 			},
@@ -639,7 +639,7 @@ func TestJAConnectionPooling(t *testing.T) {
 	}
 
 	// Make multiple requests to test connection pooling
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		resp := client.Get(g.String(ts.URL)).Do()
 		if resp.IsErr() {
 			t.Logf("Connection pooling test %d error: %v", i+1, resp.Err())

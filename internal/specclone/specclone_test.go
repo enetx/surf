@@ -7,7 +7,7 @@ import (
 
 	"github.com/enetx/surf/internal/specclone"
 
-	utls "github.com/enetx/utls"
+	utls "github.com/refraction-networking/utls"
 )
 
 func TestSpecClone_NilInput(t *testing.T) {
@@ -791,51 +791,6 @@ func TestSpecClone_MissingExtensions(t *testing.T) {
 				originalExt.SupportedProtocols,
 				clonedExt.SupportedProtocols,
 			)
-		}
-	})
-
-	t.Run("KeyShareExtensionExtended", func(t *testing.T) {
-		original := &utls.ClientHelloSpec{
-			Extensions: []utls.TLSExtension{
-				&utls.KeyShareExtensionExtended{
-					KeyShareExtension: &utls.KeyShareExtension{
-						KeyShares: []utls.KeyShare{
-							{Group: utls.X25519, Data: []byte{0x01, 0x02, 0x03}},
-						},
-					},
-					HybridReuseKey: true,
-				},
-			},
-		}
-
-		cloned := specclone.Clone(original)
-		if cloned == nil || len(cloned.Extensions) != 1 {
-			t.Fatal("Expected non-nil clone with 1 extension")
-		}
-
-		clonedExt, ok := cloned.Extensions[0].(*utls.KeyShareExtensionExtended)
-		if !ok {
-			t.Fatalf("Expected KeyShareExtensionExtended, got %T", cloned.Extensions[0])
-		}
-
-		if !clonedExt.HybridReuseKey {
-			t.Error("HybridReuseKey not preserved")
-		}
-
-		if len(clonedExt.KeyShares) != 1 {
-			t.Fatalf("Expected 1 KeyShare, got %d", len(clonedExt.KeyShares))
-		}
-
-		// Проверка независимости по памяти
-		if &clonedExt.KeyShares[0] == &original.Extensions[0].(*utls.KeyShareExtensionExtended).KeyShares[0] {
-			t.Error("KeyShares slice not deeply cloned")
-		}
-
-		if clonedExt.KeyShares[0].Group != utls.X25519 {
-			t.Errorf("Group mismatch: got %v", clonedExt.KeyShares[0].Group)
-		}
-		if !reflect.DeepEqual(clonedExt.KeyShares[0].Data, []byte{0x01, 0x02, 0x03}) {
-			t.Errorf("Data mismatch: expected [1 2 3], got %v", clonedExt.KeyShares[0].Data)
 		}
 	})
 

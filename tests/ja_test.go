@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"testing"
 
+	utls "github.com/refraction-networking/utls"
+
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
 	"github.com/enetx/surf"
-	utls "github.com/enetx/utls"
 )
 
 func TestJAChrome144(t *testing.T) {
@@ -167,7 +168,7 @@ func TestJAFirefoxVersions(t *testing.T) {
 		{"Firefox102", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox102().Build().Unwrap() }},
 		{"Firefox105", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox105().Build().Unwrap() }},
 		{"Firefox120", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox120().Build().Unwrap() }},
-		{"Firefox141", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox141().Build().Unwrap() }},
+		{"Firefox148", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox148().Build().Unwrap() }},
 	}
 
 	for _, tc := range firefoxVersions {
@@ -338,7 +339,7 @@ func TestJASetHelloSpec(t *testing.T) {
 	}
 }
 
-func TestJAFirefox147(t *testing.T) {
+func TestJAFirefox148(t *testing.T) {
 	t.Parallel()
 
 	handler := func(w http.ResponseWriter, _ *http.Request) {
@@ -350,7 +351,7 @@ func TestJAFirefox147(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Firefox147().
+		JA().Firefox148().
 		Build().Unwrap()
 
 	if client == nil {
@@ -421,7 +422,7 @@ func TestJAMultipleCalls(t *testing.T) {
 
 	client := surf.NewClient().Builder().
 		JA().Chrome145().
-		JA().Firefox147().
+		JA().Firefox148().
 		Build().Unwrap()
 
 	if client == nil {

@@ -110,82 +110,22 @@ func (im *Impersonate) Chrome() *Builder {
 	return im.builder.SetHeaders(headers)
 }
 
-// Firefox impersonates Firefox browser v147.
+// Firefox impersonates Firefox browser v148.
 func (im *Impersonate) Firefox() *Builder {
-	im.builder.browser = firefoxBrowser
-
-	// "ja3": "771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-34-18-51-43-13-45-28-27-65037,4588-29-23-24-25-256-257,0",
-	// "ja3_hash": "6f7889b9fb1a62a9577e685c1fcfa919",
-	// "ja4": "t13d1717h2_5b57614c22b0_3cbfd9057e0d",
-	// "ja4_r": "t13d1717h2_002f,0035,009c,009d,1301,1302,1303,c009,c00a,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_0005,000a,000b,000d,0012,0017,001b,001c,0022,0023,002b,002d,0033,fe0d,ff01_0403,0503,0603,0804,0805,0806,0401,0501,0601,0203,0201",
-	// "akamai": "1:65536;2:0;4:131072;5:16384|12517377|0|m,p,a,s",
-	// "akamai_hash": "6ea73faa8fc5aac76bded7bd238f6433",
-	// "peetprint": "772-771|2-1.1|4588-29-23-24-25-256-257|1027-1283-1539-2052-2053-2054-1025-1281-1537-515-513|1|1-2-3|4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53|0-10-11-13-16-18-23-27-28-34-35-43-45-5-51-65037-65281",
-	// "peetprint_hash": "89d89662b21018947a9a46658c4f5ede"
-
-	im.builder.
-		Boundary(firefox.Boundary).
-		JA().Firefox147().
-		HTTP2Settings().
-		InitialStreamID(3).
-		HeaderTableSize(65536).
-		EnablePush(0).
-		InitialWindowSize(131072).
-		MaxFrameSize(16384).
-		ConnectionFlow(12517377).
-		PriorityParam(
-			http2.PriorityParam{
-				StreamDep: 0,
-				Exclusive: false,
-				Weight:    41,
-			}).
-		Set()
-
-	// "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p",
-	// "perk_hash": "e9ebca6992bfd86ffa0663c1359de7d0",
-
-	im.builder.
-		HTTP3Settings().
-		QpackMaxTableCapacity(65536).
-		QpackBlockedStreams(20).
-		EnableWebtransport(0).
-		H3Datagram(1).
-		SettingsH3Datagram(1).
-		EnableConnectProtocol(1).
-		Set()
-
-	headers := g.NewMapOrd[g.String, g.String]()
-	headers.Insert(":authority", "")
-	headers.Insert(":method", "")
-	headers.Insert(":path", "")
-	headers.Insert(":scheme", "")
-	headers.Insert(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd")
-	headers.Insert(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
-	headers.Insert(header.AUTHORIZATION, "")
-	headers.Insert(header.COOKIE, "")
-	headers.Insert(header.ORIGIN, "")
-	headers.Insert(header.REFERER, "")
-	headers.Insert(header.USER_AGENT, firefoxUserAgent[im.os])
-
-	return im.builder.SetHeaders(headers)
-}
-
-// FirefoxPrivate impersonates Firefox private browser v147.
-func (im *Impersonate) FirefoxPrivate() *Builder {
 	im.builder.browser = firefoxBrowser
 
 	// "ja3": "771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53,0-23-65281-10-11-16-5-34-18-51-43-13-28-27-65037,4588-29-23-24-25-256-257,0",
 	// "ja3_hash": "7704a11cf87dfcf33080b90ce11d5527",
 	// "ja4": "t13d1715h2_5b57614c22b0_a54fffd0eb61",
 	// "ja4_r": "t13d1715h2_002f,0035,009c,009d,1301,1302,1303,c009,c00a,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_0005,000a,000b,000d,0012,0017,001b,001c,0022,002b,0033,fe0d,ff01_0403,0503,0603,0804,0805,0806,0401,0501,0601,0203,0201",
-	// "akamai": "1:65536;2:0;4:131072;5:16384|12517377|0|m,p,a,s",
-	// "akamai_hash": "6ea73faa8fc5aac76bded7bd238f6433",
 	// "peetprint": "772-771|2-1.1|4588-29-23-24-25-256-257|1027-1283-1539-2052-2053-2054-1025-1281-1537-515-513|0|1-2-3|4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53|0-10-11-13-16-18-23-27-28-34-43-5-51-65037-65281",
-	// "peetprint_hash": "d5b32f4cbc2381b4c0548aa52f5a6606"
+	// "peetprint_hash": "d5b32f4cbc2381b4c0548aa52f5a6606",
+	// "akamai_fingerprint": "1:65536;2:0;4:131072;5:16384|12517377|0|m,p,a,s",
+	// "akamai_fingerprint_hash": "6ea73faa8fc5aac76bded7bd238f6433",
 
 	im.builder.
 		Boundary(firefox.Boundary).
-		JA().FirefoxPrivate147().
+		JA().Firefox148().
 		HTTP2Settings().
 		InitialStreamID(3).
 		HeaderTableSize(65536).
