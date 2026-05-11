@@ -651,3 +651,153 @@ func TestImpersonateChromeJA3Configuration(t *testing.T) {
 		t.Errorf("expected status 200, got %d", resp.Ok().StatusCode)
 	}
 }
+
+// TestImpersonateChromeAndroidMobile verifies that Android selects the mobile fingerprint dispatch
+// path: Sec-Ch-Ua-Mobile is "?1", Sec-Ch-Ua-Platform is Android, and the User-Agent reflects a
+// mobile Chrome variant.
+func TestImpersonateChromeAndroidMobile(t *testing.T) {
+	t.Parallel()
+
+	var receivedHeaders http.Header
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		receivedHeaders = r.Header
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Impersonate().Android().Chrome().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if got := receivedHeaders.Get("Sec-Ch-Ua-Mobile"); got != "?1" {
+		t.Errorf("expected Sec-Ch-Ua-Mobile=?1 for Android Chrome, got: %s", got)
+	}
+
+	if got := receivedHeaders.Get("Sec-Ch-Ua-Platform"); !strings.Contains(got, "Android") {
+		t.Errorf("expected Sec-Ch-Ua-Platform to contain Android, got: %s", got)
+	}
+
+	ua := receivedHeaders.Get("User-Agent")
+	if !strings.Contains(ua, "Android") || !strings.Contains(ua, "Mobile Safari") {
+		t.Errorf("expected mobile Chrome UA (Android + Mobile Safari), got: %s", ua)
+	}
+}
+
+// TestImpersonateChromeWindowsDesktop verifies that Windows keeps the desktop fingerprint dispatch
+// path: Sec-Ch-Ua-Mobile is "?0", Sec-Ch-Ua-Platform is Windows, and the User-Agent has no mobile
+// markers.
+func TestImpersonateChromeWindowsDesktop(t *testing.T) {
+	t.Parallel()
+
+	var receivedHeaders http.Header
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		receivedHeaders = r.Header
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Impersonate().Windows().Chrome().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if got := receivedHeaders.Get("Sec-Ch-Ua-Mobile"); got != "?0" {
+		t.Errorf("expected Sec-Ch-Ua-Mobile=?0 for Windows Chrome, got: %s", got)
+	}
+
+	if got := receivedHeaders.Get("Sec-Ch-Ua-Platform"); !strings.Contains(got, "Windows") {
+		t.Errorf("expected Sec-Ch-Ua-Platform to contain Windows, got: %s", got)
+	}
+
+	ua := receivedHeaders.Get("User-Agent")
+	if !strings.Contains(ua, "Windows NT") {
+		t.Errorf("expected Windows NT in UA, got: %s", ua)
+	}
+	if strings.Contains(ua, "Mobile") {
+		t.Errorf("desktop Chrome UA must not contain Mobile, got: %s", ua)
+	}
+}
+
+// TestImpersonateFirefoxIOSMobile verifies that iOS selects the Firefox mobile fingerprint dispatch
+// path: the iOS-specific FxiOS User-Agent variant is used, and Sec-Ch-Ua-Mobile is absent (Firefox
+// does not emit Client Hints UA-CH headers).
+func TestImpersonateFirefoxIOSMobile(t *testing.T) {
+	t.Parallel()
+
+	var receivedHeaders http.Header
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		receivedHeaders = r.Header
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Impersonate().IOS().Firefox().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if got := receivedHeaders.Get("Sec-Ch-Ua-Mobile"); got != "" {
+		t.Errorf("Firefox: Sec-Ch-Ua-Mobile должен отсутствовать, получено %q", got)
+	}
+
+	ua := receivedHeaders.Get("User-Agent")
+	if !strings.Contains(ua, "FxiOS") || !strings.Contains(ua, "Mobile/15E148") {
+		t.Errorf("expected Firefox iOS UA (FxiOS + Mobile/15E148), got: %s", ua)
+	}
+}
+
+// TestImpersonateFirefoxMacOSDesktop verifies that macOS keeps the Firefox desktop fingerprint
+// dispatch path: the Macintosh User-Agent variant is used, and Sec-Ch-Ua-Mobile is absent (Firefox
+// does not emit Client Hints UA-CH headers).
+func TestImpersonateFirefoxMacOSDesktop(t *testing.T) {
+	t.Parallel()
+
+	var receivedHeaders http.Header
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		receivedHeaders = r.Header
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Impersonate().MacOS().Firefox().
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if got := receivedHeaders.Get("Sec-Ch-Ua-Mobile"); got != "" {
+		t.Errorf("Firefox: Sec-Ch-Ua-Mobile должен отсутствовать, получено %q", got)
+	}
+
+	ua := receivedHeaders.Get("User-Agent")
+	if !strings.Contains(ua, "Macintosh") || !strings.Contains(ua, "Firefox/148.0") {
+		t.Errorf("expected Firefox macOS UA (Macintosh + Firefox/148.0), got: %s", ua)
+	}
+	if strings.Contains(ua, "Mobile") {
+		t.Errorf("desktop Firefox UA must not contain Mobile, got: %s", ua)
+	}
+}

@@ -8,15 +8,7 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
-)
-
-// browser represents the browser type being impersonated for fingerprinting.
-type browser int
-
-const (
-	unknownBrowser browser = iota // No specific browser fingerprinting
-	chromeBrowser                 // Chrome browser fingerprinting
-	firefoxBrowser                // Firefox browser fingerprinting
+	"github.com/enetx/surf/profiles"
 )
 
 // Builder provides a fluent interface for configuring HTTP clients with various advanced features
@@ -30,10 +22,10 @@ type Builder struct {
 	http2settings            *HTTP2Settings                             // HTTP/2 specific settings
 	http3settings            *HTTP3Settings                             // HTTP/3 specific settings
 	cliMWs                   *middleware[*Client]                       // Priority-ordered client middlewares
+	headersApplier           profiles.HeadersApplier                    // Profile-specific request header pipeline (set by Impersonate)
 	retryWait                time.Duration                              // Wait duration between retry attempts
 	retryMax                 int                                        // Maximum number of retry attempts
 	maxRedirects             int                                        // Maximum number of redirects to follow
-	browser                  browser                                    // Browser type for fingerprinting
 	forceHTTP1               bool                                       // Force HTTP/1.1 protocol usage
 	forceHTTP2               bool                                       // Force HTTP/2 protocol usage
 	forceHTTP3               bool                                       // Force HTTP/3 protocol usage

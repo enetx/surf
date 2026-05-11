@@ -56,5 +56,5 @@ func main() {
 
 	// fmt.Println(r.Ok().Time)
 
-	r.Ok().Debug().Request(true).Response(true).Print()
+	// r.Ok().Debug().Request(true).Response(true).Print()
 }

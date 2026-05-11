@@ -2,170 +2,92 @@ package surf
 
 import (
 	"github.com/enetx/g"
-	"github.com/enetx/http2"
-	"github.com/enetx/surf/header"
+	"github.com/enetx/surf/profiles"
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
 )
 
 type Impersonate struct {
 	builder *Builder
-	os      ImpersonateOS
+	os      profiles.OSKey
 }
 
 // RandomOS selects a random OS (Windows, macOS, Linux, Android, or iOS) for the impersonate.
 func (im *Impersonate) RandomOS() *Impersonate {
-	im.os = g.SliceOf(windows, macos, linux, android, ios).Random()
+	im.os = g.SliceOf(profiles.Windows, profiles.MacOS, profiles.Linux, profiles.Android, profiles.IOS).Random()
 	return im
 }
 
 // Windows sets the OS to Windows.
 func (im *Impersonate) Windows() *Impersonate {
-	im.os = windows
+	im.os = profiles.Windows
 	return im
 }
 
 // MacOS sets the OS to macOS.
 func (im *Impersonate) MacOS() *Impersonate {
-	im.os = macos
+	im.os = profiles.MacOS
 	return im
 }
 
 // Linux sets the OS to Linux.
 func (im *Impersonate) Linux() *Impersonate {
-	im.os = linux
+	im.os = profiles.Linux
 	return im
 }
 
 // Android sets the OS to Android.
 func (im *Impersonate) Android() *Impersonate {
-	im.os = android
+	im.os = profiles.Android
 	return im
 }
 
 // IOS sets the OS to iOS.
 func (im *Impersonate) IOS() *Impersonate {
-	im.os = ios
+	im.os = profiles.IOS
 	return im
 }
 
 // Chrome impersonates Chrome browser v145.
 func (im *Impersonate) Chrome() *Builder {
-	im.builder.browser = chromeBrowser
+	v := chrome.Desktop
+	if im.os.IsMobile() {
+		v = chrome.Mobile
+	}
 
-	// "ja3": "random",
-	// "ja3_hash": "random",
-	// "ja4": "t13d1516h2_8daaf6152771_d8a2da3f94cd",
-	// "ja4_r": "t13d1516h2_002f,0035,009c,009d,1301,1302,1303,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_0005,000a,000b,000d,0012,0017,001b,0023,002b,002d,0033,44cd,fe0d,ff01_0403,0804,0401,0503,0805,0501,0806,0601",
-	// "peetprint": "GREASE-772-771|2-1.1|GREASE-4588-29-23-24|1027-2052-1025-1283-2053-1281-2054-1537|1|2|GREASE-4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53|0-10-11-13-16-17613-18-23-27-35-43-45-5-51-65037-65281-GREASE-GREASE",
-	// "peetprint_hash": "1d4ffe9b0e34acac0bd883fa7f79d7b5",
-	// "akamai_fingerprint": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
-	// "akamai_fingerprint_hash": "52d84b11737d980aef856699f885ca86",
-
-	im.builder.
-		Boundary(chrome.Boundary).
-		JA().Chrome145().
-		HTTP2Settings().
-		HeaderTableSize(65536).
-		EnablePush(0).
-		InitialWindowSize(6291456).
-		MaxHeaderListSize(262144).
-		ConnectionFlow(15663105).
-		PriorityParam(
-			http2.PriorityParam{
-				StreamDep: 0,
-				Exclusive: true,
-				Weight:    255,
-			}).
-		Set()
-
-	// "perk_text": "1:65536;6:262144;7:100;51:1;GREASE|m,a,s,p",
-	// "perk_hash": "e1d11ee6f2f4c7b1f11bfaaf4dbbc211",
-
-	im.builder.
-		HTTP3Settings().
-		QpackMaxTableCapacity(65536).
-		MaxFieldSectionSize(262144).
-		QpackBlockedStreams(100).
-		SettingsH3Datagram(1).
-		Grease().
-		Set()
-
-	headers := g.NewMapOrd[g.String, g.String]()
-	headers.Insert(":authority", "")
-	headers.Insert(":method", "")
-	headers.Insert(":path", "")
-	headers.Insert(":scheme", "")
-	headers.Insert(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd")
-	headers.Insert(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
-	headers.Insert(header.AUTHORIZATION, "")
-	headers.Insert(header.COOKIE, "")
-	headers.Insert(header.ORIGIN, "")
-	headers.Insert(header.REFERER, "")
-	headers.Insert(header.SEC_CH_UA, chromeSecCHUA)
-	headers.Insert(header.SEC_CH_UA_MOBILE, im.os.mobile())
-	headers.Insert(header.SEC_CH_UA_PLATFORM, chromePlatform[im.os])
-	headers.Insert(header.USER_AGENT, chromeUserAgent[im.os])
-
-	return im.builder.SetHeaders(headers)
+	return im.applyVariant(v)
 }
 
 // Firefox impersonates Firefox browser v148.
 func (im *Impersonate) Firefox() *Builder {
-	im.builder.browser = firefoxBrowser
+	v := firefox.Desktop
+	if im.os.IsMobile() {
+		v = firefox.Mobile
+	}
 
-	// "ja3": "771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53,0-23-65281-10-11-16-5-34-18-51-43-13-28-27-65037,4588-29-23-24-25-256-257,0",
-	// "ja3_hash": "7704a11cf87dfcf33080b90ce11d5527",
-	// "ja4": "t13d1715h2_5b57614c22b0_a54fffd0eb61",
-	// "ja4_r": "t13d1715h2_002f,0035,009c,009d,1301,1302,1303,c009,c00a,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_0005,000a,000b,000d,0012,0017,001b,001c,0022,002b,0033,fe0d,ff01_0403,0503,0603,0804,0805,0806,0401,0501,0601,0203,0201",
-	// "peetprint": "772-771|2-1.1|4588-29-23-24-25-256-257|1027-1283-1539-2052-2053-2054-1025-1281-1537-515-513|0|1-2-3|4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53|0-10-11-13-16-18-23-27-28-34-43-5-51-65037-65281",
-	// "peetprint_hash": "d5b32f4cbc2381b4c0548aa52f5a6606",
-	// "akamai_fingerprint": "1:65536;2:0;4:131072;5:16384|12517377|0|m,p,a,s",
-	// "akamai_fingerprint_hash": "6ea73faa8fc5aac76bded7bd238f6433",
+	return im.applyVariant(v)
+}
 
-	im.builder.
-		Boundary(firefox.Boundary).
-		JA().Firefox148().
-		HTTP2Settings().
-		InitialStreamID(3).
-		HeaderTableSize(65536).
-		EnablePush(0).
-		InitialWindowSize(131072).
-		MaxFrameSize(16384).
-		ConnectionFlow(12517377).
-		PriorityParam(
-			http2.PriorityParam{
-				StreamDep: 0,
-				Exclusive: false,
-				Weight:    41,
-			}).
-		Set()
+// applyVariant materialises a browser and form-factor profile onto the Builder. Profile packages
+// own all data (TLS spec, boundary, H2/H3 SETTINGS, header set), this method owns sequencing.
+func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
+	im.builder.headersApplier = v.Headers
 
-	// "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p",
-	// "perk_hash": "e9ebca6992bfd86ffa0663c1359de7d0",
+	im.builder.Boundary(v.Boundary)
 
-	im.builder.
-		HTTP3Settings().
-		QpackMaxTableCapacity(65536).
-		QpackBlockedStreams(20).
-		EnableWebtransport(0).
-		H3Datagram(1).
-		SettingsH3Datagram(1).
-		EnableConnectProtocol(1).
-		Set()
+	if v.HelloSpec != nil {
+		im.builder.JA().SetHelloSpec(*v.HelloSpec)
+	} else {
+		im.builder.JA().SetHelloID(v.HelloID)
+	}
 
-	headers := g.NewMapOrd[g.String, g.String]()
-	headers.Insert(":authority", "")
-	headers.Insert(":method", "")
-	headers.Insert(":path", "")
-	headers.Insert(":scheme", "")
-	headers.Insert(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd")
-	headers.Insert(header.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
-	headers.Insert(header.AUTHORIZATION, "")
-	headers.Insert(header.COOKIE, "")
-	headers.Insert(header.ORIGIN, "")
-	headers.Insert(header.REFERER, "")
-	headers.Insert(header.USER_AGENT, firefoxUserAgent[im.os])
+	h2 := im.builder.HTTP2Settings()
+	v.ConfigureH2(h2adapter{h2})
+	h2.Set()
 
-	return im.builder.SetHeaders(headers)
+	h3 := im.builder.HTTP3Settings()
+	v.ConfigureH3(h3adapter{h3})
+	h3.Set()
+
+	return im.builder.SetHeaders(*v.BuildHeaders(im.os))
 }

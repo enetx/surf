@@ -12,8 +12,6 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/internal/drainbody"
-	"github.com/enetx/surf/profiles/chrome"
-	"github.com/enetx/surf/profiles/firefox"
 )
 
 // Request represents an HTTP request with additional surf-specific functionality.
@@ -325,11 +323,8 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 			method += "http3"
 		}
 
-		switch r.cli.builder.browser {
-		case chromeBrowser:
-			chrome.Headers(&h, method)
-		case firefoxBrowser:
-			firefox.Headers(&h, method)
+		if r.cli.builder.headersApplier != nil {
+			r.cli.builder.headersApplier(&h, method)
 		}
 	}
 
