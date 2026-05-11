@@ -12,6 +12,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/internal/drainbody"
+	"github.com/enetx/surf/internal/retryafter"
 )
 
 // Request represents an HTTP request with additional surf-specific functionality.
@@ -126,12 +127,15 @@ retry:
 	// Check if retry is needed based on status code and retry configuration
 	if builder != nil && builder.retryMax != 0 && attempts < builder.retryMax && !builder.retryCodes.IsEmpty() &&
 		builder.retryCodes.Contains(resp.StatusCode) {
+		retryAfter, _ := retryafter.Parse(resp.Header.Get(header.RETRY_AFTER), time.Now())
+
 		io.Copy(io.Discard, resp.Body)
 		resp.Body.Close()
 		attempts++
 
-		if builder.retryWait > 0 {
-			timer := time.NewTimer(builder.retryWait)
+		delay := max(builder.retryWait, retryAfter)
+		if delay > 0 {
+			timer := time.NewTimer(delay)
 			select {
 			case <-timer.C:
 			case <-req.request.Context().Done():

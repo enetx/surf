@@ -284,11 +284,24 @@ func (b *Builder) DisableCompression() *Builder {
 //
 // Parameters:
 //
-//	retryMax: Maximum number of retries to be attempted.
-//	retryWait: Duration to wait between retries.
-//	codes: Optional list of HTTP status codes that trigger retries.
-//	       If no codes are provided, default codes will be used
-//	       (500, 429, 503 - Internal Server Error, Too Many Requests, Service Unavailable).
+//	retryMax:  Maximum number of retry attempts. If zero or negative the
+//	           retry loop is disabled.
+//	retryWait: Minimum wait between retries. If the server responds with a
+//	           Retry-After header on a retryable status, the actual pause
+//	           becomes max(retryWait, Retry-After). Both legal forms are
+//	           honoured: integer delay-seconds and HTTP-date (IMF-fixdate,
+//	           RFC 850, ANSI C asctime). Absent or malformed values fall
+//	           back to retryWait.
+//	codes:     Optional list of HTTP status codes that trigger retries.
+//	           If no codes are provided, the defaults are used
+//	           (500 Internal Server Error, 429 Too Many Requests,
+//	           503 Service Unavailable).
+//
+// Upper bound for the entire retry cycle, including a long Retry-After
+// sleep, is the request context deadline — set it with
+// Request.WithContext(ctxWithDeadline). Builder.Timeout only bounds a
+// single cli.Do invocation (connect + transmission + body read); it does
+// not interrupt the sleep between retries.
 func (b *Builder) Retry(retryMax int, retryWait time.Duration, codes ...int) *Builder {
 	b.retryMax = retryMax
 	b.retryWait = retryWait

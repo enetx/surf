@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/surf/header"

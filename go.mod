@@ -9,7 +9,7 @@ require (
 	github.com/enetx/http2 v1.0.26
 	github.com/enetx/http3 v1.0.7
 	github.com/klauspost/compress v1.18.5
-	github.com/quic-go/quic-go v0.59.0
+	github.com/quic-go/quic-go v0.59.1
 	github.com/refraction-networking/utls v1.8.3-0.20260301010127-aa6edf4b11af
 	github.com/wzshiming/socks5 v0.7.0
 	golang.org/x/net v0.43.0

@@ -10,6 +10,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -373,6 +374,127 @@ func TestRequestRetry(t *testing.T) {
 
 	if !resp.Ok().Body.Contains("success") {
 		t.Error("expected 'success' in body")
+	}
+}
+
+func TestRequestRetryAfterExtendsWait(t *testing.T) {
+	t.Parallel()
+
+	var attempts atomic.Int32
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		n := attempts.Add(1)
+		if n == 1 {
+			w.Header().Set("Retry-After", "2")
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "ok")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Retry(3, 100*time.Millisecond, http.StatusTooManyRequests).
+		Build().Unwrap()
+
+	start := time.Now()
+	resp := client.Get(g.String(ts.URL)).Do()
+	elapsed := time.Since(start)
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+	if elapsed < 2*time.Second {
+		t.Errorf("expected elapsed >= 2s (Retry-After: 2 should extend the wait beyond retryWait=100ms), got %v", elapsed)
+	}
+	if resp.Ok().Attempts != 1 {
+		t.Errorf("expected 1 retry attempt, got %d", resp.Ok().Attempts)
+	}
+	if !resp.Ok().StatusCode.IsSuccess() {
+		t.Errorf("expected success status, got %d", resp.Ok().StatusCode)
+	}
+}
+
+func TestRequestRetryAfterIgnoredOnSuccess(t *testing.T) {
+	t.Parallel()
+
+	var attempts atomic.Int32
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		attempts.Add(1)
+		w.Header().Set("Retry-After", "30")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "ok")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		Retry(3, 100*time.Millisecond).
+		Build().Unwrap()
+
+	start := time.Now()
+	resp := client.Get(g.String(ts.URL)).Do()
+	elapsed := time.Since(start)
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+	if resp.Ok().Attempts != 0 {
+		t.Errorf("expected 0 retry attempts on 200 OK, got %d", resp.Ok().Attempts)
+	}
+	if elapsed >= 100*time.Millisecond {
+		t.Errorf("expected elapsed < 100ms (Retry-After must be ignored on 2xx), got %v", elapsed)
+	}
+	if attempts.Load() != 1 {
+		t.Errorf("expected server to be hit exactly once, got %d hits", attempts.Load())
+	}
+}
+
+func TestRequestRetryAfterAbsentBitIdentical(t *testing.T) {
+	t.Parallel()
+
+	var attempts atomic.Int32
+	handler := func(w http.ResponseWriter, _ *http.Request) {
+		n := attempts.Add(1)
+		if n < 3 {
+			// No Retry-After header set; pure absent case.
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "ok")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+
+	retryWait := 200 * time.Millisecond
+	client := surf.NewClient().Builder().
+		Retry(3, retryWait, http.StatusServiceUnavailable).
+		Build().Unwrap()
+
+	start := time.Now()
+	resp := client.Get(g.String(ts.URL)).Do()
+	elapsed := time.Since(start)
+
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+	if resp.Ok().Attempts != 2 {
+		t.Fatalf("expected 2 retry attempts (3 total hits), got %d", resp.Ok().Attempts)
+	}
+
+	expectedFloor := time.Duration(resp.Ok().Attempts) * retryWait
+	// Upper-bound catches accidental exponential backoff or double-sleep regression.
+	tolerance := 500 * time.Millisecond
+	if elapsed < expectedFloor {
+		t.Errorf("elapsed shrank below floor: got %v, expected >= %v", elapsed, expectedFloor)
+	}
+	if elapsed >= expectedFloor+tolerance {
+		t.Errorf("elapsed exceeded floor+tolerance: got %v, expected < %v (sign of regression — extra sleep?)", elapsed, expectedFloor+tolerance)
 	}
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,6 +23,10 @@ func main() {
 	// Example 3: Multipart retry with body preservation
 	fmt.Println("\n=== Example 3: Multipart retry ===")
 	multipartRetry()
+
+	// Example 4: Retry honouring Retry-After header
+	fmt.Println("\n=== Example 4: Retry-After ===")
+	retryAfterScenario()
 }
 
 func simpleGetRetry() {
@@ -135,5 +140,55 @@ func multipartRetry() {
 	}
 
 	fmt.Printf("Final StatusCode: %d, Total Attempts: %d\n", r.Ok().StatusCode, r.Ok().Attempts+1)
+	fmt.Println("Response:", r.Ok().Body.String().UnwrapOrDefault())
+}
+
+func retryAfterScenario() {
+	// Local test server: first attempt returns 429 with Retry-After: 2,
+	// every subsequent attempt returns 200 OK. retryWait is 100ms, so the
+	// Retry-After header is what actually extends the pause to ~2s.
+	var attempts atomic.Int32
+
+	server := http.Server{Addr: ":18082", Handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		attempt := attempts.Add(1)
+		if attempt == 1 {
+			w.Header().Set("Retry-After", "2")
+			w.WriteHeader(http.StatusTooManyRequests)
+			fmt.Printf("  Server attempt %d: 429 + Retry-After: 2\n", attempt)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+		fmt.Printf("  Server attempt %d: 200 OK\n", attempt)
+	})}
+
+	go server.ListenAndServe()
+	defer server.Close()
+
+	time.Sleep(100 * time.Millisecond) // Wait for server to start
+
+	cli := surf.NewClient().Builder().
+		Retry(3, 100*time.Millisecond, http.StatusTooManyRequests).
+		Build().
+		Unwrap()
+
+	// Upper bound for the entire retry cycle (including a long Retry-After)
+	// is the request context deadline. Builder.Timeout would only bound a
+	// single cli.Do — it does not interrupt the inter-attempt sleep.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	start := time.Now()
+	r := cli.Get("http://localhost:18082/test").WithContext(ctx).Do()
+	elapsed := time.Since(start)
+
+	if r.IsErr() {
+		fmt.Println("Error:", r.Err())
+		return
+	}
+
+	fmt.Printf("Final StatusCode: %d, Total Attempts: %d, Elapsed: %v\n",
+		r.Ok().StatusCode, r.Ok().Attempts+1, elapsed)
 	fmt.Println("Response:", r.Ok().Body.String().UnwrapOrDefault())
 }
