@@ -2,6 +2,7 @@ package surf
 
 import (
 	"compress/gzip"
+	"errors"
 	"io"
 	"sync"
 
@@ -9,6 +10,22 @@ import (
 	"github.com/enetx/g"
 	"github.com/klauspost/compress/zstd"
 )
+
+// decodedReadCloser owns both the decoder and the encoded source it wraps.
+// Closing only the decoder leaks the HTTP response body (and its deadline
+// goroutine); nesting this type also preserves ownership for encoding chains.
+type decodedReadCloser struct {
+	decoder io.ReadCloser
+	source  io.ReadCloser
+}
+
+func (reader *decodedReadCloser) Read(buffer []byte) (int, error) {
+	return reader.decoder.Read(buffer)
+}
+
+func (reader *decodedReadCloser) Close() error {
+	return errors.Join(reader.decoder.Close(), reader.source.Close())
+}
 
 var (
 	// zstdDecoderPool pools zstd.Decoder instances.
