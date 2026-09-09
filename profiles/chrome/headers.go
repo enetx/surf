@@ -216,7 +216,7 @@ var headerCache = profiles.NewHeaderCache(headerOrderDesktop, headerOrderMobile)
 
 // --- Static header set (Variant.BuildHeaders) --------------------------------
 
-// buildHeadersDesktop constructs the desktop Chrome 150 request header set.
+// buildHeadersDesktop constructs the desktop Chrome 152 request header set.
 func buildHeadersDesktop(os profiles.OSKey) *g.MapOrd[g.String, g.String] {
 	h := g.NewMapOrd[g.String, g.String]()
 	h.Insert(":authority", "")
@@ -237,7 +237,7 @@ func buildHeadersDesktop(os profiles.OSKey) *g.MapOrd[g.String, g.String] {
 	return &h
 }
 
-// buildHeadersMobile constructs the placeholder mobile Chrome 150 request header set.
+// buildHeadersMobile constructs the placeholder mobile Chrome 152 request header set.
 // On the day real Chrome Android header set diverges from desktop (different Accept-Encoding,
 // shorter sec-ch-ua, different ordering / inserts), replace this body — it is the single point
 // of substitution for the entire mobile header set.

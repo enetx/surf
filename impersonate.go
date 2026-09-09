@@ -50,7 +50,7 @@ func (im *Impersonate) IOS() *Impersonate {
 	return im
 }
 
-// Chrome impersonates Chrome browser v150.
+// Chrome impersonates Chrome browser v152.
 func (im *Impersonate) Chrome() *Builder {
 	v := chrome.Desktop
 	if im.os.IsMobile() {
@@ -78,7 +78,9 @@ func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	im.builder.Boundary(v.Boundary)
 
 	if v.HelloSpec != nil {
-		im.builder.JA().SetHelloSpec(*v.HelloSpec)
+		ja := im.builder.JA()
+		ja.shuffle = v.ShuffleExtensions
+		ja.SetHelloSpec(*v.HelloSpec)
 	} else {
 		im.builder.JA().SetHelloID(v.HelloID)
 	}

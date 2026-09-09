@@ -5,7 +5,7 @@ import (
 	"github.com/enetx/surf/profiles"
 )
 
-// configureH2Desktop applies the desktop Chrome 150 HTTP/2 SETTINGS chain.
+// configureH2Desktop applies the desktop Chrome 152 HTTP/2 SETTINGS chain.
 func configureH2Desktop(h profiles.H2Config) {
 	h.HeaderTableSize(65536).
 		EnablePush(0).
@@ -19,8 +19,8 @@ func configureH2Desktop(h profiles.H2Config) {
 		})
 }
 
-// configureH2Mobile applies the placeholder mobile Chrome 150 HTTP/2 SETTINGS chain.
-// On the day real Chrome Android 150 H/2 settings are observed, replace this body.
+// configureH2Mobile applies the placeholder mobile Chrome 152 HTTP/2 SETTINGS chain.
+// On the day real Chrome Android 152 H/2 settings are observed, replace this body.
 func configureH2Mobile(h profiles.H2Config) {
 	h.HeaderTableSize(65536).
 		EnablePush(0).
@@ -34,7 +34,7 @@ func configureH2Mobile(h profiles.H2Config) {
 		})
 }
 
-// configureH3Desktop applies the desktop Chrome 150 HTTP/3 SETTINGS chain.
+// configureH3Desktop applies the desktop Chrome 152 HTTP/3 SETTINGS chain.
 func configureH3Desktop(h profiles.H3Config) {
 	h.QpackMaxTableCapacity(65536).
 		MaxFieldSectionSize(262144).
@@ -43,8 +43,8 @@ func configureH3Desktop(h profiles.H3Config) {
 		Grease()
 }
 
-// configureH3Mobile applies the placeholder mobile Chrome 150 HTTP/3 SETTINGS chain.
-// On the day real Chrome Android 150 H/3 settings are observed, replace this body.
+// configureH3Mobile applies the placeholder mobile Chrome 152 HTTP/3 SETTINGS chain.
+// On the day real Chrome Android 152 H/3 settings are observed, replace this body.
 func configureH3Mobile(h profiles.H3Config) {
 	h.QpackMaxTableCapacity(65536).
 		MaxFieldSectionSize(262144).

@@ -73,6 +73,10 @@ type Variant struct {
 	HelloSpec *utls.ClientHelloSpec
 	HelloID   utls.ClientHelloID
 
+	// ShuffleExtensions re-shuffles HelloSpec's extension order on every connection, as
+	// Chromium does since v110. Firefox keeps a fixed order.
+	ShuffleExtensions bool
+
 	// Boundary is the multipart boundary generator for this browser. Same reference for both
 	// Desktop and Mobile within one profile package (boundary is a per-browser property).
 	Boundary func() g.String
