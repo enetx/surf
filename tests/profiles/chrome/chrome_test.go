@@ -1,6 +1,8 @@
 package chrome_test
 
 import (
+	"encoding/hex"
+	"fmt"
 	"slices"
 	"strings"
 	"testing"
@@ -319,6 +321,15 @@ func trustAnchorsExtension(spec *utls.ClientHelloSpec) *utls.GenericExtension {
 	return nil
 }
 
+// chrome152TrustAnchors is the trust_anchors (0xca34) body of a Google Chrome 152 desktop
+// ClientHello. Chrome emits this list in compiled-in root store order and never shuffles it, so
+// the bytes have to match exactly — a wrong order is as visible on the wire as a wrong set.
+const chrome152TrustAnchors = "00cc04d679090608839a648c9b2d010704d679090c0582df1302060582df13021308839a648c9b2d010d" +
+	"04d67909010582df13020d04d679090d0582df13020f08839a648c9b2d01080582df13021208839a648c" +
+	"9b2d010904d67909020582df13020104d679090e04d679090908839a648c9b2d010a04d679090304d679" +
+	"090f08839a648c9b2d010b04d67909040582df13021404d679090a08839a648c9b2d011308839a648c9b" +
+	"2d011204d679090704d679090808839a648c9b2d010c04d67909050582df13020e04d679090b"
+
 func TestHelloChrome152TrustAnchors(t *testing.T) {
 	t.Parallel()
 
@@ -337,6 +348,9 @@ func TestHelloChrome152TrustAnchors(t *testing.T) {
 		if len(ext.Data) != 206 {
 			t.Errorf("%s: trust_anchors body is %d bytes, Chrome 152 sends 206", name, len(ext.Data))
 		}
+		if got := hex.EncodeToString(ext.Data); got != chrome152TrustAnchors {
+			t.Errorf("%s: trust_anchors body differs from the Chrome 152 capture\n got: %s\nwant: %s", name, got, chrome152TrustAnchors)
+		}
 	}
 }
 
@@ -354,6 +368,46 @@ func TestHelloChrome152SignatureAlgorithmsGREASE(t *testing.T) {
 		return
 	}
 	t.Fatal("HelloChrome_152 has no signature_algorithms extension")
+}
+
+// TestHelloChrome152ExtensionOrderIsCanonical pins the declared extension order. The spec must
+// hold Chrome's own order verbatim: shuffling happens per connection on a private clone inside
+// JA.getSpec, never in place on this package variable, so the order stays identical across runs
+// and stays usable as a reference point.
+func TestHelloChrome152ExtensionOrderIsCanonical(t *testing.T) {
+	t.Parallel()
+
+	want := []string{
+		"*tls.UtlsGREASEExtension",
+		"*tls.SNIExtension",
+		"*tls.ExtendedMasterSecretExtension",
+		"*tls.RenegotiationInfoExtension",
+		"*tls.SupportedCurvesExtension",
+		"*tls.SupportedPointsExtension",
+		"*tls.SessionTicketExtension",
+		"*tls.ALPNExtension",
+		"*tls.StatusRequestExtension",
+		"*tls.SignatureAlgorithmsExtension",
+		"*tls.SCTExtension",
+		"*tls.KeyShareExtension",
+		"*tls.PSKKeyExchangeModesExtension",
+		"*tls.SupportedVersionsExtension",
+		"*tls.UtlsCompressCertExtension",
+		"*tls.ApplicationSettingsExtensionNew",
+		"*tls.GenericExtension",
+		"*tls.GREASEEncryptedClientHelloExtension",
+		"*tls.UtlsGREASEExtension",
+		"*tls.UtlsPreSharedKeyExtension",
+	}
+
+	got := make([]string, 0, len(chrome.HelloChrome_152.Extensions))
+	for _, ext := range chrome.HelloChrome_152.Extensions {
+		got = append(got, fmt.Sprintf("%T", ext))
+	}
+
+	if !slices.Equal(got, want) {
+		t.Errorf("HelloChrome_152 extension order changed\n got: %v\nwant: %v", got, want)
+	}
 }
 
 func TestVariantsShuffleExtensions(t *testing.T) {

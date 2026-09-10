@@ -57,6 +57,26 @@ func (j *JA) SetHelloSpec(spec utls.ClientHelloSpec) *Builder {
 	return j.build()
 }
 
+// ShuffleExtensions enables Chromium's per-connection ClientHello extension shuffle: the
+// extension order is randomized on every TLS handshake instead of staying fixed for the
+// lifetime of the client. GREASE, padding and pre_shared_key keep their positions, as they
+// are positionally invariant on the wire.
+//
+// Chromium shuffles since v110, so a custom Chrome-derived spec needs this to stay
+// consistent with the User-Agent it claims. Firefox keeps a fixed order — do not enable it
+// there.
+//
+// Unlike SetHelloID / SetHelloSpec this method is not terminal: it returns the JA struct, so
+// it has to be chained before the spec is set.
+//
+// Example usage:
+//
+//	JA().ShuffleExtensions().SetHelloSpec(spec)
+func (j *JA) ShuffleExtensions() *JA {
+	j.shuffle = true
+	return j
+}
+
 // build applies JA3/4 TLS fingerprinting configuration to the HTTP client.
 // This method configures the client with custom TLS settings and proxy support for JA3/4 fingerprinting.
 //
@@ -86,17 +106,32 @@ func (j *JA) build() *Builder {
 // 1. If a custom ClientHelloID is set (via SetHelloID), it attempts to convert this ID to a ClientHelloSpec.
 // 2. If none of the above conditions are met, it returns the currently set ClientHelloSpec.
 //
+// The result is always a private copy, never the source spec, so the per-connection mutations
+// below are safe under concurrent dials: the extension order is re-shuffled when
+// ShuffleExtensions is enabled, and GREASE placeholders in signature_algorithms are replaced
+// with fresh random values.
+//
 // This method returns the selected ClientHelloSpec along with an error value. If an error occurs
 // during conversion, it returns the error.
 func (j *JA) getSpec() g.Result[utls.ClientHelloSpec] {
+	var spec *utls.ClientHelloSpec
+
 	if !j.id.IsSet() {
-		return g.ResultOf(utls.UTLSIdToSpec(j.id))
+		r := g.ResultOf(utls.UTLSIdToSpec(j.id))
+		if r.IsErr() {
+			return r
+		}
+
+		id := r.Ok()
+		spec = &id
+	} else {
+		spec = specclone.Clone(&j.spec)
 	}
 
-	spec := specclone.Clone(&j.spec)
 	if j.shuffle {
 		spec.Extensions = utls.ShuffleChromeTLSExtensions(spec.Extensions)
 	}
+
 	greaseSignatureAlgorithms(spec)
 
 	return g.Ok(*spec)
@@ -180,8 +215,7 @@ func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_P
 // value in signature_algorithms, the trust_anchors extension, and Chrome's per-connection
 // extension-order shuffle.
 func (j *JA) Chrome152() *Builder {
-	j.shuffle = true
-	return j.SetHelloSpec(chrome.HelloChrome_152)
+	return j.ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_152)
 }
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.

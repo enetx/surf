@@ -21,8 +21,17 @@ const extensionTrustAnchors uint16 = 0xca34
 
 // chrome152TrustAnchorIDs is the extension body Chrome 152 sends: a length-prefixed
 // TrustAnchorIdentifierList of the Chrome Root Store trust anchor IDs it advertises,
-// captured verbatim from a Chrome 152.0.7977 desktop ClientHello. It is constant across
-// connections and hosts.
+// captured verbatim from a Google Chrome 152.0.7977 desktop ClientHello.
+//
+// The order matters and is not randomised. Chromium walks the compiled-in kChromeRootCertList
+// in array order (net/cert/internal/trust_store_chrome.cc), passes the bytes to
+// SSL_set1_requested_trust_anchors untouched, and BoringSSL writes them into the extension
+// verbatim — nothing shuffles the list the way the extension order is shuffled. So the order
+// is a compile-time constant of one Chrome build: stable across connections and hosts, but two
+// builds carrying different root store snapshots emit different orders for the same set of IDs.
+// These bytes must therefore come from a Google Chrome release, matching the branding the
+// profile claims in sec-ch-ua; a Chromium or ungoogled-chromium build of the same major
+// version is not interchangeable here.
 var chrome152TrustAnchorIDs = []byte{
 	0x00, 0xcc,
 	0x04, 0xd6, 0x79, 0x09, 0x06,
@@ -64,6 +73,10 @@ var chrome152TrustAnchorIDs = []byte{
 // and the trust_anchors extension. Together with the per-connection extension shuffle
 // (Variant.ShuffleExtensions / JA.Chrome152) this reproduces a Chrome 152 desktop
 // ClientHello structurally, not just its JA4.
+//
+// The extension order declared below is Chrome's own order. It is never shuffled in place:
+// the shuffle runs per connection on a private clone at dial time, so this value stays a
+// stable reference point across runs.
 var HelloChrome_152 = utls.ClientHelloSpec{
 	CipherSuites: []uint16{
 		utls.GREASE_PLACEHOLDER,
@@ -84,83 +97,81 @@ var HelloChrome_152 = utls.ClientHelloSpec{
 		utls.TLS_RSA_WITH_AES_256_CBC_SHA,
 	},
 	CompressionMethods: []byte{0x00},
-	Extensions: utls.ShuffleChromeTLSExtensions(
-		[]utls.TLSExtension{
-			&utls.UtlsGREASEExtension{},
-			&utls.SNIExtension{},
-			&utls.ExtendedMasterSecretExtension{},
-			&utls.RenegotiationInfoExtension{
-				Renegotiation: utls.RenegotiateOnceAsClient,
-			},
-			&utls.SupportedCurvesExtension{
-				Curves: []utls.CurveID{
-					utls.GREASE_PLACEHOLDER,
-					utls.X25519MLKEM768,
-					utls.X25519,
-					utls.CurveP256,
-					utls.CurveP384,
-				},
-			},
-			&utls.SupportedPointsExtension{
-				SupportedPoints: []byte{0x00},
-			},
-			&utls.SessionTicketExtension{},
-			&utls.ALPNExtension{
-				AlpnProtocols: []string{"h2", "http/1.1"},
-			},
-			&utls.StatusRequestExtension{},
-			&utls.SignatureAlgorithmsExtension{
-				SupportedSignatureAlgorithms: []utls.SignatureScheme{
-					// Chrome 152 GREASEs signature_algorithms; surf substitutes the
-					// placeholder with a random GREASE value per connection (see JA.getSpec).
-					utls.GREASE_PLACEHOLDER,
-					MLDSA44,
-					MLDSA65,
-					MLDSA87,
-					utls.ECDSAWithP256AndSHA256,
-					utls.PSSWithSHA256,
-					utls.PKCS1WithSHA256,
-					utls.ECDSAWithP384AndSHA384,
-					utls.PSSWithSHA384,
-					utls.PKCS1WithSHA384,
-					utls.PSSWithSHA512,
-					utls.PKCS1WithSHA512,
-				},
-			},
-			&utls.SCTExtension{},
-			&utls.KeyShareExtension{
-				KeyShares: []utls.KeyShare{
-					{Group: utls.GREASE_PLACEHOLDER, Data: []byte{0}},
-					{Group: utls.X25519MLKEM768},
-					{Group: utls.X25519},
-				},
-			},
-			&utls.PSKKeyExchangeModesExtension{
-				Modes: []uint8{
-					utls.PskModeDHE,
-				},
-			},
-			&utls.SupportedVersionsExtension{
-				Versions: []uint16{
-					utls.GREASE_PLACEHOLDER,
-					utls.VersionTLS13,
-					utls.VersionTLS12,
-				},
-			},
-			&utls.UtlsCompressCertExtension{
-				Algorithms: []utls.CertCompressionAlgo{
-					utls.CertCompressionBrotli,
-				},
-			},
-			&utls.ApplicationSettingsExtensionNew{
-				SupportedProtocols: []string{"h2"},
-			},
-			&utls.GenericExtension{Id: extensionTrustAnchors, Data: chrome152TrustAnchorIDs},
-			utls.BoringGREASEECH(),
-			&utls.UtlsGREASEExtension{},
-			&utls.UtlsPreSharedKeyExtension{},
+	Extensions: []utls.TLSExtension{
+		&utls.UtlsGREASEExtension{},
+		&utls.SNIExtension{},
+		&utls.ExtendedMasterSecretExtension{},
+		&utls.RenegotiationInfoExtension{
+			Renegotiation: utls.RenegotiateOnceAsClient,
 		},
-	),
+		&utls.SupportedCurvesExtension{
+			Curves: []utls.CurveID{
+				utls.GREASE_PLACEHOLDER,
+				utls.X25519MLKEM768,
+				utls.X25519,
+				utls.CurveP256,
+				utls.CurveP384,
+			},
+		},
+		&utls.SupportedPointsExtension{
+			SupportedPoints: []byte{0x00},
+		},
+		&utls.SessionTicketExtension{},
+		&utls.ALPNExtension{
+			AlpnProtocols: []string{"h2", "http/1.1"},
+		},
+		&utls.StatusRequestExtension{},
+		&utls.SignatureAlgorithmsExtension{
+			SupportedSignatureAlgorithms: []utls.SignatureScheme{
+				// Chrome 152 GREASEs signature_algorithms; surf substitutes the
+				// placeholder with a random GREASE value per connection (see JA.getSpec).
+				utls.GREASE_PLACEHOLDER,
+				MLDSA44,
+				MLDSA65,
+				MLDSA87,
+				utls.ECDSAWithP256AndSHA256,
+				utls.PSSWithSHA256,
+				utls.PKCS1WithSHA256,
+				utls.ECDSAWithP384AndSHA384,
+				utls.PSSWithSHA384,
+				utls.PKCS1WithSHA384,
+				utls.PSSWithSHA512,
+				utls.PKCS1WithSHA512,
+			},
+		},
+		&utls.SCTExtension{},
+		&utls.KeyShareExtension{
+			KeyShares: []utls.KeyShare{
+				{Group: utls.GREASE_PLACEHOLDER, Data: []byte{0}},
+				{Group: utls.X25519MLKEM768},
+				{Group: utls.X25519},
+			},
+		},
+		&utls.PSKKeyExchangeModesExtension{
+			Modes: []uint8{
+				utls.PskModeDHE,
+			},
+		},
+		&utls.SupportedVersionsExtension{
+			Versions: []uint16{
+				utls.GREASE_PLACEHOLDER,
+				utls.VersionTLS13,
+				utls.VersionTLS12,
+			},
+		},
+		&utls.UtlsCompressCertExtension{
+			Algorithms: []utls.CertCompressionAlgo{
+				utls.CertCompressionBrotli,
+			},
+		},
+		&utls.ApplicationSettingsExtensionNew{
+			SupportedProtocols: []string{"h2"},
+		},
+		&utls.GenericExtension{Id: extensionTrustAnchors, Data: chrome152TrustAnchorIDs},
+		utls.BoringGREASEECH(),
+		&utls.UtlsGREASEExtension{},
+		&utls.UtlsPreSharedKeyExtension{},
+	},
 }
 
 // HelloChrome_152_Mobile is a placeholder mobile variant. On the day real Chrome Android 152
