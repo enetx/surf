@@ -10,6 +10,7 @@ import (
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/profiles"
 	"github.com/enetx/surf/profiles/chrome"
+	utls "github.com/refraction-networking/utls"
 )
 
 func TestHeaders_POST(t *testing.T) {
@@ -259,8 +260,8 @@ func TestSecCHUAFormat(t *testing.T) {
 	if !strings.Contains(chrome.SecCHUA, "Chromium") {
 		t.Errorf("SecCHUA missing Chromium brand: %s", chrome.SecCHUA)
 	}
-	if !strings.Contains(chrome.SecCHUA, `v="150"`) {
-		t.Errorf("SecCHUA missing version 150: %s", chrome.SecCHUA)
+	if !strings.Contains(chrome.SecCHUA, `v="152"`) {
+		t.Errorf("SecCHUA missing version 152: %s", chrome.SecCHUA)
 	}
 }
 
@@ -270,8 +271,8 @@ func TestVariantDesktopFields(t *testing.T) {
 	if chrome.Desktop.HelloSpec == nil {
 		t.Fatal("Desktop.HelloSpec is nil")
 	}
-	if chrome.Desktop.HelloSpec != &chrome.HelloChrome_150 {
-		t.Error("Desktop.HelloSpec must point to HelloChrome_150")
+	if chrome.Desktop.HelloSpec != &chrome.HelloChrome_152 {
+		t.Error("Desktop.HelloSpec must point to HelloChrome_152")
 	}
 	if chrome.Desktop.Boundary == nil {
 		t.Error("Desktop.Boundary is nil")
@@ -293,10 +294,10 @@ func TestVariantMobileFields(t *testing.T) {
 	if chrome.Mobile.HelloSpec == nil {
 		t.Fatal("Mobile.HelloSpec is nil")
 	}
-	if chrome.Mobile.HelloSpec != &chrome.HelloChrome_150_Mobile {
-		t.Error("Mobile.HelloSpec must point to HelloChrome_150_Mobile")
+	if chrome.Mobile.HelloSpec != &chrome.HelloChrome_152_Mobile {
+		t.Error("Mobile.HelloSpec must point to HelloChrome_152_Mobile")
 	}
-	if chrome.Mobile.HelloSpec == &chrome.HelloChrome_150 {
+	if chrome.Mobile.HelloSpec == &chrome.HelloChrome_152 {
 		t.Error("Mobile.HelloSpec must NOT point to the desktop spec")
 	}
 	if chrome.Mobile.Boundary == nil {
@@ -304,6 +305,65 @@ func TestVariantMobileFields(t *testing.T) {
 	}
 	if chrome.Mobile.BuildHeaders == nil {
 		t.Error("Mobile.BuildHeaders is nil")
+	}
+}
+
+// trustAnchorsExtension returns the TLS Trust Anchor Identifiers extension (0xca34)
+// from a hello spec, or nil when the spec does not carry it.
+func trustAnchorsExtension(spec *utls.ClientHelloSpec) *utls.GenericExtension {
+	for _, ext := range spec.Extensions {
+		if generic, ok := ext.(*utls.GenericExtension); ok && generic.Id == 0xca34 {
+			return generic
+		}
+	}
+	return nil
+}
+
+func TestHelloChrome152TrustAnchors(t *testing.T) {
+	t.Parallel()
+
+	for name, spec := range map[string]*utls.ClientHelloSpec{
+		"desktop": &chrome.HelloChrome_152,
+		"mobile":  &chrome.HelloChrome_152_Mobile,
+	} {
+		ext := trustAnchorsExtension(spec)
+		if ext == nil {
+			t.Fatalf("%s: HelloChrome_152 must carry the trust_anchors extension (0xca34)", name)
+		}
+		// TrustAnchorIdentifierList: 2-byte length prefix covering the remaining body.
+		if len(ext.Data) < 2 || int(ext.Data[0])<<8|int(ext.Data[1]) != len(ext.Data)-2 {
+			t.Errorf("%s: trust_anchors body length prefix does not match body (%d bytes)", name, len(ext.Data))
+		}
+		if len(ext.Data) != 206 {
+			t.Errorf("%s: trust_anchors body is %d bytes, Chrome 152 sends 206", name, len(ext.Data))
+		}
+	}
+}
+
+func TestHelloChrome152SignatureAlgorithmsGREASE(t *testing.T) {
+	t.Parallel()
+
+	for _, ext := range chrome.HelloChrome_152.Extensions {
+		sigalgs, ok := ext.(*utls.SignatureAlgorithmsExtension)
+		if !ok {
+			continue
+		}
+		if len(sigalgs.SupportedSignatureAlgorithms) == 0 || sigalgs.SupportedSignatureAlgorithms[0] != utls.GREASE_PLACEHOLDER {
+			t.Fatalf("signature_algorithms must start with a GREASE placeholder, got %v", sigalgs.SupportedSignatureAlgorithms)
+		}
+		return
+	}
+	t.Fatal("HelloChrome_152 has no signature_algorithms extension")
+}
+
+func TestVariantsShuffleExtensions(t *testing.T) {
+	t.Parallel()
+
+	if !chrome.Desktop.ShuffleExtensions {
+		t.Error("Desktop must re-shuffle extensions per connection like Chrome")
+	}
+	if !chrome.Mobile.ShuffleExtensions {
+		t.Error("Mobile must re-shuffle extensions per connection like Chrome")
 	}
 }
 

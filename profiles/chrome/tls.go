@@ -2,19 +2,69 @@ package chrome
 
 import utls "github.com/refraction-networking/utls"
 
-// ML-DSA (post-quantum) TLS 1.3 signature schemes that Chrome 150 advertises at the
+// ML-DSA (post-quantum) TLS 1.3 signature schemes that Chrome 152 advertises at the
 // head of its signature_algorithms list. utls does not yet name them, so they are
 // spelled as raw SignatureScheme code points (per the TLS ML-DSA draft). Without
-// them a Chrome-150 UA ships a pre-150 JA4, which some Akamai deployments reject.
+// them a Chrome-152 UA ships a pre-152 JA4, which some Akamai deployments reject.
 const (
 	MLDSA44 utls.SignatureScheme = 0x0904
 	MLDSA65 utls.SignatureScheme = 0x0905
 	MLDSA87 utls.SignatureScheme = 0x0906
 )
 
-// HelloChrome_150 mirrors HelloChrome_144 but prepends the ML-DSA signature schemes to
-// match Chrome 150's signature_algorithms (and therefore its JA4).
-var HelloChrome_150 = utls.ClientHelloSpec{
+// extensionTrustAnchors is the TLS Trust Anchor Identifiers extension
+// (draft-ietf-tls-trust-anchor-ids, code point 0xca34). Chrome 152 sends it on every
+// ClientHello, so its presence is part of the Chrome 152 JA4 (t13d1517h2_…); a hello
+// without it is a pre-152 fingerprint, which some Akamai deployments reject when the
+// UA claims Chrome 152.
+const extensionTrustAnchors uint16 = 0xca34
+
+// chrome152TrustAnchorIDs is the extension body Chrome 152 sends: a length-prefixed
+// TrustAnchorIdentifierList of the Chrome Root Store trust anchor IDs it advertises,
+// captured verbatim from a Chrome 152.0.7977 desktop ClientHello. It is constant across
+// connections and hosts.
+var chrome152TrustAnchorIDs = []byte{
+	0x00, 0xcc,
+	0x04, 0xd6, 0x79, 0x09, 0x06,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x07,
+	0x04, 0xd6, 0x79, 0x09, 0x0c,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x06,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x13,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x0d,
+	0x04, 0xd6, 0x79, 0x09, 0x01,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x0d,
+	0x04, 0xd6, 0x79, 0x09, 0x0d,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x0f,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x08,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x12,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x09,
+	0x04, 0xd6, 0x79, 0x09, 0x02,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x01,
+	0x04, 0xd6, 0x79, 0x09, 0x0e,
+	0x04, 0xd6, 0x79, 0x09, 0x09,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x0a,
+	0x04, 0xd6, 0x79, 0x09, 0x03,
+	0x04, 0xd6, 0x79, 0x09, 0x0f,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x0b,
+	0x04, 0xd6, 0x79, 0x09, 0x04,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x14,
+	0x04, 0xd6, 0x79, 0x09, 0x0a,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x13,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x12,
+	0x04, 0xd6, 0x79, 0x09, 0x07,
+	0x04, 0xd6, 0x79, 0x09, 0x08,
+	0x08, 0x83, 0x9a, 0x64, 0x8c, 0x9b, 0x2d, 0x01, 0x0c,
+	0x04, 0xd6, 0x79, 0x09, 0x05,
+	0x05, 0x82, 0xdf, 0x13, 0x02, 0x0e,
+	0x04, 0xd6, 0x79, 0x09, 0x0b,
+}
+
+// HelloChrome_152 mirrors HelloChrome_150 (ML-DSA signature schemes at the head of
+// signature_algorithms) and adds what Chrome 152 sends on top: a GREASE signature scheme
+// and the trust_anchors extension. Together with the per-connection extension shuffle
+// (Variant.ShuffleExtensions / JA.Chrome152) this reproduces a Chrome 152 desktop
+// ClientHello structurally, not just its JA4.
+var HelloChrome_152 = utls.ClientHelloSpec{
 	CipherSuites: []uint16{
 		utls.GREASE_PLACEHOLDER,
 		utls.TLS_AES_128_GCM_SHA256,
@@ -61,6 +111,9 @@ var HelloChrome_150 = utls.ClientHelloSpec{
 			&utls.StatusRequestExtension{},
 			&utls.SignatureAlgorithmsExtension{
 				SupportedSignatureAlgorithms: []utls.SignatureScheme{
+					// Chrome 152 GREASEs signature_algorithms; surf substitutes the
+					// placeholder with a random GREASE value per connection (see JA.getSpec).
+					utls.GREASE_PLACEHOLDER,
 					MLDSA44,
 					MLDSA65,
 					MLDSA87,
@@ -102,6 +155,7 @@ var HelloChrome_150 = utls.ClientHelloSpec{
 			&utls.ApplicationSettingsExtensionNew{
 				SupportedProtocols: []string{"h2"},
 			},
+			&utls.GenericExtension{Id: extensionTrustAnchors, Data: chrome152TrustAnchorIDs},
 			utls.BoringGREASEECH(),
 			&utls.UtlsGREASEExtension{},
 			&utls.UtlsPreSharedKeyExtension{},
@@ -109,7 +163,7 @@ var HelloChrome_150 = utls.ClientHelloSpec{
 	),
 }
 
-// HelloChrome_150_Mobile is a placeholder mobile variant. On the day real Chrome Android 150
+// HelloChrome_152_Mobile is a placeholder mobile variant. On the day real Chrome Android 152
 // ClientHello bytes are observed, replace this body — it is the single point of substitution
 // for the mobile TLS fingerprint.
-var HelloChrome_150_Mobile = HelloChrome_150
+var HelloChrome_152_Mobile = HelloChrome_152

@@ -1,7 +1,9 @@
 package surf
 
 import (
+	"crypto/rand"
 	"math"
+	"math/big"
 
 	"github.com/enetx/g"
 	"github.com/enetx/surf/internal/specclone"
@@ -20,6 +22,7 @@ type JA struct {
 	spec    utls.ClientHelloSpec // Custom TLS ClientHello specification
 	id      utls.ClientHelloID   // Predefined TLS ClientHello identifier
 	builder *Builder             // Reference to the parent builder for method chaining
+	shuffle bool                 // Re-shuffle the spec's extension order on every connection (Chrome behaviour)
 }
 
 // SetHelloID sets a ClientHelloID for the TLS connection.
@@ -91,7 +94,40 @@ func (j *JA) getSpec() g.Result[utls.ClientHelloSpec] {
 	}
 
 	spec := specclone.Clone(&j.spec)
+	if j.shuffle {
+		spec.Extensions = utls.ShuffleChromeTLSExtensions(spec.Extensions)
+	}
+	greaseSignatureAlgorithms(spec)
+
 	return g.Ok(*spec)
+}
+
+// greaseSignatureAlgorithms replaces every GREASE placeholder in the spec's
+// signature_algorithms list with a fresh random GREASE value. Chrome sends a GREASE
+// signature scheme at the head of that list and picks a new value per connection; uTLS
+// substitutes GREASE placeholders for cipher suites, groups, key shares, versions and
+// extension IDs but leaves signature schemes untouched, so it is done here.
+func greaseSignatureAlgorithms(spec *utls.ClientHelloSpec) {
+	for _, ext := range spec.Extensions {
+		sigalgs, ok := ext.(*utls.SignatureAlgorithmsExtension)
+		if !ok {
+			continue
+		}
+		for i, scheme := range sigalgs.SupportedSignatureAlgorithms {
+			if scheme == utls.GREASE_PLACEHOLDER {
+				sigalgs.SupportedSignatureAlgorithms[i] = utls.SignatureScheme(randomGREASE())
+			}
+		}
+	}
+}
+
+// randomGREASE returns one of the 16 GREASE code points (0x0a0a, 0x1a1a, … 0xfafa).
+func randomGREASE() uint16 {
+	n, err := rand.Int(rand.Reader, big.NewInt(16))
+	if err != nil {
+		return utls.GREASE_PLACEHOLDER
+	}
+	return uint16(0x0a0a + 0x1010*n.Int64())
 }
 
 // Browser and application fingerprinting methods.
@@ -140,9 +176,13 @@ func (j *JA) Chrome120() *Builder { return j.SetHelloID(utls.HelloChrome_120) }
 // Chrome120PQ sets the JA3/4 fingerprint to mimic Chrome version 120 with post-quantum cryptography support.
 func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_PQ) }
 
-// Chrome150 sets the JA3/4 fingerprint to mimic Chrome version 150, including the
-// ML-DSA post-quantum signature schemes it added to signature_algorithms.
-func (j *JA) Chrome150() *Builder { return j.SetHelloSpec(chrome.HelloChrome_150) }
+// Chrome152 sets the JA3/4 fingerprint to mimic Chrome version 152: ML-DSA and a GREASE
+// value in signature_algorithms, the trust_anchors extension, and Chrome's per-connection
+// extension-order shuffle.
+func (j *JA) Chrome152() *Builder {
+	j.shuffle = true
+	return j.SetHelloSpec(chrome.HelloChrome_152)
+}
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.
 func (j *JA) Edge() *Builder { return j.SetHelloID(utls.HelloEdge_85) }
