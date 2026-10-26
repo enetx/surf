@@ -134,7 +134,8 @@ func TestRoundTripperHTTP2FallbackErrorPreservesHTTP2Error(t *testing.T) {
 			_ = conn.SetDeadline(time.Now().Add(2 * time.Second))
 			defer conn.Close()
 
-			// Minimal HTTP/2 server that sends a stream reset with INTERNAL_ERROR.
+			// Minimal HTTP/2 server that resets the stream with HTTP_1_1_REQUIRED, the one
+			// peer reset that still falls back to HTTP/1.1.
 			preface := make([]byte, len(http2.ClientPreface))
 			if _, err := io.ReadFull(conn, preface); err != nil {
 				return
@@ -155,7 +156,7 @@ func TestRoundTripperHTTP2FallbackErrorPreservesHTTP2Error(t *testing.T) {
 						_ = fr.WriteSettingsAck()
 					}
 				case *http2.HeadersFrame:
-					_ = fr.WriteRSTStream(f.Header().StreamID, http2.ErrCodeInternal)
+					_ = fr.WriteRSTStream(f.Header().StreamID, http2.ErrCodeHTTP11Required)
 					return
 				}
 			}
@@ -196,8 +197,8 @@ func TestRoundTripperHTTP2FallbackErrorPreservesHTTP2Error(t *testing.T) {
 		t.Fatalf("expected to find http2.StreamError via Unwrap, got: %v", resp.Err())
 	}
 
-	if se.Code != http2.ErrCodeInternal {
-		t.Fatalf("expected HTTP/2 INTERNAL_ERROR, got %v", se.Code)
+	if se.Code != http2.ErrCodeHTTP11Required {
+		t.Fatalf("expected HTTP/2 HTTP_1_1_REQUIRED, got %v", se.Code)
 	}
 
 	if !strings.Contains(resp.Err().Error(), "stream error") {
