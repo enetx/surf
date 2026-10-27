@@ -122,7 +122,8 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 // the same request again: Akamai Bot Manager resets a request with a stale ak_bmsc
 // cookie over HTTP/2 and holds the same request over HTTP/1.1 with no response, so the
 // fallback only waits out the response-header timeout. HTTP_1_1_REQUIRED is the one
-// reset that asks for the fallback.
+// reset that asks for the fallback. REFUSED_STREAM reaches here only after the http2
+// transport has already retried it over HTTP/2, as Chrome does.
 func isPeerStreamReset(err error) bool {
 	var se http2.StreamError
 	if !errors.As(err, &se) {
