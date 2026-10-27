@@ -1,9 +1,11 @@
 package surf_test
 
 import (
+	"bytes"
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -12,8 +14,10 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http/httptest"
+	"github.com/enetx/http2"
 	"github.com/enetx/surf"
 	utls "github.com/refraction-networking/utls"
+	"golang.org/x/net/http2/hpack"
 )
 
 func TestRoundTripperTransportCaching(t *testing.T) {
@@ -1076,5 +1080,83 @@ func TestRoundTripperNoHTTP1FallbackOnPeerStreamReset(t *testing.T) {
 	}
 	if elapsed := time.Since(start); elapsed > 2*time.Second {
 		t.Fatalf("expected a fast failure, took %s", elapsed)
+	}
+}
+
+// REFUSED_STREAM means the server did not process the request. Like Chrome, the request
+// is retried over HTTP/2 (by the http2 transport) and does not fall back to HTTP/1.1.
+func TestRoundTripperRetriesRefusedStreamOverHTTP2(t *testing.T) {
+	t.Parallel()
+
+	var http1Requests, http2Streams atomic.Int32
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http1Requests.Add(1)
+		w.WriteHeader(http.StatusOK)
+	}))
+	ts.EnableHTTP2 = true
+	ts.Config.TLSNextProto = map[string]func(*http.Server, *tls.Conn, http.Handler){
+		"h2": func(_ *http.Server, conn *tls.Conn, _ http.Handler) {
+			_ = conn.SetDeadline(time.Now().Add(2 * time.Second))
+			defer conn.Close()
+
+			// Minimal HTTP/2 server: refuses the first stream, answers 200 to the next.
+			preface := make([]byte, len(http2.ClientPreface))
+			if _, err := io.ReadFull(conn, preface); err != nil {
+				return
+			}
+
+			fr := http2.NewFramer(conn, conn)
+			_ = fr.WriteSettings()
+
+			for {
+				f, err := fr.ReadFrame()
+				if err != nil {
+					return
+				}
+
+				switch f := f.(type) {
+				case *http2.SettingsFrame:
+					if !f.IsAck() {
+						_ = fr.WriteSettingsAck()
+					}
+				case *http2.HeadersFrame:
+					if http2Streams.Add(1) == 1 {
+						_ = fr.WriteRSTStream(f.StreamID, http2.ErrCodeRefusedStream)
+						continue
+					}
+
+					var block bytes.Buffer
+					_ = hpack.NewEncoder(&block).WriteField(hpack.HeaderField{Name: ":status", Value: "200"})
+					_ = fr.WriteHeaders(http2.HeadersFrameParam{
+						StreamID:      f.StreamID,
+						BlockFragment: block.Bytes(),
+						EndHeaders:    true,
+						EndStream:     true,
+					})
+				}
+			}
+		},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome152().
+		Timeout(5 * time.Second).
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatalf("expected the refused stream to be retried, got %v", resp.Err())
+	}
+	if resp.Ok().StatusCode != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", resp.Ok().StatusCode)
+	}
+	if n := http2Streams.Load(); n != 2 {
+		t.Fatalf("expected 2 HTTP/2 streams (refused, then retried), got %d", n)
+	}
+	if n := http1Requests.Load(); n != 0 {
+		t.Fatalf("expected no HTTP/1.1 fallback request, got %d", n)
 	}
 }
