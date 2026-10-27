@@ -3,6 +3,7 @@ package surf
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"strings"
@@ -84,6 +85,10 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 
 	h2Err := err
 
+	if isPeerStreamReset(h2Err) {
+		return nil, h2Err
+	}
+
 	// HTTP/2 failed - fallback to HTTP/1.1
 	if err := req.Context().Err(); err != nil {
 		return nil, err
@@ -109,6 +114,22 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	return resp, nil
+}
+
+// isPeerStreamReset reports whether the server negotiated HTTP/2 and then reset the
+// request's stream itself. That is the server's answer to this request, and Chrome
+// shows it as ERR_HTTP2_PROTOCOL_ERROR without a retry. Retrying over HTTP/1.1 sends
+// the same request again: Akamai Bot Manager resets a request with a stale ak_bmsc
+// cookie over HTTP/2 and holds the same request over HTTP/1.1 with no response, so the
+// fallback only waits out the response-header timeout. HTTP_1_1_REQUIRED is the one
+// reset that asks for the fallback.
+func isPeerStreamReset(err error) bool {
+	var se http2.StreamError
+	if !errors.As(err, &se) {
+		return false
+	}
+
+	return se.Code != http2.ErrCodeHTTP11Required && se.Cause != nil && se.Cause.Error() == "received from peer"
 }
 
 // CloseIdleConnections closes all idle connections.

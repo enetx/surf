@@ -1035,3 +1035,46 @@ func TestJARoundtripperAddressParsing(t *testing.T) {
 		})
 	}
 }
+
+func TestRoundTripperNoHTTP1FallbackOnPeerStreamReset(t *testing.T) {
+	t.Parallel()
+
+	var http1Requests atomic.Int32
+	release := make(chan struct{})
+
+	handler := func(_ http.ResponseWriter, r *http.Request) {
+		if r.ProtoMajor == 2 {
+			// The HTTP/2 server answers a handler abort with RST_STREAM INTERNAL_ERROR.
+			panic(http.ErrAbortHandler)
+		}
+		http1Requests.Add(1)
+		<-release
+	}
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(handler))
+	ts.EnableHTTP2 = true
+	ts.StartTLS()
+	defer ts.Close()
+	// Runs before ts.Close, which waits for the held HTTP/1.1 handler.
+	defer close(release)
+
+	client := surf.NewClient().Builder().
+		JA().Chrome152().
+		Timeout(5 * time.Second).
+		Build().Unwrap()
+
+	start := time.Now()
+	resp := client.Get(g.String(ts.URL)).Do()
+	if !resp.IsErr() {
+		t.Fatal("expected the stream reset to be returned as an error")
+	}
+	if !strings.Contains(resp.Err().Error(), "INTERNAL_ERROR") {
+		t.Fatalf("expected INTERNAL_ERROR, got %v", resp.Err())
+	}
+	if n := http1Requests.Load(); n != 0 {
+		t.Fatalf("expected no HTTP/1.1 fallback request, got %d", n)
+	}
+	if elapsed := time.Since(start); elapsed > 2*time.Second {
+		t.Fatalf("expected a fast failure, took %s", elapsed)
+	}
+}
