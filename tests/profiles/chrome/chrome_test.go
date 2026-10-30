@@ -321,14 +321,14 @@ func trustAnchorsExtension(spec *utls.ClientHelloSpec) *utls.GenericExtension {
 	return nil
 }
 
-// chrome152TrustAnchors is the trust_anchors (0xca34) body of a Google Chrome 152 desktop
+// chromeTrustAnchors is the trust_anchors (0xca34) body of a Google Chrome 156 desktop
 // ClientHello. Chrome emits this list in compiled-in root store order and never shuffles it, so
 // the bytes have to match exactly — a wrong order is as visible on the wire as a wrong set.
-const chrome152TrustAnchors = "00cc04d679090608839a648c9b2d010704d679090c0582df1302060582df13021308839a648c9b2d010d" +
-	"04d67909010582df13020d04d679090d0582df13020f08839a648c9b2d01080582df13021208839a648c" +
-	"9b2d010904d67909020582df13020104d679090e04d679090908839a648c9b2d010a04d679090304d679" +
-	"090f08839a648c9b2d010b04d67909040582df13021404d679090a08839a648c9b2d011308839a648c9b" +
-	"2d011204d679090704d679090808839a648c9b2d010c04d67909050582df13020e04d679090b"
+const chromeTrustAnchors = "00b80582df1302010582df1302060582df13020d0582df13020e0582df13020f0582df1302120582df13" +
+	"02130582df13021408839a648c9b2d010708839a648c9b2d010808839a648c9b2d010908839a648c9b2d" +
+	"010a08839a648c9b2d010b08839a648c9b2d010c08839a648c9b2d010d08839a648c9b2d011208839a64" +
+	"8c9b2d011304d679090104d679090404d679090504d679090604d679090704d679090804d679090a04d6" +
+	"79090b04d679090c04d679090d04d679090f"
 
 func TestHelloChrome152TrustAnchors(t *testing.T) {
 	t.Parallel()
@@ -345,11 +345,11 @@ func TestHelloChrome152TrustAnchors(t *testing.T) {
 		if len(ext.Data) < 2 || int(ext.Data[0])<<8|int(ext.Data[1]) != len(ext.Data)-2 {
 			t.Errorf("%s: trust_anchors body length prefix does not match body (%d bytes)", name, len(ext.Data))
 		}
-		if len(ext.Data) != 206 {
-			t.Errorf("%s: trust_anchors body is %d bytes, Chrome 152 sends 206", name, len(ext.Data))
+		if len(ext.Data) != 186 {
+			t.Errorf("%s: trust_anchors body is %d bytes, Chrome 156 sends 186", name, len(ext.Data))
 		}
-		if got := hex.EncodeToString(ext.Data); got != chrome152TrustAnchors {
-			t.Errorf("%s: trust_anchors body differs from the Chrome 152 capture\n got: %s\nwant: %s", name, got, chrome152TrustAnchors)
+		if got := hex.EncodeToString(ext.Data); got != chromeTrustAnchors {
+			t.Errorf("%s: trust_anchors body differs from the Chrome 156 capture\n got: %s\nwant: %s", name, got, chromeTrustAnchors)
 		}
 	}
 }
