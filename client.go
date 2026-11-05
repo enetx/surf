@@ -226,19 +226,36 @@ func (req *Request) Body(data any) *Request {
 
 	n := int64(-1)
 
+	// GetBody lets a transport send the request again, as net/http.NewRequest allows for the
+	// same in-memory readers.
 	switch v := body.(type) {
 	case *bytes.Reader:
 		n = int64(v.Len())
+		snapshot := *v
+		req.request.GetBody = func() (io.ReadCloser, error) {
+			r := snapshot
+			return io.NopCloser(&r), nil
+		}
 	case *strings.Reader:
 		n = int64(v.Len())
+		snapshot := *v
+		req.request.GetBody = func() (io.ReadCloser, error) {
+			r := snapshot
+			return io.NopCloser(&r), nil
+		}
 	case *bytes.Buffer:
 		n = int64(v.Len())
+		buf := v.Bytes()
+		req.request.GetBody = func() (io.ReadCloser, error) {
+			return io.NopCloser(bytes.NewReader(buf)), nil
+		}
 	}
 
 	req.request.ContentLength = n
 
 	if n == 0 {
 		req.request.Body = http.NoBody
+		req.request.GetBody = nil
 	} else {
 		if rc, ok := body.(io.ReadCloser); ok {
 			req.request.Body = rc

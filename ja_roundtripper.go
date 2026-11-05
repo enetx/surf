@@ -5,8 +5,10 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/enetx/http"
@@ -83,28 +85,29 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 		return resp, nil
 	}
 
+	if connClosedBeforeResponse(err) {
+		// The server closed an established HTTP/2 connection before it answered this request.
+		// Imperva does this to every request still in flight after it answers one with a block
+		// page: close_notify and FIN, no GOAWAY. Chrome sends such a request once more on a new
+		// connection, and so does surf. The closed connection is no longer in the pool.
+		if err := rewindBody(req, err); err != nil {
+			return nil, err
+		}
+
+		resp, err = rt.http2tr.RoundTrip(req)
+		if err == nil {
+			return resp, nil
+		}
+	}
+
 	h2Err := err
 
 	if !wantsHTTP1(h2Err) {
 		return nil, h2Err
 	}
 
-	// HTTP/2 failed - fallback to HTTP/1.1
-	if err := req.Context().Err(); err != nil {
+	if err := rewindBody(req, h2Err); err != nil {
 		return nil, err
-	}
-
-	// Restore request body if needed for retry
-	if req.Body != nil && req.Body != http.NoBody {
-		if req.GetBody == nil {
-			return nil, fmt.Errorf("surf: HTTP/2 failed and cannot retry because req.GetBody is nil: %w", err)
-		}
-
-		body, bodyErr := req.GetBody()
-		if bodyErr != nil {
-			return nil, fmt.Errorf("surf: failed to restore body for fallback: %w", bodyErr)
-		}
-		req.Body = body
 	}
 
 	// Retry with HTTP/1.1
@@ -114,6 +117,50 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	return resp, nil
+}
+
+// rewindBody prepares req to be sent again after the failed attempt err.
+func rewindBody(req *http.Request, err error) error {
+	if ctxErr := req.Context().Err(); ctxErr != nil {
+		return ctxErr
+	}
+
+	if req.Body == nil || req.Body == http.NoBody {
+		return nil
+	}
+
+	if req.GetBody == nil {
+		return fmt.Errorf("surf: cannot send the request again because req.GetBody is nil: %w", err)
+	}
+
+	body, bodyErr := req.GetBody()
+	if bodyErr != nil {
+		return fmt.Errorf("surf: failed to restore body to send the request again: %w", bodyErr)
+	}
+
+	req.Body = body
+
+	return nil
+}
+
+// h2DialError marks a failure to open the HTTP/2 connection, so that it is never mistaken for
+// a connection the server closed after the handshake. A proxy tunnel can fail its own
+// handshake with io.ErrUnexpectedEOF too.
+type h2DialError struct{ err error }
+
+func (e *h2DialError) Error() string { return e.err.Error() }
+func (e *h2DialError) Unwrap() error { return e.err }
+
+// connClosedBeforeResponse reports whether an established HTTP/2 connection was closed or reset
+// by the server before the response headers arrived. RoundTrip returns no error once the
+// headers are in, so every such error means the request got no answer.
+func connClosedBeforeResponse(err error) bool {
+	var de *h2DialError
+	if errors.As(err, &de) {
+		return false
+	}
+
+	return errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, syscall.ECONNRESET)
 }
 
 // errALPNNotH2 is returned by dialTLSHTTP2 when the server's ALPN choice was not h2.
@@ -238,7 +285,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string) (net.Conn, error) {
 	uconn, err := rt.tlsHandshake(ctx, network, addr, false)
 	if err != nil {
-		return nil, err
+		return nil, &h2DialError{err}
 	}
 
 	negotiatedProtocol := uconn.ConnectionState().NegotiatedProtocol
