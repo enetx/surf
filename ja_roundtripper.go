@@ -85,7 +85,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 
 	h2Err := err
 
-	if isPeerStreamReset(h2Err) {
+	if !wantsHTTP1(h2Err) {
 		return nil, h2Err
 	}
 
@@ -116,21 +116,48 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	return resp, nil
 }
 
-// isPeerStreamReset reports whether the server negotiated HTTP/2 and then reset the
-// request's stream itself. That is the server's answer to this request, and Chrome
-// shows it as ERR_HTTP2_PROTOCOL_ERROR without a retry. Retrying over HTTP/1.1 sends
-// the same request again: Akamai Bot Manager resets a request with a stale ak_bmsc
-// cookie over HTTP/2 and holds the same request over HTTP/1.1 with no response, so the
-// fallback only waits out the response-header timeout. HTTP_1_1_REQUIRED is the one
-// reset that asks for the fallback. REFUSED_STREAM reaches here only after the http2
-// transport has already retried it over HTTP/2, as Chrome does.
-func isPeerStreamReset(err error) bool {
-	var se http2.StreamError
-	if !errors.As(err, &se) {
-		return false
+// errALPNNotH2 is returned by dialTLSHTTP2 when the server's ALPN choice was not h2.
+var errALPNNotH2 = errors.New("surf: server did not negotiate h2")
+
+// wantsHTTP1 reports whether the server asked for HTTP/1.1, the only HTTP/2 failures after
+// which Chrome sends the request again over HTTP/1.1:
+//   - the server picked http/1.1 (or no protocol) in ALPN. Chrome then simply speaks
+//     HTTP/1.1 on that connection; surf's HTTP/2 transport cannot, so it redials;
+//   - the server reset the stream, or sent GOAWAY, with HTTP_1_1_REQUIRED.
+//
+// Every other failure is returned as it is, as Chrome does. A connect or TLS handshake
+// timeout, a refused or reset connection, or a TLS alert would only be repeated against the
+// same address: a residential exit that accepts the connection but never relays the
+// handshake made every such request wait out the handshake timeout twice. A stream reset by
+// the server is its answer to the request: Akamai Bot Manager resets a request carrying a
+// stale ak_bmsc over HTTP/2 and holds the same request over HTTP/1.1 with no response.
+func wantsHTTP1(err error) bool {
+	if errors.Is(err, errALPNNotH2) {
+		return true
 	}
 
-	return se.Code != http2.ErrCodeHTTP11Required && se.Cause != nil && se.Cause.Error() == "received from peer"
+	var se http2.StreamError
+	if errors.As(err, &se) {
+		return se.Code == http2.ErrCodeHTTP11Required
+	}
+
+	var ga http2.GoAwayError
+	if errors.As(err, &ga) {
+		return ga.ErrCode == http2.ErrCodeHTTP11Required
+	}
+
+	// http2 v1.0.26 returns an untyped error when GOAWAY rejects stream 1
+	// with LastStreamID=0. Match its complete message until that path also
+	// returns a GoAwayError; other GOAWAY codes must not enable fallback.
+	const firstStreamHTTP1Required = "http2: Transport received GOAWAY from server ErrCode:HTTP_1_1_REQUIRED"
+	for err != nil {
+		if err.Error() == firstStreamHTTP1Required {
+			return true
+		}
+		err = errors.Unwrap(err)
+	}
+
+	return false
 }
 
 // CloseIdleConnections closes all idle connections.
@@ -217,7 +244,7 @@ func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string) 
 	negotiatedProtocol := uconn.ConnectionState().NegotiatedProtocol
 	if negotiatedProtocol != "h2" {
 		uconn.Close()
-		return nil, fmt.Errorf("surf: negotiated ALPN %q, expected h2", negotiatedProtocol)
+		return nil, fmt.Errorf("%w: negotiated ALPN %q, expected h2", errALPNNotH2, negotiatedProtocol)
 	}
 
 	return uconn, nil

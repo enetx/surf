@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -429,7 +430,35 @@ func TestRoundTripperHTTP2FallbackForcesHTTP1ALPN(t *testing.T) {
 	ts.Config.TLSNextProto = map[string]func(*http.Server, *tls.Conn, http.Handler){
 		"h2": func(_ *http.Server, conn *tls.Conn, _ http.Handler) {
 			h2Attempts.Add(1)
-			_ = conn.Close()
+			_ = conn.SetDeadline(time.Now().Add(2 * time.Second))
+			defer conn.Close()
+
+			// The server asks for HTTP/1.1 (RST_STREAM HTTP_1_1_REQUIRED), one of the two
+			// cases where surf falls back, as Chrome does.
+			preface := make([]byte, len(http2.ClientPreface))
+			if _, err := io.ReadFull(conn, preface); err != nil {
+				return
+			}
+
+			fr := http2.NewFramer(conn, conn)
+			_ = fr.WriteSettings()
+
+			for {
+				f, err := fr.ReadFrame()
+				if err != nil {
+					return
+				}
+
+				switch f := f.(type) {
+				case *http2.SettingsFrame:
+					if !f.IsAck() {
+						_ = fr.WriteSettingsAck()
+					}
+				case *http2.HeadersFrame:
+					_ = fr.WriteRSTStream(f.Header().StreamID, http2.ErrCodeHTTP11Required)
+					return
+				}
+			}
 		},
 	}
 	ts.StartTLS()
@@ -1155,6 +1184,86 @@ func TestRoundTripperRetriesRefusedStreamOverHTTP2(t *testing.T) {
 	}
 	if n := http2Streams.Load(); n != 2 {
 		t.Fatalf("expected 2 HTTP/2 streams (refused, then retried), got %d", n)
+	}
+	if n := http1Requests.Load(); n != 0 {
+		t.Fatalf("expected no HTTP/1.1 fallback request, got %d", n)
+	}
+}
+
+func TestRoundTripperNoHTTP1FallbackOnHandshakeTimeout(t *testing.T) {
+	t.Parallel()
+
+	// Accepts the TCP connection and never answers the ClientHello, like a residential exit
+	// that opens the tunnel but does not relay the handshake.
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ln.Close()
+
+	var accepted atomic.Int32
+	go func() {
+		for {
+			conn, err := ln.Accept()
+			if err != nil {
+				return
+			}
+			accepted.Add(1)
+			defer conn.Close()
+		}
+	}()
+
+	const handshakeTimeout = 300 * time.Millisecond
+	client := surf.NewClient().Builder().
+		With(func(c *surf.Client) error {
+			c.GetTransport().(*http.Transport).TLSHandshakeTimeout = handshakeTimeout
+			return nil
+		}).
+		JA().Chrome152().
+		Timeout(5 * time.Second).
+		Build().Unwrap()
+
+	resp := client.Get(g.String("https://" + ln.Addr().String() + "/")).Do()
+	if !resp.IsErr() {
+		t.Fatal("expected the handshake timeout to be returned as an error")
+	}
+	var fallbackErr *surf.ErrHTTP2Fallback
+	if errors.As(resp.Err(), &fallbackErr) {
+		t.Fatalf("expected no HTTP/1.1 fallback, got %v", resp.Err())
+	}
+	if !strings.Contains(resp.Err().Error(), "deadline") && !strings.Contains(resp.Err().Error(), "timeout") {
+		t.Fatalf("expected a timeout error, got %v", resp.Err())
+	}
+	if n := accepted.Load(); n != 1 {
+		t.Fatalf("expected one connection, got %d", n)
+	}
+}
+
+func TestRoundTripperNoHTTP1FallbackWhenH2ConnectionCloses(t *testing.T) {
+	t.Parallel()
+
+	var http1Requests atomic.Int32
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http1Requests.Add(1)
+		w.WriteHeader(http.StatusOK)
+	}))
+	ts.EnableHTTP2 = true
+	ts.Config.TLSNextProto = map[string]func(*http.Server, *tls.Conn, http.Handler){
+		"h2": func(_ *http.Server, conn *tls.Conn, _ http.Handler) { _ = conn.Close() },
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome152().
+		Timeout(2 * time.Second).
+		Build().Unwrap()
+
+	// The server chose h2 in ALPN and then closed the connection. Chrome reports that as an
+	// error; it does not send the request again over HTTP/1.1.
+	if resp := client.Get(g.String(ts.URL)).Do(); !resp.IsErr() {
+		t.Fatal("expected the closed HTTP/2 connection to be returned as an error")
 	}
 	if n := http1Requests.Load(); n != 0 {
 		t.Fatalf("expected no HTTP/1.1 fallback request, got %d", n)
