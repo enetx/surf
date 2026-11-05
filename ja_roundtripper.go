@@ -146,6 +146,17 @@ func wantsHTTP1(err error) bool {
 		return ga.ErrCode == http2.ErrCodeHTTP11Required
 	}
 
+	// http2 v1.0.26 returns an untyped error when GOAWAY rejects stream 1
+	// with LastStreamID=0. Match its complete message until that path also
+	// returns a GoAwayError; other GOAWAY codes must not enable fallback.
+	const firstStreamHTTP1Required = "http2: Transport received GOAWAY from server ErrCode:HTTP_1_1_REQUIRED"
+	for err != nil {
+		if err.Error() == firstStreamHTTP1Required {
+			return true
+		}
+		err = errors.Unwrap(err)
+	}
+
 	return false
 }
 

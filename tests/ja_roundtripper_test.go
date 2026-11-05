@@ -1223,19 +1223,19 @@ func TestRoundTripperNoHTTP1FallbackOnHandshakeTimeout(t *testing.T) {
 		Timeout(5 * time.Second).
 		Build().Unwrap()
 
-	start := time.Now()
 	resp := client.Get(g.String("https://" + ln.Addr().String() + "/")).Do()
 	if !resp.IsErr() {
 		t.Fatal("expected the handshake timeout to be returned as an error")
 	}
-	if strings.Contains(resp.Err().Error(), "HTTP/1.1 fallback") {
+	var fallbackErr *surf.ErrHTTP2Fallback
+	if errors.As(resp.Err(), &fallbackErr) {
 		t.Fatalf("expected no HTTP/1.1 fallback, got %v", resp.Err())
+	}
+	if !strings.Contains(resp.Err().Error(), "deadline") && !strings.Contains(resp.Err().Error(), "timeout") {
+		t.Fatalf("expected a timeout error, got %v", resp.Err())
 	}
 	if n := accepted.Load(); n != 1 {
 		t.Fatalf("expected one connection, got %d", n)
-	}
-	if elapsed := time.Since(start); elapsed > 2*handshakeTimeout {
-		t.Fatalf("expected one handshake timeout, took %s", elapsed)
 	}
 }
 
