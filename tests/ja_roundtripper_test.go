@@ -1241,7 +1241,8 @@ func TestRoundTripperNoHTTP1FallbackOnHandshakeTimeout(t *testing.T) {
 
 // closingH2Server answers HTTP/1.1 requests with 200, and serves HTTP/2 connections the way
 // Imperva does after a block: it reads the request, then closes the connection without GOAWAY.
-// From connection closeFirst+1 on, it answers HTTP/2 requests with 200 instead.
+// The first request warms up the connection; from connection closeFirst+1 on,
+// it answers HTTP/2 requests with 200 instead.
 func closingH2Server(t *testing.T, closeFirst int32, http1Requests, h2Conns *atomic.Int32) *httptest.Server {
 	t.Helper()
 
@@ -1255,7 +1256,9 @@ func closingH2Server(t *testing.T, closeFirst int32, http1Requests, h2Conns *ato
 			_ = conn.SetDeadline(time.Now().Add(2 * time.Second))
 			defer conn.Close()
 
-			closeConn := h2Conns.Add(1) <= closeFirst
+			connNumber := h2Conns.Add(1)
+			closeConn := connNumber <= closeFirst
+			var requests int
 
 			preface := make([]byte, len(http2.ClientPreface))
 			if _, err := io.ReadFull(conn, preface); err != nil {
@@ -1277,7 +1280,9 @@ func closingH2Server(t *testing.T, closeFirst int32, http1Requests, h2Conns *ato
 						_ = fr.WriteSettingsAck()
 					}
 				case *http2.HeadersFrame:
-					if closeConn {
+					requests++
+					// Answer the warm-up request, then close reused connections.
+					if closeConn && (connNumber != 1 || requests > 1) {
 						return
 					}
 
@@ -1310,6 +1315,12 @@ func TestRoundTripperResendsOnNewH2ConnectionWhenConnectionCloses(t *testing.T) 
 		Timeout(5 * time.Second).
 		Build().Unwrap()
 
+	warmup := client.Get(g.String(ts.URL)).Do()
+	if warmup.IsErr() {
+		t.Fatalf("warm up HTTP/2 connection: %v", warmup.Err())
+	}
+	warmup.Ok().Body.Close()
+
 	// The server closed the connection before it answered. Chrome sends the request once more
 	// on a new HTTP/2 connection, not over HTTP/1.1.
 	resp := client.Post(g.String(ts.URL)).Body("body").Do()
@@ -1338,6 +1349,12 @@ func TestRoundTripperResendsOnceWhenH2ConnectionKeepsClosing(t *testing.T) {
 		JA().Chrome152().
 		Timeout(5 * time.Second).
 		Build().Unwrap()
+
+	warmup := client.Get(g.String(ts.URL)).Do()
+	if warmup.IsErr() {
+		t.Fatalf("warm up HTTP/2 connection: %v", warmup.Err())
+	}
+	warmup.Ok().Body.Close()
 
 	resp := client.Get(g.String(ts.URL)).Do()
 	if !resp.IsErr() {

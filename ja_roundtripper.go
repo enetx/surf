@@ -7,11 +7,14 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/textproto"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
 	"github.com/enetx/http"
+	"github.com/enetx/http/httptrace"
 	"github.com/enetx/http2"
 
 	utls "github.com/refraction-networking/utls"
@@ -55,8 +58,7 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 	return rt
 }
 
-// RoundTrip executes a single HTTP request.
-// Optimized for parsing different sites (no per-request allocations).
+// RoundTrip executes a single HTTP request using cached transports.
 func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	scheme := strings.ToLower(req.URL.Scheme)
 
@@ -79,14 +81,29 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 		return rt.http1tr.RoundTrip(req)
 	}
 
+	// Like Chrome, only resend after a reused connection closes without any
+	// response, including informational headers. Keep the caller's trace hooks.
+	var reused, receivedInformational atomic.Bool
+	trace := &httptrace.ClientTrace{
+		GotConn: func(info httptrace.GotConnInfo) {
+			reused.Store(info.Reused)
+			receivedInformational.Store(false)
+		},
+		Got1xxResponse: func(_ int, _ textproto.MIMEHeader) error {
+			receivedInformational.Store(true)
+			return nil
+		},
+	}
+	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+
 	// Try HTTP/2 first
 	resp, err := rt.http2tr.RoundTrip(req)
 	if err == nil {
 		return resp, nil
 	}
 
-	if connClosedBeforeResponse(err) {
-		// The server closed an established HTTP/2 connection before it answered this request.
+	if reused.Load() && !receivedInformational.Load() && connClosedBeforeResponse(err) {
+		// The server closed a reused HTTP/2 connection before it answered this request.
 		// Imperva does this to every request still in flight after it answers one with a block
 		// page: close_notify and FIN, no GOAWAY. Chrome sends such a request once more on a new
 		// connection, and so does surf. The closed connection is no longer in the pool.
@@ -151,9 +168,8 @@ type h2DialError struct{ err error }
 func (e *h2DialError) Error() string { return e.err.Error() }
 func (e *h2DialError) Unwrap() error { return e.err }
 
-// connClosedBeforeResponse reports whether an established HTTP/2 connection was closed or reset
-// by the server before the response headers arrived. RoundTrip returns no error once the
-// headers are in, so every such error means the request got no answer.
+// connClosedBeforeResponse classifies closure and reset errors returned before final
+// HTTP/2 response headers. The caller separately checks reuse and informational responses.
 func connClosedBeforeResponse(err error) bool {
 	var de *h2DialError
 	if errors.As(err, &de) {

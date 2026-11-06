@@ -226,6 +226,10 @@ func (req *Request) Body(data any) *Request {
 
 	n := int64(-1)
 
+	// Replacing the body must also replace its replay function. A streaming reader
+	// cannot reuse GetBody from an earlier in-memory body.
+	req.request.GetBody = nil
+
 	// GetBody lets a transport send the request again, as net/http.NewRequest allows for the
 	// same in-memory readers.
 	switch v := body.(type) {
