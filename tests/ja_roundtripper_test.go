@@ -895,6 +895,64 @@ func TestDialTLSHTTP2ALPNGateFallback(t *testing.T) {
 	}
 }
 
+// TestALPNHTTP1FallbackReusesConnection verifies that when the server picks http/1.1 in
+// ALPN, surf speaks HTTP/1.1 on that same connection, as Chrome does. A second handshake
+// would offer ALPN without h2, a hello Chrome never sends; Akamai denies it.
+func TestALPNHTTP1FallbackReusesConnection(t *testing.T) {
+	t.Parallel()
+
+	var handshakes atomic.Int32
+	var offeredWithoutH2 atomic.Int32
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	ts.TLS = &tls.Config{
+		NextProtos: []string{"http/1.1"},
+		GetConfigForClient: func(hello *tls.ClientHelloInfo) (*tls.Config, error) {
+			handshakes.Add(1)
+
+			hasH2 := false
+			for _, p := range hello.SupportedProtos {
+				if p == "h2" {
+					hasH2 = true
+				}
+			}
+
+			if !hasH2 {
+				offeredWithoutH2.Add(1)
+			}
+
+			return nil, nil
+		},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome158().
+		Timeout(5 * time.Second).
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if proto := resp.Ok().GetResponse().Proto; proto != "HTTP/1.1" {
+		t.Fatalf("expected HTTP/1.1, got %s", proto)
+	}
+
+	if n := handshakes.Load(); n != 1 {
+		t.Errorf("expected 1 TLS handshake, got %d", n)
+	}
+
+	if n := offeredWithoutH2.Load(); n != 0 {
+		t.Errorf("expected every ClientHello to offer h2, %d did not", n)
+	}
+}
+
 // TestDialTLSHTTP2ALPNGateNoProtocol verifies that when the server does not
 // include any ALPN extension (nil NextProtos), dialTLSHTTP2 also rejects the
 // connection (empty NegotiatedProtocol != "h2") and falls back to HTTP/1.1.

@@ -261,10 +261,9 @@ func TestChromeProxyEnvironmentFingerprint(t *testing.T) {
 	default:
 		t.Fatal("no TLS ClientHello")
 	}
+	// The origin picks http/1.1 in ALPN. Like Chrome, the request goes on that connection,
+	// so even the HTTP/3 routes, which try HTTP/2 first, open one tunnel.
 	want := int32(1)
-	if route == "h3-environment" || route == "selector" {
-		want = 2 // ALPN fallback prepares a separate HTTP/1 connection.
-	}
 	if route == "direct" || route == "clear-proxy" || route == "no-proxy" {
 		want = 0
 	}
