@@ -1239,10 +1239,12 @@ func TestRoundTripperNoHTTP1FallbackOnHandshakeTimeout(t *testing.T) {
 	}
 }
 
-func TestRoundTripperNoHTTP1FallbackWhenH2ConnectionCloses(t *testing.T) {
-	t.Parallel()
-
-	var http1Requests atomic.Int32
+// closingH2Server answers HTTP/1.1 requests with 200, and serves HTTP/2 connections the way
+// Imperva does after a block: it reads the request, then closes the connection without GOAWAY.
+// The first request warms up the connection; from connection closeFirst+1 on,
+// it answers HTTP/2 requests with 200 instead.
+func closingH2Server(t *testing.T, closeFirst int32, http1Requests, h2Conns *atomic.Int32) *httptest.Server {
+	t.Helper()
 
 	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		http1Requests.Add(1)
@@ -1250,20 +1252,119 @@ func TestRoundTripperNoHTTP1FallbackWhenH2ConnectionCloses(t *testing.T) {
 	}))
 	ts.EnableHTTP2 = true
 	ts.Config.TLSNextProto = map[string]func(*http.Server, *tls.Conn, http.Handler){
-		"h2": func(_ *http.Server, conn *tls.Conn, _ http.Handler) { _ = conn.Close() },
+		"h2": func(_ *http.Server, conn *tls.Conn, _ http.Handler) {
+			_ = conn.SetDeadline(time.Now().Add(2 * time.Second))
+			defer conn.Close()
+
+			connNumber := h2Conns.Add(1)
+			closeConn := connNumber <= closeFirst
+			var requests int
+
+			preface := make([]byte, len(http2.ClientPreface))
+			if _, err := io.ReadFull(conn, preface); err != nil {
+				return
+			}
+
+			fr := http2.NewFramer(conn, conn)
+			_ = fr.WriteSettings()
+
+			for {
+				f, err := fr.ReadFrame()
+				if err != nil {
+					return
+				}
+
+				switch f := f.(type) {
+				case *http2.SettingsFrame:
+					if !f.IsAck() {
+						_ = fr.WriteSettingsAck()
+					}
+				case *http2.HeadersFrame:
+					requests++
+					// Answer the warm-up request, then close reused connections.
+					if closeConn && (connNumber != 1 || requests > 1) {
+						return
+					}
+
+					var block bytes.Buffer
+					_ = hpack.NewEncoder(&block).WriteField(hpack.HeaderField{Name: ":status", Value: "200"})
+					_ = fr.WriteHeaders(http2.HeadersFrameParam{
+						StreamID:      f.StreamID,
+						BlockFragment: block.Bytes(),
+						EndHeaders:    true,
+						EndStream:     true,
+					})
+				}
+			}
+		},
 	}
 	ts.StartTLS()
+
+	return ts
+}
+
+func TestRoundTripperResendsOnNewH2ConnectionWhenConnectionCloses(t *testing.T) {
+	t.Parallel()
+
+	var http1Requests, h2Conns atomic.Int32
+	ts := closingH2Server(t, 1, &http1Requests, &h2Conns)
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
 		JA().Chrome152().
-		Timeout(2 * time.Second).
+		Timeout(5 * time.Second).
 		Build().Unwrap()
 
-	// The server chose h2 in ALPN and then closed the connection. Chrome reports that as an
-	// error; it does not send the request again over HTTP/1.1.
-	if resp := client.Get(g.String(ts.URL)).Do(); !resp.IsErr() {
-		t.Fatal("expected the closed HTTP/2 connection to be returned as an error")
+	warmup := client.Get(g.String(ts.URL)).Do()
+	if warmup.IsErr() {
+		t.Fatalf("warm up HTTP/2 connection: %v", warmup.Err())
+	}
+	warmup.Ok().Body.Close()
+
+	// The server closed the connection before it answered. Chrome sends the request once more
+	// on a new HTTP/2 connection, not over HTTP/1.1.
+	resp := client.Post(g.String(ts.URL)).Body("body").Do()
+	if resp.IsErr() {
+		t.Fatalf("expected the request to be sent again on a new connection, got %v", resp.Err())
+	}
+	if resp.Ok().StatusCode != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", resp.Ok().StatusCode)
+	}
+	if n := h2Conns.Load(); n != 2 {
+		t.Fatalf("expected 2 HTTP/2 connections (closed, then new), got %d", n)
+	}
+	if n := http1Requests.Load(); n != 0 {
+		t.Fatalf("expected no HTTP/1.1 fallback request, got %d", n)
+	}
+}
+
+func TestRoundTripperResendsOnceWhenH2ConnectionKeepsClosing(t *testing.T) {
+	t.Parallel()
+
+	var http1Requests, h2Conns atomic.Int32
+	ts := closingH2Server(t, 100, &http1Requests, &h2Conns)
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome152().
+		Timeout(5 * time.Second).
+		Build().Unwrap()
+
+	warmup := client.Get(g.String(ts.URL)).Do()
+	if warmup.IsErr() {
+		t.Fatalf("warm up HTTP/2 connection: %v", warmup.Err())
+	}
+	warmup.Ok().Body.Close()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if !resp.IsErr() {
+		t.Fatal("expected an error when every HTTP/2 connection closes")
+	}
+	if !errors.Is(resp.Err(), io.ErrUnexpectedEOF) {
+		t.Fatalf("expected io.ErrUnexpectedEOF, got %v", resp.Err())
+	}
+	if n := h2Conns.Load(); n != 2 {
+		t.Fatalf("expected the request to be sent again once, got %d HTTP/2 connections", n)
 	}
 	if n := http1Requests.Load(); n != 0 {
 		t.Fatalf("expected no HTTP/1.1 fallback request, got %d", n)
