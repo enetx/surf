@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/enetx/http"
-	"github.com/enetx/http2"
+	"github.com/enetx/http/http2"
 	_ "github.com/enetx/surf/pkg/socks4"
 	"golang.org/x/net/proxy"
 )

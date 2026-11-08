@@ -1,13 +1,12 @@
 package surf
 
 import (
-	"crypto/rand"
 	"math"
-	"math/big"
 
 	"github.com/enetx/g"
 	"github.com/enetx/surf/internal/specclone"
 	"github.com/enetx/surf/profiles/chrome"
+	"github.com/enetx/surf/profiles/firefox"
 
 	utls "github.com/refraction-networking/utls"
 )
@@ -108,8 +107,7 @@ func (j *JA) build() *Builder {
 //
 // The result is always a private copy, never the source spec, so the per-connection mutations
 // below are safe under concurrent dials: the extension order is re-shuffled when
-// ShuffleExtensions is enabled, and GREASE placeholders in signature_algorithms are replaced
-// with fresh random values.
+// ShuffleExtensions is enabled. uTLS substitutes GREASE placeholders at handshake time.
 //
 // This method returns the selected ClientHelloSpec along with an error value. If an error occurs
 // during conversion, it returns the error.
@@ -132,42 +130,8 @@ func (j *JA) getSpec() g.Result[utls.ClientHelloSpec] {
 		spec.Extensions = utls.ShuffleChromeTLSExtensions(spec.Extensions)
 	}
 
-	greaseSignatureAlgorithms(spec)
-
 	return g.Ok(*spec)
 }
-
-// greaseSignatureAlgorithms replaces every GREASE placeholder in the spec's
-// signature_algorithms list with a fresh random GREASE value. Chrome sends a GREASE
-// signature scheme at the head of that list and picks a new value per connection; uTLS
-// substitutes GREASE placeholders for cipher suites, groups, key shares, versions and
-// extension IDs but leaves signature schemes untouched, so it is done here.
-func greaseSignatureAlgorithms(spec *utls.ClientHelloSpec) {
-	for _, ext := range spec.Extensions {
-		sigalgs, ok := ext.(*utls.SignatureAlgorithmsExtension)
-		if !ok {
-			continue
-		}
-		for i, scheme := range sigalgs.SupportedSignatureAlgorithms {
-			if scheme == utls.GREASE_PLACEHOLDER {
-				sigalgs.SupportedSignatureAlgorithms[i] = utls.SignatureScheme(randomGREASE())
-			}
-		}
-	}
-}
-
-// randomGREASE returns one of the 16 GREASE code points (0x0a0a, 0x1a1a, … 0xfafa).
-func randomGREASE() uint16 {
-	n, err := rand.Int(rand.Reader, big.NewInt(16))
-	if err != nil {
-		return utls.GREASE_PLACEHOLDER
-	}
-	return uint16(0x0a0a + 0x1010*n.Int64())
-}
-
-// Browser and application fingerprinting methods.
-// These methods provide convenient shortcuts to mimic various popular browsers and applications
-// by setting predefined ClientHelloID values that match their TLS fingerprints.
 
 // Android sets the JA3/4 fingerprint to mimic Android 11 OkHttp client.
 func (j *JA) Android() *Builder { return j.SetHelloID(utls.HelloAndroid_11_OkHttp) }
@@ -211,11 +175,18 @@ func (j *JA) Chrome120() *Builder { return j.SetHelloID(utls.HelloChrome_120) }
 // Chrome120PQ sets the JA3/4 fingerprint to mimic Chrome version 120 with post-quantum cryptography support.
 func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_PQ) }
 
-// Chrome152 sets the JA3/4 fingerprint to mimic Chrome version 152: ML-DSA and a GREASE
-// value in signature_algorithms, the trust_anchors extension, and Chrome's per-connection
-// extension-order shuffle.
-func (j *JA) Chrome152() *Builder {
-	return j.ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_152)
+// Chrome131 sets the TLS fingerprint to Chrome 131 with ML-KEM.
+func (j *JA) Chrome131() *Builder { return j.SetHelloID(utls.HelloChrome_131) }
+
+// Chrome133 sets the TLS fingerprint to Chrome 133 with the new ALPS codepoint.
+func (j *JA) Chrome133() *Builder { return j.SetHelloID(utls.HelloChrome_133) }
+
+// Chrome155 sets the TLS fingerprint to uTLS's native Chrome 155 profile.
+func (j *JA) Chrome155() *Builder { return j.SetHelloID(utls.HelloChrome_155) }
+
+// Chrome156 applies the current Chrome TLS template with per-connection shuffling.
+func (j *JA) Chrome156() *Builder {
+	return j.ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_156)
 }
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.
@@ -227,8 +198,8 @@ func (j *JA) Edge85() *Builder { return j.SetHelloID(utls.HelloEdge_85) }
 // Edge106 sets the JA3/4 fingerprint to mimic Microsoft Edge version 106.
 func (j *JA) Edge106() *Builder { return j.SetHelloID(utls.HelloEdge_106) }
 
-// Firefox sets the JA3/4 fingerprint to mimic the latest Firefox browser (auto-detection).
-func (j *JA) Firefox() *Builder { return j.SetHelloID(utls.HelloFirefox_Auto) }
+// Firefox sets the current Firefox desktop TLS fingerprint.
+func (j *JA) Firefox() *Builder { return j.Firefox159() }
 
 // Firefox55 sets the JA3/4 fingerprint to mimic Firefox version 55.
 func (j *JA) Firefox55() *Builder { return j.SetHelloID(utls.HelloFirefox_55) }
@@ -257,6 +228,9 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 // Firefox148 sets the JA3/4 fingerprint to mimic Firefox version 148.
 func (j *JA) Firefox148() *Builder { return j.SetHelloID(utls.HelloFirefox_148) }
 
+// Firefox159 sets the current Firefox 159 desktop TLS fingerprint.
+func (j *JA) Firefox159() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_159) }
+
 // IOS sets the JA3/4 fingerprint to mimic the latest iOS Safari browser (auto-detection).
 func (j *JA) IOS() *Builder { return j.SetHelloID(utls.HelloIOS_Auto) }
 
@@ -283,3 +257,6 @@ func (j *JA) RandomizedNoALPN() *Builder { return j.SetHelloID(utls.HelloRandomi
 
 // Safari sets the JA3/4 fingerprint to mimic the latest Safari browser (auto-detection).
 func (j *JA) Safari() *Builder { return j.SetHelloID(utls.HelloSafari_Auto) }
+
+// Safari26_3 sets the TLS fingerprint to Safari 26.3 (also used by Chrome on iOS).
+func (j *JA) Safari26_3() *Builder { return j.SetHelloID(utls.HelloSafari_26_3) }

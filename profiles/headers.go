@@ -41,8 +41,8 @@ func NewApplier(
 }
 
 // HeaderCache lazily builds and caches per-method header-position enums for both desktop and
-// mobile header-order maps. Each browser profile constructs one HeaderCache from its own
-// headerOrderDesktop / headerOrderMobile literals. The dispatcher asks for enums via Enums(mobile).
+// mobile header-order maps. Platform-specific pipelines can use independent caches.
+// Enums(mobile) selects the configured map.
 type HeaderCache struct {
 	desktopOrder g.Map[string, g.Slice[string]]
 	mobileOrder  g.Map[string, g.Slice[string]]

@@ -90,8 +90,12 @@ func TestUserAgentMap(t *testing.T) {
 		if !strings.Contains(string(ua.Unwrap()), c.marker) {
 			t.Errorf("UserAgent[%v] = %q, expected to contain %q", c.os, ua.Unwrap(), c.marker)
 		}
-		if !strings.Contains(string(ua.Unwrap()), "148") {
-			t.Errorf("UserAgent[%v] = %q, expected version 148", c.os, ua.Unwrap())
+		version := "159.0"
+		if c.os.IsMobile() {
+			version = "148.0"
+		}
+		if !strings.Contains(string(ua.Unwrap()), version) {
+			t.Errorf("UserAgent[%v] = %q, expected version %s", c.os, ua.Unwrap(), version)
 		}
 	}
 }
@@ -99,11 +103,11 @@ func TestUserAgentMap(t *testing.T) {
 func TestVariantDesktopFields(t *testing.T) {
 	t.Parallel()
 
-	if firefox.Desktop.HelloSpec != nil {
-		t.Error("Desktop.HelloSpec should be nil (Firefox uses HelloID)")
+	if firefox.Desktop.HelloSpec != &firefox.HelloFirefox_159 {
+		t.Error("Desktop.HelloSpec must point to HelloFirefox_159")
 	}
-	if firefox.Desktop.HelloID != firefox.HelloFirefox_148 {
-		t.Error("Desktop.HelloID must equal HelloFirefox_148")
+	if firefox.Desktop.ShuffleExtensions {
+		t.Error("Firefox must retain its fixed extension order")
 	}
 	if firefox.Desktop.Boundary == nil {
 		t.Error("Desktop.Boundary is nil")
@@ -144,12 +148,12 @@ func TestBuildHeadersDesktop(t *testing.T) {
 	if got := h.Get(header.ACCEPT_ENCODING).UnwrapOrDefault(); got != "gzip, deflate, br, zstd" {
 		t.Errorf("Desktop[Accept-Encoding] = %q", got)
 	}
-	if got := h.Get(header.ACCEPT_LANGUAGE).UnwrapOrDefault(); got != "en-US,en;q=0.5" {
+	if got := h.Get(header.ACCEPT_LANGUAGE).UnwrapOrDefault(); got != "en-US,en;q=0.9" {
 		t.Errorf("Desktop[Accept-Language] = %q", got)
 	}
 	ua := h.Get(header.USER_AGENT).UnwrapOrDefault()
-	if !strings.Contains(string(ua), "Macintosh") || !strings.Contains(string(ua), "Firefox/148.0") {
-		t.Errorf("Desktop[User-Agent] = %q, expected Macintosh + Firefox/148.0", ua)
+	if !strings.Contains(string(ua), "Macintosh") || !strings.Contains(string(ua), "Firefox/159.0") {
+		t.Errorf("Desktop[User-Agent] = %q, expected Macintosh + Firefox/159.0", ua)
 	}
 	// Firefox does not emit UA Client Hints.
 	if h.Contains(header.SEC_CH_UA) {
@@ -226,5 +230,21 @@ func TestApplierAppliesStringPath(t *testing.T) {
 	}
 	if got := headers.Get(header.CACHE_CONTROL).Unwrap(); got != "no-cache" {
 		t.Errorf("Cache-Control after Apply (string path) = %q, want no-cache", got)
+	}
+}
+
+func TestDesktopHTTP3FetchHeaders(t *testing.T) {
+	t.Parallel()
+
+	h := firefox.Desktop.BuildHeaders(profiles.Windows)
+	firefox.Desktop.Headers(h, http.MethodPost+"http3")
+	if got := h.Get(header.ACCEPT).Unwrap(); got != "*/*" {
+		t.Errorf("fetch Accept = %q, want */*", got)
+	}
+	if got := h.Get(header.SEC_FETCH_MODE).Unwrap(); got != "cors" {
+		t.Errorf("fetch mode = %q, want cors", got)
+	}
+	if h.Contains(header.TE) || h.Contains(header.SEC_FETCH_USER) || h.Contains(header.UPGRADE_INSECURE_REQUESTS) {
+		t.Error("HTTP/3 fetch has unexpected HTTP/1.1-2 or navigation defaults")
 	}
 }

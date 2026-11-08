@@ -13,8 +13,8 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
+	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptest"
-	"github.com/enetx/http2"
 	"github.com/enetx/surf"
 )
 
@@ -112,7 +112,7 @@ func TestRoundTripperHTTP1FallbackOnServerErrors(t *testing.T) {
 				ts.StartTLS()
 				defer ts.Close()
 				defer close(release)
-				client := surf.NewClient().Builder().JA().Chrome152().Timeout(5 * time.Second).Build().Unwrap()
+				client := surf.NewClient().Builder().JA().Chrome156().Timeout(5 * time.Second).Build().Unwrap()
 				defer client.CloseIdleConnections()
 				var body io.Reader
 				payload := ""
@@ -178,7 +178,7 @@ func TestRoundTripperNoHTTP1FallbackOnDialError(t *testing.T) {
 			return nil, dialErr
 		}
 		return nil
-	}).JA().Chrome152().Build().Unwrap()
+	}).JA().Chrome156().Build().Unwrap()
 	response := client.Get("https://example.invalid/").Do()
 	if !response.IsErr() || !errors.Is(response.Err(), dialErr) {
 		t.Fatalf("expected original dial error, got %v", response.Err())
@@ -199,7 +199,7 @@ func TestRoundTripperNoHTTP1FallbackOnProxyConnectError(t *testing.T) {
 		w.WriteHeader(http.StatusBadGateway)
 	}))
 	defer proxy.Close()
-	client := surf.NewClient().Builder().Proxy(g.String(proxy.URL)).JA().Chrome152().Timeout(3 * time.Second).Build().Unwrap()
+	client := surf.NewClient().Builder().Proxy(g.String(proxy.URL)).JA().Chrome156().Timeout(3 * time.Second).Build().Unwrap()
 	response := client.Get("https://example.invalid/").Do()
 	if !response.IsErr() {
 		t.Fatal("expected proxy CONNECT error")
@@ -221,7 +221,7 @@ func TestRoundTripperNoHTTP1FallbackOnTLSAlert(t *testing.T) {
 	}}
 	ts.StartTLS()
 	defer ts.Close()
-	client := surf.NewClient().Builder().JA().Chrome152().Timeout(3 * time.Second).Build().Unwrap()
+	client := surf.NewClient().Builder().JA().Chrome156().Timeout(3 * time.Second).Build().Unwrap()
 	response := client.Get(g.String(ts.URL)).Do()
 	if !response.IsErr() {
 		t.Fatal("expected TLS alert")

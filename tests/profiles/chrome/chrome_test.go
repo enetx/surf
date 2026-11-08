@@ -3,6 +3,7 @@ package chrome_test
 import (
 	"encoding/hex"
 	"fmt"
+	"io"
 	"slices"
 	"strings"
 	"testing"
@@ -24,16 +25,16 @@ func TestHeaders_POST(t *testing.T) {
 			t.Errorf("Expected Accept header to be '*/*', got %s", v.Unwrap())
 		}
 
-		if v := headers.Get(header.CACHE_CONTROL); v.Unwrap() != "no-cache" {
-			t.Errorf("Expected Cache-Control header to be 'no-cache', got %s", v.Unwrap())
+		if headers.Contains(header.CACHE_CONTROL) {
+			t.Error("POST must not force Cache-Control: no-cache")
 		}
 
 		if v := headers.Get(header.CONTENT_TYPE); v.Unwrap() != "" {
 			t.Errorf("Expected Content-Type header to be empty, got %s", v.Unwrap())
 		}
 
-		if v := headers.Get(header.PRAGMA); v.Unwrap() != "no-cache" {
-			t.Errorf("Expected Pragma header to be 'no-cache', got %s", v.Unwrap())
+		if headers.Contains(header.PRAGMA) {
+			t.Error("POST must not force Pragma: no-cache")
 		}
 
 		if v := headers.Get(header.PRIORITY); v.Unwrap() != "u=1, i" {
@@ -76,8 +77,6 @@ func TestHeaders_POST(t *testing.T) {
 			":scheme",
 			":path",
 			header.CONTENT_LENGTH,
-			header.PRAGMA,
-			header.CACHE_CONTROL,
 			header.USER_AGENT,
 			header.CONTENT_TYPE,
 			header.ACCEPT,
@@ -92,23 +91,8 @@ func TestHeaders_POST(t *testing.T) {
 			header.PRIORITY,
 		}
 
-		keys := headers.Keys()
-
-		for i, expected := range expectedOrder {
-			if g.Int(i) >= keys.Len() {
-				t.Errorf("Missing header at position %d: expected %s", i, expected)
-				continue
-			}
-
-			if !headers.Contains(expected) {
-				continue
-			}
-
-			found := slices.Contains(keys, expected)
-
-			if !found {
-				t.Errorf("Header %s not found in the ordered map", expected)
-			}
+		if got := headers.Keys(); !slices.Equal(got, expectedOrder) {
+			t.Errorf("POST header order\n got: %v\nwant: %v", got, expectedOrder)
 		}
 	})
 
@@ -130,6 +114,8 @@ func TestHeaders_POST(t *testing.T) {
 
 		headers.Insert("X-Custom-Header", "custom-value")
 		headers.Insert(header.AUTHORIZATION, "Bearer token123")
+		headers.Insert(header.CACHE_CONTROL, "max-age=0")
+		headers.Insert(header.PRAGMA, "no-cache")
 
 		chrome.DesktopApplier(&headers, http.MethodPost)
 
@@ -139,6 +125,12 @@ func TestHeaders_POST(t *testing.T) {
 
 		if v := headers.Get(header.AUTHORIZATION); v.Unwrap() != "Bearer token123" {
 			t.Errorf("Expected Authorization header to be preserved, got %s", v.Unwrap())
+		}
+		if got := headers.Get(header.CACHE_CONTROL).Unwrap(); got != "max-age=0" {
+			t.Errorf("explicit Cache-Control = %q, want max-age=0", got)
+		}
+		if got := headers.Get(header.PRAGMA).Unwrap(); got != "no-cache" {
+			t.Errorf("explicit Pragma = %q, want no-cache", got)
 		}
 	})
 }
@@ -176,19 +168,17 @@ func TestHeaders_GET(t *testing.T) {
 }
 
 func TestHeaders_Mobile(t *testing.T) {
-	t.Run("mobile=true reaches the mobile branch and produces same placeholder set", func(t *testing.T) {
+	t.Run("Android uses the same navigation defaults as desktop", func(t *testing.T) {
 		desktop := g.NewMapOrd[string, string]()
 		mobile := g.NewMapOrd[string, string]()
 
 		chrome.DesktopApplier(&desktop, http.MethodGet)
 		chrome.MobileApplier(&mobile, http.MethodGet)
 
-		// На старте mobile-инсёрты — копия desktop. Когда они разойдутся, заменить тело
-		// insertMobileHeaders, и этот тест станет негативным гейтом.
 		dDest := desktop.Get(header.SEC_FETCH_DEST).UnwrapOrDefault()
 		mDest := mobile.Get(header.SEC_FETCH_DEST).UnwrapOrDefault()
 		if dDest != mDest {
-			t.Error("mobile and desktop Sec-Fetch-Dest diverged unexpectedly at placeholder stage")
+			t.Error("mobile and desktop Sec-Fetch-Dest differ between Android and desktop")
 		}
 	})
 
@@ -216,7 +206,7 @@ func TestUserAgentMap(t *testing.T) {
 		{profiles.MacOS, "Macintosh"},
 		{profiles.Linux, "Linux"},
 		{profiles.Android, "Android"},
-		{profiles.IOS, "iPad"},
+		{profiles.IOS, "iPhone"},
 	}
 
 	for _, c := range cases {
@@ -262,8 +252,8 @@ func TestSecCHUAFormat(t *testing.T) {
 	if !strings.Contains(chrome.SecCHUA, "Chromium") {
 		t.Errorf("SecCHUA missing Chromium brand: %s", chrome.SecCHUA)
 	}
-	if !strings.Contains(chrome.SecCHUA, `v="152"`) {
-		t.Errorf("SecCHUA missing version 152: %s", chrome.SecCHUA)
+	if !strings.Contains(chrome.SecCHUA, `v="156"`) {
+		t.Errorf("SecCHUA missing version 156: %s", chrome.SecCHUA)
 	}
 }
 
@@ -273,8 +263,8 @@ func TestVariantDesktopFields(t *testing.T) {
 	if chrome.Desktop.HelloSpec == nil {
 		t.Fatal("Desktop.HelloSpec is nil")
 	}
-	if chrome.Desktop.HelloSpec != &chrome.HelloChrome_152 {
-		t.Error("Desktop.HelloSpec must point to HelloChrome_152")
+	if chrome.Desktop.HelloSpec != &chrome.HelloChrome_156 {
+		t.Error("Desktop.HelloSpec must point to HelloChrome_156")
 	}
 	if chrome.Desktop.Boundary == nil {
 		t.Error("Desktop.Boundary is nil")
@@ -296,10 +286,10 @@ func TestVariantMobileFields(t *testing.T) {
 	if chrome.Mobile.HelloSpec == nil {
 		t.Fatal("Mobile.HelloSpec is nil")
 	}
-	if chrome.Mobile.HelloSpec != &chrome.HelloChrome_152_Mobile {
-		t.Error("Mobile.HelloSpec must point to HelloChrome_152_Mobile")
+	if chrome.Mobile.HelloSpec != &chrome.HelloChrome_156_Mobile {
+		t.Error("Mobile.HelloSpec must point to HelloChrome_156_Mobile")
 	}
-	if chrome.Mobile.HelloSpec == &chrome.HelloChrome_152 {
+	if chrome.Mobile.HelloSpec == &chrome.HelloChrome_156 {
 		t.Error("Mobile.HelloSpec must NOT point to the desktop spec")
 	}
 	if chrome.Mobile.Boundary == nil {
@@ -312,10 +302,10 @@ func TestVariantMobileFields(t *testing.T) {
 
 // trustAnchorsExtension returns the TLS Trust Anchor Identifiers extension (0xca34)
 // from a hello spec, or nil when the spec does not carry it.
-func trustAnchorsExtension(spec *utls.ClientHelloSpec) *utls.GenericExtension {
+func trustAnchorsExtension(spec *utls.ClientHelloSpec) *utls.TrustAnchorsExtension {
 	for _, ext := range spec.Extensions {
-		if generic, ok := ext.(*utls.GenericExtension); ok && generic.Id == 0xca34 {
-			return generic
+		if anchors, ok := ext.(*utls.TrustAnchorsExtension); ok {
+			return anchors
 		}
 	}
 	return nil
@@ -330,34 +320,42 @@ const chromeTrustAnchors = "00b80582df1302010582df1302060582df13020d0582df13020e
 	"8c9b2d011304d679090104d679090404d679090504d679090604d679090704d679090804d679090a04d6" +
 	"79090b04d679090c04d679090d04d679090f"
 
-func TestHelloChrome152TrustAnchors(t *testing.T) {
+func TestHelloChrome156TrustAnchors(t *testing.T) {
 	t.Parallel()
 
 	for name, spec := range map[string]*utls.ClientHelloSpec{
-		"desktop": &chrome.HelloChrome_152,
-		"mobile":  &chrome.HelloChrome_152_Mobile,
+		"desktop": &chrome.HelloChrome_156,
+		"mobile":  &chrome.HelloChrome_156_Mobile,
 	} {
 		ext := trustAnchorsExtension(spec)
 		if ext == nil {
-			t.Fatalf("%s: HelloChrome_152 must carry the trust_anchors extension (0xca34)", name)
+			t.Fatalf("%s: HelloChrome_156 must carry the trust_anchors extension (0xca34)", name)
 		}
+		if len(ext.TrustAnchorIDs) != 28 {
+			t.Errorf("%s: got %d trust anchors, want 28", name, len(ext.TrustAnchorIDs))
+		}
+		wire := make([]byte, ext.Len())
+		if _, err := ext.Read(wire); err != nil && err != io.EOF {
+			t.Fatal(err)
+		}
+		data := wire[4:] // Strip the extension ID and length.
 		// TrustAnchorIdentifierList: 2-byte length prefix covering the remaining body.
-		if len(ext.Data) < 2 || int(ext.Data[0])<<8|int(ext.Data[1]) != len(ext.Data)-2 {
-			t.Errorf("%s: trust_anchors body length prefix does not match body (%d bytes)", name, len(ext.Data))
+		if len(data) < 2 || int(data[0])<<8|int(data[1]) != len(data)-2 {
+			t.Errorf("%s: trust_anchors body length prefix does not match body (%d bytes)", name, len(data))
 		}
-		if len(ext.Data) != 186 {
-			t.Errorf("%s: trust_anchors body is %d bytes, Chrome 156 sends 186", name, len(ext.Data))
+		if len(data) != 186 {
+			t.Errorf("%s: trust_anchors body is %d bytes, Chrome 156 sends 186", name, len(data))
 		}
-		if got := hex.EncodeToString(ext.Data); got != chromeTrustAnchors {
+		if got := hex.EncodeToString(data); got != chromeTrustAnchors {
 			t.Errorf("%s: trust_anchors body differs from the Chrome 156 capture\n got: %s\nwant: %s", name, got, chromeTrustAnchors)
 		}
 	}
 }
 
-func TestHelloChrome152SignatureAlgorithmsGREASE(t *testing.T) {
+func TestHelloChrome156SignatureAlgorithmsGREASE(t *testing.T) {
 	t.Parallel()
 
-	for _, ext := range chrome.HelloChrome_152.Extensions {
+	for _, ext := range chrome.HelloChrome_156.Extensions {
 		sigalgs, ok := ext.(*utls.SignatureAlgorithmsExtension)
 		if !ok {
 			continue
@@ -367,14 +365,12 @@ func TestHelloChrome152SignatureAlgorithmsGREASE(t *testing.T) {
 		}
 		return
 	}
-	t.Fatal("HelloChrome_152 has no signature_algorithms extension")
+	t.Fatal("HelloChrome_156 has no signature_algorithms extension")
 }
 
-// TestHelloChrome152ExtensionOrderIsCanonical pins the declared extension order. The spec must
-// hold Chrome's own order verbatim: shuffling happens per connection on a private clone inside
-// JA.getSpec, never in place on this package variable, so the order stays identical across runs
-// and stays usable as a reference point.
-func TestHelloChrome152ExtensionOrderIsCanonical(t *testing.T) {
+// uTLS shuffles Chrome's extension order when creating the spec. Pin the set;
+// JA wire tests check per-connection shuffling and template immutability.
+func TestHelloChrome156ExtensionSet(t *testing.T) {
 	t.Parallel()
 
 	want := []string{
@@ -394,19 +390,22 @@ func TestHelloChrome152ExtensionOrderIsCanonical(t *testing.T) {
 		"*tls.SupportedVersionsExtension",
 		"*tls.UtlsCompressCertExtension",
 		"*tls.ApplicationSettingsExtensionNew",
-		"*tls.GenericExtension",
+		"*tls.TrustAnchorsExtension",
 		"*tls.GREASEEncryptedClientHelloExtension",
 		"*tls.UtlsGREASEExtension",
 		"*tls.UtlsPreSharedKeyExtension",
 	}
-
-	got := make([]string, 0, len(chrome.HelloChrome_152.Extensions))
-	for _, ext := range chrome.HelloChrome_152.Extensions {
+	slices.Sort(want)
+	got := make([]string, 0, len(chrome.HelloChrome_156.Extensions))
+	for _, ext := range chrome.HelloChrome_156.Extensions {
 		got = append(got, fmt.Sprintf("%T", ext))
 	}
-
+	if got[len(got)-1] != "*tls.UtlsPreSharedKeyExtension" {
+		t.Error("pre_shared_key must remain last")
+	}
+	slices.Sort(got)
 	if !slices.Equal(got, want) {
-		t.Errorf("HelloChrome_152 extension order changed\n got: %v\nwant: %v", got, want)
+		t.Errorf("HelloChrome_156 extension set changed\n got: %v\nwant: %v", got, want)
 	}
 }
 
@@ -529,7 +528,7 @@ func TestApplierAppliesStringPath(t *testing.T) {
 	if got := headers.Get(header.ACCEPT).Unwrap(); got != "*/*" {
 		t.Errorf("Accept after Apply (string path) = %q, want */*", got)
 	}
-	if got := headers.Get(header.CACHE_CONTROL).Unwrap(); got != "no-cache" {
-		t.Errorf("Cache-Control after Apply (string path) = %q, want no-cache", got)
+	if headers.Contains(header.CACHE_CONTROL) {
+		t.Error("Cache-Control should be absent unless explicitly set")
 	}
 }

@@ -1,7 +1,7 @@
 package surf
 
 import (
-	"github.com/enetx/http2"
+	"github.com/enetx/http/http2"
 	"github.com/enetx/surf/profiles"
 )
 

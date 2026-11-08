@@ -313,7 +313,7 @@ func (req *Request) applyHeaders(
 	}
 }
 
-// updateRequestHeaderOrder processes ordered headers for HTTP/2 and HTTP/3 fingerprinting.
+// updateRequestHeaderOrder processes ordered headers for HTTP/1, HTTP/2 and HTTP/3.
 // It maintains the specific order of headers which is crucial for browser fingerprinting.
 // Separates regular headers from pseudo-headers (starting with ':') and sets the appropriate
 // header order keys for the transport layer to use. Returns a filtered map containing only

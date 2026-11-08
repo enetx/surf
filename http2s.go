@@ -2,7 +2,7 @@ package surf
 
 import (
 	"github.com/enetx/http"
-	"github.com/enetx/http2"
+	"github.com/enetx/http/http2"
 )
 
 // HTTP2Settings represents HTTP/2 settings.
@@ -141,7 +141,6 @@ func (h *HTTP2Settings) Set() *Builder {
 			t2.PriorityFrames = h.priorityFrames
 		}
 
-		t1.H2transport = t2
 		c.transport = t1
 
 		return nil

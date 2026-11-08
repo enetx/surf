@@ -1214,3 +1214,41 @@ func TestSpecClone_ReflectionCoverage(t *testing.T) {
 		t.Error("Nested KeyShare data should be independent")
 	}
 }
+
+// TrustAnchorIDs has two mutable slice levels; a connection must own both.
+func TestSpecClone_TrustAnchors(t *testing.T) {
+	t.Parallel()
+
+	ext := &utls.TrustAnchorsExtension{TrustAnchorIDs: [][]byte{{0x82, 0xdf, 0x13}, {0xd6, 0x79}}}
+	original := &utls.ClientHelloSpec{Extensions: []utls.TLSExtension{ext}}
+	cloned := specclone.Clone(original).Extensions[0].(*utls.TrustAnchorsExtension)
+	if !reflect.DeepEqual(ext.TrustAnchorIDs, cloned.TrustAnchorIDs) {
+		t.Fatal("trust anchor IDs changed during cloning")
+	}
+	cloned.TrustAnchorIDs[0][0] = 0xff
+	cloned.TrustAnchorIDs[1] = []byte{0xee}
+	if ext.TrustAnchorIDs[0][0] != 0x82 || ext.TrustAnchorIDs[1][0] != 0xd6 {
+		t.Fatal("cloned trust anchors alias the source template")
+	}
+}
+
+func TestSpecClone_PrivateExtensionFields(t *testing.T) {
+	t.Parallel()
+
+	type sessionExtension struct {
+		utls.SessionTicketExtension
+		enabled bool
+		data    []byte
+	}
+	ext := &sessionExtension{enabled: true, data: []byte{1, 2, 3}}
+	spec := &utls.ClientHelloSpec{Extensions: []utls.TLSExtension{ext}}
+	cloned := specclone.Clone(spec).Extensions[0].(*sessionExtension)
+	if !reflect.DeepEqual(ext, cloned) {
+		t.Fatal("cloning changed private extension fields")
+	}
+	cloned.data[0] = 4
+	cloned.enabled = false
+	if ext.data[0] != 1 || !ext.enabled {
+		t.Fatal("cloned extension fields alias the source")
+	}
+}

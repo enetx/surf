@@ -794,8 +794,8 @@ func TestImpersonateFirefoxMacOSDesktop(t *testing.T) {
 	}
 
 	ua := receivedHeaders.Get("User-Agent")
-	if !strings.Contains(ua, "Macintosh") || !strings.Contains(ua, "Firefox/148.0") {
-		t.Errorf("expected Firefox macOS UA (Macintosh + Firefox/148.0), got: %s", ua)
+	if !strings.Contains(ua, "Macintosh") || !strings.Contains(ua, "Firefox/159.0") {
+		t.Errorf("expected Firefox macOS UA (Macintosh + Firefox/159.0), got: %s", ua)
 	}
 	if strings.Contains(ua, "Mobile") {
 		t.Errorf("desktop Firefox UA must not contain Mobile, got: %s", ua)

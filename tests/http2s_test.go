@@ -6,8 +6,8 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
+	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptest"
-	"github.com/enetx/http2"
 	"github.com/enetx/surf"
 )
 

@@ -5,13 +5,13 @@ import (
 	"log"
 
 	"github.com/enetx/http"
-	"github.com/enetx/http2"
-	"github.com/enetx/http2/h2c"
+	"github.com/enetx/http/http2"
+	"github.com/enetx/http/http2/h2c"
 	"github.com/enetx/surf"
 )
 
 func main() {
-	http2.VerboseLogs = true
+	http2.SetVerboseLogs(true)
 
 	go H2CServerUpgrade()
 

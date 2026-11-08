@@ -16,8 +16,8 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
+	"github.com/enetx/http/http3"
 	"github.com/enetx/http/httptest"
-	"github.com/enetx/http3"
 	"github.com/enetx/surf"
 )
 
@@ -323,7 +323,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 
 	t.Run("HTTP3 with JA3 compatibility", func(t *testing.T) {
 		client := surf.NewClient().Builder().
-			JA().Chrome152().
+			JA().Chrome156().
 			HTTP3Settings().Set().
 			ForceHTTP3().
 			Build().Unwrap()

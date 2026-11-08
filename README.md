@@ -8,14 +8,14 @@
 [![Coverage Status](https://coveralls.io/repos/github/enetx/surf/badge.svg?branch=main&service=github)](https://coveralls.io/github/enetx/surf?branch=main)
 [![Go](https://github.com/enetx/surf/actions/workflows/go.yml/badge.svg)](https://github.com/enetx/surf/actions/workflows/go.yml)
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/enetx/surf)
+[![Ask DeepWiki](https://img.shields.io/badge/Ask-DeepWiki-2f80ed)](https://deepwiki.com/enetx/surf)
 
 <p>Surf is a powerful, feature-rich HTTP client library for Go that makes working with HTTP requests intuitive and enjoyable. With advanced features like browser impersonation, JA3/JA4 fingerprinting, and comprehensive middleware support, Surf provides everything you need for modern web interactions.</p>
 
 ## ✨ Key Features
 
 ### 🎭 **Browser Impersonation**
-- **Chrome & Firefox Support**: Accurately mimic Chrome v152 and Firefox v148 browser fingerprints
+- **Chrome & Firefox Support**: Accurately mimic Chrome v156 (desktop/Android), Chrome v157 (iOS), and Firefox v159 (desktop) browser fingerprints
 - **Platform Diversity**: Impersonate Windows, macOS, Linux, Android, and iOS devices
 - **TLS Fingerprinting**: Full JA3/JA4 fingerprint customization for enhanced privacy
 - **Automatic Headers**: Proper header ordering and browser-specific values
@@ -23,7 +23,7 @@
 
 ### 🔒 **Advanced TLS & Security**
 - **Custom JA3/JA4**: Configure precise TLS fingerprints with `HelloID` and `HelloSpec`
-- **HTTP/3 Support**: Full HTTP/3 over QUIC with complete browser-specific fingerprinting
+- **HTTP/3 Support**: HTTP/3 over QUIC with customizable HTTP/3 settings
 - **HTTP/2 & HTTP/3**: Full HTTP/2 support with customizable settings (SETTINGS frame, window size, priority)
 - **Ordered Headers**: Browser-accurate header ordering for perfect fingerprint evasion
 - **Certificate Pinning**: Custom TLS certificate validation
@@ -98,6 +98,9 @@ resp, err := stdClient.Get("https://api.example.com")
 
 ### Basic GET Request
 
+Requires Go 1.27 or newer. Surf uses the released `github.com/enetx/http` module
+for HTTP/1, HTTP/2 and HTTP/3.
+
 ```go
 package main
 
@@ -142,12 +145,35 @@ if resp.IsOk() {
 client := surf.NewClient().
     Builder().
     Impersonate().
-    Chrome().        // Latest Chrome v152
+    Chrome().        // Chrome v156
     Build().
     Unwrap()
 
 resp := client.Get("https://example.com").Do()
 ```
+
+`Impersonate().Chrome()` selects the current Chrome 156 profile for desktop and Android.
+Its TLS template uses uTLS's native Chrome 155 implementation, whose fields match the
+Chrome 156 wire reference. The former `JA().Chrome152()` helper is now `JA().Chrome156()`;
+`JA().Chrome131()`, `Chrome133()` and `Chrome155()` expose additional TLS-only presets.
+
+`Impersonate().IOS().Chrome()` selects the separate WebKit profile from the Chrome 157
+iOS capture, including its User-Agent, TLS, HTTP/2 settings and header order. It sends no
+Chromium Client Hints. Each platform keeps one current profile and its own golden reference.
+
+`Session()` preserves cookies and enables TLS resumption where the profile supports it.
+Chrome desktop and Android add PSK on a new TLS 1.3 connection with a cached ticket;
+reusing an existing connection does not create another ClientHello. The verified iOS
+profile keeps full handshakes even with `Session()`; its cookies still persist.
+
+HTTP/3 uses the existing QUIC transport. The golden checks cover the TCP ClientHello,
+HTTP/2 settings and navigation headers; they do not establish a full QUIC match or cover
+HPACK indexing policy and priorities for other resource types.
+
+Firefox desktop uses the current 159 TLS template and headers. `JA().Firefox()` and
+`JA().Firefox159()` select that TLS fingerprint; `JA().Firefox148()` retains the native
+uTLS preset. Android and iOS keep their existing 148 placeholders until verified
+mobile captures are available.
 
 ### Firefox with Random OS
 
@@ -156,7 +182,7 @@ client := surf.NewClient().
     Builder().
     Impersonate().
     RandomOS().      // Randomly selects Windows, macOS, Linux, Android, or iOS
-    Firefox().       // Latest Firefox v148
+    Firefox().       // Firefox profile for the selected OS
     Build().
     Unwrap()
 ```

@@ -8,14 +8,15 @@ import (
 	"io"
 	"net"
 	"net/textproto"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"syscall"
 	"time"
 
 	"github.com/enetx/http"
+	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptrace"
-	"github.com/enetx/http2"
 
 	utls "github.com/refraction-networking/utls"
 )
@@ -379,6 +380,13 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 		return nil, err
 	}
 
+	// Bind extensions to the cloned hello before uTLS loads a cached session.
+	for _, extension := range uconn.Extensions {
+		if binder, ok := extension.(interface{ BindClientHello(*utls.UConn) }); ok {
+			binder.BindClientHello(uconn)
+		}
+	}
+
 	if err = uconn.HandshakeContext(ctx); err != nil {
 		uconn.Close()
 		return nil, fmt.Errorf("uTLS.HandshakeContext() error: %+v", err)
@@ -397,25 +405,20 @@ func supportsResumption(spec utls.ClientHelloSpec) bool {
 
 	for _, ext := range spec.Extensions {
 		switch ext.(type) {
-		case *utls.SessionTicketExtension:
+		case utls.ISessionTicketExtension:
 			hasSessionTicket = true
 		case *utls.PSKKeyExchangeModesExtension:
 			hasPskModes = true
 		case *utls.UtlsPreSharedKeyExtension, *utls.FakePreSharedKeyExtension:
 			hasPreSharedKey = true
 		}
-
-		// Early exit if all TLS 1.3 components are found
-		if hasSessionTicket && hasPskModes && hasPreSharedKey {
-			return true
-		}
 	}
 
-	// If any TLS 1.3 PSK-related extensions are present,
-	// session resumption is valid only when all required
-	// TLS 1.3 resumption indicators are present simultaneously.
+	// Cache profiles that provide both ticket paths when TLS 1.3 is offered.
+	// Templates without PSK, including the captured WebKit profile, keep full
+	// handshakes while Session can still preserve HTTP cookies.
 	if hasPskModes || hasPreSharedKey {
-		return false
+		return hasSessionTicket && hasPskModes && hasPreSharedKey
 	}
 
 	// Otherwise, fall back to TLS 1.2 semantics where the presence of
@@ -423,9 +426,17 @@ func supportsResumption(spec utls.ClientHelloSpec) bool {
 	return hasSessionTicket
 }
 
-// setAlpnProtocolToHTTP1 modifies the given ClientHelloSpec to prefer HTTP/1.1
-// by updating or adding the ALPN extension.
+// setAlpnProtocolToHTTP1 advertises HTTP/1.1 and removes application settings
+// for protocols that are no longer offered.
 func setAlpnProtocolToHTTP1(utlsSpec *utls.ClientHelloSpec) {
+	utlsSpec.Extensions = slices.DeleteFunc(utlsSpec.Extensions, func(ext utls.TLSExtension) bool {
+		switch ext.(type) {
+		case *utls.ApplicationSettingsExtension, *utls.ApplicationSettingsExtensionNew:
+			return true
+		}
+		return false
+	})
+
 	for _, ext := range utlsSpec.Extensions {
 		alpns, ok := ext.(*utls.ALPNExtension)
 		if !ok {

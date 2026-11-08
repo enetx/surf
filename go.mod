@@ -3,21 +3,20 @@ module github.com/enetx/surf
 go 1.27
 
 require (
-	github.com/andybalholm/brotli v1.0.6
-	github.com/enetx/g v1.1.0
-	github.com/enetx/http v1.0.29
-	github.com/enetx/http2 v1.0.26
-	github.com/enetx/http3 v1.0.9
-	github.com/klauspost/compress v1.17.4
-	github.com/quic-go/quic-go v0.61.0
-	github.com/refraction-networking/utls v1.8.3-0.20260623165621-880e27d8b0e5
-	github.com/wzshiming/socks5 v0.7.0
-	golang.org/x/net v0.56.0
+	github.com/andybalholm/brotli v1.2.8
+	github.com/enetx/g v1.1.1
+	github.com/enetx/http v1.0.30
+	github.com/klauspost/compress v1.20.3
+	github.com/quic-go/quic-go v0.65.0
+	github.com/refraction-networking/utls v1.8.3-0.20261108164504-a13c59ffe98b
+	github.com/wzshiming/socks5 v0.8.0
+	golang.org/x/net v0.62.0
 )
 
 require (
+	github.com/molecule-man/go-brrr v1.3.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
-	golang.org/x/crypto v0.54.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 )

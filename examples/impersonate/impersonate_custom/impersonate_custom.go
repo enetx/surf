@@ -5,7 +5,7 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/g/rand"
-	"github.com/enetx/http2"
+	"github.com/enetx/http/http2"
 	"github.com/enetx/surf"
 )
 

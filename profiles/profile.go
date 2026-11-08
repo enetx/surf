@@ -1,16 +1,20 @@
 // Package profiles defines the shared variant contract used by browser profile packages
 // (profiles/chrome, profiles/firefox, ...) and consumed by the top-level surf package.
 //
+// Each browser's variants.go assembles its desktop, Android and iOS profiles.
+// Platform subpackages own tls.go, headers.go, http2.go and http3.go. Shared
+// User-Agent values live in common/; boundary.go supplies browser form boundaries.
+//
 // A Variant is the self-contained description of one browser and form-factor combination:
 // TLS ClientHello, HTTP/2 + HTTP/3 SETTINGS, header set, User-Agent / sec-ch-ua data per OS.
-// The surf.Impersonate dispatcher reads chrome.Desktop / chrome.Mobile / firefox.Desktop /
-// firefox.Mobile values, applies the static fields, and runs ConfigureH2/ConfigureH3 against
+// The surf.Impersonate dispatcher selects a browser/platform Variant, applies its
+// static fields, and runs ConfigureH2/ConfigureH3 against
 // adapters that satisfy H2Config / H3Config — without the profile package importing surf.
 package profiles
 
 import (
 	"github.com/enetx/g"
-	"github.com/enetx/http2"
+	"github.com/enetx/http/http2"
 	utls "github.com/refraction-networking/utls"
 )
 
@@ -93,10 +97,8 @@ type Variant struct {
 	// entire header set (set, values, and order are all browser-specific).
 	BuildHeaders func(OSKey) *g.MapOrd[g.String, g.String]
 
-	// Headers applies the per-request header-order pipeline (the same Headers[T ~string]
-	// function profile packages export) for the surf request path. Same value for Desktop and
-	// Mobile within one profile package — header pipeline differs by mobile bool, not by
-	// Variant — but living on Variant lets surf.Builder route through one indirection without
-	// importing concrete profile packages from the request hot path.
+	// Headers inserts per-request defaults and orders fields for this platform.
+	// Each variant supplies its own pipeline; the request path uses this callback
+	// without importing a concrete browser package.
 	Headers HeadersApplier
 }

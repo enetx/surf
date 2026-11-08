@@ -12,11 +12,11 @@ import (
 	"github.com/enetx/surf"
 )
 
-func TestJAChrome144(t *testing.T) {
+func TestJAChrome156(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome152().
+		JA().Chrome156().
 		Build().Unwrap()
 
 	if client == nil {
@@ -78,6 +78,9 @@ func TestJAChromeVersions(t *testing.T) {
 		{"Chrome106", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome106().Build().Unwrap() }},
 		{"Chrome120", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome120().Build().Unwrap() }},
 		{"Chrome120PQ", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome120PQ().Build().Unwrap() }},
+		{"Chrome131", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome131().Build().Unwrap() }},
+		{"Chrome133", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome133().Build().Unwrap() }},
+		{"Chrome155", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome155().Build().Unwrap() }},
 	}
 
 	for _, tc := range chromeVersions {
@@ -169,6 +172,7 @@ func TestJAFirefoxVersions(t *testing.T) {
 		{"Firefox105", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox105().Build().Unwrap() }},
 		{"Firefox120", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox120().Build().Unwrap() }},
 		{"Firefox148", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox148().Build().Unwrap() }},
+		{"Firefox159", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox159().Build().Unwrap() }},
 	}
 
 	for _, tc := range firefoxVersions {
@@ -254,6 +258,7 @@ func TestJAAndroidAndSafari(t *testing.T) {
 	}{
 		{"Android", func() *surf.Client { return surf.NewClient().Builder().JA().Android().Build().Unwrap() }},
 		{"Safari", func() *surf.Client { return surf.NewClient().Builder().JA().Safari().Build().Unwrap() }},
+		{"Safari26_3", func() *surf.Client { return surf.NewClient().Builder().JA().Safari26_3().Build().Unwrap() }},
 	}
 
 	for _, tc := range testCases {
@@ -421,7 +426,7 @@ func TestJAMultipleCalls(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome152().
+		JA().Chrome156().
 		JA().Firefox148().
 		Build().Unwrap()
 
@@ -450,7 +455,7 @@ func TestJAWithHTTP2(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome152().
+		JA().Chrome156().
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		EnablePush(1).
@@ -497,7 +502,7 @@ func TestJARoundTripperHTTP1(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome152().
+		JA().Chrome156().
 		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
@@ -524,7 +529,7 @@ func TestJACloseIdleConnections(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome152().
+		JA().Chrome156().
 		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))

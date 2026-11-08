@@ -13,7 +13,7 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
-	"github.com/enetx/http3"
+	"github.com/enetx/http/http3"
 	"github.com/enetx/surf/pkg/quicconn"
 	"github.com/quic-go/quic-go"
 	"github.com/wzshiming/socks5"

@@ -13,7 +13,7 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/http/cookiejar"
-	"github.com/enetx/http2"
+	"github.com/enetx/http/http2"
 	"github.com/enetx/surf/pkg/connectproxy"
 	"golang.org/x/net/publicsuffix"
 )

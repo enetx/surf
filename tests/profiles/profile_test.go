@@ -109,4 +109,3 @@ func TestHeaderCacheCachesResult(t *testing.T) {
 		t.Error("repeated Enums(false) calls returned inconsistent enums")
 	}
 }
-

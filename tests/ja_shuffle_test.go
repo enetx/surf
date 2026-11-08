@@ -109,7 +109,7 @@ func isGREASE(id uint16) bool { return id&0x0f0f == 0x0a0a && byte(id>>8) == byt
 
 // readClientHelloExtensions parses one TLS handshake record and returns the extension IDs of
 // the ClientHello it carries, in wire order.
-func readClientHelloExtensions(conn net.Conn) ([]uint16, bool) {
+func readClientHelloExtensions(conn io.Reader) ([]uint16, bool) {
 	var record [5]byte
 	if _, err := io.ReadFull(conn, record[:]); err != nil || record[0] != 0x16 {
 		return nil, false
@@ -210,7 +210,7 @@ func TestJAShuffleExtensionsVariesPerConnection(t *testing.T) {
 
 	r := newHelloRecorder(t)
 	hellos := r.collect(t, 8, func(b *surf.Builder) *surf.Builder {
-		return b.JA().ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_152)
+		return b.JA().ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_156)
 	})
 
 	assertSameExtensionSet(t, hellos)
@@ -225,7 +225,7 @@ func TestJAWithoutShuffleKeepsExtensionOrder(t *testing.T) {
 
 	r := newHelloRecorder(t)
 	hellos := r.collect(t, 8, func(b *surf.Builder) *surf.Builder {
-		return b.JA().SetHelloSpec(chrome.HelloChrome_152)
+		return b.JA().SetHelloSpec(chrome.HelloChrome_156)
 	})
 
 	assertSameExtensionSet(t, hellos)
@@ -252,24 +252,39 @@ func TestJAShuffleExtensionsAppliesToHelloID(t *testing.T) {
 	}
 }
 
-// TestJAChrome152ShufflesExtensions covers the built-in profile: the shuffle must come from the
-// per-connection path, not from a one-off shuffle baked into chrome.HelloChrome_152 at init.
-func TestJAChrome152ShufflesExtensions(t *testing.T) {
+// TestJAChrome156ShufflesExtensions covers the built-in profile: the shuffle must come from the
+// per-connection path, not from a one-off shuffle baked into chrome.HelloChrome_156 at init.
+func TestJAChrome156ShufflesExtensions(t *testing.T) {
 	t.Parallel()
 
-	before := make([]utls.TLSExtension, len(chrome.HelloChrome_152.Extensions))
-	copy(before, chrome.HelloChrome_152.Extensions)
+	before := make([]utls.TLSExtension, len(chrome.HelloChrome_156.Extensions))
+	copy(before, chrome.HelloChrome_156.Extensions)
 
 	r := newHelloRecorder(t)
-	hellos := r.collect(t, 8, func(b *surf.Builder) *surf.Builder { return b.JA().Chrome152() })
+	hellos := r.collect(t, 8, func(b *surf.Builder) *surf.Builder { return b.JA().Chrome156() })
 
 	assertSameExtensionSet(t, hellos)
 
 	if !ordersVary(hellos) {
-		t.Errorf("Chrome152 sent an identical extension order across %d connections", len(hellos))
+		t.Errorf("Chrome156 sent an identical extension order across %d connections", len(hellos))
 	}
 
-	if !slices.Equal(before, chrome.HelloChrome_152.Extensions) {
-		t.Error("chrome.HelloChrome_152 was mutated in place, the shuffle must run on a clone")
+	if !slices.Equal(before, chrome.HelloChrome_156.Extensions) {
+		t.Error("chrome.HelloChrome_156 was mutated in place, the shuffle must run on a clone")
+	}
+}
+
+// The Chrome 156 h1 reference omits ALPS because h2 is no longer in ALPN.
+func TestChrome156ForceHTTP1OmitsALPS(t *testing.T) {
+	t.Parallel()
+
+	r := newHelloRecorder(t)
+	hellos := r.collect(t, 2, func(b *surf.Builder) *surf.Builder {
+		return b.Impersonate().Chrome().ForceHTTP1()
+	})
+	for _, hello := range hellos {
+		if slices.Contains(hello, 17513) || slices.Contains(hello, 17613) {
+			t.Errorf("HTTP/1.1 ClientHello still advertises ALPS: %v", hello)
+		}
 	}
 }

@@ -364,6 +364,12 @@ func deepCloneExtension(ext utls.TLSExtension) utls.TLSExtension {
 			Value: e.Value,
 			Body:  body,
 		}
+	case *utls.TrustAnchorsExtension:
+		ids := make([][]byte, len(e.TrustAnchorIDs))
+		for i, id := range e.TrustAnchorIDs {
+			ids[i] = append([]byte(nil), id...)
+		}
+		return &utls.TrustAnchorsExtension{TrustAnchorIDs: ids}
 	case *utls.GenericExtension:
 		var data []byte
 		if e.Data != nil {
@@ -410,11 +416,14 @@ func deepCopyStruct(src, dst reflect.Value) {
 		for i := 0; i < src.NumField(); i++ {
 			srcField := src.Field(i)
 			dstField := dst.Field(i)
+			if !srcField.CanInterface() && srcField.CanAddr() {
+				srcField = reflect.NewAt(srcField.Type(), unsafe.Pointer(srcField.UnsafeAddr())).Elem()
+			}
 
 			if !dstField.CanSet() {
 				if srcField.CanInterface() || srcField.CanAddr() {
 					dstFieldPtr := reflect.NewAt(srcField.Type(),
-						unsafe.Pointer(dst.UnsafeAddr()+dst.Type().Field(i).Offset))
+						unsafe.Pointer(dstField.UnsafeAddr()))
 					deepCopyValue(srcField, dstFieldPtr.Elem())
 				}
 			} else {

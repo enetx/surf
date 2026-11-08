@@ -50,21 +50,27 @@ func (im *Impersonate) IOS() *Impersonate {
 	return im
 }
 
-// Chrome impersonates Chrome browser v152.
+// Chrome impersonates Chrome 156 on desktop/Android and the captured Chrome 157 on iOS.
 func (im *Impersonate) Chrome() *Builder {
 	v := chrome.Desktop
-	if im.os.IsMobile() {
+	switch im.os {
+	case profiles.Android:
 		v = chrome.Mobile
+	case profiles.IOS:
+		v = chrome.IOS
 	}
 
 	return im.applyVariant(v)
 }
 
-// Firefox impersonates Firefox browser v148.
+// Firefox impersonates Firefox 159 on desktop and the existing mobile profiles.
 func (im *Impersonate) Firefox() *Builder {
 	v := firefox.Desktop
-	if im.os.IsMobile() {
+	switch im.os {
+	case profiles.Android:
 		v = firefox.Mobile
+	case profiles.IOS:
+		v = firefox.IOS
 	}
 
 	return im.applyVariant(v)
