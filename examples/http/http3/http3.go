@@ -8,31 +8,34 @@ import (
 )
 
 func main() {
-	fmt.Println("=== HTTP/3 Example ===")
-	cli := surf.NewClient().Builder().
-		// DNS("127.0.0.1:53").
-		// DNS("1.1.1.1:53").
-		// Proxy("socks5://127.0.0.1:1080"). // dante
-		// Proxy("socks5h://127.0.0.1:2080").
-		// Proxy("http://127.0.0.1:2080").
+	profile := surf.NewClient().Builder().Impersonate()
+	profile.MacOS()
+	// profile.Windows()
+	// profile.Linux()
+	// profile.Android()
+	// profile.IOS()
 
-		// Impersonate().Firefox().ForceHTTP3().
-		Impersonate().Chrome().ForceHTTP3().
-		Build().
-		Unwrap()
+	var builder *surf.Builder
+	builder = profile.Firefox()
+	// builder = profile.Chrome()
 
-	// r := cli.Get("https://quic.browserleaks.com").Do()
-	// r := cli.Get("https://www.cloudflare.com/cdn-cgi/trace").Do()
-	r := cli.Get("https://fp.impersonate.pro/api/http3").Do()
+	client := builder.ForceHTTP3().Build().Unwrap()
+	defer client.Close()
 
-	switch {
-	case r.IsOk():
-		resp := r.Ok()
-		fmt.Printf("H3 Status Code: %d\n", resp.StatusCode)
-		fmt.Printf("H3 Protocol: %s\n", resp.Proto)
-		fmt.Printf("H3 Server: %s\n", resp.Headers.Get("server"))
-		fmt.Println(r.Ok().Body.String().Unwrap())
-	case r.IsErr():
-		log.Printf("H3 request failed: %v", r.Err())
+	result := client.Get("https://fp.impersonate.pro/api/http3").Do()
+	if result.IsErr() {
+		log.Fatal(result.Err())
 	}
+
+	response := result.Ok()
+	if response.GetResponse().ProtoMajor != 3 {
+		log.Fatalf("endpoint used %s; HTTP/3 is required by this example", response.Proto)
+	}
+
+	body := response.Body.String()
+	if body.IsErr() {
+		log.Fatal(body.Err())
+	}
+
+	fmt.Printf("Protocol: %s\n%s\n", response.Proto, body.Ok())
 }

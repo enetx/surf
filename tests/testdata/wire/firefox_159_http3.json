@@ -1,0 +1,157 @@
+{
+  "source": {
+    "browser": "Firefox 159.0.1",
+    "capture": "independent headless browser, fresh profile, forced HTTP/3 via Alt-Svc mapping",
+    "endpoint": "https://fp.impersonate.pro/api/http3"
+  },
+  "initial_packet_number": 13,
+  "client_connection_id_length": 3,
+  "settings": [
+    [
+      1,
+      65536
+    ],
+    [
+      7,
+      20
+    ],
+    [
+      727725890,
+      0
+    ],
+    [
+      16765559,
+      1
+    ],
+    [
+      51,
+      1
+    ],
+    [
+      8,
+      1
+    ]
+  ],
+  "header_order": [
+    ":method",
+    ":scheme",
+    ":authority",
+    ":path",
+    "user-agent",
+    "accept",
+    "accept-language",
+    "accept-encoding",
+    "alt-used",
+    "upgrade-insecure-requests",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "sec-fetch-user",
+    "priority"
+  ],
+  "transport_parameters": {
+    "1": 30000,
+    "4": 25165824,
+    "5": 12582912,
+    "6": 1048576,
+    "7": 1048576,
+    "8": 100,
+    "9": 100,
+    "11": 20,
+    "14": 8,
+    "15": "AUTO",
+    "17": {
+      "chosen_version": 1,
+      "available_versions": [
+        "GREASE",
+        1798521807,
+        1
+      ]
+    },
+    "29": "0x",
+    "32": 65535
+  },
+  "tls": {
+    "cipher_suites": [
+      4865,
+      4867,
+      4866
+    ],
+    "extensions": [
+      0,
+      5,
+      10,
+      13,
+      16,
+      23,
+      27,
+      28,
+      34,
+      43,
+      45,
+      51,
+      57,
+      65037,
+      65281
+    ],
+    "groups": [
+      4588,
+      29,
+      23,
+      24,
+      25
+    ],
+    "signature_algorithms": [
+      1027,
+      1283,
+      1539,
+      515,
+      2052,
+      2053,
+      2054,
+      1025,
+      1281,
+      1537,
+      513
+    ],
+    "versions": [
+      772
+    ],
+    "key_shares": [
+      [
+        4588,
+        1216
+      ],
+      [
+        29,
+        32
+      ],
+      [
+        23,
+        65
+      ]
+    ],
+    "ech_cipher_suite": [
+      1,
+      3
+    ],
+    "observed_ech_lengths": [
+      282
+    ],
+    "extension_bytes": {
+      "27": "06000100030002",
+      "28": "4001",
+      "34": "00080403050306030203",
+      "65281": "00"
+    }
+  },
+  "transport_parameter_notes": {
+    "4278378010": {
+      "name": "legacy min_ack_delay",
+      "value_microseconds": 1000,
+      "wire_value": "0x43e8",
+      "endpoint_label": "GREASE",
+      "surf": "omitted until legacy ACK_FREQUENCY is implemented"
+    }
+  }
+}

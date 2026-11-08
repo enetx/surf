@@ -144,18 +144,18 @@ func (b *Builder) H2C() *Builder { return b.addCliMW(h2cMW, 999) }
 
 // HTTP2Settings configures settings related to HTTP/2 and returns an http2s struct.
 func (b *Builder) HTTP2Settings() *HTTP2Settings {
-	h2 := &HTTP2Settings{builder: b}
-	b.http2settings = h2
-
-	return h2
+	if b.http2settings == nil {
+		b.http2settings = &HTTP2Settings{builder: b}
+	}
+	return b.http2settings
 }
 
 // HTTP3Settings configures settings related to HTTP/3 and returns an http3s struct.
 func (b *Builder) HTTP3Settings() *HTTP3Settings {
-	h3 := &HTTP3Settings{builder: b}
-	b.http3settings = h3
-
-	return h3
+	if b.http3settings == nil {
+		b.http3settings = &HTTP3Settings{builder: b}
+	}
+	return b.http3settings
 }
 
 // ForceHTTP3 configures the client to use HTTP/3 forcefully.

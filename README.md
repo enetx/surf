@@ -166,9 +166,11 @@ Chrome desktop and Android add PSK on a new TLS 1.3 connection with a cached tic
 reusing an existing connection does not create another ClientHello. The verified iOS
 profile keeps full handshakes even with `Session()`; its cookies still persist.
 
-HTTP/3 uses the existing QUIC transport. The golden checks cover the TCP ClientHello,
-HTTP/2 settings and navigation headers; they do not establish a full QUIC match or cover
-HPACK indexing policy and priorities for other resource types.
+HTTP/3 uses the minimal enetx QUIC fork with separate browser ClientHello templates.
+Independent browser fixtures cover supported QUIC/TLS parameters, SETTINGS and
+header order. The [wire notes](tests/testdata/wire/README.md) describe differences,
+including Firefox compatible version negotiation, legacy ACK_FREQUENCY,
+outbound QPACK and scheduling.
 
 Firefox desktop uses the current 159 TLS template and headers. `JA().Firefox()` and
 `JA().Firefox159()` select that TLS fingerprint; `JA().Firefox148()` retains the native
@@ -209,7 +211,7 @@ client := surf.NewClient().
     Unwrap()
 ```
 
-## 🚀 HTTP/3 & Complete QUIC Fingerprinting
+## 🚀 HTTP/3 & QUIC Fingerprinting
 
 ### Chrome HTTP/3 with Automatic Detection
 
@@ -293,13 +295,109 @@ client := surf.NewClient().
 ```
 
 **Key HTTP/3 Features:**
-- ✅ **Complete QUIC Fingerprinting**: Full Chrome and Firefox QUIC transport parameter matching
-- ✅ **Header Ordering**: Perfect browser-like header sequence preservation
+- ✅ **QUIC Controls**: Browser profiles and externally configurable transport parameters
+- ✅ **Header Ordering**: Explicit regular and pseudo-header order
 - ✅ **SOCKS5 UDP Support**: HTTP/3 works seamlessly over SOCKS5 UDP proxies
 - ✅ **Automatic Fallback**: Smart fallback to HTTP/2 when HTTP proxies are configured
 - ✅ **DNS Integration**: Custom DNS and DNS-over-TLS support
-- ✅ **JA4QUIC Support**: Advanced QUIC fingerprinting with Initial Packet + TLS ClientHello
+- ✅ **TLS Templates**: Separate HTTP/3 ClientHello templates with official uTLS
 - ✅ **Order Independence**: `ForceHTTP3()` works regardless of call order
+
+### Native HTTP/3 configuration
+
+`HTTP3Settings().QUICConfig(config)` snapshots the fork's `quic.Config`, including
+its versions slice. It exposes flow-control windows, stream limits, versions,
+packet size/PMTU, token stores, reset support, stream-credit policy and tracing.
+Zero fields use quic-go defaults; nil restores Surf's defaults. `Allow0RTT` is a
+server option in quic-go and does not enable early requests in Surf.
+
+```go
+client := surf.NewClient().Builder().
+    ForceHTTP3().
+    HTTP3Settings().
+    QUICConfig(&quic.Config{
+        InitialStreamReceiveWindow:     6 << 20,
+        InitialConnectionReceiveWindow: 15 << 20,
+        InitialPacketSize:              1250,
+        DisablePathMTUDiscovery:        true,
+    }).
+    ConnectionIDLength(8).
+    StreamPriority(0, true).
+    EnableDatagrams(true).
+    MaxResponseHeaderBytes(262144).
+    Set().
+    Build().Unwrap()
+```
+
+Import `quic` from `github.com/enetx/quic-go`. Explicit `ConnectionIDLength(0)`
+uses empty source IDs and dedicated sockets; leaving it unset keeps the native
+four-byte default. `ConnectionIDGenerator` supplies the official generator API.
+`AdditionalSettings` merges ordered settings while preserving existing positions.
+Calling `HTTP3Settings()` after impersonation retains that profile's settings.
+
+Stream priority controls the local QUIC sender. It does not add a `Priority`
+header or send HTTP/3 PRIORITY_UPDATE frames. Per-request overrides are available
+through `http3.WithStreamPriority(ctx, http3.StreamPriority{...})`.
+The [wire test notes](tests/testdata/wire/README.md) describe verified parameters
+and remaining gaps in browser HTTP/3 matching.
+
+`HTTP3Settings().ClientHandshake(&quic.ClientHandshake{...})` snapshots the fork's
+optional controls: independent `StreamReceiveWindows`, a `transportparams.Layout`
+(order and additional extension bytes), `MaxDatagramFrameSize`, actual UDP receive
+size, active CID limit, ACK scheduling bound, Initial DCID length/packet number
+and `DisableClientHelloScrambling`. `NewTransportParameters(version)` and
+`NewInitialPacketNumber()` factories produce fresh values per attempt. Omitting
+max_udp_payload_size provisions the protocol default receive size. Every value is chosen in Surf/application code;
+the fork retains upstream behavior when `ClientHandshake` is nil.
+
+`ClientHelloSpec(*utls.ClientHelloSpec)` supplies a private template snapshot;
+`ClientHelloFactory(func() (utls.ClientHelloSpec, error))` produces a fresh template
+per attempt. These accept explicit QUIC templates with ALPN and transport-parameter
+extensions. TCP `JA()` templates are independent and are not silently reused.
+Certificate verification and the supplied TLS session cache are retained. Invalid
+templates return errors. [Wire notes](tests/testdata/wire/README.md) document the
+remaining adapter limits and the migration status.
+
+Surf uses the published `github.com/enetx/http` and `github.com/enetx/quic-go`
+modules without local replacements. HTTP/3 is imported from
+`github.com/enetx/quic-go/http3`; no uTLS dependency fork is required.
+Sibling checkouts can be used through temporary replacements during development.
+
+Nonzero `QpackMaxTableCapacity` enables a bounded receive-side dynamic QPACK table;
+`QpackBlockedStreams` limits waiting request streams. Feedback, cancellation and
+header-size limits are enforced. Outbound header encoding remains static.
+Chrome desktop/Android and Firefox desktop supply separate QUIC TLS factories;
+iOS and Firefox mobile retain their previous defaults pending browser captures.
+Firefox does not advertise RFC 9368 compatible version switching or legacy
+ACK_FREQUENCY until the transport can implement them. All browser values and randomization policy live in
+Surf; the QUIC fork has no built-in browser presets or uTLS dependency.
+
+Browser QUIC profiles use the same layout in `profiles/chrome/quic/` and
+`profiles/firefox/quic/`: `config.go` owns transport defaults and CID length,
+`client_hello.go` builds a fresh TLS template, and `transport_parameters.go`
+owns per-attempt parameter layout and randomization. Platform variants select
+these profiles; HTTP/3 SETTINGS remain in their platform's `http3.go`.
+
+The [browser example](examples/http/http3/http3.go) selects its OS and browser
+explicitly in code. To compare with the supplied macOS Firefox capture, select
+`profile.MacOS()`. Firefox desktop automatically adds `alt-used` on HTTP/3
+attempts using the current destination authority:
+
+```sh
+go run ./examples/http/http3
+```
+
+The [custom HTTP/3 example](examples/http/http3_custom/http3_custom.go) demonstrates
+builder overrides for QUIC windows, handshake parameters, TLS factory, CID length,
+QPACK, datagrams, local header limits and stream priority. `-profile chrome` or
+`-profile firefox` starts from fresh browser defaults; `-profile custom` constructs
+its own transport configuration. Custom values change the resulting fingerprint.
+
+`HTTP3Settings().AltUsed(false).Set()` disables the Firefox desktop profile's
+automatic `alt-used` header; `AltUsed(true)` enables it for a custom profile.
+The value follows the request URL, omits port 443 and preserves non-default ports.
+An explicit `Alt-Used` header takes precedence. Automatic values are added to a
+private HTTP/3 attempt, so HTTP/1/2 fallback does not inherit them.
 
 ## 🔧 Advanced Configuration
 
@@ -997,7 +1095,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - Built with [enetx/http](https://github.com/enetx/http) for enhanced HTTP functionality
-- HTTP/3 support and complete QUIC fingerprinting powered by [QUIC-GO](https://github.com/quic-go/quic-go)
+- HTTP/3 support and configurable QUIC fingerprinting based on [QUIC-GO](https://github.com/quic-go/quic-go)
 - TLS fingerprinting powered by [uTLS](https://github.com/refraction-networking/utls)
 - Generic utilities from [enetx/g](https://github.com/enetx/g)
 

@@ -17,6 +17,7 @@ const (
 	AGE                                 = "age"
 	ALLOW                               = "allow"
 	ALT_SVC                             = "alt-svc"
+	ALT_USED                            = "alt-used"
 	AUTHORIZATION                       = "authorization"
 	CACHE_CONTROL                       = "cache-control"
 	CACHE_STATUS                        = "cache-status"

@@ -92,10 +92,33 @@ func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	}
 
 	h2 := im.builder.HTTP2Settings()
+	*h2 = HTTP2Settings{builder: h2.builder, registered: h2.registered}
+
 	v.ConfigureH2(h2adapter{h2})
 	h2.Set()
 
 	h3 := im.builder.HTTP3Settings()
+	// Replacing a browser profile discards its previous H3 settings while keeping
+	// the one registered transport factory. Later user overrides still merge.
+	*h3 = HTTP3Settings{builder: h3.builder, registered: h3.registered}
+	h3.AltUsed(v.HTTP3AltUsed)
+
+	if v.QUICConfig != nil {
+		h3.QUICConfig(v.QUICConfig)
+	}
+
+	if v.HTTP3ConnectionIDLength != nil {
+		h3.ConnectionIDLength(*v.HTTP3ConnectionIDLength)
+	}
+
+	if v.HTTP3StreamPriority != nil {
+		h3.StreamPriority(v.HTTP3StreamPriority.Urgency, v.HTTP3StreamPriority.Incremental)
+	}
+
+	if v.HTTP3ClientHelloFactory != nil {
+		h3.ClientHelloFactory(v.HTTP3ClientHelloFactory)
+	}
+
 	v.ConfigureH3(h3adapter{h3})
 	h3.Set()
 

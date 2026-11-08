@@ -18,6 +18,7 @@ type sessionTicketExtension struct {
 // BindClientHello finds the per-connection PSK after uTLS clones the spec.
 func (e *sessionTicketExtension) BindClientHello(conn *utls.UConn) {
 	e.innerLength = echInnerLength(conn)
+
 	for _, extension := range conn.Extensions {
 		switch extension := extension.(type) {
 		case utls.PreSharedKeyExtension:
@@ -34,7 +35,9 @@ func (e *sessionTicketExtension) Len() int {
 		setECHPayloadLength(e.ech, innerLength+e.psk.Len())
 		return 0
 	}
+
 	setECHPayloadLength(e.ech, innerLength)
+
 	return e.SessionTicketExtension.Len()
 }
 
@@ -42,5 +45,6 @@ func (e *sessionTicketExtension) Read(b []byte) (int, error) {
 	if e.Len() == 0 {
 		return 0, io.EOF
 	}
+
 	return e.SessionTicketExtension.Read(b)
 }

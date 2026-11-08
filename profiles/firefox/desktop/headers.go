@@ -42,6 +42,7 @@ var headerOrder = g.Map[string, g.Slice[string]]{
 		header.ACCEPT,
 		header.ACCEPT_LANGUAGE,
 		header.ACCEPT_ENCODING,
+		header.ALT_USED,
 		header.REFERER,
 		header.AUTHORIZATION,
 		header.COOKIE,
@@ -86,6 +87,7 @@ var headerOrder = g.Map[string, g.Slice[string]]{
 		header.ACCEPT,
 		header.ACCEPT_LANGUAGE,
 		header.ACCEPT_ENCODING,
+		header.ALT_USED,
 		header.REFERER,
 		header.CONTENT_TYPE,
 		header.AUTHORIZATION,
@@ -113,6 +115,8 @@ func BuildHeaders(os profiles.OSKey) *g.MapOrd[g.String, g.String] {
 	h.Insert(":method", "")
 	h.Insert(":path", "")
 	h.Insert(":scheme", "")
+	// Reserve its HTTP/3 position; the transport supplies the request authority.
+	h.Insert(header.ALT_USED, "")
 	h.Insert(header.ACCEPT_ENCODING, "gzip, deflate, br, zstd")
 	h.Insert(header.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
 	h.Insert(header.AUTHORIZATION, "")

@@ -8,6 +8,7 @@ import (
 // HTTP2Settings represents HTTP/2 settings.
 // https://lwthiker.com/networks/2022/06/17/http2-fingerprinting.html
 type HTTP2Settings struct {
+	registered           bool
 	priorityFrames       []http2.PriorityFrame
 	priorityParam        http2.PriorityParam
 	builder              *Builder
@@ -93,6 +94,10 @@ func (h *HTTP2Settings) PriorityFrames(priorityFrames []http2.PriorityFrame) *HT
 // Set applies the accumulated HTTP/2 settings.
 // It configures the HTTP/2 settings for the surf client.
 func (h *HTTP2Settings) Set() *Builder {
+	if h.registered {
+		return h.builder
+	}
+	h.registered = true
 	if h.builder.forceHTTP1 {
 		return h.builder
 	}

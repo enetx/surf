@@ -4,6 +4,8 @@
 // Each browser's variants.go assembles its desktop, Android and iOS profiles.
 // Platform subpackages own tls.go, headers.go, http2.go and http3.go. Shared
 // User-Agent values live in common/; boundary.go supplies browser form boundaries.
+// Each browser's quic/ directory owns config.go, client_hello.go and
+// transport_parameters.go for its verified QUIC engine; variants select its use.
 //
 // A Variant is the self-contained description of one browser and form-factor combination:
 // TLS ClientHello, HTTP/2 + HTTP/3 SETTINGS, header set, User-Agent / sec-ch-ua data per OS.
@@ -15,6 +17,8 @@ package profiles
 import (
 	"github.com/enetx/g"
 	"github.com/enetx/http/http2"
+	"github.com/enetx/quic-go"
+	"github.com/enetx/quic-go/http3"
 	utls "github.com/refraction-networking/utls"
 )
 
@@ -89,6 +93,15 @@ type Variant struct {
 	// invokes them with adapters and calls Set() afterwards.
 	ConfigureH2 func(H2Config)
 	ConfigureH3 func(H3Config)
+
+	// Optional native QUIC parameters. Surf snapshots these when constructing a
+	// client. Nil retains its defaults. Browser values stay in Surf profiles;
+	// optional ClientHandshake controls are provided by the local QUIC fork.
+	QUICConfig              *quic.Config
+	HTTP3ConnectionIDLength *int
+	HTTP3StreamPriority     *http3.StreamPriority
+	HTTP3ClientHelloFactory func() (utls.ClientHelloSpec, error)
+	HTTP3AltUsed            bool
 
 	// BuildHeaders constructs the full ordered header map for one request — pseudo-headers,
 	// Accept-Encoding, Accept-Language, authorization/cookie/origin/referer placeholders,
