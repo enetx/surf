@@ -18,7 +18,9 @@ jobs:
       - name: Check formatting
         run: test -z "$(gofmt -l .)"
       - name: Test
-        run: go test -race -count=1 -coverprofile=profile.cov -coverpkg=./... ./...
+        run: |
+          coverage_packages="$(go list ./... | sed -E '/\/(examples|tests)(\/|$)/d' | paste -sd ',' -)"
+          go test -race -count=1 -coverprofile=profile.cov -coverpkg="$coverage_packages" ./...
       - name: Vet
         run: go vet ./...
       - uses: shogo82148/actions-goveralls@v1
