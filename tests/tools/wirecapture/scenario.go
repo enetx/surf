@@ -43,6 +43,9 @@ func (s *captureServer) response(path string) (http.Header, []byte) {
 	if path == "/step/4" {
 		h["Set-Cookie"] = []string{"a=" + strings.Repeat("v", 18) + "; Path=/; Secure; HttpOnly"}
 	}
+	if path == "/step/0" && s.responseBytes > 0 {
+		return h, []byte(strings.Repeat("d", s.responseBytes))
+	}
 	if path == "/complete" || strings.HasPrefix(path, "/failed") {
 		s.mu.Lock()
 		s.completed = true

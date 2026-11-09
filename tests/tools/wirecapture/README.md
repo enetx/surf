@@ -75,3 +75,22 @@ node tests/tools/wirecapture/analyze.mjs --in=/tmp/surf-browser-sequences --out=
 The report at `tests/testdata/wire/browser_sequences/README.md` documents the
 measured matches, differences and decoder limits. These fixtures supplement the
 existing navigation snapshots; they do not replace them with Surf-generated data.
+
+## ACK observations
+
+To exercise ACK behavior beyond the packet-number transition, request a 2 MiB
+synthetic response on `/step/0` and retain server-side decrypted QUIC frame traces:
+
+```sh
+go build -o /tmp/surf-wirecapture ./tests/tools/wirecapture
+node tests/tools/wirecapture/run.mjs --out=/tmp/surf-ack-observations --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false
+node tests/tools/wirecapture/ack-analysis.mjs --in=/tmp/surf-ack-observations --out=/tmp/surf-ack-summary.json
+```
+
+`transport.jsonl` records server 1-RTT packets and actual incoming ACK ranges.
+The analyzer counts newly acknowledged server ack-eliciting packets and splits
+early/late observations at span 100 from the first server 1-RTT packet number.
+These ratios include piggybacking, buffering and tracing overhead; an observed
+ACK can acknowledge more packets than its triggering threshold. Reported ACK
+delays are not a guarantee about NIC transmit timing. `--decode=false` skips the
+large Wireshark JSON output; raw pcap and TLS secrets remain private as before.

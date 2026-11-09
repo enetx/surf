@@ -1,0 +1,210 @@
+{
+  "schema": 1,
+  "method": "Server-side qlog of actual decrypted peer ACK frames; newly acknowledged server ack-eliciting packets per ACK. Early/late split at packet-number span 100. Includes batching, piggybacking and tracing overhead; no NIC timing parity claim.",
+  "cases": [
+    {
+      "case": "chrome-h3-0",
+      "browser_metadata": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/156.0.8078.79",
+        "revision": "@a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "jsVersion": "15.6.75.27"
+      },
+      "captured_at": "2026-11-09T19:14:29.659Z",
+      "pcap_sha256": "e9e73619055dfd8ada0ad5723b09a88550584cc1c768558d1353473b3c53d976",
+      "groups": [
+        {
+          "label": "browser",
+          "server_ack_eliciting_packets": 1698,
+          "early": {
+            "ack_frames": 51,
+            "median": 2,
+            "histogram": {
+              "1": 3,
+              "2": 48
+            }
+          },
+          "late": {
+            "ack_frames": 180,
+            "median": 10,
+            "histogram": {
+              "1": 12,
+              "2": 8,
+              "3": 1,
+              "4": 2,
+              "6": 1,
+              "7": 2,
+              "10": 154
+            }
+          },
+          "max_reported_ack_delay_ms": 4.56
+        },
+        {
+          "label": "surf-preset",
+          "server_ack_eliciting_packets": 1695,
+          "early": {
+            "ack_frames": 49,
+            "median": 2,
+            "histogram": {
+              "1": 2,
+              "2": 44,
+              "3": 3
+            }
+          },
+          "late": {
+            "ack_frames": 164,
+            "median": 10,
+            "histogram": {
+              "1": 3,
+              "2": 8,
+              "5": 1,
+              "6": 1,
+              "8": 1,
+              "9": 2,
+              "10": 104,
+              "11": 40,
+              "12": 2,
+              "14": 1,
+              "20": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 0.464
+        },
+        {
+          "label": "surf-exact-input",
+          "server_ack_eliciting_packets": 1696,
+          "early": {
+            "ack_frames": 47,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 41,
+              "3": 5
+            }
+          },
+          "late": {
+            "ack_frames": 170,
+            "median": 10,
+            "histogram": {
+              "1": 7,
+              "2": 8,
+              "5": 1,
+              "8": 1,
+              "9": 1,
+              "10": 123,
+              "11": 27,
+              "12": 2
+            }
+          },
+          "max_reported_ack_delay_ms": 0.176
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-0",
+      "browser_metadata": {
+        "sessionId": "74f1b728-358f-4ef8-8f7f-cc04403cf889",
+        "capabilities": {
+          "acceptInsecureCerts": false,
+          "browserName": "firefox",
+          "browserVersion": "159.0.1",
+          "platformName": "mac",
+          "setWindowRect": true,
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+          "moz:buildID": "20261102144711",
+          "moz:headless": true,
+          "moz:platformVersion": "27.0.0",
+          "moz:processID": 56746,
+          "moz:profile": "/tmp/surf-ack-browser-validation/firefox-h3-0/profile-AOgkEW",
+          "moz:shutdownTimeout": 73000
+        }
+      },
+      "captured_at": "2026-11-09T19:14:31.076Z",
+      "pcap_sha256": "84b0e44928c4fd1ea0ab1a0805f61dbf7d7af0c882165c26340d701b4a97c015",
+      "groups": [
+        {
+          "label": "browser",
+          "server_ack_eliciting_packets": 1703,
+          "early": {
+            "ack_frames": 29,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 20,
+              "3": 6,
+              "17": 1,
+              "24": 1
+            }
+          },
+          "late": {
+            "ack_frames": 740,
+            "median": 2,
+            "histogram": {
+              "1": 12,
+              "2": 612,
+              "3": 100,
+              "4": 15,
+              "6": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 19.128
+        },
+        {
+          "label": "surf-preset",
+          "server_ack_eliciting_packets": 1703,
+          "early": {
+            "ack_frames": 42,
+            "median": 2,
+            "histogram": {
+              "2": 30,
+              "3": 9,
+              "4": 3
+            }
+          },
+          "late": {
+            "ack_frames": 714,
+            "median": 2,
+            "histogram": {
+              "1": 8,
+              "2": 532,
+              "3": 167,
+              "4": 5,
+              "5": 2
+            }
+          },
+          "max_reported_ack_delay_ms": 0.272
+        },
+        {
+          "label": "surf-exact-input",
+          "server_ack_eliciting_packets": 1701,
+          "early": {
+            "ack_frames": 42,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 33,
+              "3": 5,
+              "4": 1,
+              "5": 1,
+              "7": 1
+            }
+          },
+          "late": {
+            "ack_frames": 752,
+            "median": 2,
+            "histogram": {
+              "1": 7,
+              "2": 658,
+              "3": 76,
+              "4": 6,
+              "5": 3,
+              "6": 2
+            }
+          },
+          "max_reported_ack_delay_ms": 0.2
+        }
+      ]
+    }
+  ]
+}

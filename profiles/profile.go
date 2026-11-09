@@ -135,6 +135,14 @@ type QUICConfig interface {
 	OmitMaxUDPPayloadSize(bool) QUICConfig
 	MaxDatagramFrameSize(uint64) QUICConfig
 	MaxAckDelay(time.Duration) QUICConfig
+	AckPacketThreshold(uint64) QUICConfig
+	AckDecimation(uint64, uint64) QUICConfig
+	AckDelayRTTDivisor(uint32) QUICConfig
+	MinAckDelay(time.Duration) QUICConfig
+	AckReordering(quic.AckReorderingMode) QUICConfig
+	AckMissingPacketLimit(uint64) QUICConfig
+	AckECN(quic.AckECNMode) QUICConfig
+	ResetAckPolicy() QUICConfig
 	ActiveConnectionIDLimit(uint64) QUICConfig
 	OmitLegacyResetStreamAt(bool) QUICConfig
 	InitialDestinationConnectionIDLength(int) QUICConfig

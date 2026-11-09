@@ -51,7 +51,14 @@ func main() {
 			TransportParameterOrder(15, 1, 3, 4, 5, 6, 7, 8, 9, 14, 32, transportparams.Grease).
 			MaxUDPPayloadSize(1472).
 			MaxDatagramFrameSize(65536).
-			MaxAckDelay(25 * time.Millisecond).
+			MaxAckDelay(25*time.Millisecond).
+			AckPacketThreshold(2).
+			AckDecimation(100, 10).
+			AckDelayRTTDivisor(4).
+			MinAckDelay(time.Millisecond).
+			AckReordering(surf.AckReorderingWindow).
+			AckMissingPacketLimit(4).
+			AckECN(surf.AckECNTransitions).
 			ActiveConnectionIDLimit(4).
 			InitialPacketNumber(1).
 			DisableClientHelloScrambling(true).

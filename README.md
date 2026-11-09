@@ -319,6 +319,17 @@ not establish complete packet-level browser equivalence.
 See the [HTTP/2 custom example](examples/http/http2_custom/http2_custom.go) and
 [HTTP/3 custom example](examples/http/http3_custom/http3_custom.go) for overrides.
 
+### QUIC ACK scheduling
+
+QUIC receive ACK scheduling is configurable through `QUICSettings()`:
+`AckPacketThreshold`, `AckDecimation(after, threshold)`, `AckDelayRTTDivisor`,
+`MinAckDelay`, `AckReordering`, `AckMissingPacketLimit` and `AckECN`.
+Chrome profiles select the 2-to-10 threshold transition by packet-number span;
+Firefox retains two packets and a 20 ms deadline. `ResetAckPolicy` restores
+native receive scheduling. These controls do not negotiate ACK_FREQUENCY.
+See [browser source audit and actual ACK observations](tests/testdata/wire/ack/README.md)
+and the [custom HTTP/3 example](examples/http/http3_custom/http3_custom.go).
+
 ### HTTP/3 Compatibility & Fallbacks
 
 HTTP/3 automatically handles compatibility issues:

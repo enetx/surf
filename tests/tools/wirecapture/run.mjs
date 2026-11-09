@@ -267,7 +267,16 @@ async function captureCase(browser, protocol, capacity) {
   mkdirSync(directory, { mode: 0o700 });
   const proc = spawn(
     binary,
-    ["-out", directory, "-protocol", protocol, "-capacity", String(capacity)],
+    [
+      "-out",
+      directory,
+      "-protocol",
+      protocol,
+      "-capacity",
+      String(capacity),
+      "-response-bytes",
+      args["response-bytes"] || "0",
+    ],
     { stdio: ["ignore", "pipe", "pipe"] },
   );
   let logs = "";
@@ -343,6 +352,12 @@ async function captureCase(browser, protocol, capacity) {
     await Promise.race([exited, delay(3000)]);
     proc.kill("SIGTERM");
     writeFileSync(join(directory, "server.log"), logs);
+  }
+  if (args.decode === "false") {
+    console.log(
+      JSON.stringify({ browser, protocol, capacity, directory, decode: false }),
+    );
+    return;
   }
   const result = spawnSync(
     "tshark",

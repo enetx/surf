@@ -32,16 +32,18 @@ import (
 )
 
 type captureServer struct {
-	mu           sync.Mutex
-	currentLabel string
-	completed    bool
-	failure      string
-	requests     []observedRequest
-	errors       []string
-	capacity     uint64
-	records      *os.File
-	packets      *packetCapture
-	tlsConfig    *tls.Config
+	mu            sync.Mutex
+	currentLabel  string
+	completed     bool
+	failure       string
+	requests      []observedRequest
+	errors        []string
+	capacity      uint64
+	records       *os.File
+	packetRecords *os.File
+	responseBytes int
+	packets       *packetCapture
+	tlsConfig     *tls.Config
 }
 
 func (s *captureServer) label() string { s.mu.Lock(); defer s.mu.Unlock(); return s.currentLabel }
@@ -89,6 +91,7 @@ func main() {
 	origin := flag.String("origin", "", "origin for replay")
 	browser := flag.String("browser", "chrome", "Surf profile: chrome or firefox")
 	stock := flag.Bool("stock", false, "use the stock Surf headers instead of exact captured headers")
+	responseBytes := flag.Int("response-bytes", 0, "synthetic /step/0 response bytes for ACK observations")
 	flag.Parse()
 	if *replay != "" {
 		if err := replaySurf(*replay, *origin, *browser, *protocol, *stock); err != nil {
@@ -96,7 +99,7 @@ func main() {
 		}
 		return
 	}
-	if *out == "" || (*protocol != "h2" && *protocol != "h3") {
+	if *out == "" || (*protocol != "h2" && *protocol != "h3") || *responseBytes < 0 || *responseBytes > 16<<20 {
 		log.Fatal("out and valid protocol are required")
 	}
 	if err := os.MkdirAll(*out, 0700); err != nil {
@@ -121,7 +124,12 @@ func main() {
 		log.Fatal(err)
 	}
 	defer records.Close()
-	s := &captureServer{capacity: *capacity, packets: packets, records: records, currentLabel: "browser", tlsConfig: &tls.Config{Certificates: []tls.Certificate{cert}, NextProtos: []string{"h2"}, KeyLogWriter: &lockedWriter{writer: keys}}}
+	packetRecords, err := os.OpenFile(filepath.Join(*out, "transport.jsonl"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer packetRecords.Close()
+	s := &captureServer{capacity: *capacity, packets: packets, records: records, packetRecords: packetRecords, responseBytes: *responseBytes, currentLabel: "browser", tlsConfig: &tls.Config{Certificates: []tls.Certificate{cert}, NextProtos: []string{"h2"}, KeyLogWriter: &lockedWriter{writer: keys}}}
 	tcp, err := net.Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		log.Fatal(err)

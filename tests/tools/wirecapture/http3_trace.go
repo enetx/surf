@@ -1,7 +1,11 @@
 package main
 
 import (
+	"encoding/json"
+	"time"
+
 	"github.com/enetx/quic-go/http3/qlog"
+	transportqlog "github.com/enetx/quic-go/qlog"
 	"github.com/enetx/quic-go/qlogwriter"
 )
 
@@ -15,6 +19,12 @@ type headerTrace struct {
 func (t *headerTrace) AddProducer() qlogwriter.Recorder { return t }
 func (t *headerTrace) Close() error                     { return nil }
 func (t *headerTrace) RecordEvent(event qlogwriter.Event) {
+	switch e := event.(type) {
+	case transportqlog.PacketSent:
+		t.recordPacket("sent", e.Header, e.Frames)
+	case transportqlog.PacketReceived:
+		t.recordPacket("received", e.Header, e.Frames)
+	}
 	frame, ok := event.(qlog.FrameParsed)
 	if !ok {
 		return
@@ -35,5 +45,32 @@ func (t *headerTrace) RecordEvent(event qlogwriter.Event) {
 	}
 	if req.Path != "" {
 		t.server.record(req)
+	}
+}
+
+// Server-side decrypted frame observations from actual peer packets. Packet
+// timings include tracing overhead; they do not establish NIC pacing parity.
+func (t *headerTrace) recordPacket(direction string, header transportqlog.PacketHeader, frames []transportqlog.Frame) {
+	if header.PacketType != transportqlog.PacketType1RTT || t.server.packetRecords == nil {
+		return
+	}
+	var ranges [][2]uint64
+	var delay time.Duration
+	eliciting := false
+	for _, f := range frames {
+		if ack, ok := f.Frame.(*transportqlog.AckFrame); ok {
+			for _, r := range ack.AckRanges {
+				ranges = append(ranges, [2]uint64{uint64(r.Smallest), uint64(r.Largest)})
+			}
+			delay = ack.DelayTime
+		} else {
+			eliciting = true
+		}
+	}
+	t.server.mu.Lock()
+	defer t.server.mu.Unlock()
+	err := json.NewEncoder(t.server.packetRecords).Encode(map[string]any{"label": t.label, "connection": t.connection, "direction": direction, "packet_number": uint64(header.PacketNumber), "eliciting": eliciting, "ack_ranges": ranges, "ack_delay_ns": int64(delay)})
+	if err != nil {
+		t.server.errors = append(t.server.errors, err.Error())
 	}
 }

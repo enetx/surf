@@ -33,6 +33,7 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		ActiveConnectionIDLimit(2).
 		InitialPacketNumber(1).
 		DisableClientHelloScrambling(true)
+	configureAck(q)
 }
 
 // ConnectionIDLength is the browser's local source connection ID length.
