@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/enetx/g"
+	"github.com/enetx/http"
 	"github.com/enetx/http/http2"
 	"github.com/enetx/quic-go"
 	"github.com/enetx/quic-go/http3"
@@ -56,6 +57,7 @@ func (k OSKey) Mobile() g.String {
 // methods on surf.HTTP2Settings, the surf package provides an adapter that satisfies it.
 type H2Config interface {
 	HeaderTableSize(uint32) H2Config
+	MaxEncoderHeaderTableSize(uint32) H2Config
 	EnablePush(uint32) H2Config
 	MaxConcurrentStreams(uint32) H2Config
 	InitialWindowSize(uint32) H2Config
@@ -66,6 +68,15 @@ type H2Config interface {
 	InitialStreamID(uint32) H2Config
 	PriorityParam(http2.PriorityParam) H2Config
 	PriorityFrames([]http2.PriorityFrame) H2Config
+	HpackPolicy(func(string, string) http2.HPACKRepresentation) H2Config
+	HpackIndexingLimit(func(uint32) uint32) H2Config
+	HpackHuffman(http2.HPACKHuffmanMode) H2Config
+	HpackDeduplicateTableSizeUpdates(bool) H2Config
+	HpackNameReferencePolicy(http2.HPACKNameReferencePolicy) H2Config
+	HpackRepresentation(string, http2.HPACKRepresentation) H2Config
+	HpackDefaultRepresentation(http2.HPACKRepresentation) H2Config
+	HeaderPriority(func(http2.PriorityRequest) http2.PriorityParam) H2Config
+	ChainStreamDependencies(bool) H2Config
 }
 
 // H3Config is the fluent contract used by profile.ConfigureH3 callbacks. It mirrors the
@@ -80,6 +91,11 @@ type H3Config interface {
 	QpackEagerStreamTypes(bool) H3Config
 	QpackEncoderTableCapacity(uint64) H3Config
 	QpackEncoderCapacityTiming(http3.QPACKCapacityTiming) H3Config
+	QpackSplitCookies(bool) H3Config
+	QpackNeverIndex(...string) H3Config
+	PriorityUpdates(bool) H3Config
+	ControlGreaseFramesFactory(func() ([]http3.GreaseFrame, error)) H3Config
+	RequestGreaseFramesFactory(func(*http.Request) ([]http3.GreaseFrame, error)) H3Config
 	EnableConnectProtocol(uint64) H3Config
 	SettingsH3Datagram(uint64) H3Config
 	H3Datagram(uint64) H3Config

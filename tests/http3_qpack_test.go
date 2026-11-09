@@ -103,10 +103,11 @@ func TestHTTP3QPACKFluentConfigurationOnWire(t *testing.T) {
 
 func TestHTTP3QPACKFluentValidation(t *testing.T) {
 	for name, configure := range map[string]func(*surf.HTTP3Settings){
-		"duplicate": func(h *surf.HTTP3Settings) { h.QpackStreamOrder(surf.QPACKEncoderStream, surf.QPACKEncoderStream) },
-		"type":      func(h *surf.HTTP3Settings) { h.QpackStreamOrder(0) },
-		"capacity":  func(h *surf.HTTP3Settings) { h.QpackEncoderTableCapacity(1 << 62) },
-		"timing":    func(h *surf.HTTP3Settings) { h.QpackEncoderCapacityTiming(99) },
+		"never-index name": func(h *surf.HTTP3Settings) { h.QpackNeverIndex("bad name") },
+		"duplicate":        func(h *surf.HTTP3Settings) { h.QpackStreamOrder(surf.QPACKEncoderStream, surf.QPACKEncoderStream) },
+		"type":             func(h *surf.HTTP3Settings) { h.QpackStreamOrder(0) },
+		"capacity":         func(h *surf.HTTP3Settings) { h.QpackEncoderTableCapacity(1 << 62) },
+		"timing":           func(h *surf.HTTP3Settings) { h.QpackEncoderCapacityTiming(99) },
 	} {
 		t.Run(name, func(t *testing.T) {
 			h := surf.NewClient().Builder().ForceHTTP3().HTTP3Settings()

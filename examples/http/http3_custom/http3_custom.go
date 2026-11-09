@@ -67,6 +67,13 @@ func main() {
 			QpackEagerStreamTypes(false).
 			QpackEncoderTableCapacity(4096).
 			QpackEncoderCapacityTiming(surf.QPACKCapacityBeforeHeaders).
+			// These are custom policy choices; browser profiles configure their
+			// own cookie splitting, initial priority updates and control GREASE.
+			QpackSplitCookies(true).
+			QpackNeverIndex("cookie", "authorization").
+			PriorityUpdates(true).
+			ControlGreaseFrames(surf.HTTP3GreaseFrame{Type: 33, Payload: []byte("custom")}).
+			RequestGreaseFrames(surf.HTTP3GreaseFrame{Type: 64}).
 			MaxFieldSectionSize(256 << 10)
 	}
 

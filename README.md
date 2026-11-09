@@ -256,6 +256,63 @@ client := surf.NewClient().
 
 ```
 
+### Request encoding and control frames
+
+HTTP/2 header encoding and HTTP/3 control frames can be configured through the
+same fluent builders as SETTINGS. Browser policy stays in Surf; the HTTP and
+QUIC modules expose generic mechanisms and retain the official HPACK/QPACK codecs.
+
+```go
+client := surf.NewClient().Builder().Impersonate().Firefox().
+    HTTP2Settings().
+    HpackRepresentation("x-private", surf.HPACKNeverIndex).
+    Set().
+    HTTP3Settings().
+    QpackNeverIndex("x-private").
+    Set().Build().Unwrap()
+defer client.Close()
+```
+
+`HpackPolicy`, `HpackIndexingLimit`, `HpackHuffman` and
+`HpackNameReferencePolicy` control literal representations and new table entries.
+`MaxEncoderHeaderTableSize` independently bounds the request encoder's table;
+`HeaderTableSize` advertises the response decoder's capacity. The browser profiles
+accept peer encoder-table growth up to the native engine's `math.MaxInt32` limit.
+`HpackDeduplicateTableSizeUpdates` controls redundant capacity notifications.
+`HeaderPriority` selects HTTP/2 priority per request; `ChainStreamDependencies`
+links it to eligible open streams. Trailers inherit the header encoding policy,
+without receiving the request's HEADERS priority.
+
+`ControlGreaseFrames` / `RequestGreaseFrames` accept reserved frames; their
+`Factory` variants generate fresh values per connection or request.
+`PriorityUpdates` controls initial HTTP/3 priority frames independently of
+GREASE and local QUIC `StreamPriority`. `QpackSplitCookies` and `QpackNeverIndex`
+control request fields. Browser presets select these independently:
+
+| Behavior | Chrome 156 desktop / Android | Firefox 159 desktop |
+| --- | --- | --- |
+| HPACK varying `:path` | Literal without indexing | Literal without indexing, including static paths |
+| HPACK Authorization | Normal indexing | Never indexed |
+| HPACK Cookie | Split pairs, normal indexing | Split pairs; pairs shorter than 20 bytes never indexed |
+| HPACK new entries | Normal capacity bound | At most half the table; none when capacity is below 128 |
+| HPACK Huffman | When shorter | Always for literal strings |
+| Repeated unchanged HPACK capacity | No new instruction | Table-size instruction queued |
+| HTTP/3 Cookie | Separate field per pair | Preserve a single joined field |
+| Control GREASE type | `31*n+33`, 32-bit draw | `31*n+33`, 57-bit draw |
+| Control GREASE payload | Length `n%4` | Independent draw, length 0–7 |
+| Initial HTTP/3 priority update | Explicit nondefault Priority | Disabled; Neqo uses updates for changed priority |
+
+Sources are pinned to [Chrome 156's Quiche revision](https://github.com/chromium/chromium/blob/156.0.8078.79/DEPS)
+and [Firefox 159.0.1](https://github.com/mozilla-firefox/firefox/tree/FIREFOX_159_0_1_RELEASE).
+The profile functions link directly to the corresponding browser source files.
+iOS profiles keep their WebKit behavior; these desktop engine policies are not
+applied to iOS. Outgoing dynamic QPACK compression and browser resource-loading
+decisions remain outside this API. Source-derived rules and local wire tests do
+not establish complete packet-level browser equivalence.
+
+See the [HTTP/2 custom example](examples/http/http2_custom/http2_custom.go) and
+[HTTP/3 custom example](examples/http/http3_custom/http3_custom.go) for overrides.
+
 ### HTTP/3 Compatibility & Fallbacks
 
 HTTP/3 automatically handles compatibility issues:

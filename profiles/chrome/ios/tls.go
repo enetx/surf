@@ -12,5 +12,6 @@ func NewClientHelloSpec() utls.ClientHelloSpec {
 	if err != nil {
 		panic("chrome iOS profile: " + err.Error())
 	}
+
 	return spec
 }

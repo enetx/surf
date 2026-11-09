@@ -2,6 +2,7 @@ package surf
 
 import (
 	"slices"
+	"strings"
 
 	"github.com/enetx/quic-go/http3"
 )
@@ -27,6 +28,26 @@ func (h *HTTP3Settings) qpack() *http3.QPACKConfig {
 		h.qpackConfig = &http3.QPACKConfig{}
 	}
 	return h.qpackConfig
+}
+
+// QpackSplitCookies emits one cookie field per nonempty cookie-pair on HTTP/3.
+// Field order and the caller's original headers are preserved.
+func (h *HTTP3Settings) QpackSplitCookies(enabled bool) *HTTP3Settings {
+	h.qpack().SplitCookies = enabled
+	return h
+}
+
+// QpackNeverIndex selects fields to encode as literals with QPACK's N bit.
+// Names are copied and normalized. An empty list restores upstream encoding.
+func (h *HTTP3Settings) QpackNeverIndex(names ...string) *HTTP3Settings {
+	copy := slices.Clone(names)
+	for i := range copy {
+		copy[i] = strings.ToLower(copy[i])
+	}
+
+	h.qpack().NeverIndex = copy
+
+	return h
 }
 
 // QpackStreamOrder reserves QPACK streams after the control stream in the given

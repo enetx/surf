@@ -1,0 +1,3031 @@
+{
+  "schema": 1,
+  "browser": "chrome",
+  "protocol": "h3",
+  "server_capacity": 0,
+  "browser_metadata": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/156.0.8078.79",
+    "revision": "@a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "jsVersion": "15.6.75.27"
+  },
+  "captured_at": "2026-11-09T14:30:17.029Z",
+  "browser_flags": [
+    "--headless",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-background-networking",
+    "--no-proxy-server",
+    "--remote-debugging-port=0",
+    "--user-data-dir=TEMPORARY_PROFILE",
+    "--ignore-certificate-errors-spki-list=gLlRQNuW/P31XijGIip0JehM4Iwulz7iiSrABqMOrOo=",
+    "--enable-quic",
+    "--origin-to-force-quic-on=127.0.0.1:55656",
+    "about:blank"
+  ],
+  "browser_prefs": {},
+  "pcap_sha256": "ba78d4fc2733e034098537a73b661bb31de72d479daa44de136a07d50e105c12",
+  "independent_decoded_sections": 33,
+  "independent_undecoded_sections": 0,
+  "comparison": [
+    {
+      "path": "/scenario",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 435,
+      "exact_bytes": 435,
+      "preset_bytes": 451,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/0",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 346,
+      "exact_bytes": 346,
+      "preset_bytes": 450,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/1",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 583,
+      "exact_bytes": 583,
+      "preset_bytes": 687,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/2",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 583,
+      "exact_bytes": 583,
+      "preset_bytes": 687,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/3",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 584,
+      "exact_bytes": 584,
+      "preset_bytes": 688,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/4",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 584,
+      "exact_bytes": 584,
+      "preset_bytes": 688,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/5",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 585,
+      "exact_bytes": 585,
+      "preset_bytes": 689,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/6",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 566,
+      "exact_bytes": 566,
+      "preset_bytes": 670,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/7",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 585,
+      "exact_bytes": 585,
+      "preset_bytes": 689,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/8",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 585,
+      "exact_bytes": 585,
+      "preset_bytes": 689,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/complete",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 568,
+      "exact_bytes": 568,
+      "preset_bytes": 672,
+      "preset_fields_equal": false
+    }
+  ],
+  "control": {
+    "browser": {
+      "settings": [
+        [
+          {
+            "id": "0x0000000000000001",
+            "value": "65536"
+          },
+          {
+            "id": "0x0000000000000006",
+            "value": "262144"
+          },
+          {
+            "id": "0x0000000000000007",
+            "value": "100"
+          },
+          {
+            "id": "0x0000000000000033",
+            "value": "1"
+          },
+          {
+            "id": "0x0000000635c7a56d",
+            "value": "2296057719"
+          }
+        ]
+      ],
+      "encoder_fragments": [
+        "20"
+      ],
+      "decoder_fragments": [],
+      "unidirectional_types": [
+        "0x0000000000000000",
+        "0x0000000000000002"
+      ],
+      "unidirectional_streams": {
+        "2": 0,
+        "10": 2
+      },
+      "priorities": [
+        {
+          "stream": 0,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 4,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 8,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 12,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 16,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 20,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 24,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 28,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 32,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 36,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 40,
+          "value": "u=1, i"
+        }
+      ],
+      "frames": [
+        {
+          "type": "0x0000000000000004",
+          "stream": 2,
+          "length": 31,
+          "payload_hex": "018001000006800400000740643301c000000635c7a56dc000000088db0f77"
+        },
+        {
+          "type": "0x000000149ef0dd4b",
+          "stream": 2,
+          "length": 2,
+          "payload_hex": "c808"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "00753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "04753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "08753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "0c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "10753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "14753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "18753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "1c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "20753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "24753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "28753d312c2069"
+        }
+      ]
+    },
+    "surf-preset": {
+      "settings": [
+        [
+          {
+            "id": "0x0000000000000001",
+            "value": "65536"
+          },
+          {
+            "id": "0x0000000000000006",
+            "value": "262144"
+          },
+          {
+            "id": "0x0000000000000007",
+            "value": "100"
+          },
+          {
+            "id": "0x0000000000000033",
+            "value": "1"
+          },
+          {
+            "id": "0x00000015a4486e34",
+            "value": "1662950640"
+          }
+        ]
+      ],
+      "encoder_fragments": [],
+      "decoder_fragments": [],
+      "unidirectional_types": [
+        "0x0000000000000000"
+      ],
+      "unidirectional_streams": {
+        "2": 0
+      },
+      "priorities": [
+        {
+          "stream": 0,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 4,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 8,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 12,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 16,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 20,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 24,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 28,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 32,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 36,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 40,
+          "value": "u=0, i"
+        }
+      ],
+      "frames": [
+        {
+          "type": "0x0000000000000004",
+          "stream": 2,
+          "length": 31,
+          "payload_hex": "018001000006800400000740643301c0000015a4486e34c0000000631e9cf0"
+        },
+        {
+          "type": "0x00000011b3a13b97",
+          "stream": 2,
+          "length": 2,
+          "payload_hex": "5bc0"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "00753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "04753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "08753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "0c753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "10753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "14753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "18753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "1c753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "20753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "24753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "28753d302c2069"
+        }
+      ]
+    },
+    "surf-exact-input": {
+      "settings": [
+        [
+          {
+            "id": "0x0000000000000001",
+            "value": "65536"
+          },
+          {
+            "id": "0x0000000000000006",
+            "value": "262144"
+          },
+          {
+            "id": "0x0000000000000007",
+            "value": "100"
+          },
+          {
+            "id": "0x0000000000000033",
+            "value": "1"
+          },
+          {
+            "id": "0x00000013a2aa2056",
+            "value": "1841477282"
+          }
+        ]
+      ],
+      "encoder_fragments": [],
+      "decoder_fragments": [],
+      "unidirectional_types": [
+        "0x0000000000000000"
+      ],
+      "unidirectional_streams": {
+        "2": 0
+      },
+      "priorities": [
+        {
+          "stream": 0,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 4,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 8,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 12,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 16,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 20,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 24,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 28,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 32,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 36,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 40,
+          "value": "u=1, i"
+        }
+      ],
+      "frames": [
+        {
+          "type": "0x0000000000000004",
+          "stream": 2,
+          "length": 31,
+          "payload_hex": "018001000006800400000740643301c0000013a2aa2056c00000006dc2b6a2"
+        },
+        {
+          "type": "0x000000167fadfd64",
+          "stream": 2,
+          "length": 1,
+          "payload_hex": "65"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "00753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "04753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "08753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "0c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "10753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "14753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "18753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "1c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "20753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "24753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "28753d312c2069"
+        }
+      ]
+    }
+  },
+  "requests": [
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/scenario",
+      "stream_id": 0,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/scenario"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "upgrade-insecure-requests",
+          "value": "1"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "accept",
+          "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "none"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "navigate"
+        },
+        {
+          "name": "sec-fetch-user",
+          "value": "?1"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "document"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "priority",
+          "value": "u=0, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518661042d43b0c72f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f302f064148b1275ad1ad5d034ca7b29f07226d61634f5322ff1f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c5f0eec497ca589d34d1f43aeba0c41a4c7a98f33a69a3fdf9a68fa1d75d0620d263d4c79a68fbed00177fe8d48e62b1d3cd1f46a4731581f734bf46a473158f058ebfa352398ac0ebaa6faf963e7efb4005defa1d75d0620d263d4c20d35459162f924e3aa62fdf782367efb4005dd2f034148b4a549275906497f83a8f5172f034148b4a549275a93c85f86a87dcd30d25f2f034148b4a549275ad416cf023f312f034148b4a549275a42a13f8690e4b692d49f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df2eaec31ec327d785b6007d286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 94
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 29,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/0",
+      "stream_id": 4,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/0"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c032daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/1",
+      "stream_id": 8,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/1"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-fixed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c072daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f458fba51d85b1420eb4db615694de4b27f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 84,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/2",
+      "stream_id": 12,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/2"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-fixed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c0b2daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f458fba51d85b1420eb4db615694de4b27f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 84,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/3",
+      "stream_id": 16,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/3"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c332daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f4590ba51d85b1420eb4db615624e3aa62c9f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 84,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/4",
+      "stream_id": 20,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c352daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f4590ba51d85b1420eb4db615624e3aa62c9f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 84,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/5",
+      "stream_id": 24,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/5"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c372daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f4590ba51d85b1420eb4db615624e3aa62c9f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f55921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 84,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/6",
+      "stream_id": 28,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/6"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c392daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f55921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/7",
+      "stream_id": 32,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/7"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c3b2daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f4590ba51d85b1420eb4db615624e3aa62c9f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f55921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 84,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/8",
+      "stream_id": 36,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/8"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d7518561092d6c3d2daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f4590ba51d85b1420eb4db615624e3aa62c9f5f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f55921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 84,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/complete",
+      "stream_id": 40,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55656"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/complete"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55656/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "0000d1508b089d5c0b8170dc6db71b73d751876087a6ba0a92ff2daec1cd48ff86a8eb10649cbfe72f064148b1275ad1ad5d034ca7b29f07226d61634f53225f50ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765c2f004148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f92f044148b1275ad1ad49e33505023f30dd2f034148b4a549275906497f8840e92ac7b0d31aaf2f034148b4a549275a93c85f8321ec472f034148b4a549275a42a13f842d35a7d75d979d29ad1718602275702e05c371b6dc6dc61042d43b0c7f5f10929bd9abfa5242cb40d25fa523b3e94f684c9f5f398b2d4b70ddf45abefb4005df55928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf55ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f55921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff2eaec31ec327d785b600fd286f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 0,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 0,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 1,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 95,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": false
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 13,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 31,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 72,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-static-name",
+            "never_index": false,
+            "index": 5,
+            "value_huffman": true
+          },
+          {
+            "kind": "literal-name",
+            "never_index": false,
+            "name_huffman": true,
+            "value_huffman": true
+          }
+        ]
+      }
+    }
+  ]
+}

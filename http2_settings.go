@@ -1,6 +1,9 @@
 package surf
 
 import (
+	"fmt"
+	"math"
+
 	"github.com/enetx/http"
 	"github.com/enetx/http/http2"
 )
@@ -8,20 +11,24 @@ import (
 // HTTP2Settings represents HTTP/2 settings.
 // https://lwthiker.com/networks/2022/06/17/http2-fingerprinting.html
 type HTTP2Settings struct {
-	registered           bool
-	priorityFrames       []http2.PriorityFrame
-	priorityParam        http2.PriorityParam
-	builder              *Builder
-	headerTableSize      uint32
-	maxConcurrentStreams uint32
-	initialWindowSize    uint32
-	maxFrameSize         uint32
-	maxHeaderListSize    uint32
-	connectionFlow       uint32
-	initialStreamID      uint32
-	noRFC7540Priorities  uint32
-	enablePush           uint32
-	usePush              bool
+	registered                bool
+	priorityFrames            []http2.PriorityFrame
+	priorityParam             http2.PriorityParam
+	builder                   *Builder
+	headerTableSize           uint32
+	maxConcurrentStreams      uint32
+	initialWindowSize         uint32
+	maxFrameSize              uint32
+	maxHeaderListSize         uint32
+	connectionFlow            uint32
+	initialStreamID           uint32
+	noRFC7540Priorities       uint32
+	enablePush                uint32
+	usePush                   bool
+	hpack                     *http2.HPACKConfig
+	headerPriority            func(http2.PriorityRequest) http2.PriorityParam
+	chainStreamDependencies   bool
+	maxEncoderHeaderTableSize uint32
 }
 
 // InitialStreamID sets the initial stream id for HTTP/2 streams.
@@ -33,6 +40,14 @@ func (h *HTTP2Settings) InitialStreamID(id uint32) *HTTP2Settings {
 // HeaderTableSize sets the header table size for HTTP/2 settings.
 func (h *HTTP2Settings) HeaderTableSize(size uint32) *HTTP2Settings {
 	h.headerTableSize = size
+	return h
+}
+
+// MaxEncoderHeaderTableSize bounds the request encoder's table, independently
+// of HeaderTableSize (our advertised decoder capacity). Zero retains upstream
+// defaults. The native engine supports limits up to math.MaxInt32.
+func (h *HTTP2Settings) MaxEncoderHeaderTableSize(size uint32) *HTTP2Settings {
+	h.maxEncoderHeaderTableSize = size
 	return h
 }
 
@@ -103,6 +118,13 @@ func (h *HTTP2Settings) Set() *Builder {
 	}
 
 	return h.builder.addCliMW(func(c *Client) error {
+		if h.maxEncoderHeaderTableSize > math.MaxInt32 {
+			return fmt.Errorf("HTTP/2 encoder table limit exceeds supported range")
+		}
+		if err := h.hpack.Validate(); err != nil {
+			return err
+		}
+
 		t1, ok := c.GetTransport().(*http.Transport)
 		if !ok {
 			return nil
@@ -145,6 +167,11 @@ func (h *HTTP2Settings) Set() *Builder {
 		if h.priorityFrames != nil {
 			t2.PriorityFrames = h.priorityFrames
 		}
+
+		t2.HPACK = h.hpack.Clone()
+		t2.MaxEncoderHeaderTableSize = h.maxEncoderHeaderTableSize
+		t2.HeaderPriority = h.headerPriority
+		t2.ChainStreamDependencies = h.chainStreamDependencies
 
 		c.transport = t1
 

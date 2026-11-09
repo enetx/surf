@@ -9,7 +9,9 @@ func NewClientHelloSpec() utls.ClientHelloSpec {
 	if err != nil {
 		panic("chrome profile: " + err.Error())
 	}
+
 	// Keep optional session resumption support; fresh connections omit an empty PSK.
 	spec.Extensions = append(spec.Extensions, &utls.UtlsPreSharedKeyExtension{})
+
 	return spec
 }

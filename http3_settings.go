@@ -43,6 +43,7 @@ type HTTP3Settings struct {
 	settings               g.MapOrd[uint64, uint64]
 	quicConfig             *quic.Config
 	qpackConfig            *http3.QPACKConfig
+	wireConfig             *http3.WireConfig
 	connectionIDLength     *int
 	connectionIDGenerator  quic.ConnectionIDGenerator
 	streamPriority         *http3.StreamPriority
@@ -134,6 +135,7 @@ func (h *HTTP3Settings) Set() *Builder {
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type uquicTransport struct {
 	qpackConfig            *http3.QPACKConfig
+	wireConfig             *http3.WireConfig
 	altUsed                bool
 	configureHandshake     func(*quic.Config) error
 	receivePacketSize      int
@@ -163,6 +165,7 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 
 	ut := &uquicTransport{
 		qpackConfig:            settings.qpackConfig.Clone(),
+		wireConfig:             settings.wireConfig.Clone(),
 		altUsed:                settings.altUsed,
 		tlsConfig:              c.tlsConfig.Clone(),
 		dialer:                 c.GetDialer(),
@@ -259,6 +262,7 @@ func (ut *uquicTransport) initTransport() error {
 
 	ut.http3tr = &http3.Transport{
 		QPACKConfig:            ut.qpackConfig.Clone(),
+		WireConfig:             ut.wireConfig.Clone(),
 		TLSClientConfig:        ut.tlsConfig,
 		QUICConfig:             config,
 		StreamPriority:         ut.streamPriority,
@@ -471,6 +475,9 @@ func (ut *uquicTransport) requestWithAltUsed(req *http.Request) *http.Request {
 
 // handleError attempts HTTP/2 fallback for recoverable HTTP/3 errors.
 func (ut *uquicTransport) handleError(req *http.Request, err error) (*http.Response, error) {
+	if _, local := errors.AsType[*http3.RequestPreparationError](err); local {
+		return nil, err
+	}
 	if req.Context().Err() != nil {
 		return nil, err
 	}

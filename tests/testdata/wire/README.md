@@ -16,6 +16,31 @@ HEADERS frame. HPACK representation annotations are omitted; field names, values
 order and frame parameters are retained. The ephemeral authority port is replaced
 with PORT. These are expected client wire snapshots, not independent raw browser captures.
 
+Header encoding and control frames have separate regression suites:
+`tests/http2_browser_encoding_test.go` checks browser HPACK sensitivity and the
+19/20-byte cookie-pair boundary, plus peer table growth beyond 4096 bytes;
+`tests/http2_header_encoding_test.go` exercises
+fluent overrides. `tests/http3_wire_test.go` checks browser-specific GREASE,
+initial priority updates, cookie fields and custom frame factories. Codec-level
+tests live in the HTTP and QUIC modules, including repeated fields, table updates,
+eviction, name references, Huffman forms, bounded control queues and critical
+stream failures. These source-derived checks do not upgrade the existing
+navigation snapshots into independent raw-browser captures.
+
+Encoding sources: Chrome 156.0.8078.79 pins Quiche commit
+`a1628192cf32ba40d21e0dd80f485d68c24ff87a`; Firefox sources use
+`FIREFOX_159_0_1_RELEASE`, including its vendored Neqo. Profile functions contain
+direct links. For a browser update, recheck those rules against the new release
+and capture actual browser traffic before changing reference fixtures.
+
+Fresh 2026-11-09 Chromium/Firefox request sequences, including repeated and
+changed peer table settings, credentials, QPACK instructions and control frames,
+are preserved separately in [browser_sequences](browser_sequences/README.md).
+That report distinguishes exact matches from measured encoding differences and
+Wireshark decoding limits. [The capture tool](../../tools/wirecapture/README.md)
+can reproduce the experiment; Go regression tests replay its browser inputs
+offline. Existing navigation fixtures retain their original provenance.
+
 Firefox 159 desktop uses the supplied browser JSON as its reference. Its TLS and
 HTTP/2 parameters are shared across desktop systems; the navigation User-Agent
 is normalized to Windows. SNI is retained for tls.peet.ws, matching that capture.

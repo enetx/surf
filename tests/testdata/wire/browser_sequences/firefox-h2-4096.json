@@ -1,0 +1,1469 @@
+{
+  "schema": 1,
+  "browser": "firefox",
+  "protocol": "h2",
+  "server_capacity": 4096,
+  "browser_metadata": {
+    "sessionId": "403df50c-4c1c-4f67-988a-c09e3ddb810d",
+    "capabilities": {
+      "acceptInsecureCerts": false,
+      "browserName": "firefox",
+      "browserVersion": "159.0.1",
+      "platformName": "mac",
+      "setWindowRect": true,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+      "moz:buildID": "20261102144711",
+      "moz:headless": true,
+      "moz:platformVersion": "27.0.0",
+      "moz:processID": 34522,
+      "moz:profile": "/tmp/surf-browser-wire-reference-20261109/firefox-h2-4096/profile-ihg8NB",
+      "moz:shutdownTimeout": 73000
+    }
+  },
+  "captured_at": "2026-11-09T14:30:21.501Z",
+  "browser_flags": [
+    "--headless",
+    "--no-remote",
+    "--profile",
+    "TEMPORARY_PROFILE",
+    "--remote-debugging-port=0",
+    "about:blank"
+  ],
+  "browser_prefs": {
+    "remote.prefs.recommended": false,
+    "devtools.jsonview.enabled": false,
+    "browser.shell.checkDefaultBrowser": false,
+    "browser.startup.homepage_override.mstone": "ignore",
+    "browser.startup.page": 0,
+    "network.proxy.type": 0,
+    "network.http.http3.enable": false
+  },
+  "pcap_sha256": "02b784b9fc82e214ccd0018a1a4aa184e5a537fd4a6ec19e309adb5b256ebdd0",
+  "independent_decoded_sections": 33,
+  "independent_undecoded_sections": 0,
+  "comparison": [
+    {
+      "path": "/scenario",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 286,
+      "exact_bytes": 286,
+      "preset_bytes": 286,
+      "preset_fields_equal": true
+    },
+    {
+      "path": "/step/0",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 100,
+      "exact_bytes": 100,
+      "preset_bytes": 24,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/1",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 263,
+      "exact_bytes": 263,
+      "preset_bytes": 262,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/2",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 66,
+      "exact_bytes": 66,
+      "preset_bytes": 65,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/3",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 67,
+      "exact_bytes": 67,
+      "preset_bytes": 66,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/4",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 493,
+      "exact_bytes": 493,
+      "preset_bytes": 530,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/5",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 474,
+      "exact_bytes": 474,
+      "preset_bytes": 505,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/6",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 478,
+      "exact_bytes": 478,
+      "preset_bytes": 513,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/7",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 491,
+      "exact_bytes": 491,
+      "preset_bytes": 528,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/8",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 44,
+      "exact_bytes": 44,
+      "preset_bytes": 43,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/complete",
+      "exact_fields_equal": true,
+      "exact_block_equal": true,
+      "exact_hpack_fields_equal": true,
+      "browser_bytes": 27,
+      "exact_bytes": 27,
+      "preset_bytes": 26,
+      "preset_fields_equal": false
+    }
+  ],
+  "control": {
+    "browser": {
+      "settings": [
+        [
+          {
+            "http2.settings.id": "1",
+            "http2.settings.header_table_size": "65536"
+          },
+          {
+            "http2.settings.id": "2",
+            "http2.settings.enable_push": "0"
+          },
+          {
+            "http2.settings.id": "4",
+            "http2.settings.initial_window_size": "131072"
+          },
+          {
+            "http2.settings.id": "5",
+            "http2.settings.max_frame_size": "16384"
+          }
+        ]
+      ],
+      "encoder_fragments": [],
+      "decoder_fragments": [],
+      "unidirectional_types": [],
+      "unidirectional_streams": {},
+      "priorities": [],
+      "frames": [
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x00"
+        },
+        {
+          "type": 8,
+          "stream": 0,
+          "flags": "0x00"
+        },
+        {
+          "type": 8,
+          "stream": 3,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 5,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 7,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 9,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 11,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 13,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 15,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 17,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 8,
+          "stream": 19,
+          "flags": "0x00"
+        },
+        {
+          "type": 8,
+          "stream": 21,
+          "flags": "0x00"
+        },
+        {
+          "type": 8,
+          "stream": 23,
+          "flags": "0x00"
+        }
+      ]
+    },
+    "surf-preset": {
+      "settings": [
+        [
+          {
+            "http2.settings.id": "1",
+            "http2.settings.header_table_size": "65536"
+          },
+          {
+            "http2.settings.id": "2",
+            "http2.settings.enable_push": "0"
+          },
+          {
+            "http2.settings.id": "4",
+            "http2.settings.initial_window_size": "131072"
+          },
+          {
+            "http2.settings.id": "5",
+            "http2.settings.max_frame_size": "16384"
+          }
+        ]
+      ],
+      "encoder_fragments": [],
+      "decoder_fragments": [],
+      "unidirectional_types": [],
+      "unidirectional_streams": {},
+      "priorities": [],
+      "frames": [
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x00"
+        },
+        {
+          "type": 8,
+          "stream": 0,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        }
+      ]
+    },
+    "surf-exact-input": {
+      "settings": [
+        [
+          {
+            "http2.settings.id": "1",
+            "http2.settings.header_table_size": "65536"
+          },
+          {
+            "http2.settings.id": "2",
+            "http2.settings.enable_push": "0"
+          },
+          {
+            "http2.settings.id": "4",
+            "http2.settings.initial_window_size": "131072"
+          },
+          {
+            "http2.settings.id": "5",
+            "http2.settings.max_frame_size": "16384"
+          }
+        ]
+      ],
+      "encoder_fragments": [],
+      "decoder_fragments": [],
+      "unidirectional_types": [],
+      "unidirectional_streams": {},
+      "priorities": [],
+      "frames": [
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x00"
+        },
+        {
+          "type": 8,
+          "stream": 0,
+          "flags": "0x00"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        },
+        {
+          "type": 4,
+          "stream": 0,
+          "flags": "0x01"
+        }
+      ]
+    }
+  },
+  "requests": [
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/scenario",
+      "stream_id": 3,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/scenario"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "upgrade-insecure-requests",
+          "value": "1"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "document"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "navigate"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "none"
+        },
+        {
+          "name": "sec-fetch-user",
+          "value": "?1"
+        },
+        {
+          "name": "priority",
+          "value": "u=0, i"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "82058661042d43b0c7418b089d5c0b8170dc6db71e07877abed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae053b0497ca589d34d1f43aeba0c41a4c7a98f33a69a3fdf9a68fa1d75d0620d263d4c79a68fbed00177febe58f9fbed00177b518b2d4b70ddf45abefb4005df50929bd9abfa5242cb40d25fa523b3e94f684c9f4092b6b9ac1c8558d520a4b6c2ad617b5a54251f810f408a4148b4a549275a42a13f8690e4b692d49f408a4148b4a549275a93c85f86a87dcd30d25f408a4148b4a549275906497f83a8f517408a4148b4a549275ad416cf82ff034086aec31ec327d785b6007d286f4082497f864d833505b11f",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [],
+        "fields_hex": "82058661042d43b0c7418b089d5c0b8170dc6db71e07877abed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae053b0497ca589d34d1f43aeba0c41a4c7a98f33a69a3fdf9a68fa1d75d0620d263d4c79a68fbed00177febe58f9fbed00177b518b2d4b70ddf45abefb4005df50929bd9abfa5242cb40d25fa523b3e94f684c9f4092b6b9ac1c8558d520a4b6c2ad617b5a54251f810f408a4148b4a549275a42a13f8690e4b692d49f408a4148b4a549275a93c85f86a87dcd30d25f408a4148b4a549275906497f83a8f517408a4148b4a549275ad416cf82ff034086aec31ec327d785b6007d286f4082497f864d833505b11f"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/0",
+      "stream_id": 5,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/0"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "3fe11f82058561092d6c03c987c87f0883f963e7c7c673979d29ad1718602275702e05c371b6dc780c2085a87618ff7f06842d35a7d77f068321ec477f068840e92ac7b0d31aaf7f0583b606bf4085aec1cd48ff86a8eb10649cbf5886a8eb10649cbfc6",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          4096
+        ],
+        "fields_hex": "82058561092d6c03c987c87f0883f963e7c7c673979d29ad1718602275702e05c371b6dc780c2085a87618ff7f06842d35a7d77f068321ec477f068840e92ac7b0d31aaf7f0583b606bf4085aec1cd48ff86a8eb10649cbf5886a8eb10649cbfc6"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/1",
+      "stream_id": 7,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/1"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-fixed"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "3fe11f82058561092d6c07d187d0c5cecdc41f088fba51d85b1420eb4db615694de4b27f1f11911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f60928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf7eff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7fc5c4c3c2c1c0c8",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          4096
+        ],
+        "fields_hex": "82058561092d6c07d187d0c5cecdc41f088fba51d85b1420eb4db615694de4b27f1f11911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f60928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf7eff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7fc5c4c3c2c1c0c8"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/2",
+      "stream_id": 9,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/2"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-fixed"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "3fe1ff0382058561092d6c0bd387d2c7d0cfc61f088fba51d85b1420eb4db615694de4b27f1f30911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7fbfbec5c4c3c2c1c0c8",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          65536
+        ],
+        "fields_hex": "82058561092d6c0bd387d2c7d0cfc61f088fba51d85b1420eb4db615694de4b27f1f30911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7fbfbec5c4c3c2c1c0c8"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/3",
+      "stream_id": 11,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/3"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "3fe1ff0382058561092d6c33d387d2c7d0cfc61f0890ba51d85b1420eb4db615624e3aa62c9f1f30911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7fbfbec5c4c3c2c1c0c8",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          65536
+        ],
+        "fields_hex": "82058561092d6c33d387d2c7d0cfc61f0890ba51d85b1420eb4db615624e3aa62c9f1f30911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7fbfbec5c4c3c2c1c0c8"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/4",
+      "stream_id": 13,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/4"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "3f6182058561092d6c35418b089d5c0b8170dc6db71e07870f2bbed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae05383f963e7518b2d4b70ddf45abefb4005df0f01929bd9abfa5242cb40d25fa523b3e94f684c9f0f24979d29ad1718602275702e05c371b6dc780c2085a87618ff1f0890ba51d85b1420eb4db615624e3aa62c9f1f11911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f60928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf0f2fff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f408a4148b4a549275a42a13f842d35a7d7408a4148b4a549275a93c85f8321ec47408a4148b4a549275906497f8840e92ac7b0d31aaf4086aec31ec327d783b606bf4085aec1cd48ff86a8eb10649cbf5886a8eb10649cbf4082497f864d833505b11f",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          128
+        ],
+        "fields_hex": "82058561092d6c35418b089d5c0b8170dc6db71e07870f2bbed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae05383f963e7518b2d4b70ddf45abefb4005df0f01929bd9abfa5242cb40d25fa523b3e94f684c9f0f24979d29ad1718602275702e05c371b6dc780c2085a87618ff1f0890ba51d85b1420eb4db615624e3aa62c9f1f11911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7f60928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf0f2fff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f408a4148b4a549275a42a13f842d35a7d7408a4148b4a549275a93c85f8321ec47408a4148b4a549275906497f8840e92ac7b0d31aaf4086aec31ec327d783b606bf4085aec1cd48ff86a8eb10649cbf5886a8eb10649cbf4082497f864d833505b11f"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/5",
+      "stream_id": 15,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/5"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "3fe11f82058561092d6c37418b089d5c0b8170dc6db71e07877abed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae05383f963e7518b2d4b70ddf45abefb4005df50929bd9abfa5242cb40d25fa523b3e94f684c9f73979d29ad1718602275702e05c371b6dc780c2085a87618ff1f0890ba51d85b1420eb4db615624e3aa62c9f60921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff7e928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf7f00ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f408a4148b4a549275a42a13f842d35a7d7408a4148b4a549275a93c85f8321ec47408a4148b4a549275906497f8840e92ac7b0d31aaf4086aec31ec327d783b606bf4085aec1cd48ff86a8eb10649cbfcdcc",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          4096
+        ],
+        "fields_hex": "82058561092d6c37418b089d5c0b8170dc6db71e07877abed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae05383f963e7518b2d4b70ddf45abefb4005df50929bd9abfa5242cb40d25fa523b3e94f684c9f73979d29ad1718602275702e05c371b6dc780c2085a87618ff1f0890ba51d85b1420eb4db615624e3aa62c9f60921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff7e928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf7f00ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f408a4148b4a549275a42a13f842d35a7d7408a4148b4a549275a93c85f8321ec47408a4148b4a549275906497f8840e92ac7b0d31aaf4086aec31ec327d783b606bf4085aec1cd48ff86a8eb10649cbfcdcc"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/6",
+      "stream_id": 17,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/6"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "2082058561092d6c39018b089d5c0b8170dc6db71e07870f2bbed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae00f0483f963e70f028b2d4b70ddf45abefb4005df0f01929bd9abfa5242cb40d25fa523b3e94f684c9f0f24979d29ad1718602275702e05c371b6dc780c2085a87618ff0f11921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff0f11928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf0f11ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f008a4148b4a549275a42a13f842d35a7d7008a4148b4a549275a93c85f8321ec47008a4148b4a549275906497f8840e92ac7b0d31aaf0086aec31ec327d783b606bf0085aec1cd48ff86a8eb10649cbf0f0986a8eb10649cbf0082497f864d833505b11f",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          0
+        ],
+        "fields_hex": "82058561092d6c39018b089d5c0b8170dc6db71e07870f2bbed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae00f0483f963e70f028b2d4b70ddf45abefb4005df0f01929bd9abfa5242cb40d25fa523b3e94f684c9f0f24979d29ad1718602275702e05c371b6dc780c2085a87618ff0f11921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff0f11928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf0f11ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f008a4148b4a549275a42a13f842d35a7d7008a4148b4a549275a93c85f8321ec47008a4148b4a549275906497f8840e92ac7b0d31aaf0086aec31ec327d783b606bf0085aec1cd48ff86a8eb10649cbf0f0986a8eb10649cbf0082497f864d833505b11f"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/7",
+      "stream_id": 19,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/7"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "3fe11f82058561092d6c3b418b089d5c0b8170dc6db71e07877abed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae05383f963e7518b2d4b70ddf45abefb4005df50929bd9abfa5242cb40d25fa523b3e94f684c9f73979d29ad1718602275702e05c371b6dc780c2085a87618ff1f0890ba51d85b1420eb4db615624e3aa62c9f60921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff7e928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf7f00ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f408a4148b4a549275a42a13f842d35a7d7408a4148b4a549275a93c85f8321ec47408a4148b4a549275906497f8840e92ac7b0d31aaf4086aec31ec327d783b606bf4085aec1cd48ff86a8eb10649cbf5886a8eb10649cbf4082497f864d833505b11f",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [
+          4096
+        ],
+        "fields_hex": "82058561092d6c3b418b089d5c0b8170dc6db71e07877abed07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28102e16fed4b3bdc0b6fae0fed4c452753b02004000802a61358594fe580b6fae05383f963e7518b2d4b70ddf45abefb4005df50929bd9abfa5242cb40d25fa523b3e94f684c9f73979d29ad1718602275702e05c371b6dc780c2085a87618ff1f0890ba51d85b1420eb4db615624e3aa62c9f60921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff7e928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebf7f00ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f408a4148b4a549275a42a13f842d35a7d7408a4148b4a549275a93c85f8321ec47408a4148b4a549275906497f8840e92ac7b0d31aaf4086aec31ec327d783b606bf4085aec1cd48ff86a8eb10649cbf5886a8eb10649cbf4082497f864d833505b11f"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/step/8",
+      "stream_id": 21,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/step/8"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "82058561092d6c3dcd87cccbcac9c81f0890ba51d85b1420eb4db615624e3aa62c9fc7c6c5c4c3c2c1c0bfbe",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [],
+        "fields_hex": "82058561092d6c3dcd87cccbcac9c81f0890ba51d85b1420eb4db615624e3aa62c9fc7c6c5c4c3c2c1c0bfbe"
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h2",
+      "method": "GET",
+      "path": "/complete",
+      "stream_id": 23,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":path",
+          "value": "/complete"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55680"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55680/scenario"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "priority",
+          "value": "u=4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "te",
+          "value": "trailers"
+        }
+      ],
+      "header_block_hex": "8205876087a6ba0a92ffcd87cccbcac9c8c7c6c5c4c3c2c1c0bfbe",
+      "independent_fields_decoded": true,
+      "hpack": {
+        "updates": [],
+        "fields_hex": "8205876087a6ba0a92ffcd87cccbcac9c8c7c6c5c4c3c2c1c0bfbe"
+      }
+    }
+  ]
+}

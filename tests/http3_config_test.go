@@ -28,10 +28,17 @@ import (
 type (
 	h3Setting        struct{ id, value uint64 }
 	h3RequestCapture struct {
-		settings []h3Setting
-		headers  []qpack.HeaderField
+		settings     []h3Setting
+		headers      []qpack.HeaderField
+		greaseFrames []h3WireFrame
+		headerBlock  []byte
 	}
 )
+type h3WireFrame struct {
+	kind     uint64
+	payload  []byte
+	streamID quic.StreamID
+}
 type h3InitialCapture struct {
 	version               uint32
 	size, sourceCIDLength int
@@ -61,6 +68,7 @@ func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
 }
 
 type h3Peer struct {
+	controlFrames chan h3WireFrame
 	qpackCapacity *uint64
 	qpackStreams  chan h3QPACKCapture
 	packet        *h3CaptureConn
@@ -100,9 +108,10 @@ func newH3PeerWithQPACK(t *testing.T, capacity *uint64) *h3Peer {
 		t.Fatal(err)
 	}
 	p := &h3Peer{
-		packet:   &h3CaptureConn{PacketConn: udp},
-		requests: make(chan h3RequestCapture, 16),
-		errors:   make(chan error, 16),
+		controlFrames: make(chan h3WireFrame, 128),
+		packet:        &h3CaptureConn{PacketConn: udp},
+		requests:      make(chan h3RequestCapture, 16),
+		errors:        make(chan error, 16),
 	}
 	if capacity != nil {
 		p.qpackCapacity = new(*capacity)
@@ -216,7 +225,25 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 					settings = append(settings, h3Setting{id, value})
 				}
 				close(settingsReady)
-				io.Copy(io.Discard, stream)
+				for {
+					kind, err := quicvarint.Read(r)
+					if err != nil {
+						return
+					}
+					length, err := quicvarint.Read(r)
+					if err != nil || length > 1<<20 {
+						return
+					}
+					payload := make([]byte, length)
+					if _, err := io.ReadFull(stream, payload); err != nil {
+						return
+					}
+					select {
+					case p.controlFrames <- h3WireFrame{kind, payload, stream.StreamID()}:
+					case <-ctx.Done():
+						return
+					}
+				}
 			}()
 		}
 	}()
@@ -229,7 +256,22 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 			defer stream.Close()
 			stream.SetReadDeadline(time.Now().Add(5 * time.Second))
 			r := quicvarint.NewReader(stream)
+			var grease []h3WireFrame
 			typ, err := quicvarint.Read(r)
+			for err == nil && typ >= 33 && (typ-33)%31 == 0 {
+				length, e := quicvarint.Read(r)
+				if e != nil || length > 1<<20 {
+					p.fail(fmt.Errorf("invalid request GREASE size"))
+					return
+				}
+				payload := make([]byte, length)
+				if _, e = io.ReadFull(stream, payload); e != nil {
+					p.fail(e)
+					return
+				}
+				grease = append(grease, h3WireFrame{typ, payload, stream.StreamID()})
+				typ, err = quicvarint.Read(r)
+			}
 			if err != nil || typ != 1 {
 				p.fail(fmt.Errorf("first request frame = %d: %v", typ, err))
 				return
@@ -264,7 +306,7 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 			case <-conn.Context().Done():
 				return
 			}
-			p.requests <- h3RequestCapture{settings: slices.Clone(settings), headers: headers}
+			p.requests <- h3RequestCapture{settings: slices.Clone(settings), headers: headers, greaseFrames: grease, headerBlock: buf}
 			var block bytes.Buffer
 			enc := qpack.NewEncoder(&block)
 			if err := enc.WriteField(qpack.HeaderField{Name: ":status", Value: "200"}); err != nil {

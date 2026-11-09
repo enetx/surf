@@ -254,6 +254,10 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 
 	if rt.ja.builder.http2settings != nil {
 		h := rt.ja.builder.http2settings
+		t.HPACK = h.hpack.Clone()
+		t.MaxEncoderHeaderTableSize = h.maxEncoderHeaderTableSize
+		t.HeaderPriority = h.headerPriority
+		t.ChainStreamDependencies = h.chainStreamDependencies
 
 		// Pre-allocate settings slice to avoid multiple allocations
 		t.Settings = make([]http2.Setting, 0, 7)

@@ -1,0 +1,2673 @@
+{
+  "schema": 1,
+  "browser": "chrome",
+  "protocol": "h3",
+  "server_capacity": 4096,
+  "browser_metadata": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/156.0.8078.79",
+    "revision": "@a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "jsVersion": "15.6.75.27"
+  },
+  "captured_at": "2026-11-09T14:30:18.779Z",
+  "browser_flags": [
+    "--headless",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-background-networking",
+    "--no-proxy-server",
+    "--remote-debugging-port=0",
+    "--user-data-dir=TEMPORARY_PROFILE",
+    "--ignore-certificate-errors-spki-list=kFhupJxNX36NdbXz+x+k9RkAKYEidspF7HvYB4+C/ZA=",
+    "--enable-quic",
+    "--origin-to-force-quic-on=127.0.0.1:55668",
+    "about:blank"
+  ],
+  "browser_prefs": {},
+  "pcap_sha256": "26e45088eecbe61fcee2d9fedf26f7e776014a809e71e5fd0a747174c4403bb6",
+  "independent_decoded_sections": 33,
+  "independent_undecoded_sections": 0,
+  "comparison": [
+    {
+      "path": "/scenario",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 20,
+      "exact_bytes": 435,
+      "preset_bytes": 451,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/0",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 20,
+      "exact_bytes": 346,
+      "preset_bytes": 450,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/1",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 24,
+      "exact_bytes": 583,
+      "preset_bytes": 687,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/2",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 24,
+      "exact_bytes": 583,
+      "preset_bytes": 687,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/3",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 24,
+      "exact_bytes": 584,
+      "preset_bytes": 688,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/4",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 24,
+      "exact_bytes": 584,
+      "preset_bytes": 688,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/5",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 24,
+      "exact_bytes": 585,
+      "preset_bytes": 689,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/6",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 23,
+      "exact_bytes": 566,
+      "preset_bytes": 670,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/7",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 24,
+      "exact_bytes": 585,
+      "preset_bytes": 689,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/step/8",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 24,
+      "exact_bytes": 585,
+      "preset_bytes": 689,
+      "preset_fields_equal": false
+    },
+    {
+      "path": "/complete",
+      "exact_fields_equal": true,
+      "exact_block_equal": false,
+      "browser_bytes": 23,
+      "exact_bytes": 568,
+      "preset_bytes": 672,
+      "preset_fields_equal": false
+    }
+  ],
+  "control": {
+    "browser": {
+      "settings": [
+        [
+          {
+            "id": "0x0000000000000001",
+            "value": "65536"
+          },
+          {
+            "id": "0x0000000000000006",
+            "value": "262144"
+          },
+          {
+            "id": "0x0000000000000007",
+            "value": "100"
+          },
+          {
+            "id": "0x0000000000000033",
+            "value": "1"
+          },
+          {
+            "id": "0x00000006e6f28191",
+            "value": "2043720270"
+          }
+        ]
+      ],
+      "encoder_fragments": [
+        "3fe11fc08b089d5c0b8170dc6db71c7bc18661042d43b0c7674148b1275ad1ffa2fe749d37215aed83aa4fe7efbc1fcbdfcfd29fcde9ec3d26b69fe7efbc1fc85b73f96b4148b1275ad1ad49e33505023f306d4148b1275ad1ad5d034ca7b29f07226d61634f5322ff20ded07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda98ca39282a117a7b0f49580b6e2e05c0b814dc394761986d975765cddec497ca589d34d1f43aeba0c41a4c7a98f33a69a3fdf9a68fa1d75d0620d263d4c79a68fbed00177fe8d48e62b1d3cd1f46a4731581f734bf46a473158f058ebfa352398ac0ebaa6faf963e7efb4005defa1d75d0620d263d4c20d35459162f924e3aa62fdf782367efb4005dd6a4148b4a549275906497f83a8f5176a4148b4a549275a93c85f86a87dcd30d25f6a4148b4a549275ad416cf023f316a4148b4a549275a42a13f8690e4b692d49fdf929bd9abfa5242cb40d25fa523b3e94f684c9fff098b2d4b70ddf45abefb4005df66aec31ec327d785b6007d286f",
+        "c18561092d6c0365aec1cd48ff86a8eb10649cbf888840e92ac7b0d31aaf888321ec4787842d35a7d7cd979d29ad1718602275702e05c371b6dc71e61042d43b0c7f8685b600fd286f",
+        "c18561092d6c07ff158fba51d85b1420eb4db615694de4b27fc5911c1e7cf9f3e7cf9f3e7cf9f3e7cf9f3e7fc5928e0f5ebd7af5ebd7af5ebd7af5ebd7af5ebfc5ff32241efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7efdfbf7f",
+        "c18561092d6c0b",
+        "c18561092d6c33ff1590ba51d85b1420eb4db615624e3aa62c9f",
+        "c18561092d6c35",
+        "c18561092d6c37c5921c1dfbf7efdfbf7efdfbf7efdfbf7efdfbff",
+        "c18561092d6c39",
+        "c18561092d6c3b",
+        "c18561092d6c3d",
+        "c1876087a6ba0a92ff"
+      ],
+      "decoder_fragments": [],
+      "unidirectional_types": [
+        "0x0000000000000000",
+        "0x0000000000000002"
+      ],
+      "unidirectional_streams": {
+        "2": 0,
+        "10": 2
+      },
+      "priorities": [
+        {
+          "stream": 0,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 4,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 8,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 12,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 16,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 20,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 24,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 28,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 32,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 36,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 40,
+          "value": "u=1, i"
+        }
+      ],
+      "frames": [
+        {
+          "type": "0x0000000000000004",
+          "stream": 2,
+          "length": 31,
+          "payload_hex": "018001000006800400000740643301c0000006e6f28191c000000079d0b24e"
+        },
+        {
+          "type": "0x00000000e3e8cd20",
+          "stream": 2,
+          "length": 1,
+          "payload_hex": "39"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "00753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "04753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "08753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "0c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "10753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "14753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "18753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "1c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "20753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "24753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "28753d312c2069"
+        }
+      ]
+    },
+    "surf-preset": {
+      "settings": [
+        [
+          {
+            "id": "0x0000000000000001",
+            "value": "65536"
+          },
+          {
+            "id": "0x0000000000000006",
+            "value": "262144"
+          },
+          {
+            "id": "0x0000000000000007",
+            "value": "100"
+          },
+          {
+            "id": "0x0000000000000033",
+            "value": "1"
+          },
+          {
+            "id": "0x000000032596baf5",
+            "value": "2906141547"
+          }
+        ]
+      ],
+      "encoder_fragments": [
+        "3fe11f"
+      ],
+      "decoder_fragments": [],
+      "unidirectional_types": [
+        "0x0000000000000000",
+        "0x0000000000000002"
+      ],
+      "unidirectional_streams": {
+        "2": 0,
+        "10": 2
+      },
+      "priorities": [
+        {
+          "stream": 0,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 4,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 8,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 12,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 16,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 20,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 24,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 28,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 32,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 36,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 40,
+          "value": "u=0, i"
+        }
+      ],
+      "frames": [
+        {
+          "type": "0x0000000000000004",
+          "stream": 2,
+          "length": 31,
+          "payload_hex": "018001000006800400000740643301c00000032596baf5c0000000ad38336b"
+        },
+        {
+          "type": "0x0000000145ca75fb",
+          "stream": 2,
+          "length": 2,
+          "payload_hex": "e538"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "00753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "04753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "08753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "0c753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "10753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "14753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "18753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "1c753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "20753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "24753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "28753d302c2069"
+        }
+      ]
+    },
+    "surf-exact-input": {
+      "settings": [
+        [
+          {
+            "id": "0x0000000000000001",
+            "value": "65536"
+          },
+          {
+            "id": "0x0000000000000006",
+            "value": "262144"
+          },
+          {
+            "id": "0x0000000000000007",
+            "value": "100"
+          },
+          {
+            "id": "0x0000000000000033",
+            "value": "1"
+          },
+          {
+            "id": "0x0000001e1d901095",
+            "value": "1185915085"
+          }
+        ]
+      ],
+      "encoder_fragments": [
+        "3fe11f"
+      ],
+      "decoder_fragments": [],
+      "unidirectional_types": [
+        "0x0000000000000000",
+        "0x0000000000000002"
+      ],
+      "unidirectional_streams": {
+        "2": 0,
+        "10": 2
+      },
+      "priorities": [
+        {
+          "stream": 0,
+          "value": "u=0, i"
+        },
+        {
+          "stream": 4,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 8,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 12,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 16,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 20,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 24,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 28,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 32,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 36,
+          "value": "u=1, i"
+        },
+        {
+          "stream": 40,
+          "value": "u=1, i"
+        }
+      ],
+      "frames": [
+        {
+          "type": "0x0000000000000004",
+          "stream": 2,
+          "length": 31,
+          "payload_hex": "018001000006800400000740643301c000001e1d901095c000000046afa0cd"
+        },
+        {
+          "type": "0x00000017d94f101b",
+          "stream": 2,
+          "length": 2,
+          "payload_hex": "87da"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "00753d302c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "04753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "08753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "0c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "10753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "14753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "18753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "1c753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "20753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "24753d312c2069"
+        },
+        {
+          "type": "0x00000000000f0700",
+          "stream": 2,
+          "length": 7,
+          "payload_hex": "28753d312c2069"
+        }
+      ]
+    }
+  },
+  "requests": [
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/scenario",
+      "stream_id": 0,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/scenario"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "upgrade-insecure-requests",
+          "value": "1"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "accept",
+          "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "none"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "navigate"
+        },
+        {
+          "name": "sec-fetch-user",
+          "value": "?1"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "document"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "priority",
+          "value": "u=0, i"
+        }
+      ],
+      "header_block_hex": "0f00d18dd78c8b8a89ff1f888786858483828180",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 15,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 13
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 12
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 11
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 10
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          },
+          {
+            "kind": "indexed-static",
+            "index": 94
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 8
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 7
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 6
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 5
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 4
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 3
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 2
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/0",
+      "stream_id": 4,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/0"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "1600d194d78685e7908f9291dd84838281898880",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 22,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 20
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 6
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 5
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 16
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 15
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 18
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 17
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 4
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 3
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 2
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 8
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/1",
+      "stream_id": 8,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/1"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-fixed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "1b00d199d7848ae79583949796dd898887868e8d82818085",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 27,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 25
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 4
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 10
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 21
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 3
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 20
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 22
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 8
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 7
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 6
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 14
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 13
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 2
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 5
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/2",
+      "stream_id": 12,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/2"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-fixed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "1c00d19ad7808be79684959897dd8a8988878f8e83828186",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 28,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 26
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 11
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 22
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 4
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 21
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 24
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 23
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 10
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 8
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 7
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 15
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 14
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 3
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 2
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 6
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/3",
+      "stream_id": 16,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/3"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "1e00d19cd7818de79880979a99dd8c8b8a89919085848388",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 30,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 28
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 13
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 24
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 26
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 25
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 12
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 11
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 10
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 16
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 5
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 4
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 3
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 8
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/4",
+      "stream_id": 20,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/4"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "a=xxxxxxxxxxxxxxxxx"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "1f00d19dd7808ee79981989b9add8d8c8b8a929186858489",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 31,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 29
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 14
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 25
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 24
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 27
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 26
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 13
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 12
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 11
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 10
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 18
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 6
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 5
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 4
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/5",
+      "stream_id": 24,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/5"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "2100d19fd78190e79b839a9d9cdd8f8e8d8c94938786808b",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 33,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 31
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 16
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 27
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 3
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 26
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 28
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 15
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 14
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 13
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 12
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 20
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 19
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 7
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 6
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 11
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/6",
+      "stream_id": 28,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/6"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "2200d1a0d78091e79c9b9e9ddd908f8e8d95948887818c",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 34,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 32
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 17
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 28
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 27
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 30
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 29
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 16
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 15
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 14
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 13
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 21
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 20
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 8
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 7
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 1
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 12
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/7",
+      "stream_id": 32,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/7"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "2300d1a1d78092e79d859c9f9edd91908f8e96958988828d",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 35,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 33
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 18
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 5
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 28
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 31
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 30
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 16
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 15
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 14
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 22
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 21
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 8
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 2
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 13
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/step/8",
+      "stream_id": 36,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/step/8"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "authorization",
+          "value": "Bearer capture-changed"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "2400d1a2d78093e79e869da09fdd9291908f97968a89838e",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 36,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 34
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 19
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 30
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 6
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 32
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 31
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 18
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 16
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 15
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 22
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 10
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 9
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 3
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 14
+          }
+        ]
+      }
+    },
+    {
+      "label": "browser",
+      "protocol": "h3",
+      "method": "GET",
+      "path": "/complete",
+      "stream_id": 40,
+      "fields": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "127.0.0.1:55668"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/complete"
+        },
+        {
+          "name": "pragma",
+          "value": "no-cache"
+        },
+        {
+          "name": "cache-control",
+          "value": "no-cache"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "accept",
+          "value": "*/*"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "same-origin"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "cors"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "empty"
+        },
+        {
+          "name": "referer",
+          "value": "https://127.0.0.1:55668/scenario"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "cookie",
+          "value": "b=yyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "cookie",
+          "value": "c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        },
+        {
+          "name": "cookie",
+          "value": "a=vvvvvvvvvvvvvvvvvv"
+        },
+        {
+          "name": "priority",
+          "value": "u=1, i"
+        }
+      ],
+      "header_block_hex": "2500d1a3d78094e79f9ea1a0dd9392919098978b8a848f",
+      "independent_fields_decoded": true,
+      "qpack": {
+        "required_insert_count": 37,
+        "delta_base": 0,
+        "fields": [
+          {
+            "kind": "indexed-static",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 35
+          },
+          {
+            "kind": "indexed-static",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 0
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 20
+          },
+          {
+            "kind": "indexed-static",
+            "index": 39
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 31
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 30
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 33
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 32
+          },
+          {
+            "kind": "indexed-static",
+            "index": 29
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 19
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 18
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 17
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 16
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 24
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 23
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 11
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 10
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 4
+          },
+          {
+            "kind": "indexed-dynamic",
+            "index": 15
+          }
+        ]
+      }
+    }
+  ]
+}
