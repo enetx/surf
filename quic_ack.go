@@ -6,8 +6,10 @@ import (
 	"github.com/enetx/quic-go"
 )
 
-type AckReorderingMode = quic.AckReorderingMode
-type AckECNMode = quic.AckECNMode
+type (
+	AckReorderingMode = quic.AckReorderingMode
+	AckECNMode        = quic.AckECNMode
+)
 
 const (
 	AckReorderingNative    = quic.AckReorderingNative
@@ -23,6 +25,7 @@ func (q *QUICSettings) ackPolicy() *quic.AckPolicy {
 	if h.AckPolicy == nil {
 		h.AckPolicy = &quic.AckPolicy{}
 	}
+
 	return h.AckPolicy
 }
 

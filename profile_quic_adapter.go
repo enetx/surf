@@ -19,22 +19,27 @@ func (a quicadapter) AckPacketThreshold(n uint64) profiles.QUICConfig {
 	a.s.AckPacketThreshold(n)
 	return a
 }
+
 func (a quicadapter) AckDecimation(after, n uint64) profiles.QUICConfig {
 	a.s.AckDecimation(after, n)
 	return a
 }
+
 func (a quicadapter) AckDelayRTTDivisor(n uint32) profiles.QUICConfig {
 	a.s.AckDelayRTTDivisor(n)
 	return a
 }
+
 func (a quicadapter) MinAckDelay(delay time.Duration) profiles.QUICConfig {
 	a.s.MinAckDelay(delay)
 	return a
 }
+
 func (a quicadapter) AckReordering(mode quic.AckReorderingMode) profiles.QUICConfig {
 	a.s.AckReordering(mode)
 	return a
 }
+
 func (a quicadapter) AckMissingPacketLimit(n uint64) profiles.QUICConfig {
 	a.s.AckMissingPacketLimit(n)
 	return a

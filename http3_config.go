@@ -111,15 +111,18 @@ func (h *HTTP3Settings) validateQUICConfig() error {
 	if err := h.qpackConfig.Validate(); err != nil {
 		return err
 	}
+
 	handshake := h.clientHandshake
 	if handshake == nil && h.quicConfig != nil {
 		handshake = h.quicConfig.ClientHandshake
 	}
+
 	if handshake != nil {
 		if err := handshake.AckPolicy.Validate(handshake.MaxAckDelay); err != nil {
 			return err
 		}
 	}
+
 	length := 0
 
 	if h.connectionIDLength != nil {
