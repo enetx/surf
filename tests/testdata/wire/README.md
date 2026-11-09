@@ -19,6 +19,9 @@ with PORT. These are expected client wire snapshots, not independent raw browser
 Header encoding and control frames have separate regression suites:
 `tests/http2_browser_encoding_test.go` checks browser HPACK sensitivity and the
 19/20-byte cookie-pair boundary, plus peer table growth beyond 4096 bytes;
+`tests/tools/wirecapture/browser_sequence_test.go` replays eleven original
+Chromium HPACK blocks byte for byte and checks Firefox's complete sequence,
+including table shrink/growth, zero capacity and changed credentials;
 `tests/http2_header_encoding_test.go` exercises
 fluent overrides. `tests/http3_wire_test.go` checks browser-specific GREASE,
 initial priority updates, cookie fields and custom frame factories. Codec-level

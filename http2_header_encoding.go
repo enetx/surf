@@ -17,11 +17,13 @@ const (
 	HPACKDefault              = http2.HPACKDefault
 	HPACKWithoutIndexing      = http2.HPACKWithoutIndexing
 	HPACKNeverIndex           = http2.HPACKNeverIndex
+	HPACKIncrementalIndexing  = http2.HPACKIncrementalIndexing
 	HPACKHuffmanDefault       = http2.HPACKHuffmanDefault
 	HPACKHuffmanAlways        = http2.HPACKHuffmanAlways
 	HPACKHuffmanNever         = http2.HPACKHuffmanNever
 	HPACKNameReferenceDefault = http2.HPACKNameReferenceDefault
 	HPACKNameReferenceLast    = http2.HPACKNameReferenceLast
+	HPACKNameReferenceFirst   = http2.HPACKNameReferenceFirst
 )
 
 func (h *HTTP2Settings) hpackConfig() *http2.HPACKConfig {

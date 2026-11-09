@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
@@ -87,11 +86,17 @@ func TestIndependentBrowserHTTP2Sequence(t *testing.T) {
 				au, ab := splitTableUpdates(t, actual)
 				expectedUpdates = append(expectedUpdates, eu...)
 				actualUpdates = append(actualUpdates, au...)
-				if browser == "firefox" {
-					require.True(t, bytes.Equal(eb, ab), "Firefox HPACK differs from browser at %s", want.Path)
+				if browser == "chrome" {
+					require.Equal(t, expected, actual, "Chromium raw HPACK differs at %s", want.Path)
+				} else {
+					require.Equal(t, eb, ab, "Firefox HPACK fields differ at %s", want.Path)
+					if i >= 2 {
+						require.Equal(t, eu, au, "Firefox table updates differ at %s", want.Path)
+					}
 				}
 			}
 			require.Equal(t, expectedUpdates, actualUpdates, "peer table size updates")
+			t.Logf("%s: matched all %d independent browser HPACK field sections", browser, len(fixture.Requests))
 		})
 	}
 }

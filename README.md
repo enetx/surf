@@ -275,6 +275,11 @@ defer client.Close()
 
 `HpackPolicy`, `HpackIndexingLimit`, `HpackHuffman` and
 `HpackNameReferencePolicy` control literal representations and new table entries.
+`HPACKNameReferenceFirst` selects the first matching static name, as Chromium
+does. `HPACKIncrementalIndexing` reuses exact entries and emits incremental
+literals even when an entry is too large, emptying the table in that case.
+These are selected by the Chrome desktop and Android profiles; native defaults
+remain available through the same builder.
 `MaxEncoderHeaderTableSize` independently bounds the request encoder's table;
 `HeaderTableSize` advertises the response decoder's capacity. The browser profiles
 accept peer encoder-table growth up to the native engine's `math.MaxInt32` limit.
@@ -294,7 +299,8 @@ control request fields. Browser presets select these independently:
 | HPACK varying `:path` | Literal without indexing | Literal without indexing, including static paths |
 | HPACK Authorization | Normal indexing | Never indexed |
 | HPACK Cookie | Split pairs, normal indexing | Split pairs; pairs shorter than 20 bytes never indexed |
-| HPACK new entries | Normal capacity bound | At most half the table; none when capacity is below 128 |
+| HPACK new entries | Incremental literals; an oversized entry empties the table | At most half the table; none when capacity is below 128 |
+| HPACK literal name reference | First static match, then newest dynamic name | Exact match, otherwise last matching name |
 | HPACK Huffman | When shorter | Always for literal strings |
 | Repeated unchanged HPACK capacity | No new instruction | Table-size instruction queued |
 | HTTP/3 Cookie | Separate field per pair | Preserve a single joined field |
