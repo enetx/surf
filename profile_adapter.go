@@ -68,6 +68,36 @@ func (a h2adapter) PriorityFrames(v []http2.PriorityFrame) profiles.H2Config {
 // h3adapter wraps *HTTP3Settings to satisfy profiles.H3Config.
 type h3adapter struct{ s *HTTP3Settings }
 
+func (a h3adapter) AltUsed(enabled bool) profiles.H3Config {
+	a.s.AltUsed(enabled)
+	return a
+}
+
+func (a h3adapter) StreamPriority(urgency int8, incremental bool) profiles.H3Config {
+	a.s.StreamPriority(urgency, incremental)
+	return a
+}
+
+func (a h3adapter) QpackStreamOrder(order ...QPACKStreamType) profiles.H3Config {
+	a.s.QpackStreamOrder(order...)
+	return a
+}
+
+func (a h3adapter) QpackEagerStreamTypes(eager bool) profiles.H3Config {
+	a.s.QpackEagerStreamTypes(eager)
+	return a
+}
+
+func (a h3adapter) QpackEncoderTableCapacity(capacity uint64) profiles.H3Config {
+	a.s.QpackEncoderTableCapacity(capacity)
+	return a
+}
+
+func (a h3adapter) QpackEncoderCapacityTiming(timing QPACKCapacityTiming) profiles.H3Config {
+	a.s.QpackEncoderCapacityTiming(timing)
+	return a
+}
+
 func (a h3adapter) QpackMaxTableCapacity(v uint64) profiles.H3Config {
 	a.s.QpackMaxTableCapacity(v)
 	return a

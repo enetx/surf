@@ -8,9 +8,9 @@ import (
 	"github.com/enetx/quic-go/transportparams"
 )
 
-// Neqo randomizes its first packet number with a small common range and a
+// NewInitialPacketNumber follows Neqo's small common range and a
 // sparse larger tail. This is browser policy; the transport accepts a factory.
-func initialPacketNumber() (uint64, error) {
+func NewInitialPacketNumber() (uint64, error) {
 	var data [2]byte
 	if _, err := rand.Read(data[:]); err != nil {
 		return 0, err
@@ -24,7 +24,9 @@ func initialPacketNumber() (uint64, error) {
 	return uint64(data[0]&31) + uint64(tail<<5) + 1, nil
 }
 
-func transportParameters(version quic.Version) (*transportparams.Layout, error) {
+// NewTransportParameters creates Firefox's transport parameter layout with
+// fresh per-connection version GREASE and supported extension declarations.
+func NewTransportParameters(version quic.Version) (*transportparams.Layout, error) {
 	var data [4]byte
 	if _, err := rand.Read(data[:]); err != nil {
 		return nil, err

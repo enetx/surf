@@ -19,9 +19,9 @@ func randomQUICValue(limit uint64) (uint64, error) {
 	return n.Uint64(), nil
 }
 
-// transportParameters follows Chromium's randomized parameter layout.
+// NewTransportParameters follows Chromium's randomized parameter layout.
 // All browser values and GREASE policy live here, outside the QUIC fork.
-func transportParameters(version quic.Version) (*transportparams.Layout, error) {
+func NewTransportParameters(version quic.Version) (*transportparams.Layout, error) {
 	var randomVersion [4]byte
 	if _, err := rand.Read(randomVersion[:]); err != nil {
 		return nil, err

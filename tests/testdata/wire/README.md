@@ -71,9 +71,9 @@ HTTP/1/2 fallback. Wire tests also cover POST, profile replacement, opt-out,
 explicit values and reuse across destinations. ECH cipher choice can vary
 between AES and ChaCha; the observed Firefox ciphertext length stays 240 bytes.
 
-`tests/http3c_test.go` uses a local bare QUIC/HTTP/3 peer to decode transport
+`tests/http3_config_test.go` uses a local bare QUIC/HTTP/3 peer to decode transport
 parameters, inspect local priorities via qlog and test CID reuse, datagrams,
-SOCKS5 UDP and explicit v2. `tests/http3h_test.go` also covers explicit
+SOCKS5 UDP and explicit v2. `tests/http3_handshake_test.go` also covers explicit
 TLS templates, snapshot isolation, errors, custom Initial packet numbers/IDs,
 scrambling, real session tickets and reconnection/resumption. Public adapter tests
 live in `tests/quictls/` and cover verification and session event metadata.
@@ -85,6 +85,28 @@ size limits, fragmented streams, critical-stream errors and client/server traffi
 The outbound encoder is still static. ACK ratio, packet scheduling/coalescing,
 congestion/loss and resource-specific priority behavior are not complete browser
 replicas. A matching normalized fingerprint does not establish those behaviors.
+
+QPACK stream policy is separately selected in Surf's browser profiles and tested
+against local protocol peers. Chromium's QUICHE reserves decoder then encoder
+streams, while `QpackSendStream` writes its type on the first instruction;
+`QpackEncoder::SetDynamicTableCapacity` queues its instruction without flushing.
+See [session initialization](https://github.com/google/quiche/blob/main/quiche/quic/core/http/quic_spdy_session.cc),
+[stream writes](https://github.com/google/quiche/blob/main/quiche/quic/core/qpack/qpack_send_stream.cc)
+and [capacity/flush behavior](https://github.com/google/quiche/blob/main/quiche/quic/core/qpack/qpack_encoder.cc).
+Neqo reserves encoder then decoder streams and sends their types during HTTP/3
+initialization; capacity changes are sent from its encoder update loop. See
+[Neqo v0.31.1 connection setup](https://github.com/mozilla/neqo/blob/v0.31.1/neqo-http3/src/connection.rs)
+and [encoder updates](https://github.com/mozilla/neqo/blob/v0.31.1/neqo-qpack/src/encoder.rs).
+Surf implements these startup choices with builder overrides, not a full browser
+encoder: request field sections remain static. Existing browser JSON fixtures do
+not record all QPACK streams, instruction timing or packet scheduling, so these
+source-based policies are not a claim of independently captured packet parity.
+
+`tests/http3_qpack_test.go` checks actual stream types/IDs and capacity instructions
+from Surf, input/build snapshots, independent send/receive capacities and invalid
+builder settings. The QUIC module's `tests/http3/qpack_client_test.go` covers both
+orders, eager/lazy types, immediate/deferred announcements, absent/zero/smaller/
+larger peer limits, constrained stream credit, STOP_SENDING and dynamic responses.
 
 Surf imports HTTP/3 from the local `enetx/quic-go` fork based on official v0.65.0.
 The fork contains generic controls without browser templates or uTLS dependencies.

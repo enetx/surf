@@ -11,7 +11,6 @@ import (
 	"github.com/enetx/quic-go/transportparams"
 	"github.com/enetx/surf"
 	chromequic "github.com/enetx/surf/profiles/chrome/quic"
-	firefoxquic "github.com/enetx/surf/profiles/firefox/quic"
 )
 
 // Run with -profile custom, chrome or firefox. -url also accepts a local H3 server.
@@ -21,59 +20,54 @@ func main() {
 	flag.Parse()
 
 	builder := surf.NewClient().Builder()
-	var config *quic.Config
-
 	switch *profile {
 	case "chrome":
 		builder = builder.Impersonate().Chrome()
-		config = chromequic.Config()
 	case "firefox":
 		builder = builder.Impersonate().Firefox()
-		config = firefoxquic.Config()
 	case "custom":
-		config = &quic.Config{
-			Versions:                       []quic.Version{quic.Version1},
-			InitialStreamReceiveWindow:     1 << 20,
-			MaxStreamReceiveWindow:         4 << 20,
-			InitialConnectionReceiveWindow: 8 << 20,
-			MaxConnectionReceiveWindow:     16 << 20,
-			MaxIncomingStreams:             100,
-			MaxIncomingUniStreams:          16,
-			InitialPacketSize:              1250,
-			DisablePathMTUDiscovery:        true,
-			EnableDatagrams:                true,
-		}
 	default:
 		log.Fatalf("unknown profile %q", *profile)
 	}
 
-	// Config() returns fresh browser defaults. QUICConfig snapshots our changes.
-	config.HandshakeIdleTimeout = 10 * time.Second
-	config.MaxIdleTimeout = 45 * time.Second
-	settings := builder.ForceHTTP3().HTTP3Settings().QUICConfig(config)
+	// Each setter overrides one option and keeps the rest of the browser profile.
+	quicSettings := builder.ForceHTTP3().QUICSettings().
+		HandshakeIdleTimeout(10 * time.Second).
+		MaxIdleTimeout(45 * time.Second)
 
 	if *profile == "custom" {
 		// TLS, transport parameters and HTTP/3 SETTINGS can be chosen independently.
-		settings.ClientHelloFactory(chromequic.NewClientHelloSpec).
-			ClientHandshake(&quic.ClientHandshake{
-				StreamReceiveWindows: &quic.StreamReceiveWindows{
-					BidiLocal: 2 << 20, BidiRemote: 1 << 20, Uni: 1 << 20,
-				},
-				TransportParameters: &transportparams.Layout{
-					Order: []uint64{15, 1, 3, 4, 5, 6, 7, 8, 9, 14, 32, transportparams.Grease},
-				},
-				MaxUDPPayloadSize:            1472,
-				MaxDatagramFrameSize:         65536,
-				MaxAckDelay:                  25 * time.Millisecond,
-				ActiveConnectionIDLimit:      4,
-				InitialPacketNumber:          1,
-				DisableClientHelloScrambling: true,
-			}).
+		quicSettings.Versions(quic.Version1).
+			InitialStreamReceiveWindow(1<<20).
+			MaxStreamReceiveWindow(4<<20).
+			InitialConnectionReceiveWindow(8<<20).
+			MaxConnectionReceiveWindow(16<<20).
+			MaxIncomingStreams(100).
+			MaxIncomingUniStreams(16).
+			InitialPacketSize(1250).
+			DisablePathMTUDiscovery(true).
+			ClientHelloFactory(chromequic.NewClientHelloSpec).
+			StreamReceiveWindows(2<<20, 1<<20, 1<<20).
+			TransportParameterOrder(15, 1, 3, 4, 5, 6, 7, 8, 9, 14, 32, transportparams.Grease).
+			MaxUDPPayloadSize(1472).
+			MaxDatagramFrameSize(65536).
+			MaxAckDelay(25 * time.Millisecond).
+			ActiveConnectionIDLimit(4).
+			InitialPacketNumber(1).
+			DisableClientHelloScrambling(true).
 			ConnectionIDLength(8).
-			QpackMaxTableCapacity(4096).
-			QpackBlockedStreams(8).
-			MaxFieldSectionSize(256 << 10).
 			EnableDatagrams(true)
+	}
+
+	settings := quicSettings.Set().HTTP3Settings()
+	if *profile == "custom" {
+		settings.QpackMaxTableCapacity(4096).
+			QpackBlockedStreams(8).
+			QpackStreamOrder(surf.QPACKDecoderStream, surf.QPACKEncoderStream).
+			QpackEagerStreamTypes(false).
+			QpackEncoderTableCapacity(4096).
+			QpackEncoderCapacityTiming(surf.QPACKCapacityBeforeHeaders).
+			MaxFieldSectionSize(256 << 10)
 	}
 
 	// These overrides also compose with the selected browser profile.

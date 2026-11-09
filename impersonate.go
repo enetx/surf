@@ -101,25 +101,17 @@ func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	// Replacing a browser profile discards its previous H3 settings while keeping
 	// the one registered transport factory. Later user overrides still merge.
 	*h3 = HTTP3Settings{builder: h3.builder, registered: h3.registered}
-	h3.AltUsed(v.HTTP3AltUsed)
-
-	if v.QUICConfig != nil {
-		h3.QUICConfig(v.QUICConfig)
-	}
-
-	if v.HTTP3ConnectionIDLength != nil {
-		h3.ConnectionIDLength(*v.HTTP3ConnectionIDLength)
-	}
-
-	if v.HTTP3StreamPriority != nil {
-		h3.StreamPriority(v.HTTP3StreamPriority.Urgency, v.HTTP3StreamPriority.Incremental)
-	}
-
-	if v.HTTP3ClientHelloFactory != nil {
-		h3.ClientHelloFactory(v.HTTP3ClientHelloFactory)
-	}
 
 	v.ConfigureH3(h3adapter{h3})
+	if v.ConfigureQPACK != nil {
+		v.ConfigureQPACK(h3adapter{h3})
+	}
+	// Apply QUIC after ordered H3 SETTINGS: EnableDatagrams updates the existing
+	// H3_DATAGRAM entry without changing the profile's SETTINGS order.
+	if v.ConfigureQUIC != nil {
+		v.ConfigureQUIC(quicadapter{im.builder.QUICSettings()})
+	}
+
 	h3.Set()
 
 	return im.builder.SetHeaders(*v.BuildHeaders(im.os))

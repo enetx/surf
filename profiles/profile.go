@@ -10,15 +10,21 @@
 // A Variant is the self-contained description of one browser and form-factor combination:
 // TLS ClientHello, HTTP/2 + HTTP/3 SETTINGS, header set, User-Agent / sec-ch-ua data per OS.
 // The surf.Impersonate dispatcher selects a browser/platform Variant, applies its
-// static fields, and runs ConfigureH2/ConfigureH3 against
-// adapters that satisfy H2Config / H3Config — without the profile package importing surf.
+// static fields, and runs ConfigureH2/ConfigureH3/ConfigureQUIC against fluent
+// adapters — without the profile package importing surf.
 package profiles
 
 import (
+	"context"
+	"time"
+
 	"github.com/enetx/g"
 	"github.com/enetx/http/http2"
 	"github.com/enetx/quic-go"
 	"github.com/enetx/quic-go/http3"
+	"github.com/enetx/quic-go/qlogwriter"
+	"github.com/enetx/quic-go/tlsquic"
+	"github.com/enetx/quic-go/transportparams"
 	utls "github.com/refraction-networking/utls"
 )
 
@@ -65,14 +71,64 @@ type H2Config interface {
 // H3Config is the fluent contract used by profile.ConfigureH3 callbacks. It mirrors the
 // methods on surf.HTTP3Settings, the surf package provides an adapter that satisfies it.
 type H3Config interface {
+	AltUsed(bool) H3Config
+	StreamPriority(int8, bool) H3Config
 	QpackMaxTableCapacity(uint64) H3Config
 	MaxFieldSectionSize(uint64) H3Config
 	QpackBlockedStreams(uint64) H3Config
+	QpackStreamOrder(...http3.QPACKStreamType) H3Config
+	QpackEagerStreamTypes(bool) H3Config
+	QpackEncoderTableCapacity(uint64) H3Config
+	QpackEncoderCapacityTiming(http3.QPACKCapacityTiming) H3Config
 	EnableConnectProtocol(uint64) H3Config
 	SettingsH3Datagram(uint64) H3Config
 	H3Datagram(uint64) H3Config
 	EnableWebtransport(uint64) H3Config
 	Grease() H3Config
+}
+
+// QUICConfig is the fluent contract used by ConfigureQUIC callbacks. Every
+// method delegates to surf.QUICSettings, so profiles are examples of the same
+// API available to applications. The dispatcher calls Set after configuration.
+type QUICConfig interface {
+	Versions(...quic.Version) QUICConfig
+	HandshakeIdleTimeout(time.Duration) QUICConfig
+	MaxIdleTimeout(time.Duration) QUICConfig
+	KeepAlivePeriod(time.Duration) QUICConfig
+	InitialStreamReceiveWindow(uint64) QUICConfig
+	MaxStreamReceiveWindow(uint64) QUICConfig
+	InitialConnectionReceiveWindow(uint64) QUICConfig
+	MaxConnectionReceiveWindow(uint64) QUICConfig
+	AllowConnectionWindowIncrease(func(*quic.Conn, uint64) bool) QUICConfig
+	MaxIncomingStreams(int64) QUICConfig
+	MaxIncomingUniStreams(int64) QUICConfig
+	RequireStreamCreditRelease(bool) QUICConfig
+	InitialPacketSize(uint16) QUICConfig
+	DisablePathMTUDiscovery(bool) QUICConfig
+	EnableDatagrams(bool) QUICConfig
+	EnableStreamResetPartialDelivery(bool) QUICConfig
+	TokenStore(quic.TokenStore) QUICConfig
+	Tracer(func(context.Context, bool, quic.ConnectionID) qlogwriter.Trace) QUICConfig
+	ConnectionIDLength(int) QUICConfig
+	ConnectionIDGenerator(quic.ConnectionIDGenerator) QUICConfig
+	StreamReceiveWindows(uint64, uint64, uint64) QUICConfig
+	ClientHelloSpec(*utls.ClientHelloSpec) QUICConfig
+	ClientHelloFactory(func() (utls.ClientHelloSpec, error)) QUICConfig
+	TLSClientFactory(tlsquic.NewClient) QUICConfig
+	MaxUDPPayloadSize(uint64) QUICConfig
+	OmitMaxUDPPayloadSize(bool) QUICConfig
+	MaxDatagramFrameSize(uint64) QUICConfig
+	MaxAckDelay(time.Duration) QUICConfig
+	ActiveConnectionIDLimit(uint64) QUICConfig
+	OmitLegacyResetStreamAt(bool) QUICConfig
+	InitialDestinationConnectionIDLength(int) QUICConfig
+	InitialPacketNumber(uint64) QUICConfig
+	InitialPacketNumberFactory(func() (uint64, error)) QUICConfig
+	DisableClientHelloScrambling(bool) QUICConfig
+	TransportParameterOrder(...uint64) QUICConfig
+	TransportParameter(uint64, []byte) QUICConfig
+	DisableTransportParameterGrease(bool) QUICConfig
+	TransportParametersFactory(func(quic.Version) (*transportparams.Layout, error)) QUICConfig
 }
 
 // Variant is a self-contained description of one browser and form-factor combination.
@@ -93,15 +149,12 @@ type Variant struct {
 	// invokes them with adapters and calls Set() afterwards.
 	ConfigureH2 func(H2Config)
 	ConfigureH3 func(H3Config)
+	// ConfigureQPACK selects stream creation and capacity announcement behavior.
+	ConfigureQPACK func(H3Config)
 
-	// Optional native QUIC parameters. Surf snapshots these when constructing a
-	// client. Nil retains its defaults. Browser values stay in Surf profiles;
-	// optional ClientHandshake controls are provided by the local QUIC fork.
-	QUICConfig              *quic.Config
-	HTTP3ConnectionIDLength *int
-	HTTP3StreamPriority     *http3.StreamPriority
-	HTTP3ClientHelloFactory func() (utls.ClientHelloSpec, error)
-	HTTP3AltUsed            bool
+	// ConfigureQUIC uses the same individual setters as Builder.QUICSettings.
+	// Nil retains Surf's defaults. Each application creates fresh private state.
+	ConfigureQUIC func(QUICConfig)
 
 	// BuildHeaders constructs the full ordered header map for one request — pseudo-headers,
 	// Accept-Encoding, Accept-Language, authorization/cookie/origin/referer placeholders,

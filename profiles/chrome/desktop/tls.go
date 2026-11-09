@@ -12,5 +12,6 @@ func NewClientHelloSpec() utls.ClientHelloSpec {
 
 	// Keep optional session resumption support; fresh connections omit an empty PSK.
 	spec.Extensions = append(spec.Extensions, &utls.UtlsPreSharedKeyExtension{})
+
 	return spec
 }

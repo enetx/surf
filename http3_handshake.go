@@ -11,6 +11,7 @@ import (
 
 // ClientHandshake sets optional QUIC handshake controls. The supplied values are
 // snapshotted; nil removes this override and retains any QUICConfig controls.
+// Use Builder.QUICSettings for fluent configuration of individual controls.
 func (h *HTTP3Settings) ClientHandshake(config *quic.ClientHandshake) *HTTP3Settings {
 	h.clientHandshake = config.Clone()
 	return h

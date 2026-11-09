@@ -10,6 +10,7 @@ func echInnerLength(conn *utls.UConn) int {
 	length := 2 + 32 + 1 + 2 + 2*len(hello.CipherSuites) + 1 + len(hello.CompressionMethods) + 2
 	length += 5 // Inner ECH extension: header plus the inner/outer byte.
 	namePadding, compressed := 100, 0
+
 	for _, extension := range conn.Extensions {
 		switch extension := extension.(type) {
 		case *utls.SNIExtension:
@@ -26,9 +27,11 @@ func echInnerLength(conn *utls.UConn) int {
 			compressed++
 		}
 	}
+
 	if compressed > 0 {
 		length += 5 + 2*compressed // outer_extensions header and references.
 	}
+
 	return length + namePadding
 }
 
@@ -38,10 +41,13 @@ func setECHPayloadLength(ech *utls.GREASEEncryptedClientHelloExtension, innerLen
 	if ech == nil {
 		return
 	}
+
 	length := uint16((innerLength + 31) &^ 31)
+
 	if len(ech.CandidatePayloadLens) == 1 && ech.CandidatePayloadLens[0] == length {
 		return
 	}
+
 	*ech = utls.GREASEEncryptedClientHelloExtension{
 		CandidateCipherSuites: ech.CandidateCipherSuites,
 		CandidateConfigIds:    ech.CandidateConfigIds,

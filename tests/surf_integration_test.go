@@ -218,7 +218,7 @@ func TestUnixDomainSocket_WithCustomHost(t *testing.T) {
 	}
 }
 
-func TestContenType(t *testing.T) {
+func TestContentType(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewServer(

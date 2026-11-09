@@ -10,16 +10,14 @@ import (
 
 // Desktop is the current Firefox 159 desktop variant.
 var Desktop = profiles.Variant{
-	HTTP3AltUsed:            true,
-	QUICConfig:              firefoxquic.Config(),
-	HTTP3ClientHelloFactory: firefoxquic.NewClientHelloSpec,
-	HTTP3ConnectionIDLength: new(firefoxquic.ConnectionIDLength),
-	HelloSpec:               &HelloFirefox_159,
-	Boundary:                Boundary,
-	ConfigureH2:             desktop.ConfigureH2,
-	ConfigureH3:             desktop.ConfigureH3,
-	BuildHeaders:            desktop.BuildHeaders,
-	Headers:                 DesktopApplier,
+	ConfigureQUIC:  firefoxquic.ConfigureQUIC,
+	HelloSpec:      &HelloFirefox_159,
+	Boundary:       Boundary,
+	ConfigureH2:    desktop.ConfigureH2,
+	ConfigureH3:    desktop.ConfigureH3,
+	ConfigureQPACK: firefoxquic.ConfigureQPACK,
+	BuildHeaders:   desktop.BuildHeaders,
+	Headers:        DesktopApplier,
 }
 
 // Mobile is the current Firefox 148 Android variant.

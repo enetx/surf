@@ -26,6 +26,7 @@ func (h *HTTP3Settings) AltUsed(enabled bool) *HTTP3Settings {
 // defaults. Token stores, tracers and callbacks retain their shared identity.
 // RequireStreamCreditRelease is an advanced option for applications that manage
 // incoming stream credit; it does not add a transport parameter to the handshake.
+// Use Builder.QUICSettings for fluent configuration of individual options.
 func (h *HTTP3Settings) QUICConfig(config *quic.Config) *HTTP3Settings {
 	h.quicConfig = cloneQUICConfig(config)
 	return h
@@ -107,6 +108,9 @@ func (ut *uquicTransport) newQUICTransport(conn net.PacketConn) *quic.Transport 
 }
 
 func (h *HTTP3Settings) validateQUICConfig() error {
+	if err := h.qpackConfig.Validate(); err != nil {
+		return err
+	}
 	length := 0
 
 	if h.connectionIDLength != nil {

@@ -33,8 +33,8 @@ const (
 	SETTINGS_ENABLE_WEBTRANSPORT      = 0x2B603742
 )
 
-// HTTP3Settings provides a fluent interface for configuring HTTP/3 SETTINGS parameters.
-// These settings are sent to the server during connection establishment.
+// HTTP3Settings configures HTTP/3 SETTINGS, response limits and request options.
+// Use Builder.QUICSettings for the underlying QUIC transport and handshake.
 type HTTP3Settings struct {
 	altUsed                bool
 	clientHandshake        *quic.ClientHandshake
@@ -42,6 +42,7 @@ type HTTP3Settings struct {
 	builder                *Builder
 	settings               g.MapOrd[uint64, uint64]
 	quicConfig             *quic.Config
+	qpackConfig            *http3.QPACKConfig
 	connectionIDLength     *int
 	connectionIDGenerator  quic.ConnectionIDGenerator
 	streamPriority         *http3.StreamPriority
@@ -132,6 +133,7 @@ func (h *HTTP3Settings) Set() *Builder {
 // It provides SOCKS5 proxy compatibility and automatic fallback to HTTP/2
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type uquicTransport struct {
+	qpackConfig            *http3.QPACKConfig
 	altUsed                bool
 	configureHandshake     func(*quic.Config) error
 	receivePacketSize      int
@@ -160,6 +162,7 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 	}
 
 	ut := &uquicTransport{
+		qpackConfig:            settings.qpackConfig.Clone(),
 		altUsed:                settings.altUsed,
 		tlsConfig:              c.tlsConfig.Clone(),
 		dialer:                 c.GetDialer(),
@@ -216,13 +219,7 @@ func (ut *uquicTransport) initTransport() error {
 	config := cloneQUICConfig(ut.quicConfig)
 
 	if config == nil {
-		config = &quic.Config{
-			Versions:             []quic.Version{quic.Version1},
-			EnableDatagrams:      true,
-			HandshakeIdleTimeout: _quicHandshakeTimeout,
-			MaxIdleTimeout:       _quicMaxIdleTimeout,
-			KeepAlivePeriod:      _quicKeepAlivePeriod,
-		}
+		config = defaultQUICConfig()
 	}
 
 	if ut.configureHandshake != nil {
@@ -261,6 +258,7 @@ func (ut *uquicTransport) initTransport() error {
 	}
 
 	ut.http3tr = &http3.Transport{
+		QPACKConfig:            ut.qpackConfig.Clone(),
 		TLSClientConfig:        ut.tlsConfig,
 		QUICConfig:             config,
 		StreamPriority:         ut.streamPriority,

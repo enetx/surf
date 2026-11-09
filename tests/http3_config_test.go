@@ -61,15 +61,17 @@ func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
 }
 
 type h3Peer struct {
-	packet     *h3CaptureConn
-	mu         sync.Mutex
-	parameters []qlog.ParametersSet
-	priorities []qlog.StreamPriorityUpdated
-	versions   []quic.Version
-	resumed    []bool
-	requests   chan h3RequestCapture
-	errors     chan error
-	url        string
+	qpackCapacity *uint64
+	qpackStreams  chan h3QPACKCapture
+	packet        *h3CaptureConn
+	mu            sync.Mutex
+	parameters    []qlog.ParametersSet
+	priorities    []qlog.StreamPriorityUpdated
+	versions      []quic.Version
+	resumed       []bool
+	requests      chan h3RequestCapture
+	errors        chan error
+	url           string
 }
 
 func (p *h3Peer) AddProducer() qlogwriter.Recorder { return p }
@@ -88,6 +90,10 @@ func (p *h3Peer) RecordEvent(event qlogwriter.Event) {
 }
 
 func newH3Peer(t *testing.T) *h3Peer {
+	return newH3PeerWithQPACK(t, nil)
+}
+
+func newH3PeerWithQPACK(t *testing.T, capacity *uint64) *h3Peer {
 	t.Helper()
 	s, udp, _, err := createHTTP3TestServer(func(w http.ResponseWriter, r *http.Request) {})
 	if err != nil {
@@ -97,6 +103,10 @@ func newH3Peer(t *testing.T) *h3Peer {
 		packet:   &h3CaptureConn{PacketConn: udp},
 		requests: make(chan h3RequestCapture, 16),
 		errors:   make(chan error, 16),
+	}
+	if capacity != nil {
+		p.qpackCapacity = new(*capacity)
+		p.qpackStreams = make(chan h3QPACKCapture, 4)
 	}
 	transport := &quic.Transport{Conn: p.packet}
 	config := &quic.Config{
@@ -140,7 +150,13 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 		p.fail(err)
 		return
 	}
-	if _, err := control.Write([]byte{0, 4, 0}); err != nil {
+	var payload []byte
+	if p.qpackCapacity != nil {
+		payload = quicvarint.Append(quicvarint.Append(nil, 1), *p.qpackCapacity)
+	}
+	settingsFrame := quicvarint.Append([]byte{0, 4}, uint64(len(payload)))
+	settingsFrame = append(settingsFrame, payload...)
+	if _, err := control.Write(settingsFrame); err != nil {
 		p.fail(err)
 		return
 	}
@@ -160,6 +176,13 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 					return
 				}
 				if typ != 0 {
+					if p.qpackStreams != nil {
+						select {
+						case p.qpackStreams <- h3QPACKCapture{typ, stream.StreamID(), stream, r}:
+						case <-ctx.Done():
+						}
+						return
+					}
 					io.Copy(io.Discard, stream)
 					return
 				}

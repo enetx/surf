@@ -158,6 +158,12 @@ func (b *Builder) HTTP3Settings() *HTTP3Settings {
 	return b.http3settings
 }
 
+// QUICSettings configures the QUIC transport used by HTTP/3.
+// Set returns this Builder, as with HTTP2Settings and HTTP3Settings.
+func (b *Builder) QUICSettings() *QUICSettings {
+	return &QUICSettings{http3: b.HTTP3Settings()}
+}
+
 // ForceHTTP3 configures the client to use HTTP/3 forcefully.
 func (b *Builder) ForceHTTP3() *Builder {
 	b.forceHTTP3 = true
