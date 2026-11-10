@@ -14,6 +14,7 @@ import (
 	"encoding/pem"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"math/big"
 	"net"
@@ -21,6 +22,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -42,6 +44,8 @@ type captureServer struct {
 	records       *os.File
 	packetRecords *os.File
 	responseBytes int
+	scenarioMode  string
+	frameRecords  *os.File
 	packets       *packetCapture
 	tlsConfig     *tls.Config
 }
@@ -92,14 +96,15 @@ func main() {
 	browser := flag.String("browser", "chrome", "Surf profile: chrome or firefox")
 	stock := flag.Bool("stock", false, "use the stock Surf headers instead of exact captured headers")
 	responseBytes := flag.Int("response-bytes", 0, "synthetic /step/0 response bytes for ACK observations")
+	scenarioMode := flag.String("scenario", "headers", "headers, uploads or priorities (HTTP/3 only)")
 	flag.Parse()
 	if *replay != "" {
-		if err := replaySurf(*replay, *origin, *browser, *protocol, *stock); err != nil {
+		if err := replaySurf(*replay, *origin, *browser, *protocol, *stock, *scenarioMode); err != nil {
 			log.Fatal(err)
 		}
 		return
 	}
-	if *out == "" || (*protocol != "h2" && *protocol != "h3") || *responseBytes < 0 || *responseBytes > 16<<20 {
+	if (*scenarioMode != "headers" && *scenarioMode != "uploads" && *scenarioMode != "priorities") || (*scenarioMode != "headers" && *protocol != "h3") || *out == "" || (*protocol != "h2" && *protocol != "h3") || *responseBytes < 0 || *responseBytes > 16<<20 {
 		log.Fatal("out and valid protocol are required")
 	}
 	if err := os.MkdirAll(*out, 0700); err != nil {
@@ -129,7 +134,12 @@ func main() {
 		log.Fatal(err)
 	}
 	defer packetRecords.Close()
-	s := &captureServer{capacity: *capacity, packets: packets, records: records, packetRecords: packetRecords, responseBytes: *responseBytes, currentLabel: "browser", tlsConfig: &tls.Config{Certificates: []tls.Certificate{cert}, NextProtos: []string{"h2"}, KeyLogWriter: &lockedWriter{writer: keys}}}
+	frameRecords, err := os.OpenFile(filepath.Join(*out, "frames.jsonl"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer frameRecords.Close()
+	s := &captureServer{scenarioMode: *scenarioMode, frameRecords: frameRecords, capacity: *capacity, packets: packets, records: records, packetRecords: packetRecords, responseBytes: *responseBytes, currentLabel: "browser", tlsConfig: &tls.Config{Certificates: []tls.Certificate{cert}, NextProtos: []string{"h2"}, KeyLogWriter: &lockedWriter{writer: keys}}}
 	tcp, err := net.Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		log.Fatal(err)
@@ -153,6 +163,26 @@ func main() {
 				return context.WithValue(ctx, connectionKey{}, s.label()+"|"+conn.RemoteAddr().String())
 			},
 			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if s.scenarioMode == "priorities" && r.URL.Path == "/priority.svg" {
+					w.Header().Set("Content-Type", "image/svg+xml")
+					w.Header().Set("Cache-Control", "no-store")
+					io.WriteString(w, `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8">`)
+					for range 16 {
+						if _, err := io.WriteString(w, strings.Repeat(" ", 4096)); err != nil {
+							return
+						}
+						w.(http.Flusher).Flush()
+						time.Sleep(50 * time.Millisecond)
+					}
+					io.WriteString(w, `<rect width="8" height="8"/></svg>`)
+					return
+				}
+				if r.Body != nil {
+					if _, err := io.Copy(io.Discard, r.Body); err != nil {
+						s.fail(err)
+						return
+					}
+				}
 				headers, body := s.response(r.URL.RequestURI())
 				for name, values := range headers {
 					w.Header()[name] = values

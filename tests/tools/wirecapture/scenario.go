@@ -31,10 +31,41 @@ type observedRequest struct {
 	StreamID    uint64        `json:"stream_id,omitempty"`
 }
 
+var uploadSizes = []int{1000, 14520, 17000, 65536, 371712, 400000, 1, 4096, 8192}
+
+const priorityScenarioHTML = `<!doctype html><meta charset=utf-8><link rel=icon href="data:,"><title>priorities</title><body><script>
+(async()=>{try{const img=new Image();img.fetchPriority='low';document.body.append(img);
+const ready=new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('image'));});
+img.src='/priority.svg';setTimeout(()=>img.fetchPriority='high',100);setTimeout(()=>img.fetchPriority='low',250);setTimeout(()=>img.fetchPriority='high',450);setTimeout(()=>img.fetchPriority='high',500);
+await ready;await fetch('/complete',{cache:'no-store'});document.title='complete';}catch(e){await fetch('/failed?message='+encodeURIComponent(String(e)));}})();</script>`
+
+const uploadScenarioHTML = `<!doctype html><meta charset=utf-8><link rel=icon href="data:,"><title>uploads</title><body>running<script>
+(async()=>{try{const sizes=[1000,14520,17000,65536,371712,400000,1,4096,8192];
+for(let n=0;n<sizes.length;n++){const r=await fetch('/step/'+n,{method:'POST',body:'x'.repeat(sizes[n]),cache:'no-store'});if(!r.ok)throw Error('upload '+n);await r.text();}
+await fetch('/complete',{cache:'no-store'});document.title='complete';}catch(e){await fetch('/failed?message='+encodeURIComponent(String(e)));}})();
+</script>`
+
+func uploadBody(path, scenario string) string {
+	if scenario != "uploads" || !strings.HasPrefix(path, "/step/") {
+		return ""
+	}
+	n, err := strconv.Atoi(strings.TrimPrefix(path, "/step/"))
+	if err != nil || n < 0 || n >= len(uploadSizes) {
+		return ""
+	}
+	return strings.Repeat("x", uploadSizes[n])
+}
+
 func (s *captureServer) response(path string) (http.Header, []byte) {
 	h := http.Header{"Cache-Control": []string{"no-store"}, "Content-Type": []string{"text/plain"}}
 	if strings.HasPrefix(path, "/scenario") {
 		h.Set("Content-Type", "text/html")
+		if s.scenarioMode == "priorities" {
+			return h, []byte(priorityScenarioHTML)
+		}
+		if s.scenarioMode == "uploads" {
+			return h, []byte(uploadScenarioHTML)
+		}
 		return h, []byte(scenarioHTML)
 	}
 	if path == "/step/0" {

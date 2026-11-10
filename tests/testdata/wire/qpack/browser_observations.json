@@ -1,0 +1,335 @@
+{
+  "schema": 1,
+  "captured_at": "2026-11-09T20:44:38.196817+00:00",
+  "scope": "Identical ordered inputs on separate connections; field sections and concatenated encoder instructions extracted from real decrypted packet captures. Exact cases have aligned initial SETTINGS history.",
+  "capture_environment": {
+    "firefox": "Fresh temporary headless profile; MOZ_DISABLE_CONTENT_SANDBOX=1 for this isolated local process only."
+  },
+  "qpack_encoder_source_sha256": "4aeb20678c8c2df845554b5e3fdb3a7e3dca0278f7b0d10f63484b367fa3c6c3",
+  "cases": [
+    {
+      "case": "chrome-h3-0",
+      "browser_metadata": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/156.0.8078.79",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "peer_capacity": 0,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "27d477f33659a680c4e15ac735c99b27962f456f0dc21c450d44bf6dadd96435",
+      "surf_field_sections_sha256": "27d477f33659a680c4e15ac735c99b27962f456f0dc21c450d44bf6dadd96435",
+      "browser_encoder_stream_bytes": 1,
+      "surf_encoder_stream_bytes": 1,
+      "browser_encoder_stream_sha256": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+      "surf_encoder_stream_sha256": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+      "browser_first_section_prefix": "0000",
+      "surf_first_section_prefix": "0000",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "independently_decoded_sections": 33,
+      "independently_undecoded_sections": 0,
+      "pcap_sha256": "b6c927d2c80d805dcaa529f00647221133955658bca0c4a5cff40177aeff5a8d"
+    },
+    {
+      "case": "chrome-h3-128",
+      "browser_metadata": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/156.0.8078.79",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "peer_capacity": 128,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "0e171734e985acb504fdbdc41cb23abf48295bfdd59e3aa09643e6b067ef065b",
+      "surf_field_sections_sha256": "0e171734e985acb504fdbdc41cb23abf48295bfdd59e3aa09643e6b067ef065b",
+      "browser_encoder_stream_bytes": 225,
+      "surf_encoder_stream_bytes": 225,
+      "browser_encoder_stream_sha256": "8cbc40247566b3d207c444b7ac7931baeef03c85bb9d3b8f90b6c2ecbddd5478",
+      "surf_encoder_stream_sha256": "8cbc40247566b3d207c444b7ac7931baeef03c85bb9d3b8f90b6c2ecbddd5478",
+      "browser_first_section_prefix": "0300",
+      "surf_first_section_prefix": "0300",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "independently_decoded_sections": 4,
+      "independently_undecoded_sections": 29,
+      "pcap_sha256": "12bd89c24f62623c4ea078baa42f5af97f559ab163530674fd3c61c003620a2a"
+    },
+    {
+      "case": "chrome-h3-4096",
+      "browser_metadata": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/156.0.8078.79",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "peer_capacity": 4096,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "0d430b093d1ca56669bb4d3c88e475f4e9810aa5a2201c2dd10d24ba59603785",
+      "surf_field_sections_sha256": "0d430b093d1ca56669bb4d3c88e475f4e9810aa5a2201c2dd10d24ba59603785",
+      "browser_encoder_stream_bytes": 837,
+      "surf_encoder_stream_bytes": 837,
+      "browser_encoder_stream_sha256": "1139780d8399abd22d6b94fd963ff5a4b6bfa2c5c786719bcc9c928707439e81",
+      "surf_encoder_stream_sha256": "1139780d8399abd22d6b94fd963ff5a4b6bfa2c5c786719bcc9c928707439e81",
+      "browser_first_section_prefix": "0f00",
+      "surf_first_section_prefix": "0f00",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "independently_decoded_sections": 12,
+      "independently_undecoded_sections": 21,
+      "pcap_sha256": "05d5f06f8a683ebf1b0576dbf7ec6459b3fec53d4b6e27215bcce72f3c8e9390"
+    },
+    {
+      "case": "chrome-h3-65536",
+      "browser_metadata": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/156.0.8078.79",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "peer_capacity": 65536,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "0d430b093d1ca56669bb4d3c88e475f4e9810aa5a2201c2dd10d24ba59603785",
+      "surf_field_sections_sha256": "0d430b093d1ca56669bb4d3c88e475f4e9810aa5a2201c2dd10d24ba59603785",
+      "browser_encoder_stream_bytes": 838,
+      "surf_encoder_stream_bytes": 838,
+      "browser_encoder_stream_sha256": "0f4f8667d81ed223895d1e624ffe1e7ce7594621f6a8b9edc651e806a2063a9d",
+      "surf_encoder_stream_sha256": "0f4f8667d81ed223895d1e624ffe1e7ce7594621f6a8b9edc651e806a2063a9d",
+      "browser_first_section_prefix": "0f00",
+      "surf_first_section_prefix": "0f00",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "10": 2
+      },
+      "independently_decoded_sections": 11,
+      "independently_undecoded_sections": 22,
+      "pcap_sha256": "aabb5cbdb03d6d806f9f2e9dfe53e7021cfe8d01f302e07d42f2aeab170e3028"
+    },
+    {
+      "case": "firefox-h3-0",
+      "browser_metadata": {
+        "browserName": "firefox",
+        "browserVersion": "159.0.1",
+        "platformName": "mac"
+      },
+      "peer_capacity": 0,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "325080a9df89e28134be3f1dfc9fdc6d032109c682793dd222c467b9e6256d8d",
+      "surf_field_sections_sha256": "325080a9df89e28134be3f1dfc9fdc6d032109c682793dd222c467b9e6256d8d",
+      "browser_encoder_stream_bytes": 0,
+      "surf_encoder_stream_bytes": 0,
+      "browser_encoder_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "surf_encoder_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "browser_first_section_prefix": "0000",
+      "surf_first_section_prefix": "0000",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "independently_decoded_sections": 33,
+      "independently_undecoded_sections": 0,
+      "pcap_sha256": "8e927714566dc6340699db34c1a2b4385306f05ee3c3544680f0f38d1ed98ee2"
+    },
+    {
+      "case": "firefox-h3-128",
+      "browser_metadata": {
+        "browserName": "firefox",
+        "browserVersion": "159.0.1",
+        "platformName": "mac"
+      },
+      "peer_capacity": 128,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "7d2ec057df7189c8093880df4f6dd6986355434142b8f4d7f9de10d49fa350db",
+      "surf_field_sections_sha256": "7d2ec057df7189c8093880df4f6dd6986355434142b8f4d7f9de10d49fa350db",
+      "browser_encoder_stream_bytes": 39,
+      "surf_encoder_stream_bytes": 39,
+      "browser_encoder_stream_sha256": "7059f1981e5dd27a30a77bdb7522c884a07e965cb722ba9d923b0c521991c1bb",
+      "surf_encoder_stream_sha256": "7059f1981e5dd27a30a77bdb7522c884a07e965cb722ba9d923b0c521991c1bb",
+      "browser_first_section_prefix": "0381",
+      "surf_first_section_prefix": "0381",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "independently_decoded_sections": 30,
+      "independently_undecoded_sections": 3,
+      "pcap_sha256": "35e33e31e8dc3893a4b6b43f7812eba11701e4bee6d64060e61b8f989d18862e"
+    },
+    {
+      "case": "firefox-h3-4096",
+      "browser_metadata": {
+        "browserName": "firefox",
+        "browserVersion": "159.0.1",
+        "platformName": "mac"
+      },
+      "peer_capacity": 4096,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "93ff25d014cddb9190a4e637b0ad93c3565d49b64cf10e9b2323739e16c6bc3b",
+      "surf_field_sections_sha256": "93ff25d014cddb9190a4e637b0ad93c3565d49b64cf10e9b2323739e16c6bc3b",
+      "browser_encoder_stream_bytes": 113,
+      "surf_encoder_stream_bytes": 113,
+      "browser_encoder_stream_sha256": "2e749e36dab880607edd4265682bc2de8597bacfae4df782f3858bfa57334d41",
+      "surf_encoder_stream_sha256": "2e749e36dab880607edd4265682bc2de8597bacfae4df782f3858bfa57334d41",
+      "browser_first_section_prefix": "0785",
+      "surf_first_section_prefix": "0785",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "independently_decoded_sections": 28,
+      "independently_undecoded_sections": 5,
+      "pcap_sha256": "52056a3405c82ef3ce71582f3eb1e129b894dc3629edf61e698338e524c27318"
+    },
+    {
+      "case": "firefox-h3-65536",
+      "browser_metadata": {
+        "browserName": "firefox",
+        "browserVersion": "159.0.1",
+        "platformName": "mac"
+      },
+      "peer_capacity": 65536,
+      "field_sections": 11,
+      "exact_field_sections": 11,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "22aedeef4fe2b6e184eac6b360537347463dc9091df2f6426b89e5229f407bfc",
+      "surf_field_sections_sha256": "22aedeef4fe2b6e184eac6b360537347463dc9091df2f6426b89e5229f407bfc",
+      "browser_encoder_stream_bytes": 114,
+      "surf_encoder_stream_bytes": 114,
+      "browser_encoder_stream_sha256": "c723b82422f3be635a57e676dbcd5615ec18b8942148cd8fbca69b819ba63a9e",
+      "surf_encoder_stream_sha256": "c723b82422f3be635a57e676dbcd5615ec18b8942148cd8fbca69b819ba63a9e",
+      "browser_first_section_prefix": "0785",
+      "surf_first_section_prefix": "0785",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "independently_decoded_sections": 28,
+      "independently_undecoded_sections": 5,
+      "pcap_sha256": "349d4218be0ebc543a45ec5de32bf5994a3ab19429b3c83193268f7a17dbff2f"
+    }
+  ],
+  "timing_observations": [
+    {
+      "case": "firefox-h3-128",
+      "browser_metadata": {
+        "browserName": "firefox",
+        "browserVersion": "159.0.1",
+        "platformName": "mac"
+      },
+      "peer_capacity": 128,
+      "field_sections": 11,
+      "exact_field_sections": 0,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "d04bb5961ed68939ce6e8506479e395947bc250982ea64b71e1b2fb31e3613c3",
+      "surf_field_sections_sha256": "3a4f00581675bcc4f6e26185621f4aac6107791a772a2beba0722f24d1429f73",
+      "browser_encoder_stream_bytes": 39,
+      "surf_encoder_stream_bytes": 37,
+      "browser_encoder_stream_sha256": "a9d1002387818df7188e1f282ace8844bded384f6acb7d5200a1a0f631974cd6",
+      "surf_encoder_stream_sha256": "fc6872398766f1217fc3ce58450843ad31a7c5159ffe68c4e561c421376d0bc4",
+      "browser_first_section_prefix": "0381",
+      "surf_first_section_prefix": "0000",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "independently_decoded_sections": 30,
+      "independently_undecoded_sections": 3,
+      "pcap_sha256": "8fa08273717c984934c2af93cf4dd32ee97dd943ae00a3c6393d19f2315fa2bf"
+    },
+    {
+      "case": "firefox-h3-65536",
+      "browser_metadata": {
+        "browserName": "firefox",
+        "browserVersion": "159.0.1",
+        "platformName": "mac"
+      },
+      "peer_capacity": 65536,
+      "field_sections": 11,
+      "exact_field_sections": 0,
+      "ordered_fields_equal": true,
+      "browser_field_sections_sha256": "ca4b6a4ab8fe91e34912915a761db3fb018b22baa6aeef08485a9d9bbc72aecf",
+      "surf_field_sections_sha256": "1c7f24d16bfded4a79b340f513ef28514c5ccd3f2f2a950364cae22ab7212959",
+      "browser_encoder_stream_bytes": 114,
+      "surf_encoder_stream_bytes": 98,
+      "browser_encoder_stream_sha256": "452a837b4af7e48df04754fde6d5901b4c92121cadfa9aa6ec65e1810221994c",
+      "surf_encoder_stream_sha256": "4973cd2db0a01350eaf52b1843a6c346ec472e553b1b5a1b6d889b2750c44bf6",
+      "browser_first_section_prefix": "0785",
+      "surf_first_section_prefix": "0000",
+      "browser_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "surf_qpack_stream_ids": {
+        "2": 0,
+        "6": 2,
+        "10": 3
+      },
+      "independently_decoded_sections": 29,
+      "independently_undecoded_sections": 4,
+      "pcap_sha256": "c32edfb83caeab52e872611d168ddffbae2e8f5792e2c17442a09f60804323bd"
+    }
+  ]
+}

@@ -108,6 +108,12 @@ func (ut *uquicTransport) newQUICTransport(conn net.PacketConn) *quic.Transport 
 }
 
 func (h *HTTP3Settings) validateQUICConfig() error {
+	if h.earlyData && h.clientHelloFactory != nil {
+		return fmt.Errorf("HTTP/3 early data with a custom ClientHello is not supported by the official uTLS QUIC API; disable EarlyData or use standard TLS")
+	}
+	if err := h.wireConfig.Validate(); err != nil {
+		return err
+	}
 	if err := h.qpackConfig.Validate(); err != nil {
 		return err
 	}

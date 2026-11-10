@@ -10,28 +10,30 @@ import (
 
 // Desktop is the current Chrome 156 desktop variant.
 var Desktop = profiles.Variant{
-	ConfigureQUIC:     chromequic.ConfigureQUIC,
-	HelloSpec:         &HelloChrome_156,
-	ShuffleExtensions: true,
-	Boundary:          Boundary,
-	ConfigureH2:       desktop.ConfigureH2,
-	ConfigureH3:       desktop.ConfigureH3,
-	ConfigureQPACK:    chromequic.ConfigureQPACK,
-	BuildHeaders:      desktop.BuildHeaders,
-	Headers:           DesktopApplier,
+	ConfigureQUIC:        chromequic.ConfigureQUIC,
+	HelloSpec:            &HelloChrome_156,
+	ShuffleExtensions:    true,
+	Boundary:             Boundary,
+	ConfigureH2:          desktop.ConfigureH2,
+	ConfigureH3:          desktop.ConfigureH3,
+	ConfigureQPACK:       chromequic.ConfigureQPACK,
+	ConfigureRequestBody: chromequic.ConfigureRequestBody,
+	BuildHeaders:         desktop.BuildHeaders,
+	Headers:              DesktopApplier,
 }
 
 // Mobile is the current Chrome 156 Android variant.
 var Mobile = profiles.Variant{
-	ConfigureQUIC:     chromequic.ConfigureQUIC,
-	HelloSpec:         &HelloChrome_156_Mobile,
-	ShuffleExtensions: true,
-	Boundary:          Boundary,
-	ConfigureH2:       android.ConfigureH2,
-	ConfigureH3:       android.ConfigureH3,
-	ConfigureQPACK:    chromequic.ConfigureQPACK,
-	BuildHeaders:      android.BuildHeaders,
-	Headers:           MobileApplier,
+	ConfigureQUIC:        chromequic.ConfigureQUIC,
+	HelloSpec:            &HelloChrome_156_Mobile,
+	ShuffleExtensions:    true,
+	Boundary:             Boundary,
+	ConfigureH2:          android.ConfigureH2,
+	ConfigureH3:          android.ConfigureH3,
+	ConfigureQPACK:       chromequic.ConfigureQPACK,
+	ConfigureRequestBody: chromequic.ConfigureRequestBody,
+	BuildHeaders:         android.BuildHeaders,
+	Headers:              MobileApplier,
 }
 
 // IOS is the current Chrome 157 iOS variant.

@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Actual browser field sections at peer capacity zero isolate static encoding
-// from the outbound dynamic encoder, which Surf does not implement yet.
+// Actual browser field sections at peer capacity zero isolate static field
+// representations and Huffman decisions from dynamic table scheduling.
 func TestIndependentBrowserHTTP3Sequence(t *testing.T) {
 	for _, browser := range []string{"chrome", "firefox"} {
 		t.Run(browser, func(t *testing.T) {
@@ -94,11 +94,9 @@ func TestIndependentBrowserHTTP3Sequence(t *testing.T) {
 					require.Equal(t, f.Name, got.headers[j].Name, want.Path)
 					require.Equal(t, f.Value, got.headers[j].Value, want.Path)
 				}
-				if browser == "firefox" {
-					block, err := hex.DecodeString(want.Block)
-					require.NoError(t, err)
-					require.Equal(t, block, got.headerBlock, "Firefox QPACK differs at %s", want.Path)
-				}
+				block, err := hex.DecodeString(want.Block)
+				require.NoError(t, err)
+				require.Equal(t, block, got.headerBlock, "%s QPACK differs at %s", browser, want.Path)
 				if i == 0 {
 					var expected, actual []h3Setting
 					for _, setting := range fixture.Control["browser"].Settings[0] {

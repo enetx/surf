@@ -69,6 +69,16 @@ func main() {
 	settings := quicSettings.Set().HTTP3Settings()
 	if *profile == "custom" {
 		settings.QpackMaxTableCapacity(4096).
+			QpackDynamicTable(true).
+			QpackHuffman(surf.QPACKHuffmanAuto).
+			QpackIndexing(surf.QPACKIndexAll).
+			QpackIndexingPolicy(func(name, value string) bool { return name != "x-transient" }).
+			QpackDrainingFraction(.25).
+			QpackPostBaseReferences(false).
+			QpackLiteralInsertNames(false).
+			QpackStopOnInsertionFailure(false).
+			QpackMaxTrackedSections(256).
+			QpackEncoderZeroCapacity(true).
 			QpackBlockedStreams(8).
 			QpackStreamOrder(surf.QPACKDecoderStream, surf.QPACKEncoderStream).
 			QpackEagerStreamTypes(false).
@@ -79,6 +89,9 @@ func main() {
 			QpackSplitCookies(true).
 			QpackNeverIndex("cookie", "authorization").
 			PriorityUpdates(true).
+			CompactPriorityUpdates(false).
+			RequestBodyBufferSize(32 << 10).
+			MaxDataFrameSize(16 << 10).
 			ControlGreaseFrames(surf.HTTP3GreaseFrame{Type: 33, Payload: []byte("custom")}).
 			RequestGreaseFrames(surf.HTTP3GreaseFrame{Type: 64}).
 			MaxFieldSectionSize(256 << 10)
@@ -91,7 +104,13 @@ func main() {
 
 	defer client.Close()
 
-	result := client.Get(g.String(*url)).Do()
+	// This explicit update changes the peer's response priority. Retain the
+	// updater to make later changes while the response is open; return promptly.
+	result := client.Get(g.String(*url)).HTTP3PriorityUpdates(func(priority *surf.HTTP3PriorityUpdater) {
+		if err := priority.Update(1, true); err != nil {
+			log.Printf("priority update: %v", err)
+		}
+	}).Do()
 	if result.IsErr() {
 		log.Fatal(result.Err())
 	}

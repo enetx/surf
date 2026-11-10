@@ -170,7 +170,7 @@ HTTP/3 uses the minimal enetx QUIC fork with separate browser ClientHello templa
 Independent browser fixtures cover supported QUIC/TLS parameters, SETTINGS and
 header order. The [wire notes](tests/testdata/wire/README.md) describe differences,
 including Firefox compatible version negotiation, legacy ACK_FREQUENCY,
-outbound QPACK and scheduling.
+QPACK startup timing and scheduling.
 
 Firefox desktop uses the current 159 TLS template and headers. `JA().Firefox()` and
 `JA().Firefox159()` select that TLS fingerprint; `JA().Firefox148()` retains the native
@@ -260,7 +260,9 @@ client := surf.NewClient().
 
 HTTP/2 header encoding and HTTP/3 control frames can be configured through the
 same fluent builders as SETTINGS. Browser policy stays in Surf; the HTTP and
-QUIC modules expose generic mechanisms and retain the official HPACK/QPACK codecs.
+QUIC modules expose generic mechanisms. HPACK, Huffman coding and QPACK's static
+table retain their official implementations; dynamic QPACK state is isolated in
+the existing QUIC fork.
 
 ```go
 client := surf.NewClient().Builder().Impersonate().Firefox().
@@ -304,6 +306,12 @@ control request fields. Browser presets select these independently:
 | HPACK Huffman | When shorter | Always for literal strings |
 | Repeated unchanged HPACK capacity | No new instruction | Table-size instruction queued |
 | HTTP/3 Cookie | Separate field per pair | Preserve a single joined field |
+| QPACK insertion | Eligible names and values | Only names absent from both tables |
+| QPACK Huffman | Only when strictly shorter | Always for literal strings |
+| QPACK Insert names | Static/dynamic name references when available | Literal names |
+| QPACK Base | Required Insert Count | Insert count before the section; post-base references |
+| QPACK draining | Oldest quarter; duplicate eligible draining entries | No draining reservation |
+| QPACK insertion failure | Continue trying later fields | Stop new insertions for this section |
 | Control GREASE type | `31*n+33`, 32-bit draw | `31*n+33`, 57-bit draw |
 | Control GREASE payload | Length `n%4` | Independent draw, length 0–7 |
 | Initial HTTP/3 priority update | Explicit nondefault Priority | Disabled; Neqo uses updates for changed priority |
@@ -312,9 +320,10 @@ Sources are pinned to [Chrome 156's Quiche revision](https://github.com/chromium
 and [Firefox 159.0.1](https://github.com/mozilla-firefox/firefox/tree/FIREFOX_159_0_1_RELEASE).
 The profile functions link directly to the corresponding browser source files.
 iOS profiles keep their WebKit behavior; these desktop engine policies are not
-applied to iOS. Outgoing dynamic QPACK compression and browser resource-loading
-decisions remain outside this API. Source-derived rules and local wire tests do
-not establish complete packet-level browser equivalence.
+applied to iOS. Browser resource-loading decisions remain outside this API.
+The [QPACK audit](tests/testdata/wire/qpack/README.md) records exact field-section
+and encoder-stream comparisons. These do not establish complete packet timing,
+loss recovery or browser workload equivalence.
 
 See the [HTTP/2 custom example](examples/http/http2_custom/http2_custom.go) and
 [HTTP/3 custom example](examples/http/http3_custom/http3_custom.go) for overrides.
@@ -451,16 +460,27 @@ remaining adapter limits and the migration status.
 Surf uses the published `github.com/enetx/http` and `github.com/enetx/quic-go`
 modules without local replacements. HTTP/3 is imported from
 `github.com/enetx/quic-go/http3`; no uTLS dependency fork is required.
-Sibling checkouts can be used through temporary replacements during development.
+Sibling checkouts can be combined in a parent Go workspace during development:
+`go work init ./http ./quic-go ./surf`. This keeps local paths out of release module files.
 
 Nonzero `QpackMaxTableCapacity` enables a bounded receive-side dynamic QPACK table;
 `QpackBlockedStreams` limits waiting request streams. Feedback, cancellation and
-header-size limits are enforced. Outbound header encoding remains static.
+header-size limits are enforced. `QpackDynamicTable(true)` separately enables
+dynamic request headers and trailers, capped by peer SETTINGS and the local
+`QpackEncoderTableCapacity` budget. Chrome and Firefox desktop profiles enable it.
 
 QPACK stream behavior uses the same HTTP/3 settings chain:
 
 ```go
 builder.HTTP3Settings().
+    QpackDynamicTable(true).
+    QpackHuffman(surf.QPACKHuffmanAuto).
+    QpackIndexing(surf.QPACKIndexAll).
+    QpackDrainingFraction(.25).
+    QpackPostBaseReferences(false).
+    QpackLiteralInsertNames(false).
+    QpackStopOnInsertionFailure(false).
+    QpackMaxTrackedSections(4096).
     QpackStreamOrder(surf.QPACKDecoderStream, surf.QPACKEncoderStream).
     QpackEagerStreamTypes(false).
     QpackEncoderTableCapacity(65536).
@@ -471,10 +491,19 @@ builder.HTTP3Settings().
 `QpackStreamOrder` reserves IDs after the control stream while credit permits;
 `QpackEagerStreamTypes` chooses startup type bytes or type bytes with the first
 instruction. Capacity announcements use the smaller of the peer's limit and
-`QpackEncoderTableCapacity`; zero disables them. They can be queued after peer
-SETTINGS or when encoding the next outgoing HEADERS block. These controls do not
-enable dynamic request indexing or guarantee cross-stream packet delivery order.
-They also do not wait for peer SETTINGS before sending a request.
+`QpackEncoderTableCapacity`. They can be queued after peer SETTINGS or when
+encoding the next outgoing HEADERS block. `QpackEncoderZeroCapacity(true)` also
+emits the zero-capacity instruction, initializing a lazy encoder stream. Without
+peer SETTINGS, requests remain static and do not wait. Independent QUIC streams
+retain their native delivery ordering.
+
+`QpackIndexingPolicy` optionally filters new insertions. `QpackNeverIndex`
+prevents insertion and emits literals with N=1. Unacknowledged entries and entries
+used by outstanding sections cannot be evicted. Section ACKs are processed in
+FIFO order on each stream; cancellation releases that stream's sections without
+advancing the acknowledged insert count. At the tracking budget or when the
+bounded encoder queue is full, new sections use static encoding without waiting.
+The default tracking budget is 4096 sections; zero restores that default.
 
 Chrome desktop/Android reserve decoder then encoder streams, use lazy type bytes
 and defer capacity announcements to HEADERS. Firefox desktop reserves encoder
@@ -482,6 +511,50 @@ then decoder streams, writes types eagerly and queues capacity after SETTINGS.
 Each profile's behavior can be overridden through `HTTP3Settings()`; the QUIC
 fork exposes only generic controls. See the [wire notes](tests/testdata/wire/README.md)
 for source references and the limits of the browser comparison.
+
+HTTP/3 request bodies have separate controls for reads and DATA framing:
+
+```go
+builder.HTTP3Settings().
+    RequestBodyBufferSize(32 << 10).
+    MaxDataFrameSize(16 << 10).
+    Set()
+```
+
+`RequestBodyBufferSizePolicy(func(contentLength int64) int)` optionally selects
+reads per request; unknown lengths are -1, and zero uses the native 8 KiB buffer.
+`RequestBodyBufferSize` clears a previous policy. Both size options accept 0 through
+16 MiB; `MaxDataFrameSize(0)` keeps one DATA frame per write. These options do not
+set QUIC packet boundaries. Chrome desktop/Android select a buffer between
+14,520 and 371,712 bytes using the body length. Firefox desktop uses the shipped
+32,768-byte network segment preference. Firefox's first large DATA boundary can
+still differ because Necko includes serialized request headers in that segment.
+
+Use `request.HTTP3PriorityUpdates(func(*surf.HTTP3PriorityUpdater))` to retain a
+handle for an open request. Its `Update(urgency, incremental)` method sends an
+RFC 9218 control frame, suppresses repeats, validates urgency 0–7, and rejects
+completed/canceled requests. `(3, false)` restores the default. The callback runs
+after request HEADERS and must return promptly; each retry gets a fresh handle.
+This does not change `StreamPriority`, which schedules local uploads.
+`CompactPriorityUpdates(true)` selects Firefox's comma formatting; Chrome uses
+comma-space. No resource loading policy is added.
+
+`HTTP3Settings().EarlyData(true).Set()` opts bodyless GET/HEAD into 0-RTT with
+standard TLS and a configured `tls.ClientSessionCache`. Enable it only for
+requests whose replay is acceptable. POST and requests with bodies wait for the
+handshake. Rejection and HTTP 425 permit one 1-RTT retry. It is disabled by default;
+custom uTLS ClientHello templates currently reject this option at build time.
+Chrome/Firefox profiles retain ordinary TLS session resumption without 0-RTT.
+
+```go
+client := surf.NewClient().Builder().ForceHTTP3().
+    TLSConfig(&tls.Config{ClientSessionCache: tls.NewLRUClientSessionCache(32)}).
+    HTTP3Settings().EarlyData(true).Set().Build().Unwrap()
+defer client.Close()
+```
+
+The [HTTP/3 behavior report](tests/testdata/wire/http3_behavior/README.md) records
+browser captures, source references and remaining differences.
 
 Chrome desktop/Android and Firefox desktop supply separate QUIC TLS factories;
 iOS and Firefox mobile retain their previous defaults pending browser captures.

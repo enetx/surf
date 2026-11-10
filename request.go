@@ -19,12 +19,14 @@ import (
 // It wraps the standard http.Request and provides enhanced features like middleware support,
 // retry capabilities, remote address tracking, and structured error handling.
 type Request struct {
-	err        error         // General error associated with the request (validation, setup, etc.)
-	remoteAddr net.Addr      // Remote server address captured during connection
-	bodyBytes  []byte        // Cached body bytes for retry support
-	request    *http.Request // The underlying standard HTTP request
-	cli        *Client       // The associated surf client for this request
-	multipart  *Multipart    // Multipart form data for file uploads and form submissions
+	http3PriorityHandler func(*HTTP3PriorityUpdater)
+	http3PrioritySet     bool
+	err                  error         // General error associated with the request (validation, setup, etc.)
+	remoteAddr           net.Addr      // Remote server address captured during connection
+	bodyBytes            []byte        // Cached body bytes for retry support
+	request              *http.Request // The underlying standard HTTP request
+	cli                  *Client       // The associated surf client for this request
+	multipart            *Multipart    // Multipart form data for file uploads and form submissions
 }
 
 // GetRequest returns the underlying standard http.Request.
@@ -92,6 +94,8 @@ func (req *Request) Do() g.Result[*Response] {
 	if err := req.cli.applyReqMW(req); err != nil {
 		return g.Err[*Response](err)
 	}
+
+	req.prepareHTTP3Priority()
 
 	if req.request.Method != http.MethodHead {
 		if req.multipart == nil || req.multipart.retry {

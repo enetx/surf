@@ -37,6 +37,7 @@ const (
 // Use Builder.QUICSettings for the underlying QUIC transport and handshake.
 type HTTP3Settings struct {
 	altUsed                bool
+	earlyData              bool
 	clientHandshake        *quic.ClientHandshake
 	clientHelloFactory     func() (utls.ClientHelloSpec, error)
 	builder                *Builder
@@ -137,6 +138,7 @@ type uquicTransport struct {
 	qpackConfig            *http3.QPACKConfig
 	wireConfig             *http3.WireConfig
 	altUsed                bool
+	earlyData              bool
 	configureHandshake     func(*quic.Config) error
 	receivePacketSize      int
 	http3tr                *http3.Transport
@@ -167,6 +169,7 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 		qpackConfig:            settings.qpackConfig.Clone(),
 		wireConfig:             settings.wireConfig.Clone(),
 		altUsed:                settings.altUsed,
+		earlyData:              settings.earlyData,
 		tlsConfig:              c.tlsConfig.Clone(),
 		dialer:                 c.GetDialer(),
 		settings:               settings.settings.Clone(),
@@ -346,7 +349,7 @@ func (ut *uquicTransport) dialSOCKS5(
 
 	packetConn := quicconn.New(conn, proxyUDP, quicconn.EncapRaw)
 
-	quicConn, err := ut.dialOwnedPacketConn(ctx, packetConn, targetUDP, tlsCfg, cfg, true)
+	quicConn, err := ut.dialOwnedPacketConn(ctx, packetConn, targetUDP, tlsCfg, cfg, ut.useEarlyData(ctx))
 	if err != nil {
 		return nil, fmt.Errorf("QUIC dial: %w", err)
 	}
@@ -374,9 +377,12 @@ func (ut *uquicTransport) dialDirect(
 			return nil, err
 		}
 
-		return ut.dialOwnedPacketConn(ctx, packetConn, udpAddr, tlsCfg, cfg, false)
+		return ut.dialOwnedPacketConn(ctx, packetConn, udpAddr, tlsCfg, cfg, ut.useEarlyData(ctx))
 	}
 
+	if ut.useEarlyData(ctx) {
+		return ut.quictr.DialEarly(ctx, udpAddr, tlsCfg, cfg)
+	}
 	return ut.quictr.Dial(ctx, udpAddr, tlsCfg, cfg)
 }
 
@@ -436,7 +442,7 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		req = cloneRequestWithScheme(req, "https")
 	}
 
-	resp, err := ut.http3tr.RoundTrip(ut.requestWithAltUsed(req))
+	resp, err := ut.roundTripHTTP3(req)
 	if err != nil {
 		return ut.handleError(req, err)
 	}

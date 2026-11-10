@@ -13,10 +13,11 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
+	"github.com/enetx/quic-go/http3"
 	"github.com/enetx/surf"
 )
 
-func replaySurf(path, origin, browser, protocol string, stock bool) error {
+func replaySurf(path, origin, browser, protocol string, stock bool, scenario string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -37,8 +38,12 @@ func replaySurf(path, origin, browser, protocol string, stock bool) error {
 	if err := scanner.Err(); err != nil {
 		return err
 	}
-	if len(requests) != 11 {
-		return fmt.Errorf("browser captured %d requests, expected 11", len(requests))
+	expected := 11
+	if scenario == "priorities" {
+		expected = 3
+	}
+	if len(requests) != expected {
+		return fmt.Errorf("browser captured %d requests, expected %d", len(requests), expected)
 	}
 	im := surf.NewClient().Builder().Impersonate().MacOS()
 	var builder *surf.Builder
@@ -57,6 +62,10 @@ func replaySurf(path, origin, browser, protocol string, stock bool) error {
 	for _, captured := range requests {
 		if stock {
 			req := client.Get(g.String(origin + captured.Path))
+			req.GetRequest().Method = captured.Method
+			if captured.Method == "POST" {
+				req.Body(uploadBody(captured.Path, scenario))
+			}
 			for _, field := range captured.Fields {
 				if strings.EqualFold(field.Name, "authorization") {
 					req.SetHeaders(field.Name, field.Value)
@@ -74,11 +83,23 @@ func replaySurf(path, origin, browser, protocol string, stock bool) error {
 			}
 			continue
 		}
-		req, err := http.NewRequest(captured.Method, origin+captured.Path, nil)
+		req, err := http.NewRequest(captured.Method, origin+captured.Path, strings.NewReader(uploadBody(captured.Path, scenario)))
 		if err != nil {
 			return err
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		var priorityErr error
+		// Reproduce explicit priority changes only in this isolated experiment.
+		if scenario == "priorities" && captured.Path == "/priority.svg" {
+			ctx = http3.WithPriorityUpdateHandler(ctx, func(updater *http3.PriorityUpdater) {
+				for _, u := range []int8{1, 5, 1, 1} {
+					if err := updater.Update(u, true); err != nil {
+						priorityErr = err
+						return
+					}
+				}
+			})
+		}
 		req = req.WithContext(ctx)
 		var regular, pseudo []string
 		seen := make(map[string]bool)
@@ -102,6 +123,10 @@ func replaySurf(path, origin, browser, protocol string, stock bool) error {
 		// Use the configured public transport directly: no navigation-header
 		// middleware may add fields absent from the real browser's fetch request.
 		response, err := client.GetClient().Transport.RoundTrip(req)
+		if err == nil && priorityErr != nil {
+			response.Body.Close()
+			err = priorityErr
+		}
 		if err != nil {
 			cancel()
 			return err

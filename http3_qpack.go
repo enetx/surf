@@ -65,8 +65,8 @@ func (h *HTTP3Settings) QpackEagerStreamTypes(eager bool) *HTTP3Settings {
 }
 
 // QpackEncoderTableCapacity limits the capacity announced for request encoding.
-// The announcement is capped by peer SETTINGS; zero disables it. This does not
-// enable dynamic request compression. QpackMaxTableCapacity separately configures
+// The announcement is capped by peer SETTINGS. Dynamic request compression also
+// requires QpackDynamicTable(true). QpackMaxTableCapacity separately configures
 // the receive-side dynamic table advertised in our own SETTINGS.
 func (h *HTTP3Settings) QpackEncoderTableCapacity(capacity uint64) *HTTP3Settings {
 	h.qpack().EncoderTableCapacity = capacity

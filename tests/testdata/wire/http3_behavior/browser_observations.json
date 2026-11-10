@@ -1,0 +1,983 @@
+{
+  "schema": 1,
+  "scope": "Local HTTP/3 DATA and control-frame observations, independently checked against decrypted Wireshark frames. No claim about packet pacing, loss or congestion.",
+  "firefox_environment": "Fresh temporary headless profiles; MOZ_DISABLE_CONTENT_SANDBOX=1 for these processes only.",
+  "cases": [
+    {
+      "case": "chrome-h3-0",
+      "scenario": "uploads",
+      "captured_at": "2026-11-09T21:26:02.572Z",
+      "browser": "chrome",
+      "version": "Chrome/156.0.8078.79",
+      "peer_capacity": 0,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "2250542717051d6f7382670e2206154222dc7a9f3055d8a57f8a0e6080474e8f",
+      "requests_sha256": "1445192fc245f06bf64d07efec44b3bc72d1aa524073110dbb707840bc7f7541",
+      "frames_sha256": "d9758695c2352ae6f17a1fef4a278afdd05de7e08a414e02041e42461659c5df",
+      "independent_wireshark_checks": {
+        "data_frames": 30,
+        "priority_frames": 33
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            65536
+          ],
+          "surf_preset": [
+            65536
+          ],
+          "surf_exact_input": [
+            65536
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            371712
+          ],
+          "surf_preset": [
+            371712
+          ],
+          "surf_exact_input": [
+            371712
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            371712,
+            28288
+          ],
+          "surf_preset": [
+            371712,
+            28288
+          ],
+          "surf_exact_input": [
+            371712,
+            28288
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-0",
+      "scenario": "uploads",
+      "captured_at": "2026-11-09T21:26:05.019Z",
+      "browser": "firefox",
+      "version": "159.0.1",
+      "peer_capacity": 0,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "2283fa886abb13505a466671c04381ef863edff1fdee3f90dbf449f072174294",
+      "requests_sha256": "6ddfed99d23481b92c85c65f235588186d608c8e98f9dc77796fc199b157eb5f",
+      "frames_sha256": "b3813d6d523cc5bee6c11f40cf942b9cd42f4e6260c155de6e3daf096095175b",
+      "independent_wireshark_checks": {
+        "data_frames": 100,
+        "priority_frames": 0
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            31957,
+            32768,
+            811
+          ],
+          "surf_preset": [
+            32768,
+            32768
+          ],
+          "surf_exact_input": [
+            32768,
+            32768
+          ],
+          "boundaries_equal": false
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ],
+          "surf_preset": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            11264
+          ],
+          "surf_exact_input": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            11264
+          ],
+          "boundaries_equal": false
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ],
+          "surf_preset": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            6784
+          ],
+          "surf_exact_input": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            6784
+          ],
+          "boundaries_equal": false
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    },
+    {
+      "case": "chrome-h3-65536",
+      "scenario": "uploads",
+      "captured_at": "2026-11-09T21:28:04.623Z",
+      "browser": "chrome",
+      "version": "Chrome/156.0.8078.79",
+      "peer_capacity": 65536,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "261cc4e3364b4cf19ee2ff663d299d7f00877eb67ad0b1ad97183261fc7d4ded",
+      "requests_sha256": "f3f65fd68bc75c47423781e93ce48500234229b496cd81bf69fae31d9c8d0fa2",
+      "frames_sha256": "29e6b5719dc8b142980c44d75b9f4f08a6ef0f6635ae765f369ac32a3b1c1f5d",
+      "independent_wireshark_checks": {
+        "data_frames": 30,
+        "priority_frames": 33
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            65536
+          ],
+          "surf_preset": [
+            65536
+          ],
+          "surf_exact_input": [
+            65536
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            371712
+          ],
+          "surf_preset": [
+            371712
+          ],
+          "surf_exact_input": [
+            371712
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            371712,
+            28288
+          ],
+          "surf_preset": [
+            371712,
+            28288
+          ],
+          "surf_exact_input": [
+            371712,
+            28288
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-65536",
+      "scenario": "uploads",
+      "captured_at": "2026-11-09T21:28:07.317Z",
+      "browser": "firefox",
+      "version": "159.0.1",
+      "peer_capacity": 65536,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "3fe37865e9656e4bbae7d0710ad2b52d854685500310ea5674bd7b1f50222b66",
+      "requests_sha256": "f7f61eee695918b3c3952a34122d8dbe063dbc21cf021bee580ee94a19362daa",
+      "frames_sha256": "6c2b1b888ef6877a3ecf8fd13c2a7439e3f5456d3c0b4ab06b596dd19c5c8de9",
+      "independent_wireshark_checks": {
+        "data_frames": 100,
+        "priority_frames": 0
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            31957,
+            32768,
+            811
+          ],
+          "surf_preset": [
+            32768,
+            32768
+          ],
+          "surf_exact_input": [
+            32768,
+            32768
+          ],
+          "boundaries_equal": false
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ],
+          "surf_preset": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            11264
+          ],
+          "surf_exact_input": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            11264
+          ],
+          "boundaries_equal": false
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ],
+          "surf_preset": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            6784
+          ],
+          "surf_exact_input": [
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            6784
+          ],
+          "boundaries_equal": false
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    },
+    {
+      "case": "chrome-h3-0",
+      "scenario": "priorities",
+      "captured_at": "2026-11-09T21:26:02.112Z",
+      "browser": "chrome",
+      "version": "Chrome/156.0.8078.79",
+      "peer_capacity": 0,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "6b3c70c601378adcedc5698429494de7c2afb36cd7102370d0dd55f71f73079c",
+      "requests_sha256": "3766b4a4f398108cebd101cebeba6104c2864f654523b1f78d59f1373b62c100",
+      "frames_sha256": "706c3379880d5a7be7b15912ab0fd488a11fee883c8e088615eff8eff5316dbf",
+      "independent_wireshark_checks": {
+        "data_frames": 0,
+        "priority_frames": 12
+      },
+      "priorities": {
+        "browser": [
+          {
+            "stream": 0,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 4,
+            "value": "i"
+          },
+          {
+            "stream": 8,
+            "value": "u=1, i"
+          }
+        ],
+        "surf-preset": [
+          {
+            "stream": 0,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 4,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 8,
+            "value": "u=0, i"
+          }
+        ],
+        "surf-exact-input": [
+          {
+            "stream": 0,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 4,
+            "value": "i"
+          },
+          {
+            "stream": 4,
+            "value": "u=1, i"
+          },
+          {
+            "stream": 4,
+            "value": "u=5, i"
+          },
+          {
+            "stream": 4,
+            "value": "u=1, i"
+          },
+          {
+            "stream": 8,
+            "value": "u=1, i"
+          }
+        ]
+      },
+      "browser_observation": "Changing img.fetchPriority during the response emitted no additional PRIORITY_UPDATE in this scenario. Surf exact-input replay exercises manual changes separately; it does not reproduce an observed browser loading policy."
+    },
+    {
+      "case": "firefox-h3-0",
+      "scenario": "priorities",
+      "captured_at": "2026-11-09T21:26:06.241Z",
+      "browser": "firefox",
+      "version": "159.0.1",
+      "peer_capacity": 0,
+      "connections": {
+        "browser": 2,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "cc430ba68ea69806c6d7494457bd509f5f4eabbdb6ec23e5dd6f9c69ab77dbec",
+      "requests_sha256": "085a5aa1e649dafd9b1cb09d212d31f784df3aff9c8c05609cc5cebbd7340e93",
+      "frames_sha256": "6577ec86bd6ffb0335a935ff52630305bf99d6709485d0dfc8f4e6d0f5ecf569",
+      "independent_wireshark_checks": {
+        "data_frames": 0,
+        "priority_frames": 3
+      },
+      "priorities": {
+        "browser": [],
+        "surf-preset": [],
+        "surf-exact-input": [
+          {
+            "stream": 4,
+            "value": "u=1,i"
+          },
+          {
+            "stream": 4,
+            "value": "u=5,i"
+          },
+          {
+            "stream": 4,
+            "value": "u=1,i"
+          }
+        ]
+      },
+      "browser_observation": "Changing img.fetchPriority during the response emitted no additional PRIORITY_UPDATE in this scenario. Surf exact-input replay exercises manual changes separately; it does not reproduce an observed browser loading policy."
+    },
+    {
+      "case": "chrome-h3-65536",
+      "scenario": "priorities",
+      "captured_at": "2026-11-09T21:28:06.496Z",
+      "browser": "chrome",
+      "version": "Chrome/156.0.8078.79",
+      "peer_capacity": 65536,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "0162e483fbf1dde5fade8338d3606c02aa411017e3aae5c8a0cc5e323c4f2fab",
+      "requests_sha256": "0f9175c33ce906f242240ec0c4e0d1d9c1fdbf62552cc69746e9b3a222c70585",
+      "frames_sha256": "3147d405a46354adb9f8e2b1bae0ddf8e74cf7299ceebda2af2f05e00157f32e",
+      "independent_wireshark_checks": {
+        "data_frames": 0,
+        "priority_frames": 12
+      },
+      "priorities": {
+        "browser": [
+          {
+            "stream": 0,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 4,
+            "value": "i"
+          },
+          {
+            "stream": 8,
+            "value": "u=1, i"
+          }
+        ],
+        "surf-preset": [
+          {
+            "stream": 0,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 4,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 8,
+            "value": "u=0, i"
+          }
+        ],
+        "surf-exact-input": [
+          {
+            "stream": 0,
+            "value": "u=0, i"
+          },
+          {
+            "stream": 4,
+            "value": "i"
+          },
+          {
+            "stream": 4,
+            "value": "u=1, i"
+          },
+          {
+            "stream": 4,
+            "value": "u=5, i"
+          },
+          {
+            "stream": 4,
+            "value": "u=1, i"
+          },
+          {
+            "stream": 8,
+            "value": "u=1, i"
+          }
+        ]
+      },
+      "browser_observation": "Changing img.fetchPriority during the response emitted no additional PRIORITY_UPDATE in this scenario. Surf exact-input replay exercises manual changes separately; it does not reproduce an observed browser loading policy."
+    },
+    {
+      "case": "firefox-h3-65536",
+      "scenario": "priorities",
+      "captured_at": "2026-11-09T21:28:10.574Z",
+      "browser": "firefox",
+      "version": "159.0.1",
+      "peer_capacity": 65536,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "b13843d061e09c46bb064eaaca0fad14acd0bbbfed02b26c66fe4d16d8422659",
+      "requests_sha256": "54f38f1f050f6d24b784ce65799ef06e72d0d6d27e87cec926f1b01db52c6b6d",
+      "frames_sha256": "dd93e51b4f781c09175d414e61d223687ae4a600fb5890321d290ab0ee947b7a",
+      "independent_wireshark_checks": {
+        "data_frames": 0,
+        "priority_frames": 3
+      },
+      "priorities": {
+        "browser": [],
+        "surf-preset": [],
+        "surf-exact-input": [
+          {
+            "stream": 4,
+            "value": "u=1,i"
+          },
+          {
+            "stream": 4,
+            "value": "u=5,i"
+          },
+          {
+            "stream": 4,
+            "value": "u=1,i"
+          }
+        ]
+      },
+      "browser_observation": "Changing img.fetchPriority during the response emitted no additional PRIORITY_UPDATE in this scenario. Surf exact-input replay exercises manual changes separately; it does not reproduce an observed browser loading policy."
+    }
+  ]
+}

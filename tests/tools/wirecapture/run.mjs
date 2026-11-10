@@ -70,10 +70,13 @@ async function launch(executable, flags, pattern) {
   function send(method, params = {}, sessionId) {
     return new Promise((resolve, reject) => {
       const id = ++next;
-      const timer = setTimeout(() => {
-        pending.delete(id);
-        reject(Error(method + " timeout"));
-      }, 20000);
+      const timer = setTimeout(
+        () => {
+          pending.delete(id);
+          reject(Error(method + " timeout"));
+        },
+        method === "session.new" ? 60000 : 20000,
+      );
       pending.set(id, { resolve, reject, timer });
       ws.send(
         JSON.stringify({
@@ -274,6 +277,8 @@ async function captureCase(browser, protocol, capacity) {
       protocol,
       "-capacity",
       String(capacity),
+      "-scenario",
+      args.scenario || "headers",
       "-response-bytes",
       args["response-bytes"] || "0",
     ],
@@ -318,7 +323,10 @@ async function captureCase(browser, protocol, capacity) {
       .trim()
       .split("\n")
       .map(JSON.parse);
-    if (captured.length !== 11 || captured.some((r) => r.protocol !== protocol))
+    if (
+      captured.length !== (args.scenario === "priorities" ? 3 : 11) ||
+      captured.some((r) => r.protocol !== protocol)
+    )
       throw Error(
         "browser protocol/count mismatch: " +
           JSON.stringify(captured.map((r) => [r.protocol, r.path])),
@@ -337,6 +345,8 @@ async function captureCase(browser, protocol, capacity) {
           browser,
           "-protocol",
           protocol,
+          "-scenario",
+          args.scenario || "headers",
           ...(stock ? ["-stock"] : []),
         ],
         { encoding: "utf8", timeout: 40000 },
@@ -375,7 +385,11 @@ async function captureCase(browser, protocol, capacity) {
     ],
     { encoding: "utf8", maxBuffer: 64 << 20 },
   );
-  if (result.status !== 0) throw Error("tshark: " + result.stderr);
+  if (result.status !== 0)
+    throw Error(
+      "tshark: " +
+        (result.error?.message || result.stderr || `exit ${result.status}`),
+    );
   writeFileSync(join(directory, "wireshark.json"), result.stdout);
   writeFileSync(join(directory, "wireshark.log"), result.stderr);
   const digest = createHash("sha256")

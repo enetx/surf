@@ -82,6 +82,10 @@ type H2Config interface {
 // H3Config is the fluent contract used by profile.ConfigureH3 callbacks. It mirrors the
 // methods on surf.HTTP3Settings, the surf package provides an adapter that satisfies it.
 type H3Config interface {
+	EarlyData(bool) H3Config
+	RequestBodyBufferSize(int) H3Config
+	RequestBodyBufferSizePolicy(func(int64) int) H3Config
+	MaxDataFrameSize(int) H3Config
 	AltUsed(bool) H3Config
 	StreamPriority(int8, bool) H3Config
 	QpackMaxTableCapacity(uint64) H3Config
@@ -93,7 +97,18 @@ type H3Config interface {
 	QpackEncoderCapacityTiming(http3.QPACKCapacityTiming) H3Config
 	QpackSplitCookies(bool) H3Config
 	QpackNeverIndex(...string) H3Config
+	QpackDynamicTable(bool) H3Config
+	QpackHuffman(http3.QPACKHuffmanMode) H3Config
+	QpackIndexing(http3.QPACKIndexingMode) H3Config
+	QpackIndexingPolicy(func(string, string) bool) H3Config
+	QpackDrainingFraction(float64) H3Config
+	QpackPostBaseReferences(bool) H3Config
+	QpackLiteralInsertNames(bool) H3Config
+	QpackStopOnInsertionFailure(bool) H3Config
+	QpackMaxTrackedSections(uint64) H3Config
+	QpackEncoderZeroCapacity(bool) H3Config
 	PriorityUpdates(bool) H3Config
+	CompactPriorityUpdates(bool) H3Config
 	ControlGreaseFramesFactory(func() ([]http3.GreaseFrame, error)) H3Config
 	RequestGreaseFramesFactory(func(*http.Request) ([]http3.GreaseFrame, error)) H3Config
 	EnableConnectProtocol(uint64) H3Config
@@ -175,6 +190,8 @@ type Variant struct {
 	ConfigureH3 func(H3Config)
 	// ConfigureQPACK selects stream creation and capacity announcement behavior.
 	ConfigureQPACK func(H3Config)
+	// ConfigureRequestBody selects request body read sizes.
+	ConfigureRequestBody func(H3Config)
 
 	// ConfigureQUIC uses the same individual setters as Builder.QUICSettings.
 	// Nil retains Surf's defaults. Each application creates fresh private state.

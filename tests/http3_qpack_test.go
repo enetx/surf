@@ -2,6 +2,7 @@ package surf_test
 
 import (
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -103,11 +104,17 @@ func TestHTTP3QPACKFluentConfigurationOnWire(t *testing.T) {
 
 func TestHTTP3QPACKFluentValidation(t *testing.T) {
 	for name, configure := range map[string]func(*surf.HTTP3Settings){
-		"never-index name": func(h *surf.HTTP3Settings) { h.QpackNeverIndex("bad name") },
-		"duplicate":        func(h *surf.HTTP3Settings) { h.QpackStreamOrder(surf.QPACKEncoderStream, surf.QPACKEncoderStream) },
-		"type":             func(h *surf.HTTP3Settings) { h.QpackStreamOrder(0) },
-		"capacity":         func(h *surf.HTTP3Settings) { h.QpackEncoderTableCapacity(1 << 62) },
-		"timing":           func(h *surf.HTTP3Settings) { h.QpackEncoderCapacityTiming(99) },
+		"never-index name":  func(h *surf.HTTP3Settings) { h.QpackNeverIndex("bad name") },
+		"duplicate":         func(h *surf.HTTP3Settings) { h.QpackStreamOrder(surf.QPACKEncoderStream, surf.QPACKEncoderStream) },
+		"type":              func(h *surf.HTTP3Settings) { h.QpackStreamOrder(0) },
+		"capacity":          func(h *surf.HTTP3Settings) { h.QpackEncoderTableCapacity(1 << 62) },
+		"timing":            func(h *surf.HTTP3Settings) { h.QpackEncoderCapacityTiming(99) },
+		"huffman":           func(h *surf.HTTP3Settings) { h.QpackHuffman(99) },
+		"indexing":          func(h *surf.HTTP3Settings) { h.QpackIndexing(99) },
+		"draining negative": func(h *surf.HTTP3Settings) { h.QpackDrainingFraction(-.1) },
+		"draining excess":   func(h *surf.HTTP3Settings) { h.QpackDrainingFraction(1.1) },
+		"draining NaN":      func(h *surf.HTTP3Settings) { h.QpackDrainingFraction(math.NaN()) },
+		"tracking limit":    func(h *surf.HTTP3Settings) { h.QpackMaxTrackedSections(1 << 62) },
 	} {
 		t.Run(name, func(t *testing.T) {
 			h := surf.NewClient().Builder().ForceHTTP3().HTTP3Settings()

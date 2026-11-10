@@ -110,9 +110,11 @@ The fork now decodes dynamic QPACK according to the advertised receive settings;
 warmed Firefox responses no longer fail on nonzero Required Insert Count.
 The QUIC module tests cover RFC vectors, blocking/cancellation/deadlines, decoded
 size limits, fragmented streams, critical-stream errors and client/server traffic.
-The outbound encoder is still static. ACK ratio, packet scheduling/coalescing,
-congestion/loss and resource-specific priority behavior are not complete browser
-replicas. A matching normalized fingerprint does not establish those behaviors.
+The outbound encoder now uses dynamic tables with profile-selected insertion,
+Huffman, Base and draining policies. See the [QPACK audit](qpack/README.md).
+ACK timing/distributions, packet scheduling/coalescing, congestion/loss and
+resource-specific priority behavior are not complete browser replicas. A matching
+normalized fingerprint does not establish those behaviors.
 
 QPACK stream policy is separately selected in Surf's browser profiles and tested
 against local protocol peers. Chromium's QUICHE reserves decoder then encoder
@@ -125,10 +127,11 @@ Neqo reserves encoder then decoder streams and sends their types during HTTP/3
 initialization; capacity changes are sent from its encoder update loop. See
 [Neqo v0.31.1 connection setup](https://github.com/mozilla/neqo/blob/v0.31.1/neqo-http3/src/connection.rs)
 and [encoder updates](https://github.com/mozilla/neqo/blob/v0.31.1/neqo-qpack/src/encoder.rs).
-Surf implements these startup choices with builder overrides, not a full browser
-encoder: request field sections remain static. Existing browser JSON fixtures do
-not record all QPACK streams, instruction timing or packet scheduling, so these
-source-based policies are not a claim of independently captured packet parity.
+Surf implements startup and compression choices with builder overrides. The
+original navigation fixtures do not record all QPACK streams or scheduling.
+Separate [QPACK captures](qpack/README.md) compare actual field sections and encoder
+instructions at capacities 0, 128, 4096 and 65536; they do not establish identical
+instruction timing or QUIC packet scheduling.
 
 `tests/http3_qpack_test.go` checks actual stream types/IDs and capacity instructions
 from Surf, input/build snapshots, independent send/receive capacities and invalid
@@ -148,3 +151,8 @@ the goroutine race that let a first-request snapshot omit SETTINGS. Independent
 QUIC streams still do not promise delivery order under packet loss.
 External endpoint checks are manual, reject protocol fallback and are not required
 by CI. Saved browser fixtures keep these regression tests offline and repeatable.
+
+The [HTTP/3 body and priority report](http3_behavior/README.md) records repeated
+Chrome/Firefox upload captures and the remaining Firefox first-frame difference.
+Its DATA/control-frame observations are independently checked with Wireshark.
+The same report documents the standard-TLS-only scope of optional 0-RTT.

@@ -29,6 +29,27 @@ func (t *headerTrace) RecordEvent(event qlogwriter.Event) {
 	if !ok {
 		return
 	}
+	if t.server.frameRecords != nil {
+		record := map[string]any{"label": t.label, "connection": t.connection, "stream_id": uint64(frame.StreamID)}
+		switch f := frame.Frame.Frame.(type) {
+		case qlog.DataFrame:
+			record["type"] = "DATA"
+			record["length"] = frame.Raw.PayloadLength
+		case qlog.PriorityUpdateFrame:
+			record["type"] = "PRIORITY_UPDATE"
+			record["request_stream_id"] = uint64(f.StreamID)
+			record["priority"] = f.PriorityFieldValue
+		default:
+			record = nil
+		}
+		if record != nil {
+			t.server.mu.Lock()
+			if err := json.NewEncoder(t.server.frameRecords).Encode(record); err != nil {
+				t.server.errors = append(t.server.errors, err.Error())
+			}
+			t.server.mu.Unlock()
+		}
+	}
 	headers, ok := frame.Frame.Frame.(qlog.HeadersFrame)
 	if !ok {
 		return

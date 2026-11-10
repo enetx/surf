@@ -94,3 +94,26 @@ These ratios include piggybacking, buffering and tracing overhead; an observed
 ACK can acknowledge more packets than its triggering threshold. Reported ACK
 delays are not a guarantee about NIC transmit timing. `--decode=false` skips the
 large Wireshark JSON output; raw pcap and TLS secrets remain private as before.
+
+## Request bodies and explicit priorities
+
+The optional `--scenario=uploads --protocol=h3` run sends nine POST bodies of
+1 through 400000 bytes. Surf repeats the same method/body and records DATA
+boundaries in `frames.jsonl`. `--scenario=priorities --protocol=h3` changes a
+visible image's `fetchPriority` during a slowly streamed SVG response. Its exact
+Surf replay exercises explicit manual updates; it does not claim the web API
+caused those updates in a browser. Both scenarios work with capacities 0 and
+65536. Use a separate fresh output root for each scenario/repeat.
+
+```sh
+node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-uploads --protocol=h3 --capacity=0,65536 --scenario=uploads
+node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-priorities --protocol=h3 --capacity=0,65536 --scenario=priorities
+node tests/tools/wirecapture/behavior-analysis.mjs --in=/tmp/surf-uploads,/tmp/surf-priorities --out=/tmp/surf-behavior.json
+```
+
+`behavior-analysis.mjs` attributes connections by original QUIC destination ID,
+checks every recorded DATA/PRIORITY_UPDATE against independent Wireshark lengths
+and values, and preserves observed reconnections. Mismatching browser/Surf DATA
+boundaries are recorded, never converted into successful exact comparisons.
+`analyze.mjs` is the original 11-request header/QPACK sequence analysis; use the
+behavior analysis for these experiments, especially the three-request image run.

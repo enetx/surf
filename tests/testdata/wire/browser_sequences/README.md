@@ -26,6 +26,10 @@ HTTP/3 results and resource-context differences are outside this HPACK change.
 
 ## Capture-time results (Surf v1.0.211)
 
+These historical rows describe v1.0.211. Current outgoing dynamic QPACK and
+Huffman policies are verified separately in the [QPACK audit](../qpack/README.md).
+The original browser fixtures below remain unchanged.
+
 | Comparison using identical ordered input fields | Observed result |
 | --- | --- |
 | All ten cases | All 11 decoded request field sequences match, including Cookie and Authorization |
@@ -68,7 +72,9 @@ Surf's **583**. Firefox's is **414** versus **483**. These are field section
 sizes only: browsers also send encoder-stream instructions (stored in each
 fixture), so the numbers are not total network cost or a compression benchmark.
 Firefox reuses dynamic names/references; Chromium also indexes repeated values.
-At capacity 65536 the chosen encoder capacity remains 4096 in these captures.
+At capacity 65536 the chosen encoder capacity is 65536 in both browser captures
+(capacity instruction `3fe1ff03`). The earlier report's value 4096 was a prefixed-
+integer interpretation error; the saved raw captures were correct.
 The first request can be static if it precedes the peer SETTINGS.
 
 QPACK stream assignments agree where transmitted: Chromium control stream 2,
@@ -125,9 +131,9 @@ Offline tests: `TestIndependentBrowserHTTP2Sequence` in the capture tool package
 checks Chromium's complete raw blocks, Firefox's exact field encodings, both
 browsers' field order/values and table update sequences.
 `TestIndependentBrowserHTTP3Sequence` checks both
-browsers' exact ordered fields and SETTINGS, Chromium priorities and Firefox's
-eleven exact zero-capacity QPACK blocks. Remaining Chromium QPACK differences
-are reported here rather than accepted as false browser-parity assertions.
+browsers' exact ordered fields and SETTINGS, Chromium priorities and all eleven
+exact zero-capacity QPACK blocks for each browser. Fresh dynamic-table comparisons
+are recorded in the [QPACK audit](../qpack/README.md).
 
 ## Browser source references
 

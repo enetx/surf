@@ -55,7 +55,7 @@ func TestIndependentBrowserHTTP2Sequence(t *testing.T) {
 				require.NoError(t, json.NewEncoder(input).Encode(request))
 			}
 			require.NoError(t, input.Close())
-			require.NoError(t, replaySurf(input.Name(), "https://"+listener.Addr().String(), browser, "h2", false))
+			require.NoError(t, replaySurf(input.Name(), "https://"+listener.Addr().String(), browser, "h2", false, "headers"))
 			select {
 			case <-done:
 			case <-time.After(5 * time.Second):
