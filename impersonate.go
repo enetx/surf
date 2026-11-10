@@ -119,5 +119,15 @@ func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 
 	h3.Set()
 
-	return im.builder.SetHeaders(*v.BuildHeaders(im.os))
+	headers := v.BuildHeaders(im.os)
+	if v.ProtocolHeaders != nil {
+		// Protocol-aware profiles choose default pseudo-header order after
+		// routing. Defer these placeholders so explicit request metadata stays
+		// distinguishable from defaults when HTTP/3 falls back to HTTP/2.
+		for _, name := range []g.String{":method", ":path", ":authority", ":scheme"} {
+			headers.Remove(name)
+		}
+	}
+
+	return im.builder.SetHeaders(*headers)
 }

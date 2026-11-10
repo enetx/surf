@@ -555,6 +555,8 @@ func (ut *uquicTransport) Close() error {
 	if ut.fallbackTransport != nil {
 		if c, ok := ut.fallbackTransport.(interface{ Close() error }); ok {
 			c.Close()
+		} else if c, ok := ut.fallbackTransport.(interface{ CloseIdleConnections() }); ok {
+			c.CloseIdleConnections()
 		}
 	}
 

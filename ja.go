@@ -80,15 +80,21 @@ func (j *JA) ShuffleExtensions() *JA {
 // This method configures the client with custom TLS settings and proxy support for JA3/4 fingerprinting.
 //
 // The method performs several key operations:
-// 1. Skips configuration if HTTP/3 is being used (JA3/4 only works with HTTP/1.1 and HTTP/2)
-// 2. Adds connection cleanup middleware if not using singleton pattern
-// 3. Wraps the transport with a custom round tripper that implements JA3/4 fingerprinting
+// 1. Selects the TCP transport, including HTTP/3's fallback transport
+// 2. Wraps it with the configured HTTP/1.1 and HTTP/2 TLS fingerprint
+// 3. Retains HTTP/3's independently configured QUIC ClientHello
 //
 // Returns the builder instance for method chaining.
 func (j *JA) build() *Builder {
 	return j.builder.addCliMW(func(c *Client) error {
-		// JA3 fingerprinting is not compatible with HTTP/3 - skip if HTTP/3 is used
-		if _, ok := c.GetTransport().(*uquicTransport); ok {
+		if transport, ok := c.GetTransport().(*uquicTransport); ok {
+			base := transport.fallbackTransport
+			if previous, ok := base.(*roundtripper); ok {
+				// Reapplying JA replaces the previous TCP fingerprint.
+				base = previous.http1tr
+			}
+
+			transport.fallbackTransport = newRoundTripper(j, base)
 			return nil
 		}
 

@@ -11,6 +11,8 @@ import (
 // ProtocolHeaders adjusts headers for the protocol used by one transport
 // attempt. It receives a private header map and the HTTP major version.
 // Policies must support concurrent calls and preserve explicit user values.
+// Profiles with a policy supply their default pseudo-header order here;
+// BuildHeaders' pseudo-header placeholders are deferred until this stage.
 type ProtocolHeaders func(http.Header, int)
 
 // HeadersApplier applies the browser-specific request-header pipeline (insert defaults +

@@ -381,7 +381,7 @@ client := surf.NewClient().
 - ✅ **QUIC Controls**: Browser profiles and externally configurable transport parameters
 - ✅ **Header Ordering**: Explicit regular and pseudo-header order
 - ✅ **SOCKS5 UDP Support**: HTTP/3 works seamlessly over SOCKS5 UDP proxies
-- ✅ **Automatic Fallback**: Smart fallback to HTTP/2 when HTTP proxies are configured
+- ✅ **Automatic Fallback**: HTTP/2 or HTTP/1.1 fallback retains the configured TCP TLS fingerprint and protocol-specific header defaults
 - ✅ **DNS Integration**: Custom DNS and DNS-over-TLS support
 - ✅ **TLS Templates**: Separate HTTP/3 ClientHello templates with official uTLS
 - ✅ **Order Independence**: `ForceHTTP3()` works regardless of call order

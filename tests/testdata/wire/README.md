@@ -420,3 +420,54 @@ are retained, following the pinned Firefox tracking.rs. Delay below the advertis
 minimum closes the connection; malformed or unnegotiated frames are rejected.
 Adaptive outgoing ACK-rate requests, fallback connection racing, RFC 9368 and
 per-space packet-number allocation remain separate work.
+
+## Cross-protocol fallback and remaining transport work
+
+HTTP/3 fallback now uses the same JA transport as ordinary TCP requests, retaining
+the selected ClientHello, HTTP/2 header policy and stream settings. Protocol-aware
+profiles defer their default pseudo-header order until the actual attempt:
+Firefox uses `:method,:path,:authority,:scheme` over HTTP/2 and
+`:method,:scheme,:authority,:path` over HTTP/3. Explicit request metadata wins.
+The private attempt does not overwrite the caller's headers. Closing the HTTP/3
+client also closes idle TCP fallback connections.
+
+Regression tests observe decrypted HTTP/2 frames after an HTTP CONNECT proxy or
+a QUIC handshake timeout, compare the TCP ClientHello with the independent
+Firefox 160 reference, and check GET/POST bodies, overrides, protocol defaults,
+profile replacement and cleanup. Native HTTP/3 and HTTP/3 -> HTTP/1.1 are checked
+separately. This repairs sequential fallback; it does not add connection racing.
+
+The next isolated extension is Firefox's outgoing legacy ACK_FREQUENCY policy.
+[Neqo's controller](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/ackrate.rs)
+selects its target from congestion window, packet size and RTT only when the peer
+advertises legacy min_ack_delay. Its
+[default ratio](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/params.rs)
+targets four acknowledgments per RTT, with packet tolerance bounded to 2..256 and
+delay bounded by the peer minimum and 50 ms. It keeps one request outstanding,
+tracks ACK/loss, and updates the effective peer ACK delay used by recovery.
+Implementation needs negotiated peer parameters, live policy inputs, frame
+lifecycle handling and PTO tests, rather than unconditional frame injection.
+Browser defaults belong in Surf and generic mechanics in the existing QUIC fork.
+
+Chromium 156's pinned QUICHE revision still has the peer-minimum setup marked TODO
+in [SetFromConfig](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_sent_packet_manager.cc).
+The sender minimum remains infinite, so its outgoing ACK_FREQUENCY path stays
+disabled in that source baseline. The Firefox legacy sender should not be enabled
+in the Chrome profile.
+
+Connection racing is a larger Surf change. Firefox's
+[backup timer](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp)
+and [preferences](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/modules/libpref/init/StaticPrefList.yaml)
+use 100 ms in the applicable pending-transaction path; HTTPS DNS records and Happy
+Eyeballs use other paths. Chromium's
+[waiting-job policy](https://github.com/chromium/chromium/blob/156.0.8078.79/net/quic/quic_session_pool.cc)
+depends on network history, brokenness and cached RTT. Competing connection
+attempts must select one request sender, retain/reuse the appropriate background
+connection, and preserve cancellation, streaming bodies and proxy behavior.
+
+[RFC 9368](https://www.rfc-editor.org/rfc/rfc9368.html) is a larger engine change:
+v1 and v2 support individually is insufficient for switching within a handshake.
+It needs version-information validation, alternate Initial handling, versioned
+key derivation and downgrade protection, with Retry, resumption and loss tests.
+Per-space packet-number allocation additionally affects shared recovery and
+congestion histories; it remains outside the minimal-change group.

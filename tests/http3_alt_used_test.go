@@ -2,8 +2,6 @@ package surf_test
 
 import (
 	"crypto/tls"
-	"io"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -115,32 +113,7 @@ func TestHTTP3AltUsedDoesNotLeakToProxyFallback(t *testing.T) {
 	origin.EnableHTTP2 = true
 	origin.StartTLS()
 	defer origin.Close()
-	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodConnect {
-			http.Error(w, "CONNECT required", http.StatusBadRequest)
-			return
-		}
-		upstream, err := net.DialTimeout("tcp", r.Host, 2*time.Second)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadGateway)
-			return
-		}
-		defer upstream.Close()
-		downstream, buffer, err := w.(http.Hijacker).Hijack()
-		if err != nil {
-			return
-		}
-		defer downstream.Close()
-		if _, err = buffer.WriteString("HTTP/1.1 200 Connection Established\r\n\r\n"); err != nil {
-			return
-		}
-		if err = buffer.Flush(); err != nil {
-			return
-		}
-		go func() { defer upstream.Close(); io.Copy(upstream, buffer) }()
-		io.Copy(downstream, upstream)
-	}))
-	defer proxy.Close()
+	proxy := newHTTPConnectProxy(t)
 	client := surf.NewClient().Builder().Impersonate().MacOS().Firefox().ForceHTTP3().Proxy(g.String(proxy.URL)).TLSConfig(&tls.Config{InsecureSkipVerify: true}).Timeout(5 * time.Second).Build().Unwrap()
 	defer client.Close()
 	response := client.Get(g.String(origin.URL + "/wire")).Do().Unwrap()
