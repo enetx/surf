@@ -101,6 +101,9 @@ func TestQUICPeerAckFrequencyProfilesOverridesAndSnapshots(t *testing.T) {
 			peer.packet.mu.Lock()
 			initialSize := peer.packet.initials[0].size
 			peer.packet.mu.Unlock()
+			if mode == "chrome" {
+				initialSize = 1460
+			}
 			require.EqualValues(t, packets*uint64(initialSize), trace.initialWindow)
 		})
 	}

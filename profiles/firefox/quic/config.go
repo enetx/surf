@@ -13,7 +13,14 @@ import (
 func ConfigureQUIC(q profiles.QUICConfig) {
 	// Neqo's 10*MTU initial window applies to this profile's sub-1472-byte MTU.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cc/classic_cc.rs
-	q.InitialCongestionWindowPackets(10)
+	// Firefox selects CUBIC and classic slow start by default (cc_algorithm=1,
+	// slow_start_algorithm=0). Keep this policy in the profile, not the engine.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/modules/libpref/init/StaticPrefList.yaml
+	q.CongestionControl(quic.CongestionControlCubic).
+		SlowStart(quic.SlowStartClassic).
+		CongestionControlSegmentSize(0).
+		CongestionControlConnections(1).
+		InitialCongestionWindowPackets(10)
 	q.Versions(quic.Version1).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).

@@ -438,9 +438,14 @@ RTT to target four ACKs per RTT, with tolerance 2..256 and 25% delay hysteresis.
 Chrome leaves the sender disabled. Pass `nil` to disable outgoing requests.
 Callbacks must be concurrency safe, return promptly and provide valid targets
 even when no update is requested; the engine manages sequencing, ACK/loss and PTO.
-`InitialCongestionWindowPackets(n)` selects a starting window in datagram-sized
-packets (2..10000); zero keeps the native default. Firefox selects 10. This does
-not replace the engine's subsequent congestion control or pacing. The
+`InitialCongestionWindowPackets(n)` selects a starting window in accounting
+segments (2..10000); zero keeps the native count. Firefox selects 10 path-MTU
+segments with RFC 9438 CUBIC and classic byte-based slow start. Chromium selects
+32 segments of 1460 bytes, byte-mode CUBIC, two emulated connections and original
+HyStart. These are source defaults; browser experiments can override them.
+`CongestionControl`, `SlowStart`, `CongestionControlSegmentSize` and
+`CongestionControlConnections` expose the same fluent controls to users.
+Pacing and recovery scheduling retain the engine's behavior. The
 [custom HTTP/3 example](examples/http/http3_custom/http3_custom.go) demonstrates
 both controls through the builder.
 

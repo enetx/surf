@@ -18,7 +18,7 @@ func (q *QUICSettings) PeerAckFrequencyPolicy(policy PeerAckFrequencyPolicy) *QU
 }
 
 // InitialCongestionWindowPackets sets the initial send window in datagram-sized
-// packets. Zero restores the engine default; supported explicit values are 2..10000.
+// packets (path MTU unless CongestionControlSegmentSize is fixed). Zero restores the engine default; supported explicit values are 2..10000.
 func (q *QUICSettings) InitialCongestionWindowPackets(packets uint32) *QUICSettings {
 	q.handshake().InitialCongestionWindowPackets = packets
 	return q

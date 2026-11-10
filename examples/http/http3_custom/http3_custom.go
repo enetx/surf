@@ -52,6 +52,8 @@ func main() {
 			MaxUDPPayloadSize(1472).
 			MaxDatagramFrameSize(65536).
 			MaxAckDelay(25*time.Millisecond).
+			CongestionControl(surf.CongestionControlCubic).
+			SlowStart(surf.SlowStartClassic).
 			InitialCongestionWindowPackets(10).
 			// Receiving peer requests and requesting the peer's ACK rate are independent.
 			LegacyAckFrequency(time.Millisecond).

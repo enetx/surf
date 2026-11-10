@@ -11,7 +11,18 @@ import (
 // Flow-control limits and empty SCIDs follow Chromium 156's quic_context.cc;
 // see tests/testdata/wire/README.md for sources and remaining limitations.
 func ConfigureQUIC(q profiles.QUICConfig) {
-	q.PeerAckFrequencyPolicy(nil).InitialCongestionWindowPackets(0)
+	// QUICHE's external BBR defaults are false. TcpCubicSenderBytes uses
+	// kDefaultTCPMSS=1460 and kDefaultNumConnections=2, independently of UDP MTU.
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/common/quiche_feature_flags_list.h
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/common/platform/default/quiche_platform_impl/quiche_flags_impl.cc
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/congestion_control/tcp_cubic_sender_bytes.cc
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_constants.h
+	q.CongestionControl(quic.CongestionControlCubicBytes).
+		SlowStart(quic.SlowStartHybrid).
+		CongestionControlSegmentSize(1460).
+		CongestionControlConnections(2).
+		PeerAckFrequencyPolicy(nil).
+		InitialCongestionWindowPackets(32)
 	q.Versions(quic.Version1).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).

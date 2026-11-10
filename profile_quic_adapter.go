@@ -16,6 +16,26 @@ import (
 // quicadapter delegates profile chains to the public QUICSettings implementation.
 type quicadapter struct{ s *QUICSettings }
 
+func (a quicadapter) CongestionControl(algorithm quic.CongestionControlAlgorithm) profiles.QUICConfig {
+	a.s.CongestionControl(algorithm)
+	return a
+}
+
+func (a quicadapter) SlowStart(algorithm quic.SlowStartAlgorithm) profiles.QUICConfig {
+	a.s.SlowStart(algorithm)
+	return a
+}
+
+func (a quicadapter) CongestionControlSegmentSize(bytes uint16) profiles.QUICConfig {
+	a.s.CongestionControlSegmentSize(bytes)
+	return a
+}
+
+func (a quicadapter) CongestionControlConnections(count uint32) profiles.QUICConfig {
+	a.s.CongestionControlConnections(count)
+	return a
+}
+
 func (a quicadapter) InitialCongestionWindowPackets(packets uint32) profiles.QUICConfig {
 	a.s.InitialCongestionWindowPackets(packets)
 	return a
