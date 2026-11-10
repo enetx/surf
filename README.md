@@ -429,8 +429,20 @@ ACK_FREQUENCY receiver and advertises its minimum delay. Firefox configures this
 through the same builder; Chrome leaves it off. Zero disables the extension.
 Peer requests can change local ACK tolerance, delay and ignore_order behavior;
 local ACK settings apply until the first valid request. This is separate from
-`MinAckDelay`, which is the local RTT-based timer floor. It does not generate
-adaptive outgoing requests for the peer's ACK rate.
+`MinAckDelay`, which is the local RTT-based timer floor.
+
+`QUICSettings().PeerAckFrequencyPolicy(policy).Set()` independently configures
+outgoing legacy requests, enabled only after the peer advertises its minimum and
+the handshake completes. Firefox uses live congestion window, datagram size and
+RTT to target four ACKs per RTT, with tolerance 2..256 and 25% delay hysteresis.
+Chrome leaves the sender disabled. Pass `nil` to disable outgoing requests.
+Callbacks must be concurrency safe, return promptly and provide valid targets
+even when no update is requested; the engine manages sequencing, ACK/loss and PTO.
+`InitialCongestionWindowPackets(n)` selects a starting window in datagram-sized
+packets (2..10000); zero keeps the native default. Firefox selects 10. This does
+not replace the engine's subsequent congestion control or pacing. The
+[custom HTTP/3 example](examples/http/http3_custom/http3_custom.go) demonstrates
+both controls through the builder.
 
 `HTTP3Settings().Grease().Set()` generates a fresh reserved SETTINGS pair for each
 new connection. Chrome profiles use two independent uint32 draws, matching the

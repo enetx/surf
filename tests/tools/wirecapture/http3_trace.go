@@ -77,8 +77,15 @@ func (t *headerTrace) recordPacket(direction string, header transportqlog.Packet
 	}
 	var ranges [][2]uint64
 	var delay time.Duration
+	var frequencies []map[string]any
 	eliciting := false
 	for _, f := range frames {
+		if frequency, ok := f.Frame.(*transportqlog.LegacyAckFrequencyFrame); ok {
+			frequencies = append(frequencies, map[string]any{
+				"sequence": frequency.SequenceNumber, "tolerance": frequency.AckElicitingThreshold,
+				"max_ack_delay_us": frequency.RequestMaxAckDelay / time.Microsecond, "ignore_order": frequency.IgnoreOrder,
+			})
+		}
 		if ack, ok := f.Frame.(*transportqlog.AckFrame); ok {
 			for _, r := range ack.AckRanges {
 				ranges = append(ranges, [2]uint64{uint64(r.Smallest), uint64(r.Largest)})
@@ -90,7 +97,7 @@ func (t *headerTrace) recordPacket(direction string, header transportqlog.Packet
 	}
 	t.server.mu.Lock()
 	defer t.server.mu.Unlock()
-	err := json.NewEncoder(t.server.packetRecords).Encode(map[string]any{"label": t.label, "connection": t.connection, "direction": direction, "packet_number": uint64(header.PacketNumber), "eliciting": eliciting, "ack_ranges": ranges, "ack_delay_ns": int64(delay)})
+	err := json.NewEncoder(t.server.packetRecords).Encode(map[string]any{"label": t.label, "connection": t.connection, "direction": direction, "packet_number": uint64(header.PacketNumber), "eliciting": eliciting, "ack_ranges": ranges, "ack_delay_ns": int64(delay), "ack_frequency": frequencies})
 	if err != nil {
 		t.server.errors = append(t.server.errors, err.Error())
 	}

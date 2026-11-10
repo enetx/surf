@@ -101,7 +101,7 @@ func newH3Peer(t *testing.T) *h3Peer {
 	return newH3PeerWithQPACK(t, nil)
 }
 
-func newH3PeerWithQPACK(t *testing.T, capacity *uint64) *h3Peer {
+func newH3PeerWithQPACK(t *testing.T, capacity *uint64, configure ...func(*quic.Config)) *h3Peer {
 	t.Helper()
 	s, udp, _, err := createHTTP3TestServer(func(w http.ResponseWriter, r *http.Request) {})
 	if err != nil {
@@ -121,6 +121,9 @@ func newH3PeerWithQPACK(t *testing.T, capacity *uint64) *h3Peer {
 	config := &quic.Config{
 		EnableDatagrams: true, EnableStreamResetPartialDelivery: true,
 		Tracer: func(context.Context, bool, quic.ConnectionID) qlogwriter.Trace { return p },
+	}
+	for _, customize := range configure {
+		customize(config)
 	}
 	listener, err := transport.Listen(s.TLSConfig, config)
 	if err != nil {

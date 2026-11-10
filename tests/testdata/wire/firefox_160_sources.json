@@ -108,6 +108,10 @@
       "changed_from_159": false
     },
     {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cc/classic_cc.rs",
+      "sha256": "fe54c6b24d00dd98d6643d211ec7f2b87e717482a2b911c9e888afb9cb105c55"
+    },
+    {
       "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cid.rs",
       "sha256": "0c59e038220a969611f45bf4b78c42716128670224191f088de8f655d8a88c6e",
       "changed_from_159": false

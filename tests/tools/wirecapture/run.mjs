@@ -221,6 +221,8 @@ async function captureCase(browser, protocol, capacity) {
       args.scenario || "headers",
       "-response-bytes",
       args["response-bytes"] || "0",
+      "-legacy-ack-frequency-min",
+      args["legacy-ack-frequency-min"] || "0",
       "-udp-delay",
       args["udp-delay"] || "0",
       "-udp-jitter",
@@ -397,7 +399,7 @@ async function captureCase(browser, protocol, capacity) {
     ],
     { encoding: "utf8", maxBuffer: 64 << 20 },
   );
-  if (result.status !== 0)
+  if (result.error || result.status !== 0)
     throw Error(
       "tshark: " +
         (result.error?.message || result.stderr || `exit ${result.status}`),

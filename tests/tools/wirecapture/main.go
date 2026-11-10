@@ -99,6 +99,7 @@ func main() {
 	stock := flag.Bool("stock", false, "use the stock Surf headers instead of exact captured headers")
 	allowFallback := flag.Bool("allow-fallback", false, "record fallback protocols instead of requiring the selected protocol")
 	responseBytes := flag.Int("response-bytes", 0, "synthetic /step/0 response bytes for ACK observations")
+	legacyAckMinimum := flag.Duration("legacy-ack-frequency-min", 0, "advertise a legacy ACK_FREQUENCY receiver minimum (HTTP/3 only)")
 	udpDelay := flag.Duration("udp-delay", 0, "one-way pipelined UDP delay, e.g. 10ms")
 	udpDropFirst := flag.Uint64("udp-drop-first", 0, "drop the first N UDP datagrams per remote/direction")
 	udpJitter := flag.Duration("udp-jitter", 0, "deterministic per-flow jitter bounded by the one-way delay")
@@ -176,7 +177,7 @@ func main() {
 		settings := g.NewMapOrd[uint64, uint64]()
 		settings.Insert(1, *capacity)
 		settings.Insert(7, 16)
-		h3 = &http3.Server{TLSConfig: s.tlsConfig.Clone(), QUICConfig: &quic.Config{EnableDatagrams: true, Tracer: func(_ context.Context, _ bool, id quic.ConnectionID) qlogwriter.Trace {
+		h3 = &http3.Server{TLSConfig: s.tlsConfig.Clone(), QUICConfig: &quic.Config{EnableDatagrams: true, LegacyAckFrequencyMinDelay: *legacyAckMinimum, Tracer: func(_ context.Context, _ bool, id quic.ConnectionID) qlogwriter.Trace {
 			return &headerTrace{server: s, label: s.label(), connection: id.String()}
 		}}, EnableDatagrams: true, AdditionalSettings: settings,
 			ConnContext: func(ctx context.Context, conn *quic.Conn) context.Context {
@@ -259,7 +260,7 @@ func main() {
 	})
 	mux.HandleFunc("/finish", func(w stdhttp.ResponseWriter, r *stdhttp.Request) { w.Write([]byte("ok")); stop() })
 	go stdhttp.Serve(admin, mux)
-	json.NewEncoder(os.Stdout).Encode(map[string]any{"origin": fmt.Sprintf("https://127.0.0.1:%d", port), "admin": "http://" + admin.Addr().String(), "port": port, "spki": spki, "certificate": filepath.Join(*out, "certificate.pem"), "protocol": *protocol, "capacity": *capacity, "network": map[string]any{"one_way_delay_ms": udpDelay.Milliseconds(), "jitter_ms": float64(*udpJitter) / float64(time.Millisecond), "reorder_every_per_flow_direction": *udpReorderEvery, "drop_every_per_flow_direction": *udpDropEvery, "drop_first_per_flow_direction": *udpDropFirst}})
+	json.NewEncoder(os.Stdout).Encode(map[string]any{"origin": fmt.Sprintf("https://127.0.0.1:%d", port), "admin": "http://" + admin.Addr().String(), "port": port, "spki": spki, "certificate": filepath.Join(*out, "certificate.pem"), "protocol": *protocol, "capacity": *capacity, "legacy_ack_frequency_min_us": *legacyAckMinimum / time.Microsecond, "network": map[string]any{"one_way_delay_ms": udpDelay.Milliseconds(), "jitter_ms": float64(*udpJitter) / float64(time.Millisecond), "reorder_every_per_flow_direction": *udpReorderEvery, "drop_every_per_flow_direction": *udpDropEvery, "drop_first_per_flow_direction": *udpDropFirst}})
 	<-ctx.Done()
 }
 

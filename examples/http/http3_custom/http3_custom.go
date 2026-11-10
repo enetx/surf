@@ -52,6 +52,16 @@ func main() {
 			MaxUDPPayloadSize(1472).
 			MaxDatagramFrameSize(65536).
 			MaxAckDelay(25*time.Millisecond).
+			InitialCongestionWindowPackets(10).
+			// Receiving peer requests and requesting the peer's ACK rate are independent.
+			LegacyAckFrequency(time.Millisecond).
+			PeerAckFrequencyPolicy(func(info surf.PeerAckFrequencyInfo) (surf.PeerAckFrequency, bool) {
+				target := surf.PeerAckFrequency{
+					AckElicitingThreshold: 4,
+					MaxAckDelay:           max(info.PeerMinAckDelay, 2*time.Millisecond),
+				}
+				return target, target != info.Current
+			}).
 			AckPacketThreshold(2).
 			AckDecimation(100, 10).
 			AckDelayRTTDivisor(4).

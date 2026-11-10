@@ -16,6 +16,16 @@ import (
 // quicadapter delegates profile chains to the public QUICSettings implementation.
 type quicadapter struct{ s *QUICSettings }
 
+func (a quicadapter) InitialCongestionWindowPackets(packets uint32) profiles.QUICConfig {
+	a.s.InitialCongestionWindowPackets(packets)
+	return a
+}
+
+func (a quicadapter) PeerAckFrequencyPolicy(policy quic.PeerAckFrequencyPolicy) profiles.QUICConfig {
+	a.s.PeerAckFrequencyPolicy(policy)
+	return a
+}
+
 func (a quicadapter) InitialPacketSizeFactory(factory func(net.Addr) (uint16, error)) profiles.QUICConfig {
 	a.s.InitialPacketSizeFactory(factory)
 	return a

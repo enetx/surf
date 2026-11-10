@@ -11,6 +11,9 @@ import (
 // Per-direction stream credit and connection windows are browser policy;
 // the QUIC fork supplies only the controls.
 func ConfigureQUIC(q profiles.QUICConfig) {
+	// Neqo's 10*MTU initial window applies to this profile's sub-1472-byte MTU.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cc/classic_cc.rs
+	q.InitialCongestionWindowPackets(10)
 	q.Versions(quic.Version1).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).
@@ -35,6 +38,7 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		// Neqo's min_ack_delay and legacy ACK_FREQUENCY receiver.
 		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
 		LegacyAckFrequency(time.Millisecond).
+		PeerAckFrequencyPolicy(PeerAckFrequency).
 		ActiveConnectionIDLimit(8).
 		OmitLegacyResetStreamAt(true).
 		DisableClientHelloScrambling(true)

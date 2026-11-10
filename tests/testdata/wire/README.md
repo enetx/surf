@@ -418,8 +418,9 @@ sequence/timer/reordering tests and real QUIC connections that inject updates.
 Equal sequence numbers are accepted, older updates ignored, and existing timers
 are retained, following the pinned Firefox tracking.rs. Delay below the advertised
 minimum closes the connection; malformed or unnegotiated frames are rejected.
-Adaptive outgoing ACK-rate requests, fallback connection racing, RFC 9368 and
-per-space packet-number allocation remain separate work.
+These historical captures predate the outgoing sender described below.
+Fallback connection racing, RFC 9368 and per-space packet-number allocation
+remain separate work.
 
 ## Cross-protocol fallback and remaining transport work
 
@@ -437,7 +438,7 @@ Firefox 160 reference, and check GET/POST bodies, overrides, protocol defaults,
 profile replacement and cleanup. Native HTTP/3 and HTTP/3 -> HTTP/1.1 are checked
 separately. This repairs sequential fallback; it does not add connection racing.
 
-The next isolated extension is Firefox's outgoing legacy ACK_FREQUENCY policy.
+Firefox's outgoing legacy ACK_FREQUENCY policy is now implemented.
 [Neqo's controller](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/ackrate.rs)
 selects its target from congestion window, packet size and RTT only when the peer
 advertises legacy min_ack_delay. Its
@@ -445,8 +446,8 @@ advertises legacy min_ack_delay. Its
 targets four acknowledgments per RTT, with packet tolerance bounded to 2..256 and
 delay bounded by the peer minimum and 50 ms. It keeps one request outstanding,
 tracks ACK/loss, and updates the effective peer ACK delay used by recovery.
-Implementation needs negotiated peer parameters, live policy inputs, frame
-lifecycle handling and PTO tests, rather than unconditional frame injection.
+The implementation includes negotiated peer parameters, live policy inputs, frame
+lifecycle handling and PTO tests.
 Browser defaults belong in Surf and generic mechanics in the existing QUIC fork.
 
 Chromium 156's pinned QUICHE revision still has the peer-minimum setup marked TODO
@@ -454,6 +455,45 @@ in [SetFromConfig](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd
 The sender minimum remains infinite, so its outgoing ACK_FREQUENCY path stays
 disabled in that source baseline. The Firefox legacy sender should not be enabled
 in the Chrome profile.
+
+`firefox_160_ack_frequency.json` records five new captures with the server's
+legacy minimum set to 1000us: two 2 MiB response runs at 10 ms one-way delay, two upload
+sequences with +/-5 ms jitter, every 17th datagram delayed and every 37th dropped
+(QPACK capacities 0 and 65536), and a Chromium control. Every group completed all
+11 HTTP/3 requests. Wireshark independently decodes every received request and
+matches its connection, sequence, tolerance, delay and ignore_order to server
+qlog. Frames seen at the capture socket but dropped before the server are retained
+separately; connection attribution uses original DCIDs, not reused UDP ports.
+
+The undisturbed Firefox first request is sequence 0, tolerance 2, ignore_order=false
+in all groups. Measured requested delays are 5867us in Firefox, 5657us in the Surf
+profile and 5758us with exact-input replay. Firefox's initial window is 10 datagrams
+for the profile's MTU, following
+[classic_cc.rs](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cc/classic_cc.rs).
+Native quic-go's 32-datagram window produced tolerance 8 in an earlier exploratory
+run; the exposed initial-window control fixes that first-request discrepancy.
+Both Chromium and its replays send zero ACK_FREQUENCY requests.
+
+The second bulk-response run uses the published QUIC v1.0.9 module with the
+workspace disabled. Its first request again has sequence 0, tolerance 2 and
+ignore_order=false in every group (5649us, 5314us and 5143us respectively).
+An earlier repeat timed out in Firefox's automation session setup before any
+network requests; it is not counted as a successful capture.
+
+Later tolerances and update counts in impaired transfers differ: the formula is
+the Firefox policy, but its inputs come from independent RTT measurements and
+native quic-go congestion/recovery/pacing. Firefox also opened two connections in
+one run. These captures establish negotiation and adaptive frame behavior, not
+complete packet-stream equivalence. Captures ran on macOS; the Firefox Windows
+User-Agent override does not emulate Windows networking. The engine additionally
+retains a conservative PTO delay bound for lost-but-unconfirmed requests until
+the latest request is acknowledged, protecting against late delivery/feedback.
+
+The new analyzer filters Wireshark output to Initial and ACK_FREQUENCY packets.
+The generic runner now rejects subprocess buffer errors even when termination
+reports exit status zero; large full decodes can exceed its 64 MiB buffer. Raw
+PCAP and key material remain private, and this report was generated from fresh
+filtered decodes, independently of those large full-output JSON files.
 
 Connection racing is a larger Surf change. Firefox's
 [backup timer](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp)

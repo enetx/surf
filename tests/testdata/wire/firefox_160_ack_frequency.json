@@ -1,0 +1,858 @@
+{
+  "schema": 1,
+  "method": "Exact encrypted UDP payloads at the server capture socket, synthetic IP/UDP envelopes. Independent Wireshark decoding is checked against every received qlog ACK_FREQUENCY frame. Original client DCIDs bind connections; sequence numbers are connection-local. Wire requests can be dropped by the path emulator before receipt. No NIC pacing or full congestion-controller parity claim.",
+  "cases": [
+    {
+      "case": "firefox-h3-0",
+      "captured_at": "2026-11-10T17:43:37.125Z",
+      "browser": "160.0",
+      "host": "macOS",
+      "user_agent_override": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+      "peer_legacy_min_ack_delay_us": 1000,
+      "network": {
+        "drop_every_per_flow_direction": 0,
+        "drop_first_per_flow_direction": 0,
+        "jitter_ms": 0,
+        "one_way_delay_ms": 10,
+        "reorder_every_per_flow_direction": 0
+      },
+      "network_totals": {
+        "incoming": {
+          "Seen": 2248,
+          "Dropped": 0,
+          "Overflow": 0,
+          "Delivered": 2246,
+          "Reordered": 0
+        },
+        "outgoing": {
+          "Seen": 5109,
+          "Dropped": 0,
+          "Overflow": 0,
+          "Delivered": 5107,
+          "Reordered": 0
+        }
+      },
+      "pcap_sha256": "fdfaed4034c17b165f77cdd6704780e7a831fbf27fdc745c670d6116e7dc3799",
+      "trace_sha256": "d04706b727e9f25f3d91bf72f92fd07ce434cd8d08cc4a156f4518278867e4bf",
+      "groups": [
+        {
+          "label": "browser",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5867,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5867,
+                  "sequence": 0,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5657,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5657,
+                  "sequence": 0,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5758,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5758,
+                  "sequence": 0,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-0",
+      "captured_at": "2026-11-10T17:43:48.090Z",
+      "browser": "160.0",
+      "host": "macOS",
+      "user_agent_override": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+      "peer_legacy_min_ack_delay_us": 1000,
+      "network": {
+        "drop_every_per_flow_direction": 37,
+        "drop_first_per_flow_direction": 0,
+        "jitter_ms": 5,
+        "one_way_delay_ms": 10,
+        "reorder_every_per_flow_direction": 17
+      },
+      "network_totals": {
+        "incoming": {
+          "Seen": 2763,
+          "Dropped": 73,
+          "Overflow": 0,
+          "Delivered": 2688,
+          "Reordered": 1189
+        },
+        "outgoing": {
+          "Seen": 2079,
+          "Dropped": 55,
+          "Overflow": 0,
+          "Delivered": 2022,
+          "Reordered": 611
+        }
+      },
+      "pcap_sha256": "d47e389a104e75d29af0489b1e07232898f81afaf280471d4d1028f74559d0ad",
+      "trace_sha256": "61fc16bbb0efdf8e1e37350f23b8475d656670d95f1d423b351b142ea1282d3d",
+      "groups": [
+        {
+          "label": "browser",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 6392,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 1,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5019,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 6392,
+                  "sequence": 0,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5019,
+                  "sequence": 1,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 6398,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 1,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5101,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 2,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4061,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 6398,
+                  "sequence": 0,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5101,
+                  "sequence": 1,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4061,
+                  "sequence": 2,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 6431,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 1,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5051,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 2,
+                  "tolerance": 4,
+                  "max_ack_delay_us": 4801,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 3,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4659,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 4,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4619,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 5,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 4668,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 6,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4687,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 6431,
+                  "sequence": 0,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5051,
+                  "sequence": 1,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4801,
+                  "sequence": 2,
+                  "tolerance": 4
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4659,
+                  "sequence": 3,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4619,
+                  "sequence": 4,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4668,
+                  "sequence": 5,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4687,
+                  "sequence": 6,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-65536",
+      "captured_at": "2026-11-10T17:44:00.936Z",
+      "browser": "160.0",
+      "host": "macOS",
+      "user_agent_override": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+      "peer_legacy_min_ack_delay_us": 1000,
+      "network": {
+        "drop_every_per_flow_direction": 37,
+        "drop_first_per_flow_direction": 0,
+        "jitter_ms": 5,
+        "one_way_delay_ms": 10,
+        "reorder_every_per_flow_direction": 17
+      },
+      "network_totals": {
+        "incoming": {
+          "Seen": 2796,
+          "Dropped": 73,
+          "Overflow": 0,
+          "Delivered": 2722,
+          "Reordered": 1185
+        },
+        "outgoing": {
+          "Seen": 2176,
+          "Dropped": 56,
+          "Overflow": 0,
+          "Delivered": 2116,
+          "Reordered": 653
+        }
+      },
+      "pcap_sha256": "31fc2eb18a1de6c65ebc1f67ddc4906b36ca149d2c850a3ede70fceba6244353",
+      "trace_sha256": "7606315d569a2981ef0fcedd39610d1d1b83c020e11f80beeb6acfe59b9796ff",
+      "groups": [
+        {
+          "label": "browser",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 6374,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 1,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5094,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 6374,
+                  "sequence": 0,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5094,
+                  "sequence": 1,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            },
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 6179,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 1,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5351,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 2,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 5121,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 3,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4754,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 4,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4645,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 6179,
+                  "sequence": 0,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5351,
+                  "sequence": 1,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5121,
+                  "sequence": 2,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4754,
+                  "sequence": 3,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4645,
+                  "sequence": 4,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 6398,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 1,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 5259,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 2,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 4946,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 3,
+                  "tolerance": 4,
+                  "max_ack_delay_us": 4930,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 4,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4444,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 5,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 4571,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 6,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4542,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 7,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 4744,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 8,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4513,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 6398,
+                  "sequence": 0,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5259,
+                  "sequence": 1,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4946,
+                  "sequence": 2,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4930,
+                  "sequence": 3,
+                  "tolerance": 4
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4444,
+                  "sequence": 4,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4571,
+                  "sequence": 5,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4542,
+                  "sequence": 6,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4744,
+                  "sequence": 7,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4513,
+                  "sequence": 8,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 6249,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 1,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 5523,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 2,
+                  "tolerance": 4,
+                  "max_ack_delay_us": 5333,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 3,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 4915,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 4,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 4588,
+                  "ignore_order": false
+                },
+                {
+                  "sequence": 5,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 3889,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 6249,
+                  "sequence": 0,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5523,
+                  "sequence": 1,
+                  "tolerance": 3
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5333,
+                  "sequence": 2,
+                  "tolerance": 4
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 4915,
+                  "sequence": 3,
+                  "tolerance": 2
+                },
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 3889,
+                  "sequence": 5,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": [
+                {
+                  "sequence": 4,
+                  "tolerance": 3,
+                  "max_ack_delay_us": 4588,
+                  "ignore_order": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "chrome-h3-0",
+      "captured_at": "2026-11-10T17:44:09.836Z",
+      "browser": "Chrome/156.0.8078.79",
+      "host": "macOS",
+      "user_agent_override": null,
+      "peer_legacy_min_ack_delay_us": 1000,
+      "network": {
+        "drop_every_per_flow_direction": 0,
+        "drop_first_per_flow_direction": 0,
+        "jitter_ms": 0,
+        "one_way_delay_ms": 10,
+        "reorder_every_per_flow_direction": 0
+      },
+      "network_totals": {
+        "incoming": {
+          "Seen": 694,
+          "Dropped": 0,
+          "Overflow": 0,
+          "Delivered": 693,
+          "Reordered": 0
+        },
+        "outgoing": {
+          "Seen": 5103,
+          "Dropped": 0,
+          "Overflow": 0,
+          "Delivered": 5102,
+          "Reordered": 0
+        }
+      },
+      "pcap_sha256": "04184421f62a8db08fc6ed2645b627d4b3501be98b4e6cb2d8de51734450bd97",
+      "trace_sha256": "505f5710f184ffc5a6b3a3f0719848c08c2d8344c4a2be0ed2c02e385bf9091e",
+      "groups": [
+        {
+          "label": "browser",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [],
+              "received_requests": [],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [],
+              "received_requests": [],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [],
+              "received_requests": [],
+              "wire_requests_not_received": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-0",
+      "captured_at": "2026-11-10T18:05:00.190Z",
+      "browser": "160.0",
+      "host": "macOS",
+      "user_agent_override": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+      "peer_legacy_min_ack_delay_us": 1000,
+      "network": {
+        "drop_every_per_flow_direction": 0,
+        "drop_first_per_flow_direction": 0,
+        "jitter_ms": 0,
+        "one_way_delay_ms": 10,
+        "reorder_every_per_flow_direction": 0
+      },
+      "network_totals": {
+        "incoming": {
+          "Seen": 1950,
+          "Dropped": 0,
+          "Overflow": 0,
+          "Delivered": 1948,
+          "Reordered": 0
+        },
+        "outgoing": {
+          "Seen": 5117,
+          "Dropped": 0,
+          "Overflow": 0,
+          "Delivered": 5115,
+          "Reordered": 0
+        }
+      },
+      "pcap_sha256": "e7077f134a92d214cb97624cc32a967cadef9fc91c1b91fb3f4a6ee538f28513",
+      "trace_sha256": "da6cb74fc19e795fcda8621bb590006922ff0ffdb3865ecaaa9bae17466cc6c3",
+      "groups": [
+        {
+          "label": "browser",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5649,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5649,
+                  "sequence": 0,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5314,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5314,
+                  "sequence": 0,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "completed_requests": 11,
+          "connections": [
+            {
+              "wire_requests": [
+                {
+                  "sequence": 0,
+                  "tolerance": 2,
+                  "max_ack_delay_us": 5143,
+                  "ignore_order": false
+                }
+              ],
+              "received_requests": [
+                {
+                  "ignore_order": false,
+                  "max_ack_delay_us": 5143,
+                  "sequence": 0,
+                  "tolerance": 2
+                }
+              ],
+              "wire_requests_not_received": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

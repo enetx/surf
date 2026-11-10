@@ -11,6 +11,7 @@ import (
 // Flow-control limits and empty SCIDs follow Chromium 156's quic_context.cc;
 // see tests/testdata/wire/README.md for sources and remaining limitations.
 func ConfigureQUIC(q profiles.QUICConfig) {
+	q.PeerAckFrequencyPolicy(nil).InitialCongestionWindowPackets(0)
 	q.Versions(quic.Version1).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).

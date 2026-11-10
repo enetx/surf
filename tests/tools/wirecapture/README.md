@@ -248,3 +248,23 @@ golden. For HTTP/3, pass `--protocol=h3 --url=https://fp.impersonate.pro/api/htt
 to the browser script; `http3-golden.mjs --in=BROWSER_JSON --out=REFERENCE_JSON`
 extracts a browser-only reference. Browser responses, TLS keys and temporary
 profiles remain private; committed reports contain normalized fields and hashes.
+
+## Outgoing legacy ACK_FREQUENCY
+
+Opt the local server into the Firefox legacy format with
+`--legacy-ack-frequency-min=1ms`. Zero keeps the native server behavior. This
+advertisement is independent of browser client receiver settings.
+
+```sh
+node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-peer-ack --browser=firefox --os=windows --protocol=h3 --capacity=0 --response-bytes=2097152 --udp-delay=10ms --legacy-ack-frequency-min=1ms --decode=false
+node tests/tools/wirecapture/peer-ack-frequency-analysis.mjs --in=/tmp/surf-peer-ack --out=/tmp/surf-peer-ack-report.json
+```
+
+The analyzer decrypts only client Initial and ACK_FREQUENCY packets, avoiding
+large full-decoder output. It binds original DCIDs to Wireshark connection numbers
+(one UDP socket can host multiple connections), then compares all received
+legacy requests with server qlog. Socket-observed frames dropped by the emulator
+are listed separately. Reports preserve browser version, network controls, hashes
+and per-connection frame values without TLS keys or temporary profile identifiers.
+Older capture metadata can explicitly supply `--peer-min-us=1000`; current runs
+record the server minimum directly. Chromium is a negative sender control.
