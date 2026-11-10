@@ -284,6 +284,11 @@ func TestHTTP3ConnectionRacingTCPWinnerKeepsQUICForNextRequest(t *testing.T) {
 		infosMu.Lock()
 		infos = append(infos, info)
 		infosMu.Unlock()
+		// Once QUIC is known to work, let it win before starting the warm TCP
+		// backup. A zero-delay race between two ready pools has no fixed winner.
+		if info.QUICWorked {
+			return time.Hour
+		}
 		return 0
 	}).Set().Build().Unwrap()
 	defer client.Close()

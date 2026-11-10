@@ -129,6 +129,7 @@ type H3Config interface {
 // method delegates to surf.QUICSettings, so profiles are examples of the same
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
+	CompatibleVersionNegotiation(bool) QUICConfig
 	CongestionControl(quic.CongestionControlAlgorithm) QUICConfig
 	SlowStart(quic.SlowStartAlgorithm) QUICConfig
 	CongestionControlSegmentSize(uint16) QUICConfig

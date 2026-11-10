@@ -110,12 +110,9 @@ hardcoding the observed 13. The distribution is sourced from official
 
 Chrome matches the captured normalized HTTP/3 PERK and TLS JA3n. Firefox matches
 TLS JA3n, SETTINGS, per-direction windows, CID length, ACK delay, datagram limit,
-parameter order and modern reliable-reset advertisement. Compatible version negotiation remains
-unadvertised. Specifically, the browser advertises compatible v1-to-v2 switching and
-Surf does not. Official quic-go lacks RFC 9368. Advertising that capability causes
-supporting servers to switch to v2 packets that this client cannot decrypt.
-Explicit v2 dialing still works. Do not advertise the capability until the engine
-implements and tests the switch; do not disguise this as a complete PERK match.
+parameter order and modern reliable-reset advertisement. The older Surf captures
+omitted compatible v1/v2 negotiation. Current Firefox profiles advertise it after
+the fork's RFC 9368/9369 implementation and verification, described below.
 
 The endpoint labels Firefox's `0xff02de1a` parameter as GREASE because the ID is
 27 modulo 31. In [Neqo's transport-parameter source](https://github.com/mozilla/neqo/blob/v0.31.1/neqo-transport/src/tparams.rs)
@@ -419,8 +416,8 @@ Equal sequence numbers are accepted, older updates ignored, and existing timers
 are retained, following the pinned Firefox tracking.rs. Delay below the advertised
 minimum closes the connection; malformed or unnegotiated frames are rejected.
 These historical captures predate the outgoing sender described below.
-Fallback connection racing, RFC 9368 and per-space packet-number allocation
-remain separate work.
+These captures predate connection racing and RFC 9368 support described below.
+Per-space packet-number allocation remains separate work.
 
 ## Cross-protocol fallback and remaining transport work
 
@@ -526,8 +523,8 @@ loss or a measurement of browser connection-racing timers.
 
 Both controls match Surf's JA3n, stable ordered HTTP/3 SETTINGS, header order and
 client CID length. Firefox's complete request headers and TP order also match.
-Its native version_information includes QUIC v2, whereas Surf deliberately omits
-that capability until RFC 9368 switching is implemented. Chromium's stable TP
+The Surf responses recorded in that historical comparison omit QUIC v2; current
+RFC 9368 validation results are recorded below. Chromium's stable TP
 values match; its TP order and GREASE vary. The installed browser is Chromium,
 so its Sec-CH-UA lacks the Google Chrome brand present in Surf's Chrome profile.
 The analyzer retains these differences instead of turning them into a full-match
@@ -550,8 +547,7 @@ to source and the implementation is covered by offline transport tests.
 
 [RFC 9368](https://www.rfc-editor.org/rfc/rfc9368.html) is a larger engine change:
 v1 and v2 support individually is insufficient for switching within a handshake.
-It needs version-information validation, alternate Initial handling, versioned
-key derivation and downgrade protection, with Retry, resumption and loss tests.
+The implementation and its validation are now recorded in the section below.
 Per-space packet-number allocation additionally affects shared recovery and
 congestion histories; it remains outside the minimal-change group.
 
@@ -574,3 +570,50 @@ slow-start exits, state snapshots, validation and migration. These are source-de
 arithmetic references. Existing public-browser captures continue to establish only
 their recorded handshake/header fields; they do not establish equal pacing, PRR,
 loss recovery, persistent congestion, connection racing or browser experiments.
+
+## RFC 9368 / RFC 9369 client verification
+
+Firefox's fluent profile enables compatible negotiation and supports both v1 and
+v2. Its first flight remains v1; `version_information` now lists GREASE, v2, v1.
+Native clients and server negotiation policy keep their previous defaults.
+The engine validates the selected version against authenticated server information
+and prevents induced downgrades. Retry uses the original version; Initial PN space
+and TLS transcript survive the switch; Handshake and 1-RTT use negotiated labels.
+Original-version 0-RTT retains its packet type and key labels. Session tickets and
+NEW_TOKEN caches are scoped to their versions. Browser-history selection of the
+next original version is separate work. The existing official-uTLS restriction on
+Surf early data with custom ClientHello templates remains; generic 0-RTT checks
+use standard TLS and do not imply new Firefox-template 0-RTT support.
+
+The fork's UDP integration tests exercise actual Dial and client Finished in both
+directions, Retry, original-version ACKs, reordered Handshake, lost server flight,
+corrupted candidate Initial, old servers, classic VN and VN followed by a compatible
+switch. Contradictory or missing authenticated information and forged VN are rejected.
+Codec, TLS keys, session-cache isolation, original-version 0-RTT headers and scalar
+configuration snapshots have additional tests. Surf's independent UDP decoder now
+handles RFC 9369's salt, key labels and Initial packet type, and tests both original
+versions. The existing connection-racing test now gives successful QUIC a policy
+head start; a deliberate zero-delay tie between two warm pools has no fixed winner.
+
+Independent manual HTTP/3 checks use official aioquic 1.3.0 with a private test CA
+explicitly trusted by the Go clients, without certificate bypass. Both compatible
+directions and Retry complete. A three-connection standard-TLS sequence obtains a
+v1 ticket, resumes with v1 0-RTT while switching to v2, then resumes v2 directly with
+v2 0-RTT. The symmetric v2-to-v1 resumption sequence also passes. The peer
+independently confirms resumption and early-data acceptance;
+client qlog confirms packet versions. This is interoperability evidence, not an
+ordinary-browser packet-loss capture or a complete congestion/pacing parity claim.
+
+`firefox_160_rfc9368_endpoint.json` preserves fresh ordinary Firefox 160 and
+Surf endpoint comparisons, with private network identifiers omitted. Native browser
+Alt-Svc discovery selected HTTP/3 on the second navigation. The primary Surf
+follow-up explicitly enables SecureTLS. Raw PERK text and hash agree:
+`4678782326c9f141e5fa97242ba044d3`. The initial pair also agrees on the normalized
+hash `56c5da8e647c74b80c8231fa9e86c948`; the verified follow-up instead returns
+`a7c88866b460a05ed7bdbc492f457376` while retaining the same raw PERK and parsed
+version-information list. In those responses the endpoint places GREASE before
+or after v2 in its normalized list. Keep this variation verbatim rather than
+biasing the browser's GREASE distribution to force one normalized hash.
+The browser runs on macOS and Surf uses the Windows profile; this artifact makes
+no Windows kernel claim. `rfc9368_interop.json` records the independent local
+implementation results above.

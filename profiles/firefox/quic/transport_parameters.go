@@ -37,10 +37,11 @@ func NewTransportParameters(version quic.Version) (*transportparams.Layout, erro
 	info := binary.BigEndian.AppendUint32(nil, uint32(version))
 	info = binary.BigEndian.AppendUint32(info, greaseVersion)
 
-	// Do not advertise compatible v2 switching: official quic-go currently only
-	// supports classic version negotiation. Servers may otherwise switch keys
-	// in flight, which this transport cannot process (RFC 9368).
-	info = binary.BigEndian.AppendUint32(info, uint32(version))
+	// Neqo prefers v2, retaining a v1-compatible first flight. The engine
+	// performs authenticated compatible switching before advertising this list.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/version.rs
+	info = binary.BigEndian.AppendUint32(info, uint32(quic.Version2))
+	info = binary.BigEndian.AppendUint32(info, uint32(quic.Version1))
 
 	// Legacy min_ack_delay is supplied by the enabled engine receiver, even
 	// though the parameter shares a reserved-number residue. Keep its captured

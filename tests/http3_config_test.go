@@ -55,12 +55,12 @@ type h3CaptureConn struct {
 
 func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
 	n, addr, err := c.PacketConn.ReadFrom(b)
-	if err == nil && n >= 7 && b[0]&0xf0 == 0xc0 && binary.BigEndian.Uint32(b[1:5]) == 1 {
+	if err == nil && isH3Initial(b[:n]) {
 		sourcePos := 6 + int(b[5])
 		if sourcePos < n {
 			c.mu.Lock()
 			c.rawInitials = append(c.rawInitials, bytes.Clone(b[:n]))
-			c.initials = append(c.initials, h3InitialCapture{version: 1, size: n, sourceCIDLength: int(b[sourcePos])})
+			c.initials = append(c.initials, h3InitialCapture{version: binary.BigEndian.Uint32(b[1:5]), size: n, sourceCIDLength: int(b[sourcePos])})
 			c.mu.Unlock()
 		}
 	}

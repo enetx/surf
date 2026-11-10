@@ -16,6 +16,11 @@ import (
 // quicadapter delegates profile chains to the public QUICSettings implementation.
 type quicadapter struct{ s *QUICSettings }
 
+func (a quicadapter) CompatibleVersionNegotiation(enabled bool) profiles.QUICConfig {
+	a.s.CompatibleVersionNegotiation(enabled)
+	return a
+}
+
 func (a quicadapter) CongestionControl(algorithm quic.CongestionControlAlgorithm) profiles.QUICConfig {
 	a.s.CongestionControl(algorithm)
 	return a

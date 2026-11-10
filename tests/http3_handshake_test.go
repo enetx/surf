@@ -22,13 +22,14 @@ import (
 	u "github.com/refraction-networking/utls"
 )
 
-// Independent RFC 9001 Initial decoder. These checks observe actual UDP bytes,
+// Independent RFC 9001 / RFC 9369 Initial decoder. These checks observe actual UDP bytes,
 // rather than trusting the client configuration or its trace records.
 func h3InitialPlaintext(packet []byte, initialDCID []byte, expectedNumber ...uint64) ([]byte, uint64, error) {
 	b := bytes.Clone(packet)
-	if len(b) < 7 || b[0]&0xf0 != 0xc0 || binary.BigEndian.Uint32(b[1:5]) != 1 {
-		return nil, 0, errors.New("not QUIC v1 Initial")
+	if !isH3Initial(b) {
+		return nil, 0, errors.New("not QUIC v1/v2 Initial")
 	}
+
 	p := 6 + int(b[5])
 	if p >= len(b) {
 		return nil, 0, errors.New("short destination ID")
@@ -60,6 +61,12 @@ func h3InitialPlaintext(packet []byte, initialDCID []byte, expectedNumber ...uin
 	}
 	end := p + int(length)
 	salt := []byte{0x38, 0x76, 0x2c, 0xf7, 0xf5, 0x59, 0x34, 0xb3, 0x4d, 0x17, 0x9a, 0xe6, 0xa4, 0xc8, 0x0c, 0xad, 0xcc, 0xbb, 0x7f, 0x0a}
+	// RFC 9369 §3.3 changes both the Initial salt and packet key labels.
+	label := "quic "
+	if binary.BigEndian.Uint32(b[1:5]) == uint32(quic.Version2) {
+		salt = []byte{0x0d, 0xed, 0xe3, 0xde, 0xf7, 0x00, 0xa6, 0xdb, 0x81, 0x93, 0x81, 0xbe, 0x6e, 0x26, 0x9d, 0xcb, 0xf9, 0xbd, 0x2e, 0xd9}
+		label = "quicv2 "
+	}
 	initial, err := hkdf.Extract(sha256.New, dcid, salt)
 	if err != nil {
 		return nil, 0, err
@@ -77,7 +84,7 @@ func h3InitialPlaintext(packet []byte, initialDCID []byte, expectedNumber ...uin
 		return out
 	}
 	secret := expand(initial, "client in", 32)
-	hp, err := aes.NewCipher(expand(secret, "quic hp", 16))
+	hp, err := aes.NewCipher(expand(secret, label+"hp", 16))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -104,7 +111,7 @@ func h3InitialPlaintext(packet []byte, initialDCID []byte, expectedNumber ...uin
 		candidate -= window
 	}
 	pn = candidate
-	block, err := aes.NewCipher(expand(secret, "quic key", 16))
+	block, err := aes.NewCipher(expand(secret, label+"key", 16))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -112,7 +119,7 @@ func h3InitialPlaintext(packet []byte, initialDCID []byte, expectedNumber ...uin
 	if err != nil {
 		return nil, 0, err
 	}
-	nonce := expand(secret, "quic iv", 12)
+	nonce := expand(secret, label+"iv", 12)
 	number := binary.BigEndian.AppendUint64(nil, pn)
 	for i, v := range number {
 		nonce[len(nonce)-8+i] ^= v
@@ -403,4 +410,12 @@ func TestHTTP3InitialPacketNumberTruncation(t *testing.T) {
 			}
 		})
 	}
+}
+
+func isH3Initial(b []byte) bool {
+	if len(b) < 7 {
+		return false
+	}
+	v := binary.BigEndian.Uint32(b[1:5])
+	return v == uint32(quic.Version1) && b[0]&0xf0 == 0xc0 || v == uint32(quic.Version2) && b[0]&0xf0 == 0xd0
 }

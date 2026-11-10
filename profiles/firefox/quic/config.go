@@ -21,7 +21,8 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		CongestionControlSegmentSize(0).
 		CongestionControlConnections(1).
 		InitialCongestionWindowPackets(10)
-	q.Versions(quic.Version1).
+	q.CompatibleVersionNegotiation(true).
+		Versions(quic.Version1, quic.Version2).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).
 		KeepAlivePeriod(0).

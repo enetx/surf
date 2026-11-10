@@ -169,8 +169,7 @@ profile keeps full handshakes even with `Session()`; its cookies still persist.
 HTTP/3 uses the minimal enetx QUIC fork with separate browser ClientHello templates.
 Independent browser fixtures cover supported QUIC/TLS parameters, SETTINGS and
 header order. The [wire notes](tests/testdata/wire/README.md) describe differences,
-including Firefox compatible version negotiation, outgoing adaptive ACK-rate
-requests and transport scheduling.
+including transport scheduling, pacing, recovery and platform coverage.
 
 Firefox desktop uses the current 160 TLS template and headers. `JA().Firefox()` and
 `JA().Firefox160()` select that TLS fingerprint; `JA().Firefox148()` retains the native
@@ -637,9 +636,14 @@ browser captures, source references and remaining differences.
 
 Chrome desktop/Android and Firefox desktop supply separate QUIC TLS factories;
 iOS and Firefox mobile retain their previous defaults pending browser captures.
-Firefox does not advertise RFC 9368 compatible version switching or legacy
-ACK_FREQUENCY until the transport can implement them. All browser values and randomization policy live in
-Surf; the QUIC fork has no built-in browser presets or uTLS dependency.
+Firefox advertises compatible v1/v2 switching (RFC 9368/9369) and legacy
+ACK_FREQUENCY. Its profile starts with v1 and lists v2 before v1 in authenticated
+version information. `QUICSettings().CompatibleVersionNegotiation(true)` enables
+the same client mechanism for custom configurations; `Versions` selects allowed
+versions and the first flight. Native clients keep it disabled. Version validation,
+Retry, key changes and version-scoped session/token caches are handled by the engine.
+All browser values and randomization policy live in Surf; the QUIC fork has no
+built-in browser presets or uTLS dependency.
 
 Browser QUIC profiles use the same layout in `profiles/chrome/quic/` and
 `profiles/firefox/quic/`: `config.go` implements `ConfigureQUIC` as a chain of

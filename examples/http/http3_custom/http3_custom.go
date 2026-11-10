@@ -37,7 +37,8 @@ func main() {
 
 	if *profile == "custom" {
 		// TLS, transport parameters and HTTP/3 SETTINGS can be chosen independently.
-		quicSettings.Versions(quic.Version1).
+		quicSettings.CompatibleVersionNegotiation(true).
+			Versions(quic.Version1, quic.Version2).
 			InitialStreamReceiveWindow(1<<20).
 			MaxStreamReceiveWindow(4<<20).
 			InitialConnectionReceiveWindow(8<<20).

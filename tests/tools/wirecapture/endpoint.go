@@ -17,7 +17,7 @@ func probeSurfEndpoint(endpoint, directory, browser, profileOS, protocol string)
 	if err := os.MkdirAll(directory, 0700); err != nil {
 		return err
 	}
-	builder := browserBuilder(browser, profileOS)
+	builder := browserBuilder(browser, profileOS).SecureTLS()
 	major := 2
 	switch protocol {
 	case "h1":

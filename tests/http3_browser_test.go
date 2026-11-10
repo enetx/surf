@@ -255,12 +255,26 @@ func TestFirefoxHTTP3MatchesSupportedBrowserParameters(t *testing.T) {
 		require.NotContains(t, values, uint64(3))
 		require.Equal(t, []byte{0x43, 0xe8}, values[0xff02de1a], "legacy min_ack_delay advertises 1000 microseconds")
 		require.NotContains(t, values, uint64(0x17f7586d2cb571))
-		// RFC 9368 in-flight v1->v2 switching is unsupported by upstream. Do not
-		// advertise v2 and induce a switch that the transport cannot receive.
-		require.Len(t, values[17], 12)
-		require.EqualValues(t, 1, binary.BigEndian.Uint32(values[17]))
-		require.EqualValues(t, 0x0a0a0a0a, binary.BigEndian.Uint32(values[17][4:])&0x0f0f0f0f)
-		require.EqualValues(t, 1, binary.BigEndian.Uint32(values[17][8:]))
+		// The fork now implements the compatible switch. Compare the entire
+		// version information with the independent browser reference.
+		var versions struct {
+			Chosen    uint32            `json:"chosen_version"`
+			Available []json.RawMessage `json:"available_versions"`
+		}
+		require.NoError(t, json.Unmarshal(reference.TransportParameters["17"], &versions))
+		require.Len(t, values[17], 4*(1+len(versions.Available)))
+		require.EqualValues(t, versions.Chosen, binary.BigEndian.Uint32(values[17]))
+		for i, expected := range versions.Available {
+			actual := binary.BigEndian.Uint32(values[17][4+4*i:])
+			if string(expected) == `"GREASE"` {
+				require.EqualValues(t, 0x0a0a0a0a, actual&0x0f0f0f0f)
+			} else {
+				var version uint32
+				require.NoError(t, json.Unmarshal(expected, &version))
+				require.Equal(t, version, actual)
+			}
+		}
+
 		peer.packet.mu.Lock()
 		require.Equal(t, reference.ClientConnectionIDLength, peer.packet.initials[0].sourceCIDLength)
 		peer.packet.mu.Unlock()

@@ -1,0 +1,45 @@
+{
+  "source": {
+    "endpoint": "https://fp.impersonate.pro/api/http3",
+    "captured_at": "2026-11-10T20:45:20.305Z",
+    "browser": "Firefox 160.0",
+    "browser_method": "Fresh ordinary browser, public TLS verification, standard Alt-Svc discovery. Only isolated profile and automation/UI controls; no protocol, certificate, resolver, proxy or User-Agent overrides.",
+    "browser_platform": "macOS; native User-Agent",
+    "surf_profile": "Firefox 160, Windows; local RFC 9368 implementation",
+    "scope": "HTTP/3 PERK only; no Windows kernel fingerprint or controlled browser-loss claim",
+    "surf_tls_verification": true,
+    "surf_method": "Primary Surf result is a public endpoint probe with SecureTLS enabled; no certificate bypass. The initial probe is retained separately."
+  },
+  "native": {
+    "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@GREASE,1798521807,1;29:0x;GREASE;32:65535|3,8",
+    "perk_hash": "4678782326c9f141e5fa97242ba044d3",
+    "perk_text_normalized": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@1,1798521807,GREASE;29:0x;32:65535;GREASE|3,8",
+    "perk_hash_normalized": "56c5da8e647c74b80c8231fa9e86c948"
+  },
+  "surf": {
+    "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@GREASE,1798521807,1;29:0x;GREASE;32:65535|3,8",
+    "perk_hash": "4678782326c9f141e5fa97242ba044d3",
+    "perk_text_normalized": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@1,GREASE,1798521807;29:0x;32:65535;GREASE|3,8",
+    "perk_hash_normalized": "a7c88866b460a05ed7bdbc492f457376"
+  },
+  "initial_surf_comparison": {
+    "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@GREASE,1798521807,1;29:0x;GREASE;32:65535|3,8",
+    "perk_hash": "4678782326c9f141e5fa97242ba044d3",
+    "perk_text_normalized": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@1,1798521807,GREASE;29:0x;32:65535;GREASE|3,8",
+    "perk_hash_normalized": "56c5da8e647c74b80c8231fa9e86c948"
+  },
+  "comparison": {
+    "raw_text_equal": true,
+    "raw_hash_equal": true,
+    "normalized_text_equal": false,
+    "normalized_hash_equal": false,
+    "note": "The endpoint places GREASE differently in normalized available-version lists on repeat requests, despite identical raw PERK and parsed version_information lists. Responses are retained verbatim. This is not a reason to bias browser GREASE entropy."
+  },
+  "native_repeat": {
+    "perk_text": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@GREASE,1798521807,1;29:0x;GREASE;32:65535|3,8",
+    "perk_hash": "4678782326c9f141e5fa97242ba044d3",
+    "perk_text_normalized": "1:65536;7:20;727725890:0;16765559:1;51:1;8:1|m,s,a,p|1:30000;4:25165824;5:12582912;6:1048576;7:1048576;8:100;9:100;11:20;14:8;15:AUTO;17:1@1,1798521807,GREASE;29:0x;32:65535;GREASE|3,8",
+    "perk_hash_normalized": "56c5da8e647c74b80c8231fa9e86c948"
+  },
+  "native_repeat_captured_at": "2026-11-10T21:13:40.161Z"
+}

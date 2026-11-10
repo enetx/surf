@@ -23,7 +23,8 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		CongestionControlConnections(2).
 		PeerAckFrequencyPolicy(nil).
 		InitialCongestionWindowPackets(32)
-	q.Versions(quic.Version1).
+	q.CompatibleVersionNegotiation(false).
+		Versions(quic.Version1).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).
 		KeepAlivePeriod(0).
