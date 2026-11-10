@@ -257,9 +257,9 @@ func dnsMW(client *Client, dns g.String) error {
 
 	client.GetDialer().Resolver = &net.Resolver{
 		PreferGo: true,
-		Dial: func(ctx context.Context, _, _ string) (net.Conn, error) {
+		Dial: func(ctx context.Context, network, _ string) (net.Conn, error) {
 			var dialer net.Dialer
-			return dialer.DialContext(ctx, "udp", dns.Std())
+			return dialer.DialContext(ctx, network, dns.Std())
 		},
 	}
 

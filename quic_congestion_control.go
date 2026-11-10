@@ -42,3 +42,10 @@ func (q *QUICSettings) CongestionControlConnections(count uint32) *QUICSettings 
 	q.handshake().CongestionControlConnections = count
 	return q
 }
+
+// MaxCongestionWindowPackets caps the send window in accounting segments. Zero
+// restores the engine default; -1 removes this packet-count ceiling.
+func (q *QUICSettings) MaxCongestionWindowPackets(packets int64) *QUICSettings {
+	q.handshake().MaxCongestionWindowPackets = packets
+	return q
+}

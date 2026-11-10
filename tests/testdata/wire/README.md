@@ -282,9 +282,9 @@ Firefox also uses `SortConnectionIDFrames(true)` to retain increasing sequence
 numbers through both queue admission and serialization, following
 [ConnectionIdManager::write_frames](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cid.rs).
 Native Go frame shuffling otherwise changes their order. Handler association is
-preserved, including in recovery tests. Packet-number generation remains shared
-across spaces by quic-go; handshake ACK delay, congestion, pacing, loss recovery
-and probe timestamps are not an exact browser reproduction.
+preserved, including in recovery tests. At the time of these captures packet-number generation was shared. Current
+Firefox allocation is described in the transport update below; these historical
+captures do not establish an exact reproduction of recovery or probe timing.
 
 The earlier `packet-policies-*` repeats, before handshake-flight staging, observed:
 
@@ -374,10 +374,10 @@ no successful Firefox/Surf parity is claimed for this case.
 
 These are application-level UDP captures with synthetic IP envelopes, not NIC
 or kernel-network emulation. Capture-point details are in the tool README.
-Timing, native congestion control, fallback racing and per-space packet-number
-allocation remain differences. The latter needs separate recovery histories and
-an internal congestion transmission sequence, not merely three public counters;
-see the QUIC module's `UPSTREAM.md` assessment.
+These captures predate configured congestion control, fallback racing and
+Firefox per-space packet numbers. Current mechanisms use separate histories and
+an internal congestion transmission sequence; historical packet sizes and timing
+are retained here as observations of the recorded revision.
 
 HTTP/3 SETTINGS GREASE is now drawn per connection. Chromium uses independent
 uint32 draws for the reserved identifier and value, following
@@ -417,7 +417,7 @@ are retained, following the pinned Firefox tracking.rs. Delay below the advertis
 minimum closes the connection; malformed or unnegotiated frames are rejected.
 These historical captures predate the outgoing sender described below.
 These captures predate connection racing and RFC 9368 support described below.
-Per-space packet-number allocation remains separate work.
+Firefox per-space allocation is now implemented; see the transport update below.
 
 ## Cross-protocol fallback and remaining transport work
 
@@ -508,7 +508,8 @@ non-replayable streams, factories, cancellation, proxies and cleanup, while priv
 selector tests inspect coalescing and bounded history. Delay policy is in the
 profile, with a fixed-delay override and an application callback in the builder.
 Chrome's observations are per origin/client and do not implement the browser's
-full persisted network state, Alt-Svc backoff or DNS scheduler.
+full persisted network state or DNS scheduler. The transport update below adds
+client-scoped Alt-Svc/HTTPS discovery and profile backoff policies.
 
 ## Ordinary browser references for connection-racing work
 
@@ -549,7 +550,7 @@ to source and the implementation is covered by offline transport tests.
 v1 and v2 support individually is insufficient for switching within a handshake.
 The implementation and its validation are now recorded in the section below.
 Per-space packet-number allocation additionally affects shared recovery and
-congestion histories; it remains outside the minimal-change group.
+congestion histories; the transport update below now records its implementation.
 
 ## Congestion controller source verification
 
@@ -617,3 +618,62 @@ biasing the browser's GREASE distribution to force one normalized hash.
 The browser runs on macOS and Surf uses the Windows profile; this artifact makes
 no Windows kernel claim. `rfc9368_interop.json` records the independent local
 implementation results above.
+
+## Send scheduling and discovery update (2026-11-11)
+
+`browser_transport_2026_11_11.json` records fresh ordinary Firefox 160 and Chromium
+156 navigation on the publicly trusted endpoint and verified Surf Windows
+requests. TLS JA3n, SCID length, ordered HTTP/3 settings, header order and transport
+parameter values agree. Firefox parameter order agrees as well; Chromium order
+is independently randomized. Header values retain the real macOS/Windows and
+Chromium/Google Chrome brand differences. The report never erases those fields
+to manufacture equality. Raw response hashes retain provenance without storing
+TLS secrets or browser profiles.
+
+The QUIC fork now supplies configurable congestion-window ceilings, leaky-bucket
+and scheduled pacing, PRR, bounded immediate recovery sends and persistent-loss
+detection. All browser choices live in Surf's fluent profile chains. Chromium
+selects its 2000 × 1460-byte ceiling, scheduled bursts and PRR; Firefox selects
+two-packet pacing with signed debt, classic recovery and a three-PTO persistent
+congestion threshold. The fixed engine CWND ceiling is removed for Firefox;
+native history/memory and integer safety limits remain. The source arithmetic
+fixtures add 120 original Neqo pacing rows and 200 original QUICHE PRR comparisons.
+The scheduled pacer also stops compensating for elapsed time during application
+pauses, following its source application-limited notification.
+
+Firefox now uses independent wire counters and histories for Initial, Handshake
+and Application Data, and disables artificial random/PTO gaps. A separate
+internal transmission sequence protects shared
+congestion/recovery boundaries and spurious-loss undo. Chromium keeps the shared
+wire counter used by its original packet creator. Tests cover rejected 0-RTT,
+Retry, key disposal, skipped/unsent ACK rejection, migration and complete upload
+plus echoed download under deterministic losses in both directions.
+
+Surf adds client-scoped Alt-Svc and HTTPS DNS discovery, expiry/clear, origin TLS
+verification at alternate addresses, profile broken-service policies, shared
+DNS lookup cancellation and optional staggered address attempts. HTTPS records
+use the configured DNS/DoT transport with system resolver addresses, or an
+application callback; unsupported system DNS integration does not substitute a
+public resolver. Alias chains, ALPN, mandatory keys, port, hints and ECH are
+validated. Official TLS/uTLS APIs complete real ECH on QUIC and TCP; tests verify
+that a rejected ECH attempt does not retry without it, including subsequent
+requests during QUIC backoff. Binding TTL is independent of brokenness; a failed
+refresh of an expired ECH binding fails closed. DNS TCP-only services retain
+their target/port and original Host/SNI; `no-default-alpn` controls which
+transports may participate. A public TLS-state adapter
+lets the HTTP transports authenticate advertisements received through uTLS.
+Automatic discovery retains plain HTTP, forced protocols and application-owned
+transport policies. An unused automatic QUIC transport does not open a UDP socket.
+
+The current Firefox release does not enable its Nightly Happy Eyeballs path by
+default; configurable address staggering is therefore not blindly enabled in
+every profile. Persisted browser network state, experiments, resource scheduling,
+DNS integration beyond supported system/custom resolvers, kernel/NIC timing and
+full browser resumption remain outside the verified scope. Ordinary public
+endpoint requests do not prove identical congestion, pacing or loss timing;
+those mechanisms are verified separately against source and controlled Go peers.
+
+References are pinned in profile comments to Firefox `FIREFOX_160_0_RELEASE`,
+Chromium `156.0.8078.79`, and QUICHE
+`a1628192cf32ba40d21e0dd80f485d68c24ff87a`. See the QUIC module's `UPSTREAM.md`
+and `internal/congestion/testdata/README.md` for update hooks and oracle runners.

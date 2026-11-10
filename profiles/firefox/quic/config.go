@@ -20,8 +20,19 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		SlowStart(quic.SlowStartClassic).
 		CongestionControlSegmentSize(0).
 		CongestionControlConnections(1).
+		MaxCongestionWindowPackets(-1).
 		InitialCongestionWindowPackets(10)
-	q.CompatibleVersionNegotiation(true).
+	// Neqo uses a two-packet leaky bucket with debt at twice cwnd/RTT.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/pace.rs
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/sender.rs
+	q.Pacing(quic.PacingLeakyBucket).PacingBurstPackets(2).
+		PacingGains(2000, 2000).PacingGranularity(time.Millisecond).
+		ProportionalRateReduction(false).RecoveryBurstPackets(1).
+		PersistentCongestionThreshold(3)
+	// Each CryptoDxState owns used_pn; only Initial is randomized. Neqo
+	// advances it continuously, without artificial random or PTO gaps.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/crypto.rs
+	q.SeparatePacketNumberSpaces(true).PacketNumberSkipping(false).CompatibleVersionNegotiation(true).
 		Versions(quic.Version1, quic.Version2).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).

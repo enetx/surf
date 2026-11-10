@@ -85,6 +85,9 @@ type H2Config interface {
 // H3Config is the fluent contract used by profile.ConfigureH3 callbacks. It mirrors the
 // methods on surf.HTTP3Settings, the surf package provides an adapter that satisfies it.
 type H3Config interface {
+	Discovery(bool) H3Config
+	AlternativeServiceBackoff(func(uint32) time.Duration) H3Config
+	ExpireFailedAlternatives(bool) H3Config
 	ConnectionRacingPolicy(ConnectionRacingPolicy) H3Config
 	CoalesceInitialSettings(bool) H3Config
 	EarlyData(bool) H3Config
@@ -129,12 +132,24 @@ type H3Config interface {
 // method delegates to surf.QUICSettings, so profiles are examples of the same
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
+	AddressFallbackDelay(time.Duration) QUICConfig
 	CompatibleVersionNegotiation(bool) QUICConfig
 	CongestionControl(quic.CongestionControlAlgorithm) QUICConfig
 	SlowStart(quic.SlowStartAlgorithm) QUICConfig
 	CongestionControlSegmentSize(uint16) QUICConfig
 	CongestionControlConnections(uint32) QUICConfig
+	SeparatePacketNumberSpaces(bool) QUICConfig
+	PacketNumberSkipping(bool) QUICConfig
 	InitialCongestionWindowPackets(uint32) QUICConfig
+	MaxCongestionWindowPackets(int64) QUICConfig
+	Pacing(quic.PacingAlgorithm) QUICConfig
+	PacingBurstPackets(uint32) QUICConfig
+	PacingGains(uint32, uint32) QUICConfig
+	PacingGranularity(time.Duration) QUICConfig
+	PacingLumpyBurst(uint32, uint32, uint64) QUICConfig
+	ProportionalRateReduction(bool) QUICConfig
+	RecoveryBurstPackets(uint32) QUICConfig
+	PersistentCongestionThreshold(uint32) QUICConfig
 	PeerAckFrequencyPolicy(quic.PeerAckFrequencyPolicy) QUICConfig
 	LegacyAckFrequency(time.Duration) QUICConfig
 	InitialPacketSizeFactory(func(net.Addr) (uint16, error)) QUICConfig

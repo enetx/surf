@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/url"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -38,24 +39,29 @@ const (
 // HTTP3Settings configures HTTP/3 SETTINGS, response limits and request options.
 // Use Builder.QUICSettings for the underlying QUIC transport and handshake.
 type HTTP3Settings struct {
-	connectionRacing       bool
-	connectionRacingPolicy ConnectionRacingPolicy
-	tcpFallbackDelay       *time.Duration
-	altUsed                bool
-	earlyData              bool
-	clientHandshake        *quic.ClientHandshake
-	clientHelloFactory     func() (utls.ClientHelloSpec, error)
-	builder                *Builder
-	settings               g.MapOrd[uint64, uint64]
-	quicConfig             *quic.Config
-	qpackConfig            *http3.QPACKConfig
-	wireConfig             *http3.WireConfig
-	connectionIDLength     *int
-	connectionIDGenerator  quic.ConnectionIDGenerator
-	streamPriority         *http3.StreamPriority
-	maxResponseHeaderBytes int
-	datagrams              *bool
-	registered             bool
+	discovery                 bool
+	expireFailedAlternatives  bool
+	httpsRecordsLookup        HTTPSRecordsLookup
+	alternativeServiceBackoff AlternativeServiceBackoff
+	addressFallbackDelay      time.Duration
+	connectionRacing          bool
+	connectionRacingPolicy    ConnectionRacingPolicy
+	tcpFallbackDelay          *time.Duration
+	altUsed                   bool
+	earlyData                 bool
+	clientHandshake           *quic.ClientHandshake
+	clientHelloFactory        func() (utls.ClientHelloSpec, error)
+	builder                   *Builder
+	settings                  g.MapOrd[uint64, uint64]
+	quicConfig                *quic.Config
+	qpackConfig               *http3.QPACKConfig
+	wireConfig                *http3.WireConfig
+	connectionIDLength        *int
+	connectionIDGenerator     quic.ConnectionIDGenerator
+	streamPriority            *http3.StreamPriority
+	maxResponseHeaderBytes    int
+	datagrams                 *bool
+	registered                bool
 }
 
 // QpackMaxTableCapacity sets the advertised and enforced receive-side QPACK
@@ -127,8 +133,20 @@ func (h *HTTP3Settings) Set() *Builder {
 	h.registered = true
 
 	return h.builder.addCliMW(func(c *Client) error {
-		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || !h.builder.forceHTTP3 {
+		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || (!h.builder.forceHTTP3 && !h.discovery) {
 			return nil
+		}
+
+		// An application-owned transport or TLS dialer keeps ownership of its
+		// connection policy. Automatic discovery also needs reusable TCP pools.
+		if h.discovery && !h.builder.forceHTTP3 {
+			base := c.GetTransport()
+			if _, ok := base.(connectionPreconnector); !ok {
+				return nil
+			}
+			if tcp, ok := base.(*http.Transport); ok && (tcp.DisableKeepAlives || tcp.MaxIdleConnsPerHost < 0 || tcp.DialTLSContext != nil) {
+				return nil
+			}
 		}
 
 		transport, err := newUQUICTransport(h, c, h.builder)
@@ -147,6 +165,11 @@ func (h *HTTP3Settings) Set() *Builder {
 // It provides SOCKS5 proxy compatibility and automatic fallback to HTTP/2
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type uquicTransport struct {
+	sharedMu               sync.Mutex
+	sharedClosed           bool
+	lazySharedQUIC         bool
+	discovery              *alternativeDiscovery
+	addressFallbackDelay   time.Duration
 	racer                  *connectionRace
 	protocolHeaders        profiles.ProtocolHeaders
 	qpackConfig            *http3.QPACKConfig
@@ -181,6 +204,8 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 
 	ut := &uquicTransport{
 		protocolHeaders:        builder.protocolHeaders,
+		lazySharedQUIC:         settings.discovery && !builder.forceHTTP3,
+		addressFallbackDelay:   settings.addressFallbackDelay,
 		qpackConfig:            settings.qpackConfig.Clone(),
 		wireConfig:             settings.wireConfig.Clone(),
 		altUsed:                settings.altUsed,
@@ -219,6 +244,12 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 	snapshot.clientHandshake = settings.clientHandshake.Clone()
 	ut.configureHandshake = snapshot.configureClientHandshake
 	ut.fallbackTransport = c.GetTransport()
+	if settings.discovery {
+		if base, ok := ut.fallbackTransport.(*http.Transport); ok && base.DialTLSContext == nil {
+			base.DialContext = tcpBindingDial(base.DialContext)
+			base.DialTLSContext = ut.dialTCPWithECH(base)
+		}
+	}
 
 	if ut.proxy != "" && !isSOCKS5Proxy(ut.proxy) {
 		if ut.fallbackTransport == nil {
@@ -232,7 +263,17 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 		return nil, err
 	}
 
-	if settings.connectionRacing {
+	if settings.discovery && !builder.forceHTTP3 {
+		lookup := settings.httpsRecordsLookup
+		if ut.proxy != "" {
+			lookup = nil
+		} else if lookup == nil {
+			lookup = httpsLookupForResolver(ut.dialer.Resolver)
+		}
+		ut.discovery = newAlternativeDiscovery(lookup, settings.alternativeServiceBackoff, settings.expireFailedAlternatives)
+	}
+
+	if settings.connectionRacing || ut.discovery != nil {
 		if base, ok := ut.fallbackTransport.(*http.Transport); ok &&
 			(base.DisableKeepAlives || base.MaxIdleConnsPerHost < 0) {
 			ut.Close()
@@ -252,7 +293,11 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 			policy = func(ConnectionRacingInfo) time.Duration { return delay }
 		}
 
-		ut.racer = &connectionRace{policy: policy, quic: ut.http3tr.Preconnect, tcp: ut.preconnectTCP}
+		tcp := ut.preconnectTCP
+		if ut.discovery != nil {
+			tcp = ut.preconnectDiscoveredTCP
+		}
+		ut.racer = &connectionRace{policy: policy, quic: ut.http3tr.Preconnect, tcp: tcp}
 	}
 
 	return ut, nil
@@ -295,7 +340,7 @@ func (ut *uquicTransport) initTransport() error {
 		headerLimit = _maxResponseHeaderBytes
 	}
 
-	if ut.proxy == "" && !ut.dedicatedConn {
+	if ut.proxy == "" && !ut.dedicatedConn && !ut.lazySharedQUIC {
 		var err error
 		ut.pconn, err = ut.createUDPPacketConn()
 		if err != nil {
@@ -342,15 +387,39 @@ func (ut *uquicTransport) dial(
 			ut.racer.observeQUIC(addr, connection)
 		}
 	}()
-	resolved, err := ut.resolve(ctx, addr)
-	if err != nil {
-		return nil, fmt.Errorf("DNS resolution: %w", err)
+	target := addr
+	var route alternativeRoute
+	if candidate, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok && strings.EqualFold(candidate.origin, addr) {
+		route = candidate
+		target = route.address
+		defer func() {
+			if ut.discovery != nil {
+				ut.discovery.result(route, err)
+			}
+		}()
 	}
-
 	host, _, _ := net.SplitHostPort(addr)
 	if tlsCfg.ServerName == "" && host != "" && net.ParseIP(host) == nil {
 		tlsCfg = tlsCfg.Clone()
 		tlsCfg.ServerName = host
+	}
+
+	if len(route.ech) > 0 {
+		tlsCfg = tlsCfg.Clone()
+		tlsCfg.EncryptedClientHelloConfigList = append([]byte(nil), route.ech...)
+		tlsCfg.MinVersion = tls.VersionTLS13
+	}
+
+	if ut.discovery != nil || ut.addressFallbackDelay > 0 {
+		addresses, resolveErr := ut.resolveAddresses(ctx, target, route.hints)
+		if resolveErr != nil {
+			return nil, resolveErr
+		}
+		return ut.dialAddresses(ctx, addresses, tlsCfg, cfg)
+	}
+	resolved, err := ut.resolve(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("DNS resolution: %w", err)
 	}
 
 	if ut.proxy != "" {
@@ -419,8 +488,14 @@ func (ut *uquicTransport) dialDirect(
 		return nil, fmt.Errorf("resolve UDP addr: %w", err)
 	}
 
-	if ut.dedicatedConn {
-		packetConn, err := ut.createUDPPacketConn()
+	if ut.dedicatedConn || udpAddr.IP.To4() == nil {
+		var packetConn net.PacketConn
+		var err error
+		if udpAddr.IP.To4() == nil {
+			packetConn, err = net.ListenUDP("udp6", nil)
+		} else {
+			packetConn, err = ut.createUDPPacketConn()
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -428,11 +503,14 @@ func (ut *uquicTransport) dialDirect(
 		return ut.dialOwnedPacketConn(ctx, packetConn, udpAddr, tlsCfg, cfg, ut.useEarlyData(ctx))
 	}
 
-	if ut.useEarlyData(ctx) {
-		return ut.quictr.DialEarly(ctx, udpAddr, tlsCfg, cfg)
+	transport, err := ut.sharedQUICTransport()
+	if err != nil {
+		return nil, err
 	}
-
-	return ut.quictr.Dial(ctx, udpAddr, tlsCfg, cfg)
+	if ut.useEarlyData(ctx) {
+		return transport.DialEarly(ctx, udpAddr, tlsCfg, cfg)
+	}
+	return transport.Dial(ctx, udpAddr, tlsCfg, cfg)
 }
 
 // resolve resolves a hostname to an IP address, preferring IPv4.
@@ -499,6 +577,13 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		req = cloneRequestWithScheme(req, "https")
 	}
 
+	if ut.discovery != nil {
+		if req.URL.Scheme != "https" || requiresTCPHTTP(req) {
+			return ut.fallbackTransport.RoundTrip(req)
+		}
+		return ut.roundTripDiscovered(req)
+	}
+
 	if ut.racer != nil && req.URL.Scheme == "https" {
 		return ut.roundTripRacing(req)
 	}
@@ -525,7 +610,17 @@ func (ut *uquicTransport) requestWithAltUsed(req *http.Request) *http.Request {
 	}
 
 	authority := req.URL.Host
-	if req.URL.Port() == "443" {
+	if ut.discovery != nil {
+		origin, _ := raceAddress(req)
+		ut.discovery.mu.Lock()
+		if actual, ok := ut.discovery.actual[origin]; ok {
+			authority = actual.address
+		} else if route, ok := req.Context().Value(alternativeRouteKey{}).(alternativeRoute); ok {
+			authority = route.address
+		}
+		ut.discovery.mu.Unlock()
+	}
+	if _, port, err := net.SplitHostPort(authority); err == nil && port == "443" {
 		authority = strings.TrimSuffix(authority, ":443")
 	}
 
@@ -589,6 +684,9 @@ func (ut *uquicTransport) CloseIdleConnections() {
 
 // Close shuts down the transport and releases all resources.
 func (ut *uquicTransport) Close() error {
+	if ut.discovery != nil {
+		ut.discovery.close()
+	}
 	if ut.racer != nil {
 		ut.racer.close(false)
 	}
@@ -597,12 +695,15 @@ func (ut *uquicTransport) Close() error {
 		ut.http3tr.Close()
 	}
 
-	if ut.quictr != nil {
-		ut.quictr.Close()
+	ut.sharedMu.Lock()
+	ut.sharedClosed = true
+	transport, socket := ut.quictr, ut.pconn
+	ut.sharedMu.Unlock()
+	if transport != nil {
+		transport.Close()
 	}
-
-	if ut.pconn != nil {
-		ut.pconn.Close()
+	if socket != nil {
+		socket.Close()
 	}
 
 	if ut.fallbackTransport != nil {

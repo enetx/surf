@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/enetx/surf/internal/tlsstate"
 	"slices"
 
 	"github.com/enetx/quic-go/tlsquic"
@@ -90,12 +91,12 @@ func Factory(spec func() (utls.ClientHelloSpec, error)) tlsquic.NewClient {
 		}
 
 		if config.VerifyConnection != nil {
-			c.VerifyConnection = func(state utls.ConnectionState) error { return config.VerifyConnection(connectionState(state)) }
+			c.VerifyConnection = func(state utls.ConnectionState) error { return config.VerifyConnection(tlsstate.FromUTLS(state)) }
 		}
 
 		if config.EncryptedClientHelloRejectionVerify != nil {
 			c.EncryptedClientHelloRejectionVerify = func(state utls.ConnectionState) error {
-				return config.EncryptedClientHelloRejectionVerify(connectionState(state))
+				return config.EncryptedClientHelloRejectionVerify(tlsstate.FromUTLS(state))
 			}
 		}
 
@@ -177,32 +178,12 @@ func (c *client) StoreSession(state *tls.SessionState) error {
 
 func (c *client) Close() error { return convertError(c.conn.Close()) }
 func (c *client) ConnectionState() tls.ConnectionState {
-	return connectionState(c.conn.ConnectionState())
+	return tlsstate.FromUTLS(c.conn.ConnectionState())
 }
 
 // The standard-library state is an informational snapshot. Its private TLS
 // exporter closure cannot be transferred through public APIs. This is the same
 // limitation as Surf's existing uTLS snapshots; no unsafe layout casts are used.
-func connectionState(s utls.ConnectionState) tls.ConnectionState {
-	return tls.ConnectionState{
-		Version:                     s.Version,
-		HandshakeComplete:           s.HandshakeComplete,
-		DidResume:                   s.DidResume,
-		CipherSuite:                 s.CipherSuite,
-		CurveID:                     tls.CurveID(s.CurveID),
-		NegotiatedProtocol:          s.NegotiatedProtocol,
-		NegotiatedProtocolIsMutual:  s.NegotiatedProtocolIsMutual,
-		ServerName:                  s.ServerName,
-		PeerCertificates:            s.PeerCertificates,
-		VerifiedChains:              s.VerifiedChains,
-		SignedCertificateTimestamps: s.SignedCertificateTimestamps,
-		OCSPResponse:                s.OCSPResponse,
-		TLSUnique:                   s.TLSUnique,
-		ECHAccepted:                 s.ECHAccepted,
-		HelloRetryRequest:           s.HelloRetryRequest,
-		LocalCertificate:            s.LocalCertificate,
-	}
-}
 
 func convertError(err error) error {
 	if err == nil {

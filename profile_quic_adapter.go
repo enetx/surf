@@ -362,3 +362,56 @@ func (a quicadapter) LegacyAckFrequency(minimum time.Duration) profiles.QUICConf
 	a.s.LegacyAckFrequency(minimum)
 	return a
 }
+
+func (a quicadapter) MaxCongestionWindowPackets(packets int64) profiles.QUICConfig {
+	a.s.MaxCongestionWindowPackets(packets)
+	return a
+}
+
+func (a quicadapter) Pacing(algorithm quic.PacingAlgorithm) profiles.QUICConfig {
+	a.s.Pacing(algorithm)
+	return a
+}
+func (a quicadapter) PacingBurstPackets(packets uint32) profiles.QUICConfig {
+	a.s.PacingBurstPackets(packets)
+	return a
+}
+func (a quicadapter) PacingGains(slow, avoidance uint32) profiles.QUICConfig {
+	a.s.PacingGains(slow, avoidance)
+	return a
+}
+func (a quicadapter) PacingGranularity(granularity time.Duration) profiles.QUICConfig {
+	a.s.PacingGranularity(granularity)
+	return a
+}
+func (a quicadapter) PacingLumpyBurst(packets, fraction uint32, minBandwidth uint64) profiles.QUICConfig {
+	a.s.PacingLumpyBurst(packets, fraction, minBandwidth)
+	return a
+}
+func (a quicadapter) ProportionalRateReduction(enabled bool) profiles.QUICConfig {
+	a.s.ProportionalRateReduction(enabled)
+	return a
+}
+func (a quicadapter) RecoveryBurstPackets(packets uint32) profiles.QUICConfig {
+	a.s.RecoveryBurstPackets(packets)
+	return a
+}
+func (a quicadapter) PersistentCongestionThreshold(ptos uint32) profiles.QUICConfig {
+	a.s.PersistentCongestionThreshold(ptos)
+	return a
+}
+
+func (a quicadapter) SeparatePacketNumberSpaces(enabled bool) profiles.QUICConfig {
+	a.s.SeparatePacketNumberSpaces(enabled)
+	return a
+}
+
+func (a quicadapter) AddressFallbackDelay(delay time.Duration) profiles.QUICConfig {
+	a.s.AddressFallbackDelay(delay)
+	return a
+}
+
+func (a quicadapter) PacketNumberSkipping(enabled bool) profiles.QUICConfig {
+	a.s.PacketNumberSkipping(enabled)
+	return a
+}

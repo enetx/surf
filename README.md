@@ -677,9 +677,48 @@ QPACK, datagrams, local header limits and stream priority. `-profile chrome` or
 `-profile firefox` starts from fresh browser defaults; `-profile custom` sets
 individual transport options through `QUICSettings()`. Custom values change the resulting fingerprint.
 
+Chrome desktop/Android and Firefox desktop also enable automatic HTTP/3 discovery.
+Use `SecureTLS()` so Alt-Svc advertisements can be authenticated. A new origin
+uses TCP until a valid Alt-Svc or usable HTTPS DNS binding is available;
+connection preparation then races without reading or replaying the request body.
+`ForceHTTP1()` / `ForceHTTP2()` take precedence, while `ForceHTTP3()` retains its
+direct QUIC attempt. `HTTP3Settings().Discovery(false).Set()` disables discovery.
+The [discovery example](examples/http/http3_discovery/http3_discovery.go) demonstrates
+this flow with an ordinary verified client.
+
+Alternatives and failure history are bounded per client and origin. Alt-Svc
+expiry, `Age`, `clear`, alternative host/port, original SNI and certificate
+verification are retained. HTTPS DNS uses the configured DNS/DoT dial hook and
+system resolver addresses on systems exposing `resolv.conf`; it never substitutes
+a public resolver. `HTTPSRecordsLookup` integrates platform or application DNS
+resolvers elsewhere. Bindings support priority, alias chains, ALPN, port, IP
+hints, mandatory keys and ECH. DNS bindings also route TCP-only services without
+changing Host/SNI; `no-default-alpn` can exclude the TCP backup. ECH configuration is retained on both QUIC and
+TCP preparation, using official TLS/uTLS APIs. Rejected ECH is not retried without
+ECH. Proxies bypass local HTTPS discovery. Application-owned transports/TLS
+dialers and disabled TCP keep-alives retain their existing connection policy.
+
+QUIC profiles now include send scheduling as fluent configuration. Chromium
+uses scheduled pacing with PRR and a 2000 × 1460-byte window ceiling. Firefox
+uses a two-packet leaky bucket, classic recovery and persistent-congestion
+detection, without the engine's fixed congestion-window ceiling. Firefox has
+separate Initial, Handshake and Application Data wire counters, with no artificial
+random or PTO gaps; Chromium keeps a shared counter. `QUICSettings()` exposes `Pacing`, `PacingGains`,
+`PacingBurstPackets`, `PacingGranularity`, `PacingLumpyBurst`,
+`ProportionalRateReduction`, `RecoveryBurstPackets`,
+`PersistentCongestionThreshold`, `MaxCongestionWindowPackets` and
+`SeparatePacketNumberSpaces` and `PacketNumberSkipping`. Optional `AddressFallbackDelay` enables staggered
+QUIC address attempts; this custom override is not enabled indiscriminately in
+browser profiles. Native packet-history and integer safety limits still apply.
+
+These controls reproduce the verified mechanisms and preset source values.
+Browser DNS integration, persisted network experiments, OS scheduling and NIC
+packet timing remain outside an exact browser identity claim.
+
 `HTTP3Settings().AltUsed(false).Set()` disables the Firefox desktop profile's
 automatic `alt-used` header; `AltUsed(true)` enables it for a custom profile.
-The value follows the request URL, omits port 443 and preserves non-default ports.
+For direct HTTP/3 the value follows the request URL. Discovery uses the actual
+connected alternative authority; port 443 is omitted and other ports are preserved.
 An explicit `Alt-Used` header takes precedence. Automatic values are added to a
 private HTTP/3 attempt, so HTTP/1/2 fallback does not inherit them.
 

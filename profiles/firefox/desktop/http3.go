@@ -7,6 +7,7 @@ import (
 
 // ConfigureH3 applies Firefox desktop HTTP/3 settings.
 func ConfigureH3(h profiles.H3Config) {
+	h.Discovery(true).AlternativeServiceBackoff(common.AlternativeServiceBackoff).ExpireFailedAlternatives(true)
 	h.AltUsed(true).
 		ConnectionRacingPolicy(common.ConnectionRacing).
 		QpackMaxTableCapacity(65536).

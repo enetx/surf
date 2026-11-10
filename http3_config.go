@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"slices"
+	"time"
 
 	"github.com/enetx/g"
 	"github.com/enetx/quic-go"
@@ -112,7 +113,7 @@ func (h *HTTP3Settings) validateQUICConfig() error {
 		return fmt.Errorf("TCP fallback delay must be nonnegative")
 	}
 
-	if h.connectionRacing && h.earlyData {
+	if (h.connectionRacing || h.discovery && !h.builder.forceHTTP3) && h.earlyData {
 		return fmt.Errorf("HTTP/3 connection racing requires a full handshake; disable EarlyData")
 	}
 
@@ -155,6 +156,12 @@ func (h *HTTP3Settings) validateQUICConfig() error {
 		return fmt.Errorf("HTTP/3 connection ID length must be between 0 and 20: %d", length)
 	}
 
+	if h.addressFallbackDelay < 0 || h.addressFallbackDelay > time.Minute {
+		return fmt.Errorf("invalid QUIC address fallback delay")
+	}
+	if h.addressFallbackDelay > 0 && h.earlyData {
+		return fmt.Errorf("QUIC address racing requires 1-RTT")
+	}
 	if h.maxResponseHeaderBytes < 0 {
 		return fmt.Errorf("HTTP/3 response header limit must not be negative")
 	}

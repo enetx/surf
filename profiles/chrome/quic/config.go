@@ -22,8 +22,20 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		CongestionControlSegmentSize(1460).
 		CongestionControlConnections(2).
 		PeerAckFrequencyPolicy(nil).
+		// quic_max_congestion_window counts fixed accounting segments.
+		// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/common/quiche_protocol_flags_list.h
+		MaxCongestionWindowPackets(2000).
 		InitialCongestionWindowPackets(32)
-	q.CompatibleVersionNegotiation(false).
+	// QUICHE scheduled pacing, idle burst, lumpy thresholds, and PRR.
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/congestion_control/pacing_sender.cc
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/congestion_control/prr_sender.cc
+	q.Pacing(quic.PacingScheduled).PacingBurstPackets(10).
+		PacingGains(2000, 1250).PacingGranularity(time.Millisecond).
+		PacingLumpyBurst(2, 250, 150000).ProportionalRateReduction(true).
+		RecoveryBurstPackets(0).PersistentCongestionThreshold(0)
+	// QuicPacketCreator increments one packet_.packet_number across levels.
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_packet_creator.cc
+	q.SeparatePacketNumberSpaces(false).CompatibleVersionNegotiation(false).
 		Versions(quic.Version1).
 		HandshakeIdleTimeout(10*time.Second).
 		MaxIdleTimeout(30*time.Second).

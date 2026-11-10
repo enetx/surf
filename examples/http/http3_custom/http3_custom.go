@@ -56,6 +56,16 @@ func main() {
 			CongestionControl(surf.CongestionControlCubic).
 			SlowStart(surf.SlowStartClassic).
 			InitialCongestionWindowPackets(10).
+			MaxCongestionWindowPackets(2000).
+			Pacing(surf.PacingLeakyBucket).
+			PacingBurstPackets(2).
+			PacingGains(2000, 2000).
+			PacingGranularity(time.Millisecond).
+			ProportionalRateReduction(false).
+			RecoveryBurstPackets(1).
+			PersistentCongestionThreshold(3).
+			SeparatePacketNumberSpaces(true).
+			AddressFallbackDelay(250*time.Millisecond).
 			// Receiving peer requests and requesting the peer's ACK rate are independent.
 			LegacyAckFrequency(time.Millisecond).
 			PeerAckFrequencyPolicy(func(info surf.PeerAckFrequencyInfo) (surf.PeerAckFrequency, bool) {

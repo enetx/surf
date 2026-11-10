@@ -1,0 +1,888 @@
+{
+  "schema": 1,
+  "scope": "Fresh ordinary macOS browsers and verified Surf Windows profiles on the public endpoint. Endpoint fingerprints only; no NIC timing or controlled browser-loss claim.",
+  "browser_sources": {
+    "firefox": "FIREFOX_160_0_RELEASE",
+    "chromium": "156.0.8078.79",
+    "quiche": "a1628192cf32ba40d21e0dd80f485d68c24ff87a"
+  },
+  "captures": {
+    "firefox": {
+      "schema": 1,
+      "browser": "160.0",
+      "captured_at": "2026-11-10T22:01:14.538Z",
+      "method": "Fresh ordinary browser, public TLS verification, standard Alt-Svc discovery. Only isolated profile and automation/UI controls; no protocol, certificate, resolver, proxy or User-Agent overrides.",
+      "endpoint": "https://fp.impersonate.pro/api/http3",
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": null,
+          "error": null
+        },
+        {
+          "attempt": 2,
+          "protocol": "http3",
+          "error": null
+        }
+      ],
+      "browser_response_sha256": "ec5a9d33b2e648c1b02ea780d5bef16a029a55b8add012684a85d07afc56a55e",
+      "surf_response_sha256": "623234647bfb45d61ba68fccea010fa12f5e906b20348857cf8f2a50eca54000",
+      "scope": "Ordinary browser navigation over public TLS and standard Alt-Svc. Endpoint-observed fingerprints, not a packet capture or a controlled loss/racing experiment. GREASE entropy and SCID values are normalized; version capabilities and brand headers are retained.",
+      "comparison": {
+        "ja3n": {
+          "equal": true,
+          "browser": {
+            "text": "771,4865-4867-4866,0-5-10-13-16-23-27-28-34-43-45-51-57-65037-65281,4588-29-23-24-25,",
+            "hash": "872c3d8d0635e4167234d6c87532fb0b"
+          },
+          "surf": {
+            "text": "771,4865-4867-4866,0-5-10-13-16-23-27-28-34-43-45-51-57-65037-65281,4588-29-23-24-25,",
+            "hash": "872c3d8d0635e4167234d6c87532fb0b"
+          }
+        },
+        "client_connection_id_length": {
+          "equal": true,
+          "browser": 3,
+          "surf": 3
+        },
+        "settings": {
+          "equal": true,
+          "browser": [
+            [
+              1,
+              65536
+            ],
+            [
+              7,
+              20
+            ],
+            [
+              727725890,
+              0
+            ],
+            [
+              16765559,
+              1
+            ],
+            [
+              51,
+              1
+            ],
+            [
+              8,
+              1
+            ]
+          ],
+          "surf": [
+            [
+              1,
+              65536
+            ],
+            [
+              7,
+              20
+            ],
+            [
+              727725890,
+              0
+            ],
+            [
+              16765559,
+              1
+            ],
+            [
+              51,
+              1
+            ],
+            [
+              8,
+              1
+            ]
+          ]
+        },
+        "generated_settings_grease": {
+          "equal": true,
+          "browser": false,
+          "surf": false
+        },
+        "header_order": {
+          "equal": true,
+          "browser": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "alt-used",
+            "upgrade-insecure-requests",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "sec-fetch-user",
+            "priority"
+          ],
+          "surf": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "alt-used",
+            "upgrade-insecure-requests",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "sec-fetch-user",
+            "priority"
+          ]
+        },
+        "headers": {
+          "equal": false,
+          "browser": [
+            {
+              "name": ":method",
+              "value": "GET"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "fp.impersonate.pro"
+            },
+            {
+              "name": ":path",
+              "value": "/api/http3"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+            },
+            {
+              "name": "accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "alt-used",
+              "value": "fp.impersonate.pro"
+            },
+            {
+              "name": "upgrade-insecure-requests",
+              "value": "1"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "document"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "navigate"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "none"
+            },
+            {
+              "name": "sec-fetch-user",
+              "value": "?1"
+            },
+            {
+              "name": "priority",
+              "value": "u=0, i"
+            }
+          ],
+          "surf": [
+            {
+              "name": ":method",
+              "value": "GET"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "fp.impersonate.pro"
+            },
+            {
+              "name": ":path",
+              "value": "/api/http3"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
+            },
+            {
+              "name": "accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "alt-used",
+              "value": "fp.impersonate.pro"
+            },
+            {
+              "name": "upgrade-insecure-requests",
+              "value": "1"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "document"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "navigate"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "none"
+            },
+            {
+              "name": "sec-fetch-user",
+              "value": "?1"
+            },
+            {
+              "name": "priority",
+              "value": "u=0, i"
+            }
+          ]
+        },
+        "transport_parameter_order": {
+          "equal": true,
+          "browser": [
+            1,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            11,
+            14,
+            15,
+            17,
+            29,
+            4278378010,
+            32
+          ],
+          "surf": [
+            1,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            11,
+            14,
+            15,
+            17,
+            29,
+            4278378010,
+            32
+          ]
+        },
+        "transport_parameters": {
+          "equal": true,
+          "browser": [
+            [
+              1,
+              30000
+            ],
+            [
+              4,
+              25165824
+            ],
+            [
+              5,
+              12582912
+            ],
+            [
+              6,
+              1048576
+            ],
+            [
+              7,
+              1048576
+            ],
+            [
+              8,
+              100
+            ],
+            [
+              9,
+              100
+            ],
+            [
+              11,
+              20
+            ],
+            [
+              14,
+              8
+            ],
+            [
+              15,
+              "AUTO"
+            ],
+            [
+              17,
+              {
+                "chosen_version": 1,
+                "available_versions": [
+                  1,
+                  1798521807,
+                  "GREASE"
+                ]
+              }
+            ],
+            [
+              29,
+              "0x"
+            ],
+            [
+              32,
+              65535
+            ],
+            [
+              4278378010,
+              "0x43e8"
+            ]
+          ],
+          "surf": [
+            [
+              1,
+              30000
+            ],
+            [
+              4,
+              25165824
+            ],
+            [
+              5,
+              12582912
+            ],
+            [
+              6,
+              1048576
+            ],
+            [
+              7,
+              1048576
+            ],
+            [
+              8,
+              100
+            ],
+            [
+              9,
+              100
+            ],
+            [
+              11,
+              20
+            ],
+            [
+              14,
+              8
+            ],
+            [
+              15,
+              "AUTO"
+            ],
+            [
+              17,
+              {
+                "chosen_version": 1,
+                "available_versions": [
+                  1,
+                  1798521807,
+                  "GREASE"
+                ]
+              }
+            ],
+            [
+              29,
+              "0x"
+            ],
+            [
+              32,
+              65535
+            ],
+            [
+              4278378010,
+              "0x43e8"
+            ]
+          ]
+        }
+      },
+      "expected_differences": [
+        "Browser runs on macOS; Surf selects Windows."
+      ]
+    },
+    "chrome": {
+      "schema": 1,
+      "browser": "Chrome/156.0.8078.79",
+      "captured_at": "2026-11-10T22:01:14.528Z",
+      "method": "Fresh ordinary browser, public TLS verification, standard Alt-Svc discovery. Only isolated profile and automation/UI controls; no protocol, certificate, resolver, proxy or User-Agent overrides.",
+      "endpoint": "https://fp.impersonate.pro/api/http3",
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": null,
+          "error": null
+        },
+        {
+          "attempt": 2,
+          "protocol": "http3",
+          "error": null
+        }
+      ],
+      "browser_response_sha256": "3119f657d4c7f900b5207138920061afbe76377b7047baa3562bed23b2658dce",
+      "surf_response_sha256": "f12ae5447a784eeb3a7f9f36647e8dfc010437534f9624b41b27cf230b4a0b68",
+      "scope": "Ordinary browser navigation over public TLS and standard Alt-Svc. Endpoint-observed fingerprints, not a packet capture or a controlled loss/racing experiment. GREASE entropy and SCID values are normalized; version capabilities and brand headers are retained.",
+      "comparison": {
+        "ja3n": {
+          "equal": true,
+          "browser": {
+            "text": "771,4865-4866-4867,0-10-13-16-27-43-45-51-57-17613-51764-65037,4588-29-23-24,",
+            "hash": "18555a4ad0bd66d5fd99e1a493aa9f70"
+          },
+          "surf": {
+            "text": "771,4865-4866-4867,0-10-13-16-27-43-45-51-57-17613-51764-65037,4588-29-23-24,",
+            "hash": "18555a4ad0bd66d5fd99e1a493aa9f70"
+          }
+        },
+        "client_connection_id_length": {
+          "equal": true,
+          "browser": 0,
+          "surf": 0
+        },
+        "settings": {
+          "equal": true,
+          "browser": [
+            [
+              1,
+              65536
+            ],
+            [
+              6,
+              262144
+            ],
+            [
+              7,
+              100
+            ],
+            [
+              51,
+              1
+            ]
+          ],
+          "surf": [
+            [
+              1,
+              65536
+            ],
+            [
+              6,
+              262144
+            ],
+            [
+              7,
+              100
+            ],
+            [
+              51,
+              1
+            ]
+          ]
+        },
+        "generated_settings_grease": {
+          "equal": true,
+          "browser": true,
+          "surf": true
+        },
+        "header_order": {
+          "equal": true,
+          "browser": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-user",
+            "sec-fetch-dest",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ],
+          "surf": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-user",
+            "sec-fetch-dest",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        "headers": {
+          "equal": false,
+          "browser": [
+            {
+              "name": ":method",
+              "value": "GET"
+            },
+            {
+              "name": ":authority",
+              "value": "fp.impersonate.pro"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":path",
+              "value": "/api/http3"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"macOS\""
+            },
+            {
+              "name": "upgrade-insecure-requests",
+              "value": "1"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "none"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "navigate"
+            },
+            {
+              "name": "sec-fetch-user",
+              "value": "?1"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "document"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "priority",
+              "value": "u=0, i"
+            }
+          ],
+          "surf": [
+            {
+              "name": ":method",
+              "value": "GET"
+            },
+            {
+              "name": ":authority",
+              "value": "fp.impersonate.pro"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":path",
+              "value": "/api/http3"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"Google Chrome\";v=\"156\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"Windows\""
+            },
+            {
+              "name": "upgrade-insecure-requests",
+              "value": "1"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "none"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "navigate"
+            },
+            {
+              "name": "sec-fetch-user",
+              "value": "?1"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "document"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "priority",
+              "value": "u=0, i"
+            }
+          ]
+        },
+        "transport_parameter_order": {
+          "equal": false,
+          "browser": [
+            12584,
+            3,
+            15,
+            9,
+            5,
+            7,
+            32,
+            1,
+            4,
+            6,
+            17,
+            8,
+            "GREASE"
+          ],
+          "surf": [
+            8,
+            9,
+            6,
+            12584,
+            15,
+            5,
+            1,
+            "GREASE",
+            17,
+            32,
+            3,
+            7,
+            4
+          ]
+        },
+        "transport_parameters": {
+          "equal": true,
+          "browser": [
+            [
+              1,
+              30000
+            ],
+            [
+              3,
+              1472
+            ],
+            [
+              4,
+              15728640
+            ],
+            [
+              5,
+              6291456
+            ],
+            [
+              6,
+              6291456
+            ],
+            [
+              7,
+              6291456
+            ],
+            [
+              8,
+              100
+            ],
+            [
+              9,
+              103
+            ],
+            [
+              15,
+              "AUTO"
+            ],
+            [
+              17,
+              {
+                "chosen_version": 1,
+                "available_versions": [
+                  1,
+                  "GREASE"
+                ]
+              }
+            ],
+            [
+              32,
+              65536
+            ],
+            [
+              12584,
+              "0x4f524947"
+            ]
+          ],
+          "surf": [
+            [
+              1,
+              30000
+            ],
+            [
+              3,
+              1472
+            ],
+            [
+              4,
+              15728640
+            ],
+            [
+              5,
+              6291456
+            ],
+            [
+              6,
+              6291456
+            ],
+            [
+              7,
+              6291456
+            ],
+            [
+              8,
+              100
+            ],
+            [
+              9,
+              103
+            ],
+            [
+              15,
+              "AUTO"
+            ],
+            [
+              17,
+              {
+                "chosen_version": 1,
+                "available_versions": [
+                  1,
+                  "GREASE"
+                ]
+              }
+            ],
+            [
+              32,
+              65536
+            ],
+            [
+              12584,
+              "0x4f524947"
+            ]
+          ]
+        }
+      },
+      "expected_differences": [
+        "Browser runs on macOS; Surf selects Windows.",
+        "Captured Chromium has no Google Chrome brand; Surf Chrome includes it.",
+        "Transport-parameter order is independently shuffled per connection."
+      ]
+    }
+  },
+  "automatic_discovery": {
+    "scope": "Surf profiles with SecureTLS and no ForceHTTP3; independent fresh clients, no application-body replay.",
+    "chrome": {
+      "protocols": [
+        2,
+        2,
+        3
+      ],
+      "tls_verified": true
+    },
+    "firefox": {
+      "browser_profile": "Firefox 160 Windows",
+      "perk_hash": "4678782326c9f141e5fa97242ba044d3",
+      "protocols": [
+        2,
+        2,
+        3
+      ],
+      "tls_verified": true
+    }
+  }
+}

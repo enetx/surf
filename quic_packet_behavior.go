@@ -160,3 +160,17 @@ func (q *QUICSettings) SortConnectionIDFrames(enabled bool) *QUICSettings {
 	q.handshake().SortConnectionIDFrames = enabled
 	return q
 }
+
+// SeparatePacketNumberSpaces starts Handshake and Application Data at zero,
+// independently of Initial. 0-RTT and 1-RTT remain one space.
+func (q *QUICSettings) SeparatePacketNumberSpaces(enabled bool) *QUICSettings {
+	q.handshake().SeparatePacketNumberSpaces = enabled
+	return q
+}
+
+// PacketNumberSkipping controls artificial Application Data gaps, including
+// PTO skips. Enabled preserves the engine's native skipped-ACK defense.
+func (q *QUICSettings) PacketNumberSkipping(enabled bool) *QUICSettings {
+	q.handshake().DisablePacketNumberSkipping = !enabled
+	return q
+}

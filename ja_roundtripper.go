@@ -17,6 +17,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptrace"
+	"github.com/enetx/surf/internal/tlsstate"
 	"github.com/enetx/surf/profiles"
 
 	utls "github.com/refraction-networking/utls"
@@ -304,7 +305,7 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 
 // dialTLS performs TLS handshake using uTLS with default ALPN (h2, http/1.1).
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
-	return rt.tlsHandshake(ctx, network, addr, false)
+	return wrapProfileTLS(rt.tlsHandshake(ctx, network, addr, false))
 }
 
 // dialTLSHTTP2 performs TLS handshake and ensures ALPN selected HTTP/2.
@@ -321,13 +322,13 @@ func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string) 
 		return nil, fmt.Errorf("%w: negotiated ALPN %q, expected h2", errALPNNotH2, negotiatedProtocol)
 	}
 
-	return uconn, nil
+	return &profileTLSConn{uconn}, nil
 }
 
 // dialTLSHTTP1 performs TLS handshake using uTLS with HTTP/1.1 only ALPN.
 // Used for fallback when HTTP/2 connection fails.
 func (rt *roundtripper) dialTLSHTTP1(ctx context.Context, network, addr string) (net.Conn, error) {
-	return rt.tlsHandshake(ctx, network, addr, true)
+	return wrapProfileTLS(rt.tlsHandshake(ctx, network, addr, true))
 }
 
 // tlsHandshake performs a full TLS handshake using uTLS, applying JA fingerprint
@@ -370,12 +371,41 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 		setAlpnProtocolToHTTP1(&spec)
 	}
 
+	source := rt.ja.builder.cli.tlsConfig
 	config := &utls.Config{
-		ServerName:             host,
-		InsecureSkipVerify:     rt.ja.builder.cli.tlsConfig.InsecureSkipVerify,
-		SessionTicketsDisabled: true,
-		OmitEmptyPsk:           true,
-		KeyLogWriter:           rt.ja.builder.cli.tlsConfig.KeyLogWriter,
+		RootCAs: source.RootCAs, Rand: source.Rand, Time: source.Time,
+		VerifyPeerCertificate:          source.VerifyPeerCertificate,
+		EncryptedClientHelloConfigList: slices.Clone(source.EncryptedClientHelloConfigList),
+		ServerName:                     host,
+		InsecureSkipVerify:             rt.ja.builder.cli.tlsConfig.InsecureSkipVerify,
+		SessionTicketsDisabled:         true,
+		OmitEmptyPsk:                   true,
+		KeyLogWriter:                   rt.ja.builder.cli.tlsConfig.KeyLogWriter,
+	}
+
+	if source.ServerName != "" {
+		config.ServerName = source.ServerName
+	}
+	if source.VerifyConnection != nil {
+		config.VerifyConnection = func(s utls.ConnectionState) error { return source.VerifyConnection(tlsstate.FromUTLS(s)) }
+	}
+	if source.EncryptedClientHelloRejectionVerify != nil {
+		config.EncryptedClientHelloRejectionVerify = func(s utls.ConnectionState) error {
+			return source.EncryptedClientHelloRejectionVerify(tlsstate.FromUTLS(s))
+		}
+	}
+	if route, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok && len(route.ech) > 0 {
+		config.EncryptedClientHelloConfigList = slices.Clone(route.ech)
+	}
+	if len(config.EncryptedClientHelloConfigList) > 0 {
+		config.MinVersion = utls.VersionTLS13
+		// With real ECH, uTLS takes inner ALPN from Config rather than the
+		// outer extension. Preserve the selected profile and HTTP/1 fallback.
+		for _, extension := range spec.Extensions {
+			if alpn, ok := extension.(*utls.ALPNExtension); ok {
+				config.NextProtos = slices.Clone(alpn.AlpnProtocols)
+			}
+		}
 	}
 
 	if supportsResumption(spec) && rt.clientSessionCache != nil {
