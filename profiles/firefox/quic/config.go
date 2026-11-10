@@ -35,6 +35,23 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		ActiveConnectionIDLimit(8).
 		OmitLegacyResetStreamAt(true).
 		DisableClientHelloScrambling(true)
+	// Neqo keeps the active path's ID until Retire Prior To or migration.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/path.rs
+	// Neqo output_dgram_on_path retires Initial keys on the first Handshake
+	// send; pad_initial adds a zero tail after coalesced encrypted packets.
+	// AuthenticationPending allows its ACK flight to precede client Finished.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
+	q.InitialPaddingMode(quic.InitialPaddingDatagram).
+		HandshakeAckBeforeData(true).
+		DisableConnectionIDRotation(true).
+		// Neqo ConnectionIdManager::write_frames assigns increasing sequence numbers.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/cid.rs
+		SortConnectionIDFrames(true).
+		ReceiveWindowUpdateDivisor(4).
+		AckProbePolicy(AckProbe).
+		PacketNumberLengthPolicy(PacketNumberLength).
+		InitialPacketSizeFactory(NewInitialPacketSize).
+		InitialDestinationConnectionIDLengthFactory(NewInitialDestinationConnectionIDLength)
 	configureAck(q)
 }
 

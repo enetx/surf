@@ -64,15 +64,15 @@ func TestHTTP3IndependentBrowserUploadFrames(t *testing.T) {
 					if capture.Browser == "chrome" || upload.BoundariesEqual {
 						require.Equal(t, upload.Browser, sizes, "independent browser DATA boundaries")
 					} else {
-						// The Firefox first-segment header subtraction remains unimplemented.
-						// Verify only the shipped body segment size and complete payload here.
+						// Stock navigation headers differ from the captured fetch input.
+						// Exact Firefox headers and boundaries are checked in the dedicated vector test.
 						total := 0
 						for _, size := range sizes {
 							require.LessOrEqual(t, size, 32768)
 							total += size
 						}
 						require.Equal(t, upload.BodyBytes, total)
-						require.Equal(t, 32768, sizes[0])
+						require.Less(t, sizes[0], 32768)
 					}
 				})
 			}

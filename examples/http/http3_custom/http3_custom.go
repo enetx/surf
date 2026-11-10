@@ -60,6 +60,15 @@ func main() {
 			AckMissingPacketLimit(4).
 			AckECN(surf.AckECNTransitions).
 			ActiveConnectionIDLimit(4).
+			InitialDestinationConnectionIDLength(8).
+			InitialCryptoFrameSplits(2, 10).
+			InitialPingFrames(2, 10).
+			InitialCryptoFirstFrameSize(55, 86).
+			ReceiveWindowUpdateDivisor(2).
+			AckOnlyPingThreshold(-1).
+			AckOnlyMaxDataThreshold(19).
+			OmitInitialAckOnHandshake(true).
+			DisableConnectionIDRotation(true).
 			InitialPacketNumber(1).
 			DisableClientHelloScrambling(true).
 			ConnectionIDLength(8).
@@ -68,7 +77,7 @@ func main() {
 
 	settings := quicSettings.Set().HTTP3Settings()
 	if *profile == "custom" {
-		settings.QpackMaxTableCapacity(4096).
+		settings.CoalesceInitialSettings(true).QpackMaxTableCapacity(4096).
 			QpackDynamicTable(true).
 			QpackHuffman(surf.QPACKHuffmanAuto).
 			QpackIndexing(surf.QPACKIndexAll).
@@ -92,6 +101,7 @@ func main() {
 			CompactPriorityUpdates(false).
 			RequestBodyBufferSize(32 << 10).
 			MaxDataFrameSize(16 << 10).
+			Grease().
 			ControlGreaseFrames(surf.HTTP3GreaseFrame{Type: 33, Payload: []byte("custom")}).
 			RequestGreaseFrames(surf.HTTP3GreaseFrame{Type: 64}).
 			MaxFieldSectionSize(256 << 10)

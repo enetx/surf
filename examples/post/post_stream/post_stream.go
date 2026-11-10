@@ -36,7 +36,8 @@ func main() {
 	r = surf.NewClient().Post(URL).Body(buf).Do().Unwrap()
 	r.Body.String().Ok().Println()
 
-	// 4. io.Pipe (streaming with unknown length, chunked transfer)
+	// 4. io.Pipe: send without waiting for EOF or buffering the entire body.
+	// HTTP/1 uses chunked transfer; HTTP/2 and HTTP/3 send DATA frames.
 	fmt.Println("=== io.Pipe ===")
 
 	pr, pw := io.Pipe()
@@ -46,7 +47,7 @@ func main() {
 		pw.Close()
 	}()
 
-	r = surf.NewClient().Post(URL).Body(pr).Do().Unwrap()
+	r = surf.NewClient().Post(URL).StreamingBody(pr).Do().Unwrap()
 	r.Body.String().Ok().Println()
 
 	// 5. *os.File
@@ -80,5 +81,21 @@ func main() {
 
 	rc := io.NopCloser(strings.NewReader("hello from io.NopCloser"))
 	r = surf.NewClient().Post(URL).Body(rc).Do().Unwrap()
+	r.Body.String().Ok().Println()
+
+	// 8. Reopen a file for retries, 307/308 redirects or HTTP/3 fallback.
+	// Each attempt owns and closes its reader. No file contents are buffered.
+	info, err := os.Stat(tmpfile.Name())
+	if err != nil {
+		panic(err)
+	}
+
+	client := surf.NewClient().Builder().Retry(1, 0, 503).Build().Unwrap()
+	defer client.Close()
+
+	r = client.Post(URL).StreamingBodyFactory(func() (io.ReadCloser, error) {
+		return os.Open(tmpfile.Name())
+	}, info.Size()).Do().Unwrap()
+
 	r.Body.String().Ok().Println()
 }

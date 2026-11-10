@@ -80,7 +80,6 @@ func (im *Impersonate) Firefox() *Builder {
 // own all data (TLS spec, boundary, H2/H3 SETTINGS, header set), this method owns sequencing.
 func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	im.builder.headersApplier = v.Headers
-
 	im.builder.Boundary(v.Boundary)
 
 	if v.HelloSpec != nil {
@@ -106,9 +105,11 @@ func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	if v.ConfigureQPACK != nil {
 		v.ConfigureQPACK(h3adapter{h3})
 	}
+
 	if v.ConfigureRequestBody != nil {
 		v.ConfigureRequestBody(h3adapter{h3})
 	}
+
 	// Apply QUIC after ordered H3 SETTINGS: EnableDatagrams updates the existing
 	// H3_DATAGRAM entry without changing the profile's SETTINGS order.
 	if v.ConfigureQUIC != nil {

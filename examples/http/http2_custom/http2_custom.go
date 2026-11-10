@@ -20,6 +20,9 @@ func main() {
 	// A custom priority rule is an application choice, not a browser capture.
 	client := surf.NewClient().Builder().Impersonate().Chrome().ForceHTTP2().
 		HTTP2Settings().HpackRepresentation("x-private", surf.HPACKNeverIndex).
+		ReceiveWindowUpdatePolicy(func(info surf.HTTP2ReceiveWindowUpdateInfo) bool {
+			return info.Pending > info.Window/2 || info.Elapsed >= 5*time.Second
+		}).
 		HeaderPriority(func(req http2.PriorityRequest) http2.PriorityParam {
 			weight := uint8(100)
 			if strings.HasSuffix(req.URL.Path, ".css") {

@@ -108,6 +108,15 @@ func (q *QUICSettings) OmitLegacyResetStreamAt(omit bool) *QUICSettings {
 // Nonzero lengths must be 8 through 20; zero selects quic-go's default.
 func (q *QUICSettings) InitialDestinationConnectionIDLength(length int) *QUICSettings {
 	q.handshake().InitialDestinationConnectionIDLength = length
+	q.handshake().NewInitialDestinationConnectionIDLength = nil
+
+	return q
+}
+
+// InitialDestinationConnectionIDLengthFactory chooses a fresh 8..20 byte length
+// per connection. Nil restores the fixed length. The factory may run concurrently.
+func (q *QUICSettings) InitialDestinationConnectionIDLengthFactory(factory func() (int, error)) *QUICSettings {
+	q.handshake().NewInitialDestinationConnectionIDLength = factory
 	return q
 }
 
@@ -153,6 +162,7 @@ func (q *QUICSettings) TransportParameter(id uint64, value []byte) *QUICSettings
 	value = bytes.Clone(value)
 	q.editTransportParameters(func(layout *transportparams.Layout) {
 		parameter := transportparams.Parameter{ID: id, Value: bytes.Clone(value)}
+
 		for i := range layout.Additional {
 			if layout.Additional[i].ID == id {
 				layout.Additional[i] = parameter

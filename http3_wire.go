@@ -14,6 +14,7 @@ func (h *HTTP3Settings) wire() *http3.WireConfig {
 	if h.wireConfig == nil {
 		h.wireConfig = &http3.WireConfig{}
 	}
+
 	return h.wireConfig
 }
 
@@ -60,5 +61,13 @@ func (h *HTTP3Settings) RequestGreaseFramesFactory(
 // request Priority headers. Independent of GREASE and local StreamPriority.
 func (h *HTTP3Settings) PriorityUpdates(enabled bool) *HTTP3Settings {
 	h.wire().SendPriorityUpdates = enabled
+	return h
+}
+
+// CoalesceInitialSettings queues SETTINGS with the first post-handshake flight
+// when peer flow-control credit permits. Backpressure uses an asynchronous
+// write on the same control stream. Control frame factories must not block.
+func (h *HTTP3Settings) CoalesceInitialSettings(enabled bool) *HTTP3Settings {
+	h.wire().CoalesceInitialSettings = enabled
 	return h
 }

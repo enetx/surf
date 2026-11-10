@@ -109,11 +109,15 @@ func (ut *uquicTransport) newQUICTransport(conn net.PacketConn) *quic.Transport 
 
 func (h *HTTP3Settings) validateQUICConfig() error {
 	if h.earlyData && h.clientHelloFactory != nil {
-		return fmt.Errorf("HTTP/3 early data with a custom ClientHello is not supported by the official uTLS QUIC API; disable EarlyData or use standard TLS")
+		return fmt.Errorf(
+			"HTTP/3 early data with a custom ClientHello is not supported by the official uTLS QUIC API; disable EarlyData or use standard TLS",
+		)
 	}
+
 	if err := h.wireConfig.Validate(); err != nil {
 		return err
 	}
+
 	if err := h.qpackConfig.Validate(); err != nil {
 		return err
 	}
@@ -124,7 +128,7 @@ func (h *HTTP3Settings) validateQUICConfig() error {
 	}
 
 	if handshake != nil {
-		if err := handshake.AckPolicy.Validate(handshake.MaxAckDelay); err != nil {
+		if err := handshake.Validate(); err != nil {
 			return err
 		}
 	}
@@ -153,6 +157,7 @@ func (h *HTTP3Settings) validateQUICConfig() error {
 type zeroConnectionIDGenerator struct{}
 
 func (zeroConnectionIDGenerator) ConnectionIDLen() int { return 0 }
+
 func (zeroConnectionIDGenerator) GenerateConnectionID() (quic.ConnectionID, error) {
 	return quic.ConnectionIDFromBytes(nil), nil
 }
@@ -178,6 +183,7 @@ func (ut *uquicTransport) dialOwnedPacketConn(
 	if err != nil {
 		transport.Close()
 		packetConn.Close()
+
 		return nil, err
 	}
 

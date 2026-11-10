@@ -24,7 +24,7 @@ import (
 
 // Independent RFC 9001 Initial decoder. These checks observe actual UDP bytes,
 // rather than trusting the client configuration or its trace records.
-func h3InitialPlaintext(packet []byte, initialDCID []byte) ([]byte, uint64, error) {
+func h3InitialPlaintext(packet []byte, initialDCID []byte, expectedNumber ...uint64) ([]byte, uint64, error) {
 	b := bytes.Clone(packet)
 	if len(b) < 7 || b[0]&0xf0 != 0xc0 || binary.BigEndian.Uint32(b[1:5]) != 1 {
 		return nil, 0, errors.New("not QUIC v1 Initial")
@@ -90,6 +90,20 @@ func h3InitialPlaintext(packet []byte, initialDCID []byte) ([]byte, uint64, erro
 		b[p+i] ^= mask[i+1]
 		pn = pn<<8 | uint64(b[p+i])
 	}
+	// RFC 9000 appendix A.3 reconstructs shortened numbers before nonce use.
+	// An ACK can let a later Initial shrink to one byte even after number 255.
+	expected := uint64(0)
+	if len(expectedNumber) > 0 {
+		expected = expectedNumber[0]
+	}
+	window := uint64(1) << (8 * pnLen)
+	candidate := (expected & ^(window - 1)) | pn
+	if candidate+window/2 <= expected && candidate < (uint64(1)<<62)-window {
+		candidate += window
+	} else if candidate > expected+window/2 && candidate >= window {
+		candidate -= window
+	}
+	pn = candidate
 	block, err := aes.NewCipher(expand(secret, "quic key", 16))
 	if err != nil {
 		return nil, 0, err
@@ -114,19 +128,20 @@ func h3CapturedHello(t *testing.T, peer *h3Peer) ([]byte, uint64) {
 	peer.packet.mu.Unlock()
 	data := make([]byte, 1<<16)
 	present := make([]bool, len(data))
-	var firstPN uint64
+	var firstPN, expectedPN uint64
 	var initialDCID []byte
 	if len(packets) > 0 {
 		initialDCID = bytes.Clone(packets[0][6 : 6+int(packets[0][5])])
 	}
 	for index, packet := range packets {
-		plaintext, pn, err := h3InitialPlaintext(packet, initialDCID)
+		plaintext, pn, err := h3InitialPlaintext(packet, initialDCID, expectedPN)
 		if err != nil {
 			t.Fatalf("Initial packet %d: %v", index, err)
 		}
 		if index == 0 {
 			firstPN = pn
 		}
+		expectedPN = max(expectedPN, pn+1)
 		r := bytes.NewReader(plaintext)
 		read := func() uint64 {
 			v, err := quicvarint.Read(r)
@@ -368,5 +383,24 @@ func TestHTTP3ClientHelloSessionResumption(t *testing.T) {
 	peer.mu.Unlock()
 	if !slices.Equal(resumed, []bool{false, true}) {
 		t.Fatalf("server TLS resumption=%v", resumed)
+	}
+}
+
+func TestHTTP3InitialPacketNumberTruncation(t *testing.T) {
+	for _, number := range []uint64{254, 255, 256, 509, 65535, 65536} {
+		t.Run(fmt.Sprint(number), func(t *testing.T) {
+			peer := newH3Peer(t)
+			client := surf.NewClient().Builder().Impersonate().Firefox().QUICSettings().
+				InitialPacketNumber(number).Set().ForceHTTP3().Timeout(5 * time.Second).Build().Unwrap()
+			defer client.Close()
+			peer.request(t, client)
+			hello, first := h3CapturedHello(t, peer)
+			if first != number {
+				t.Fatalf("first packet = %d, want %d", first, number)
+			}
+			if len(hello) < 1000 {
+				t.Fatal("unexpectedly short reassembled ClientHello")
+			}
+		})
 	}
 }

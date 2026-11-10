@@ -16,6 +16,7 @@ package profiles
 
 import (
 	"context"
+	"net"
 	"time"
 
 	"github.com/enetx/g"
@@ -56,6 +57,8 @@ func (k OSKey) Mobile() g.String {
 // H2Config is the fluent contract used by profile.ConfigureH2 callbacks. It mirrors the
 // methods on surf.HTTP2Settings, the surf package provides an adapter that satisfies it.
 type H2Config interface {
+	StreamReceiveWindow(uint32) H2Config
+	ReceiveWindowUpdatePolicy(func(http2.ReceiveWindowUpdateInfo) bool) H2Config
 	HeaderTableSize(uint32) H2Config
 	MaxEncoderHeaderTableSize(uint32) H2Config
 	EnablePush(uint32) H2Config
@@ -82,9 +85,11 @@ type H2Config interface {
 // H3Config is the fluent contract used by profile.ConfigureH3 callbacks. It mirrors the
 // methods on surf.HTTP3Settings, the surf package provides an adapter that satisfies it.
 type H3Config interface {
+	CoalesceInitialSettings(bool) H3Config
 	EarlyData(bool) H3Config
 	RequestBodyBufferSize(int) H3Config
 	RequestBodyBufferSizePolicy(func(int64) int) H3Config
+	RequestBodyFirstReadSizePolicy(func(http3.RequestBodyReadInfo) int) H3Config
 	MaxDataFrameSize(int) H3Config
 	AltUsed(bool) H3Config
 	StreamPriority(int8, bool) H3Config
@@ -116,12 +121,29 @@ type H3Config interface {
 	H3Datagram(uint64) H3Config
 	EnableWebtransport(uint64) H3Config
 	Grease() H3Config
+	GreaseFactory(func() (uint64, uint64, error)) H3Config
 }
 
 // QUICConfig is the fluent contract used by ConfigureQUIC callbacks. Every
 // method delegates to surf.QUICSettings, so profiles are examples of the same
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
+	InitialPacketSizeFactory(func(net.Addr) (uint16, error)) QUICConfig
+	InitialCryptoFrameSplits(int, int) QUICConfig
+	InitialPingFrames(int, int) QUICConfig
+	InitialCryptoFirstFrameSize(int, int) QUICConfig
+	InitialDestinationConnectionIDLengthFactory(func() (int, error)) QUICConfig
+	ReceiveWindowUpdateDivisor(uint32) QUICConfig
+	AckOnlyPingThreshold(int) QUICConfig
+	AckOnlyMaxDataThreshold(int) QUICConfig
+	AckProbePolicy(func(quic.AckProbeInfo) bool) QUICConfig
+	PacketNumberLengthPolicy(func(quic.PacketNumberLengthInfo) uint8) QUICConfig
+	OmitInitialAckOnHandshake(bool) QUICConfig
+	InitialPaddingMode(quic.InitialPaddingMode) QUICConfig
+	HandshakeAckBeforeData(bool) QUICConfig
+	DisableConnectionIDRotation(bool) QUICConfig
+	SortConnectionIDFrames(bool) QUICConfig
+	OnApplicationReady(func(*quic.Conn)) QUICConfig
 	Versions(...quic.Version) QUICConfig
 	HandshakeIdleTimeout(time.Duration) QUICConfig
 	MaxIdleTimeout(time.Duration) QUICConfig

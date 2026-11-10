@@ -153,6 +153,199 @@ External endpoint checks are manual, reject protocol fallback and are not requir
 by CI. Saved browser fixtures keep these regression tests offline and repeatable.
 
 The [HTTP/3 body and priority report](http3_behavior/README.md) records repeated
-Chrome/Firefox upload captures and the remaining Firefox first-frame difference.
+Chrome/Firefox upload captures and the resolved Firefox first-frame difference.
 Its DATA/control-frame observations are independently checked with Wireshark.
 The same report documents the standard-TLS-only scope of optional 0-RTT.
+
+## Transport capture audit
+
+`transport_behavior.json` records actual browser/Surf captures before the changes
+and two independent repeats after receive-window changes, followed by two repeats
+with the final packet policies. Each scenario downloads 10 MiB over HTTP/2 and
+HTTP/3 on the same local peer. Original pcap hashes and browser versions are
+preserved; raw pcaps, TLS keys and temporary profiles stay outside Git.
+
+Chrome now uses packet-local and multi-packet
+[QUICHE Chaos Protection](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_chaos_protector.cc),
+with a short prefix and trailing ClientHello bytes in the first packet following
+[MultiPacketChaosProtect](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_packet_creator.cc).
+It spends existing padding on CRYPTO splits/PINGs and frame shuffling. The fragment
+count is variable. Firefox retains its observed sequential CRYPTO behavior.
+Recovery tests reconstruct every byte and retain native fragment loss handlers.
+
+Chrome selects an eight-byte Initial DCID, following Chromium's
+[session pool](https://github.com/chromium/chromium/blob/156.0.8078.79/net/quic/quic_session_pool.cc)
+and [default ID length](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_connection_id.h).
+Firefox uses [Neqo's biased 8..20-byte distribution](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/cid.rs),
+where eight occurs for 144 of the 256 random byte inputs. An exhaustive offline
+test checks the distribution. SCID selection remains independent.
+
+Chrome omits an ACK-only Initial when Handshake data is ready. Initial key disposal
+remains in the native sent-packet path. Firefox retains Initial+Handshake and uses
+[Neqo's starting path MTU](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/pmtud.rs):
+1252-byte IPv4 / 1232-byte IPv6 UDP payloads. Actual destination address selection
+happens at dial time, including SOCKS5 destinations.
+
+HTTP/2 receive-credit batching follows Chromium's
+[half-window and elapsed-time predicates](https://github.com/chromium/chromium/blob/156.0.8078.79/net/spdy/spdy_stream.cc).
+Firefox uses its [4 MiB / 96 KiB emergency predicates](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/Http2Session.h)
+and [initial per-stream increase](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/Http2StreamBase.cpp)
+from the 128 KiB push allowance to the 12 MiB pull window. Go retains normal body
+reader backpressure. A raw TLS-peer regression observes initial WINDOW_UPDATE
+frames and batching on a response exceeding the stream window.
+
+Chrome's QUIC credit updates use
+[QUICHE's half-window threshold](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_flow_controller.cc);
+Firefox uses [Neqo's quarter-window threshold](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/fc.rs).
+Chrome also follows [OnAckNeedsRetransmittableFrame](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_session.cc):
+repeat current MAX_DATA after 19 ACK-only packets instead of inserting a periodic
+PING. This repeats existing credit without growing the window. A real two-MiB
+transfer tests the policy, explicit override and unchanged probe credit.
+
+Encoded packet-number lengths follow
+[QUICHE's outstanding-range / congestion-window calculation](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_packet_creator.cc)
+and [Neqo's pre-ACK / post-ACK calculation](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs).
+The QUIC engine enforces safe lower bounds independently. Regression tests include
+one-byte rollover and reconstruction of actual Initial packet numbers across 255
+and 65535; the independent decoder reconstructs the full number before nonce use.
+
+Firefox's ACK-only PING policy follows
+[Neqo recovery](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/recovery/mod.rs):
+at least 16 tracked sends and strictly more than two PTOs since an eliciting send,
+or at least 200 and strictly more than one PTO. These are send-time decisions;
+there is no synthetic timer or fixed PING count. Deterministic boundary tests
+supplement live captures. Recovery history and PTO estimation remain quic-go's.
+
+Both profiles retain the active connection ID on an unchanged path, following
+[QUICHE's peer-ID manager](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_connection_id_manager.cc)
+and [Neqo paths](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/path.rs).
+Peer retirement and migration still select replacements. Chrome stages SETTINGS
+and initial control GREASE before releasing the handshake, matching
+[SendInitialData](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_spdy_session.cc).
+When peer credit is insufficient, an asynchronous write continues on the same
+control stream. Tests cover backpressure, cancellation, factories, custom dialers,
+callback composition and accepted/rejected early data.
+
+Chrome's first 1-RTT packet carries ACK and control-stream bytes; its datagram
+length varies with GREASE and ACK ranges. Chrome may coalesce an Initial ACK
+depending on handshake scheduling. Firefox's client now sends an Initial+Handshake
+ACK prefix before Finished, with a zero tail outside the long-header packets,
+matching the observed Neqo flight composition. The following Finished flight is
+Handshake+1-RTT and has no Initial size padding.
+
+`InitialPaddingMode(InitialPaddingDatagram)` and `HandshakeAckBeforeData(true)`
+select this behavior independently. When a short-header packet is coalesced with
+Initial, padding is encrypted inside that last packet to preserve AEAD. Native
+Initial key disposal, certificate verification and PTO recovery are retained.
+Surf does not reproduce NSS's asynchronous certificate-verification latency.
+The matching source is [Neqo output_dgram_on_path / pad_initial](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs).
+The dissector calls external tails `(Random) padding`; raw byte inspection showed
+zero-filled tails in these captures, not random bytes.
+
+Firefox also uses `SortConnectionIDFrames(true)` to retain increasing sequence
+numbers through both queue admission and serialization, following
+[ConnectionIdManager::write_frames](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/cid.rs).
+Native Go frame shuffling otherwise changes their order. Handler association is
+preserved, including in recovery tests. Packet-number generation remains shared
+across spaces by quic-go; handshake ACK delay, congestion, pacing, loss recovery
+and probe timestamps are not an exact browser reproduction.
+
+The earlier `packet-policies-*` repeats, before handshake-flight staging, observed:
+
+| Observation | Chromium / Firefox | Surf preset / exact request replay |
+| --- | --- | --- |
+| Chrome first application packet | ACK + control STREAM, 1-byte PN | Same frame types, stream ID and PN length |
+| Firefox first application packet | ACK + three NEW_CONNECTION_ID frames | Same frame types and PN length; no unsolicited RETIRE |
+| Chrome HTTP/2 WINDOW_UPDATE count, 10 MiB | 5 | 5 / 5 |
+| Firefox HTTP/2 WINDOW_UPDATE count, 10 MiB | 16 | 16 / 16 |
+| Chrome HTTP/3 stream-credit updates | 3 | 3 / 3 |
+| Firefox ACK-only PING count | 3 in each final repeat | 3 / 3 in each final repeat |
+| Firefox Finished datagram | 169 bytes, after a separate padded ACK | 1252 bytes, coalesced Initial ACK; remaining difference |
+
+The equal final PING counts are observations, not invariants: earlier repeats
+observed 4 or 9 browser probes and 3 or 5 Surf probes. Browser timing, packet
+coalescing and the native recovery implementation affect the decision snapshots.
+Chrome's Finished datagrams measured 142/143 bytes in the two final browser runs
+versus 146..148 for Surf; GREASE payloads and ACK encoding/scheduling vary.
+The later `handshake-policies-*` repeats additionally cover peer QPACK capacities
+0 and 65536. They retain encoded sizes, ACK delay fields, control SETTINGS/GREASE
+sizes, zero/nonzero tail counts and NEW_CONNECTION_ID sequence order.
+All historical pcaps were reanalyzed with the corrected parser; the fixture's
+schema 2 distinguishes first Handshake, Finished and external padding. No
+1-RTT packets or packet-number lengths in these captures remained undecoded.
+
+Initial keys can be derived by an observer; see
+[RFC 9001, section 5.2](https://www.rfc-editor.org/rfc/rfc9001.html#section-5.2).
+Later encrypted frame contents require endpoint visibility or session keys.
+Encrypted record/datagram lengths alone do not uniquely prove the frame types.
+
+Chrome's remaining small size variation is expected from
+[uint32 SETTINGS GREASE](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_send_control_stream.cc)
+and [reserved-frame serialization](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/http_encoder.cc).
+A captured pair differed by six bytes: four bytes from a GREASE value encoded
+with eight bytes rather than four, and two reserved-frame payload bytes. Known
+SETTINGS were identical. The independent decoder has these captured prefixes as
+regressions; the implementation does not force random packet sizes to match one
+browser draw. ACK delay and encoded packet-number width can also change length.
+
+The final handshake repeats measured Firefox ACK prefixes of 1252 bytes with
+1175 zero tail bytes in the observed four-byte server-DCID / three-byte client-SCID
+case. Browser and Surf both sent Initial ACK + Handshake ACK, followed by a
+Handshake CRYPTO + 1-RTT ACK/NEW_CONNECTION_ID flight with sequence numbers 1,2,3.
+Finished datagrams were 169 bytes for Firefox and 168..170 for Surf. Subtracting
+extra ACK-delay varint bytes and encoded packet-number bytes yields 168 for every captured case.
+The remaining differences reflect real ACK delay and quic-go's shared packet-number
+generator; no artificial delay or unsafe truncation was added to force 169.
+
+Chrome Finished datagrams varied from 142..149 bytes in these browser captures
+and 143..149 for Surf. Subtracting the actual control-stream prefix and extra
+ACK-delay/packet-number bytes yields 103 for every case. The
+`finished_size_breakdown` records the calculation. Thus the observed size variation
+is explained by actual GREASE/control bytes and numeric encodings rather than an
+unexplained fixed payload overhead. This is a result for these captures, not a
+claim that every network path, retry or loss scenario has browser-identical timing.
+
+HTTP/2 remained at five WINDOW_UPDATE frames for Chrome and Surf. Firefox emitted
+15 or 16 across the final repeats, while Surf emitted 16; batching predicates are
+unchanged, and boundary counts depend on the read/close schedule. Firefox PING
+counts also varied with load (3..8 browser, 3..13 Surf in the final scenarios).
+The timing policy remains source-based, not a fixed target count.
+
+## Delay and loss audit
+
+`network_behavior.json` contains sanitized 2 MiB response observations from
+Chromium 156.0.8078.79, Firefox 159.0.1 and the corresponding Surf presets/exact
+input replays. Private packet captures are identified by SHA-256. The socket
+emulator adds 10 ms per direction and, in two runs, drops every 37th datagram per
+remote/direction. Queues reported no overflow or I/O/logging errors.
+
+Without loss, late ACK medians were 10 for Chrome and 2 for Firefox, matching
+both Surf replays, including with added delay. Early ACK counts vary with
+piggybacking/timers. With periodic loss, all browser and Surf sequences completed,
+but Chrome late medians were 3 then 2 versus Surf 4/5 then 4/3. Firefox opened a
+second QUIC connection in both browser runs; Surf used one. Late Firefox medians
+were 3 then 2 versus Surf 2 in both runs. These differences are retained; equal
+threshold policies do not establish equal congestion/loss-recovery behavior.
+ACK bookkeeping is per connection, even when wire packet numbers are reused.
+
+Dropping the first incoming and first outgoing datagram still allowed Chromium
+and both Surf replays to finish. Firefox instead attempted HTTP/1.1 over TCP at
+about 100 ms in the earlier repeated capture. The test peer supports HTTP/2 only,
+so navigation failed with `NS_ERROR_NET_RESET` before a complete H3 sequence.
+A further diagnostics run reproduced the failure and retained browser metadata,
+peer status and the capture. It is explicitly marked incomplete in the fixture;
+no successful Firefox/Surf parity is claimed for this case.
+
+These are application-level UDP captures with synthetic IP envelopes, not NIC
+or kernel-network emulation. Capture-point details are in the tool README.
+Timing, native congestion control, fallback racing and per-space packet-number
+allocation remain differences. The latter needs separate recovery histories and
+an internal congestion transmission sequence, not merely three public counters;
+see the QUIC module's `UPSTREAM.md` assessment.
+
+HTTP/3 SETTINGS GREASE is now drawn per connection. Chromium uses independent
+uint32 draws for the reserved identifier and value, following
+[QuicSendControlStream::MaybeSendSettingsFrame](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_send_control_stream.cc).
+A `GreaseFactory` builder override changes this generation without changing
+stable SETTINGS, QPACK limits or other profile choices. Wire tests verify new
+connections, request reuse, error propagation and configured-input immutability.

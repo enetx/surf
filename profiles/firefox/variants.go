@@ -5,18 +5,18 @@ import (
 	"github.com/enetx/surf/profiles/firefox/android"
 	"github.com/enetx/surf/profiles/firefox/desktop"
 	"github.com/enetx/surf/profiles/firefox/ios"
-	firefoxquic "github.com/enetx/surf/profiles/firefox/quic"
+	"github.com/enetx/surf/profiles/firefox/quic"
 )
 
 // Desktop is the current Firefox 159 desktop variant.
 var Desktop = profiles.Variant{
-	ConfigureQUIC:        firefoxquic.ConfigureQUIC,
+	ConfigureQUIC:        quic.ConfigureQUIC,
 	HelloSpec:            &HelloFirefox_159,
 	Boundary:             Boundary,
 	ConfigureH2:          desktop.ConfigureH2,
 	ConfigureH3:          desktop.ConfigureH3,
-	ConfigureQPACK:       firefoxquic.ConfigureQPACK,
-	ConfigureRequestBody: firefoxquic.ConfigureRequestBody,
+	ConfigureQPACK:       quic.ConfigureQPACK,
+	ConfigureRequestBody: quic.ConfigureRequestBody,
 	BuildHeaders:         desktop.BuildHeaders,
 	Headers:              DesktopApplier,
 }

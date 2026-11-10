@@ -27,3 +27,14 @@ func NewControlGreaseFrames() ([]http3.GreaseFrame, error) {
 
 	return []http3.GreaseFrame{{Type: 0x1f*uint64(n) + 0x21, Payload: payload}}, nil
 }
+
+// NewSettingsGrease follows QuicSendControlStream::MaybeSendSettingsFrame:
+// two independent uint32 draws select the reserved identifier and its value.
+// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_send_control_stream.cc
+func NewSettingsGrease() (uint64, uint64, error) {
+	var draws [8]byte
+	if _, err := rand.Read(draws[:]); err != nil {
+		return 0, 0, err
+	}
+	return 0x1f*uint64(binary.LittleEndian.Uint32(draws[:4])) + 0x21, uint64(binary.LittleEndian.Uint32(draws[4:])), nil
+}

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { ackObservations } from "./ack-observations.mjs";
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
@@ -30,43 +31,16 @@ for (const name of readdirSync(root).sort()) {
     .map(JSON.parse);
   const groups = [];
   for (const label of ["browser", "surf-preset", "surf-exact-input"]) {
-    const selected = rows.filter((r) => r.label === label),
-      connections = new Set(selected.map((r) => r.connection));
-    assert.equal(
-      connections.size,
-      1,
-      "expected one connection per capture label",
-    );
-    const sent = new Set(),
-      seen = new Set(),
-      early = [],
-      late = [],
-      delays = [];
-    let first = Infinity;
-    for (const row of selected) {
-      if (row.direction === "sent") {
-        first = Math.min(first, row.packet_number);
-        if (row.eliciting) sent.add(row.packet_number);
-      } else if (row.ack_ranges?.length) {
-        // Bound work to observed packets, never expand an arbitrary ACK range.
-        const acked = [...sent].filter((pn) =>
-          row.ack_ranges.some(([lo, hi]) => lo <= pn && pn <= hi),
-        );
-        const newly = acked.filter((pn) => !seen.has(pn));
-        for (const pn of acked) seen.add(pn);
-        if (newly.length) {
-          (Math.max(...acked) - first < 100 ? early : late).push(newly.length);
-          delays.push(row.ack_delay_ns / 1e6);
-        }
-      }
-    }
+    const observation = ackObservations(rows.filter((r) => r.label === label));
+    const { early, late, delays } = observation;
     assert(
-      sent.size > 1000,
+      observation.server_ack_eliciting_packets > 1000,
       "capture must include a bulk response beyond the transition",
     );
     groups.push({
       label,
-      server_ack_eliciting_packets: sent.size,
+      connections: observation.connections,
+      server_ack_eliciting_packets: observation.server_ack_eliciting_packets,
       early: stats(early),
       late: stats(late),
       max_reported_ack_delay_ms: Math.max(...delays),
@@ -83,7 +57,7 @@ for (const name of readdirSync(root).sort()) {
   });
 }
 const report = {
-  schema: 1,
+  schema: 2,
   method:
     "Server-side qlog of actual decrypted peer ACK frames; newly acknowledged server ack-eliciting packets per ACK. Early/late split at packet-number span 100. Includes batching, piggybacking and tracing overhead; no NIC timing parity claim.",
   cases,

@@ -18,7 +18,9 @@ func ConfigureQPACK(h profiles.H3Config) {
 	// and uses Huffman only when shorter. Base equals Required Insert Count.
 	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/qpack_encoder.cc
 	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/qpack_instruction_encoder.cc
-	h.QpackDynamicTable(true).
+	// SendInitialData runs as soon as application encryption is established.
+	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_spdy_session.cc
+	h.CoalesceInitialSettings(true).QpackDynamicTable(true).
 		QpackHuffman(http3.QPACKHuffmanAuto).
 		QpackIndexing(http3.QPACKIndexAll).
 		QpackIndexingPolicy(nil).

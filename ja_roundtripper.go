@@ -172,8 +172,7 @@ func (e *h2DialError) Unwrap() error { return e.err }
 // connClosedBeforeResponse classifies closure and reset errors returned before final
 // HTTP/2 response headers. The caller separately checks reuse and informational responses.
 func connClosedBeforeResponse(err error) bool {
-	var de *h2DialError
-	if errors.As(err, &de) {
+	if _, ok := errors.AsType[*h2DialError](err); ok {
 		return false
 	}
 
@@ -200,13 +199,11 @@ func wantsHTTP1(err error) bool {
 		return true
 	}
 
-	var se http2.StreamError
-	if errors.As(err, &se) {
+	if se, ok := errors.AsType[http2.StreamError](err); ok {
 		return se.Code == http2.ErrCodeHTTP11Required
 	}
 
-	var ga http2.GoAwayError
-	if errors.As(err, &ga) {
+	if ga, ok := errors.AsType[http2.GoAwayError](err); ok {
 		return ga.ErrCode == http2.ErrCodeHTTP11Required
 	}
 
@@ -258,6 +255,8 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 		t.MaxEncoderHeaderTableSize = h.maxEncoderHeaderTableSize
 		t.HeaderPriority = h.headerPriority
 		t.ChainStreamDependencies = h.chainStreamDependencies
+		t.StreamReceiveWindow = h.streamReceiveWindow
+		t.ReceiveWindowUpdatePolicy = h.receiveWindowUpdatePolicy
 
 		// Pre-allocate settings slice to avoid multiple allocations
 		t.Settings = make([]http2.Setting, 0, 7)

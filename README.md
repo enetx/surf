@@ -424,6 +424,14 @@ leaving it unset retains the profile's value or the native four-byte default.
 stream priority. `AdditionalSettings` merges settings, preserving existing positions.
 `QUICSettings().EnableDatagrams` configures both transport and HTTP/3 support.
 
+`HTTP3Settings().Grease().Set()` generates a fresh reserved SETTINGS pair for each
+new connection. Chrome profiles use two independent uint32 draws, matching the
+browser's identifier/value ranges. `GreaseFactory(factory)` accepts a custom
+`func() (id uint64, value uint64, err error)`; `GreaseFactory(nil)` disables it.
+The callback must be concurrency safe and return promptly. Invalid identifiers,
+duplicate configured identifiers and errors fail before initial control writes.
+Repeated requests on one connection keep the SETTINGS already sent.
+
 Stream priority controls the local QUIC sender. It does not add a `Priority`
 header or send HTTP/3 PRIORITY_UPDATE frames. Per-request overrides are available
 through `http3.WithStreamPriority(ctx, http3.StreamPriority{...})`.
@@ -437,6 +445,21 @@ uni)`, `MaxUDPPayloadSize`, `MaxDatagramFrameSize`, `MaxAckDelay`,
 provisions the protocol default receive size. A later `MaxUDPPayloadSize(size)`
 resumes advertising an explicit limit. `InitialPacketNumber(number)` replaces a
 profile's packet-number factory with that fixed value.
+
+Initial packet layout and handshake flights are independently configurable:
+
+```go
+builder.QUICSettings().
+    InitialPaddingMode(surf.InitialPaddingDatagram).
+    HandshakeAckBeforeData(true).
+    SortConnectionIDFrames(true).
+    Set()
+```
+
+The Firefox profile selects these controls. Datagram padding is a zero tail after
+long-header packets; a final 1-RTT packet carries encrypted padding instead.
+Separating ACK and Finished adds no artificial timer and preserves TLS verification.
+`InitialPaddingPacket` and `HandshakeAckBeforeData(false)` restore native framing.
 
 `TransportParameterOrder(ids...)`, `TransportParameter(id, encodedValue)` and
 `DisableTransportParameterGrease(bool)` configure parameter encoding without a
@@ -936,6 +959,26 @@ if resp.IsOk() {
 }
 ```
 
+### Streaming Request Bodies
+
+Use `StreamingBody(reader)` to send a body without buffering it until EOF.
+Pass an optional known length; omitted or -1 means unknown, while zero means empty.
+Surf owns the reader and closes it. A blocking reader must provide a Close method
+that unblocks Read. A direct stream is sent once; status retries are suppressed
+and 307/308 redirects are returned without replaying the body.
+
+Use a factory when retries, redirects or HTTP/3 fallback must reopen the source:
+
+```go
+response := client.Post("https://example.com/upload").
+    StreamingBodyFactory(func() (io.ReadCloser, error) {
+        return os.Open("upload.bin")
+    }).Do()
+```
+
+The factory runs when sending, returns a fresh reader per attempt and owns no
+shared cursor. See the [streaming upload example](examples/post/post_stream/post_stream.go).
+
 ### Streaming Large Responses
 
 ```go
@@ -1205,6 +1248,8 @@ resp := surf.NewClient().
 | `Do()` | Execute the request |
 | `WithContext(ctx)` | Add context to request |
 | `Body(data)` | Set request body (JSON, form data, bytes, string, io.Reader) |
+| `StreamingBody(reader, length...)` | Send a reader without buffering; optional length |
+| `StreamingBodyFactory(factory, length...)` | Open a fresh streaming reader for each attempt |
 | `SetHeaders(headers...)` | Set request headers |
 | `AddHeaders(headers...)` | Add request headers |
 | `AddCookies(cookies...)` | Add cookies to request |

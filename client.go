@@ -224,6 +224,15 @@ func (req *Request) Body(data any) *Request {
 		return req
 	}
 
+	if err := req.resetStreamingBody(); err != nil {
+		if closer, ok := body.(io.Closer); ok {
+			closer.Close()
+		}
+
+		req.err = err
+		return req
+	}
+
 	n := int64(-1)
 
 	// Replacing the body must also replace its replay function. A streaming reader
@@ -458,8 +467,8 @@ func detectAnnotatedDataType(data any) string {
 		return ""
 	}
 
-	for i := range t.NumField() {
-		tag := t.Field(i).Tag
+	for field := range t.Fields() {
+		tag := field.Tag
 
 		if _, ok := tag.Lookup("json"); ok {
 			return "json"

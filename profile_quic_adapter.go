@@ -2,6 +2,7 @@ package surf
 
 import (
 	"context"
+	"net"
 	"time"
 
 	"github.com/enetx/quic-go"
@@ -14,6 +15,51 @@ import (
 
 // quicadapter delegates profile chains to the public QUICSettings implementation.
 type quicadapter struct{ s *QUICSettings }
+
+func (a quicadapter) InitialPacketSizeFactory(factory func(net.Addr) (uint16, error)) profiles.QUICConfig {
+	a.s.InitialPacketSizeFactory(factory)
+	return a
+}
+
+func (a quicadapter) InitialCryptoFrameSplits(min, max int) profiles.QUICConfig {
+	a.s.InitialCryptoFrameSplits(min, max)
+	return a
+}
+
+func (a quicadapter) InitialPingFrames(min, max int) profiles.QUICConfig {
+	a.s.InitialPingFrames(min, max)
+	return a
+}
+
+func (a quicadapter) InitialCryptoFirstFrameSize(min, max int) profiles.QUICConfig {
+	a.s.InitialCryptoFirstFrameSize(min, max)
+	return a
+}
+
+func (a quicadapter) InitialDestinationConnectionIDLengthFactory(factory func() (int, error)) profiles.QUICConfig {
+	a.s.InitialDestinationConnectionIDLengthFactory(factory)
+	return a
+}
+
+func (a quicadapter) ReceiveWindowUpdateDivisor(n uint32) profiles.QUICConfig {
+	a.s.ReceiveWindowUpdateDivisor(n)
+	return a
+}
+
+func (a quicadapter) AckOnlyPingThreshold(n int) profiles.QUICConfig {
+	a.s.AckOnlyPingThreshold(n)
+	return a
+}
+
+func (a quicadapter) AckOnlyMaxDataThreshold(n int) profiles.QUICConfig {
+	a.s.AckOnlyMaxDataThreshold(n)
+	return a
+}
+
+func (a quicadapter) OmitInitialAckOnHandshake(v bool) profiles.QUICConfig {
+	a.s.OmitInitialAckOnHandshake(v)
+	return a
+}
 
 func (a quicadapter) AckPacketThreshold(n uint64) profiles.QUICConfig {
 	a.s.AckPacketThreshold(n)
@@ -44,6 +90,7 @@ func (a quicadapter) AckMissingPacketLimit(n uint64) profiles.QUICConfig {
 	a.s.AckMissingPacketLimit(n)
 	return a
 }
+
 func (a quicadapter) AckECN(mode quic.AckECNMode) profiles.QUICConfig { a.s.AckECN(mode); return a }
 func (a quicadapter) ResetAckPolicy() profiles.QUICConfig             { a.s.ResetAckPolicy(); return a }
 
@@ -238,5 +285,40 @@ func (a quicadapter) TransportParametersFactory(
 	factory func(quic.Version) (*transportparams.Layout, error),
 ) profiles.QUICConfig {
 	a.s.TransportParametersFactory(factory)
+	return a
+}
+
+func (a quicadapter) AckProbePolicy(policy func(quic.AckProbeInfo) bool) profiles.QUICConfig {
+	a.s.AckProbePolicy(policy)
+	return a
+}
+
+func (a quicadapter) PacketNumberLengthPolicy(policy func(quic.PacketNumberLengthInfo) uint8) profiles.QUICConfig {
+	a.s.PacketNumberLengthPolicy(policy)
+	return a
+}
+
+func (a quicadapter) DisableConnectionIDRotation(v bool) profiles.QUICConfig {
+	a.s.DisableConnectionIDRotation(v)
+	return a
+}
+
+func (a quicadapter) OnApplicationReady(callback func(*quic.Conn)) profiles.QUICConfig {
+	a.s.OnApplicationReady(callback)
+	return a
+}
+
+func (a quicadapter) InitialPaddingMode(mode quic.InitialPaddingMode) profiles.QUICConfig {
+	a.s.InitialPaddingMode(mode)
+	return a
+}
+
+func (a quicadapter) HandshakeAckBeforeData(enabled bool) profiles.QUICConfig {
+	a.s.HandshakeAckBeforeData(enabled)
+	return a
+}
+
+func (a quicadapter) SortConnectionIDFrames(enabled bool) profiles.QUICConfig {
+	a.s.SortConnectionIDFrames(enabled)
 	return a
 }

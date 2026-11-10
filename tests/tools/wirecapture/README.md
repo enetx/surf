@@ -37,7 +37,7 @@ HTTP/2 sends repeated and changing peer table settings through
 HTTP/3 uses a separate connection for each peer capacity (0, 128, 4096, 65536);
 it never sends an illegal second SETTINGS frame.
 
-Each case has three consecutive connections:
+Each case has three consecutive client runs; reconnection can add connections:
 
 1. Actual browser navigation and JavaScript fetches.
 2. Surf's stock desktop preset and cookie jar (`surf-preset`). This deliberately
@@ -117,3 +117,80 @@ and values, and preserves observed reconnections. Mismatching browser/Surf DATA
 boundaries are recorded, never converted into successful exact comparisons.
 `analyze.mjs` is the original 11-request header/QPACK sequence analysis; use the
 behavior analysis for these experiments, especially the three-request image run.
+
+## Transport comparison
+
+For Initial CRYPTO ordering, DCID lengths, Handshake datagram composition, PINGs,
+MAX_DATA/MAX_STREAM_DATA and HTTP/2 WINDOW_UPDATE, use 10 MiB bulk responses and
+run the independent transport analyzer:
+
+```sh
+go build -o /tmp/surf-transport ./tests/tools/wirecapture
+node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-transport --out=/tmp/surf-transport-capture --protocol=h2,h3 --capacity=0 --response-bytes=10485760 --decode=false
+node tests/tools/wirecapture/transport-analysis.mjs --in=/tmp/surf-transport-capture --out=/tmp/surf-transport-report.json
+```
+
+The HTTP/2 peer splits DATA into at most 16 KiB frames and obeys both credit
+windows. The analyzer invokes Wireshark, attributes each decoded connection to
+browser/preset/exact-input requests and rejects incomplete sequences. It keeps
+semantic frames and UDP payload sizes; synthetic TCP envelopes cannot establish
+TCP segmentation or NIC timing. The committed report summarizes credit-update
+histograms instead of retaining thousands of repetitive entries. Do not treat a
+matching frame count as proof of complete packet scheduling or loss parity.
+
+The transport analyzer also reports decoded packet-number length histograms,
+the first application packet, the first Handshake packet and the separate flight
+carrying client Finished. It records padding outside coalesced QUIC packets
+separately. Undecoded packet numbers remain explicitly unknown. Wireshark nests
+short headers and emits metadata-only padding objects, so the parser has its own
+regressions:
+
+```sh
+node --test tests/tools/wirecapture/transport-packet.test.mjs
+```
+
+Transport reports retain encoded packet sizes, ACK delay fields and the ordered
+NEW_CONNECTION_ID sequence numbers. Initial datagram tails are counted as zero
+and nonzero bytes separately; the dissector's generic `(Random) padding` label
+does not establish randomness. The control-stream prefix decoder reports actual
+SETTINGS varint lengths and reserved-frame payload sizes, allowing GREASE size
+variation to be distinguished from packet framing differences. Its vectors come
+from captured Chromium and Surf prefixes and contain no TLS secrets.
+
+## Controlled UDP delay and loss
+
+The local HTTP/3 peer can apply a constant delay in each direction and a
+repeatable drop rule independently for each remote UDP address and direction:
+
+```sh
+node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-delay-loss --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false --udp-delay=10ms --udp-drop-every=37
+node tests/tools/wirecapture/ack-analysis.mjs --in=/tmp/surf-delay-loss --out=/tmp/surf-delay-loss-acks.json
+```
+
+`--udp-delay` accepts Go durations from zero through one second. Ten milliseconds
+in both directions adds about 20 ms of RTT. `--udp-drop-every=N` drops every Nth
+datagram (zero disables, N must be at least two). `--udp-drop-first=N` drops the
+first N datagrams (0..10), then the periodic rule starts. Each queue is bounded to
+4096 packets; `network-summary.json` reports observed, dropped, delivered and
+overflow counts, plus transport/logging errors. `network.jsonl` retains private
+per-flow events. A few queued packets may remain undelivered during shutdown.
+
+Delay is pipelined through separate read/write schedulers. It does not sleep in
+`WriteTo` and impose an accidental bandwidth limit. Incoming pcap datagrams are
+recorded before emulated loss/delay; outgoing datagrams after it, at the actual
+socket write. Thus a dropped incoming packet still appears in pcap. These are
+application-level socket experiments, with OOB/GSO disabled, not kernel netem or
+NIC captures. They establish frame/ACK observations, not browser pacing,
+congestion control or loss-recovery equivalence.
+
+ACK analysis keeps sent/acknowledged packet sets separately for each connection,
+then aggregates observations by client label. Reconnection can reuse packet
+numbers without conflating ACKs. Node regressions cover this and bounded range
+processing; CI runs all `*.test.mjs` analyzers.
+
+Failed navigations retain `browser.json`, logs and `failure.json` with the peer
+status. They remain failed runs. In the first-datagram-loss experiment Firefox
+attempted TCP fallback with HTTP/1.1, while this peer accepts HTTP/2 only. Its
+`NS_ERROR_NET_RESET` is an incomplete experiment, not a successful H3 comparison.
+Chromium and both Surf replays completed that experiment. Loss-induced fallback
+racing and HTTP/1.1 peer support need a separate investigation.

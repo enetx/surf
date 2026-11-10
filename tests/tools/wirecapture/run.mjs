@@ -110,6 +110,23 @@ async function browserRun(browser, server, directory, protocol) {
     prefs = {},
     automation,
     metadata;
+  function saveBrowserMetadata() {
+    writeFileSync(join(directory, "browser.log"), automation.logs());
+    writeFileSync(
+      join(directory, "browser.json"),
+      JSON.stringify(
+        {
+          browser,
+          flags,
+          prefs,
+          metadata,
+          captured_at: new Date().toISOString(),
+        },
+        null,
+        2,
+      ) + "\n",
+    );
+  }
   if (browser === "chrome") {
     flags = [
       "--headless",
@@ -154,7 +171,7 @@ async function browserRun(browser, server, directory, protocol) {
       await waitComplete(server);
     } finally {
       await automation.close("Browser.close");
-      writeFileSync(join(directory, "browser.log"), automation.logs());
+      saveBrowserMetadata();
     }
   } else {
     const certutil = "/opt/homebrew/opt/nss/bin/certutil";
@@ -228,24 +245,9 @@ async function browserRun(browser, server, directory, protocol) {
       await waitComplete(server);
     } finally {
       await automation.close("browser.close");
-      writeFileSync(join(directory, "browser.log"), automation.logs());
+      saveBrowserMetadata();
     }
   }
-  writeFileSync(join(directory, "browser.log"), automation.logs());
-  writeFileSync(
-    join(directory, "browser.json"),
-    JSON.stringify(
-      {
-        browser,
-        flags,
-        prefs,
-        metadata,
-        captured_at: new Date().toISOString(),
-      },
-      null,
-      2,
-    ) + "\n",
-  );
 }
 
 async function waitComplete(server) {
@@ -281,6 +283,12 @@ async function captureCase(browser, protocol, capacity) {
       args.scenario || "headers",
       "-response-bytes",
       args["response-bytes"] || "0",
+      "-udp-delay",
+      args["udp-delay"] || "0",
+      "-udp-drop-every",
+      args["udp-drop-every"] || "0",
+      "-udp-drop-first",
+      args["udp-drop-first"] || "0",
     ],
     { stdio: ["ignore", "pipe", "pipe"] },
   );
@@ -357,6 +365,27 @@ async function captureCase(browser, protocol, capacity) {
       );
       if (result.status !== 0) throw Error(label + ": " + result.stderr);
     }
+  } catch (error) {
+    const status = await fetch(server.admin + "/status")
+      .then((r) => r.json())
+      .catch(() => null);
+    writeFileSync(
+      join(directory, "failure.json"),
+      JSON.stringify(
+        {
+          error: error.message,
+          status,
+          network: {
+            delay: args["udp-delay"] || "0",
+            drop_every: args["udp-drop-every"] || "0",
+            drop_first: args["udp-drop-first"] || "0",
+          },
+        },
+        null,
+        2,
+      ) + "\n",
+    );
+    throw error;
   } finally {
     await fetch(server.admin + "/finish").catch(() => {});
     await Promise.race([exited, delay(3000)]);

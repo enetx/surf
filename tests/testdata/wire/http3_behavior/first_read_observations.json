@@ -1,0 +1,755 @@
+{
+  "schema": 1,
+  "scope": "Local HTTP/3 DATA and control-frame observations, independently checked against decrypted Wireshark frames. No claim about packet pacing, loss or congestion.",
+  "firefox_environment": "Fresh temporary headless profiles; MOZ_DISABLE_CONTENT_SANDBOX=1 for these processes only.",
+  "cases": [
+    {
+      "case": "chrome-h3-0",
+      "scenario": "uploads",
+      "captured_at": "2026-11-10T08:40:04.831Z",
+      "browser": "chrome",
+      "version": "Chrome/156.0.8078.79",
+      "peer_capacity": 0,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "8bea2df09b847b761209bc388b256e023fa9b097130b45cc6c9dde3aff1b1bd6",
+      "requests_sha256": "fbc741d31343a9b6be9a6312196d4d3dfa09d37fbae9a1fd28c1466d1bfe55a9",
+      "frames_sha256": "6304ab3b2b70ee11a6bead23398d8c8c2fd6a566e448d6cf3bf228d0c2d97189",
+      "independent_wireshark_checks": {
+        "data_frames": 30,
+        "priority_frames": 33
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            65536
+          ],
+          "surf_preset": [
+            65536
+          ],
+          "surf_exact_input": [
+            65536
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            371712
+          ],
+          "surf_preset": [
+            371712
+          ],
+          "surf_exact_input": [
+            371712
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            371712,
+            28288
+          ],
+          "surf_preset": [
+            371712,
+            28288
+          ],
+          "surf_exact_input": [
+            371712,
+            28288
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    },
+    {
+      "case": "chrome-h3-65536",
+      "scenario": "uploads",
+      "captured_at": "2026-11-10T08:40:06.569Z",
+      "browser": "chrome",
+      "version": "Chrome/156.0.8078.79",
+      "peer_capacity": 65536,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "2d74e0474055f10f9dfeed7be805d2e682dc27aba99bc22ee4aa7dbc0a9ac603",
+      "requests_sha256": "bb79300feeaaa0adfcac143fdf2bff7f541bcb9d72fb6d8f26c8956da8f270c0",
+      "frames_sha256": "a9413e602d280f6cc5b73f52fc706c06a905bb049afbecd5ba08870ba2543ff9",
+      "independent_wireshark_checks": {
+        "data_frames": 30,
+        "priority_frames": 33
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            65536
+          ],
+          "surf_preset": [
+            65536
+          ],
+          "surf_exact_input": [
+            65536
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            371712
+          ],
+          "surf_preset": [
+            371712
+          ],
+          "surf_exact_input": [
+            371712
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            371712,
+            28288
+          ],
+          "surf_preset": [
+            371712,
+            28288
+          ],
+          "surf_exact_input": [
+            371712,
+            28288
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-0",
+      "scenario": "uploads",
+      "captured_at": "2026-11-10T08:40:08.899Z",
+      "browser": "firefox",
+      "version": "159.0.1",
+      "peer_capacity": 0,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "33ef52829ff4ccb453aceb2fc796f9b4e61bec5ac8c9c947e391e778f71e4824",
+      "requests_sha256": "4315f4682b1599cb0961641f37edeb76407ee6fe1f6d59be8e3beb2cc9706291",
+      "frames_sha256": "2a4896e1f33bfc90bffab98a15072981d8ea92f77cfd769978bad8b22d4d7e85",
+      "independent_wireshark_checks": {
+        "data_frames": 102,
+        "priority_frames": 0
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            31957,
+            32768,
+            811
+          ],
+          "surf_preset": [
+            32029,
+            32768,
+            739
+          ],
+          "surf_exact_input": [
+            31957,
+            32768,
+            811
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ],
+          "surf_preset": [
+            32028,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12004
+          ],
+          "surf_exact_input": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ],
+          "surf_preset": [
+            32027,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7525
+          ],
+          "surf_exact_input": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    },
+    {
+      "case": "firefox-h3-65536",
+      "scenario": "uploads",
+      "captured_at": "2026-11-10T08:40:11.201Z",
+      "browser": "firefox",
+      "version": "159.0.1",
+      "peer_capacity": 65536,
+      "connections": {
+        "browser": 1,
+        "surf-preset": 1,
+        "surf-exact-input": 1
+      },
+      "pcap_sha256": "1e2416451daa0a2d8b149b7eb17579e9d1149b840e6788f2db9832eb4ece7b61",
+      "requests_sha256": "36e8f743ba8448e18c8c020f38d5d1bc3ff2d500c695cf240a6ff53c90a28a31",
+      "frames_sha256": "a3c0ad49fc5591edc976ebb803a644d792475d8620792acf6b1aeafea2693ed6",
+      "independent_wireshark_checks": {
+        "data_frames": 102,
+        "priority_frames": 0
+      },
+      "uploads": [
+        {
+          "path": "/step/0",
+          "body_bytes": 1000,
+          "browser": [
+            1000
+          ],
+          "surf_preset": [
+            1000
+          ],
+          "surf_exact_input": [
+            1000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/1",
+          "body_bytes": 14520,
+          "browser": [
+            14520
+          ],
+          "surf_preset": [
+            14520
+          ],
+          "surf_exact_input": [
+            14520
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/2",
+          "body_bytes": 17000,
+          "browser": [
+            17000
+          ],
+          "surf_preset": [
+            17000
+          ],
+          "surf_exact_input": [
+            17000
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/3",
+          "body_bytes": 65536,
+          "browser": [
+            31957,
+            32768,
+            811
+          ],
+          "surf_preset": [
+            32029,
+            32768,
+            739
+          ],
+          "surf_exact_input": [
+            31957,
+            32768,
+            811
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/4",
+          "body_bytes": 371712,
+          "browser": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ],
+          "surf_preset": [
+            32028,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12004
+          ],
+          "surf_exact_input": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/5",
+          "body_bytes": 400000,
+          "browser": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ],
+          "surf_preset": [
+            32027,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7525
+          ],
+          "surf_exact_input": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/6",
+          "body_bytes": 1,
+          "browser": [
+            1
+          ],
+          "surf_preset": [
+            1
+          ],
+          "surf_exact_input": [
+            1
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/7",
+          "body_bytes": 4096,
+          "browser": [
+            4096
+          ],
+          "surf_preset": [
+            4096
+          ],
+          "surf_exact_input": [
+            4096
+          ],
+          "boundaries_equal": true
+        },
+        {
+          "path": "/step/8",
+          "body_bytes": 8192,
+          "browser": [
+            8192
+          ],
+          "surf_preset": [
+            8192
+          ],
+          "surf_exact_input": [
+            8192
+          ],
+          "boundaries_equal": true
+        }
+      ]
+    }
+  ]
+}

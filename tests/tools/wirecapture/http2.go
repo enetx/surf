@@ -48,6 +48,7 @@ func (s *captureServer) serveH2(raw net.Conn, label string) {
 		return
 	}
 	fr := http2.NewFramer(conn, conn)
+	flow := newH2CaptureFlow(fr)
 	if err := fr.WriteSettings(http2.Setting{ID: http2.SettingHeaderTableSize, Val: uint32(s.capacity)}, http2.Setting{ID: http2.SettingMaxConcurrentStreams, Val: 100}, http2.Setting{ID: http2.SettingInitialWindowSize, Val: 1 << 20}); err != nil {
 		return
 	}
@@ -57,9 +58,15 @@ func (s *captureServer) serveH2(raw net.Conn, label string) {
 	var block []byte
 	var stream uint32
 	for {
-		frame, err := fr.ReadFrame()
+		frame, err := flow.readFrame()
 		if err != nil {
 			return
+		}
+		if handled, err := flow.control(frame); handled || err != nil {
+			if err != nil {
+				return
+			}
+			continue
 		}
 		switch f := frame.(type) {
 		case *http2.SettingsFrame:
@@ -126,7 +133,7 @@ func (s *captureServer) serveH2(raw net.Conn, label string) {
 		if err := fr.WriteHeaders(http2.HeadersFrameParam{StreamID: stream, BlockFragment: encoded.Bytes(), EndHeaders: true}); err != nil {
 			return
 		}
-		if err := fr.WriteData(stream, true, body); err != nil {
+		if err := flow.writeBody(stream, body); err != nil {
 			return
 		}
 	}

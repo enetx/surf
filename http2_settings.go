@@ -11,6 +11,8 @@ import (
 // HTTP2Settings represents HTTP/2 settings.
 // https://lwthiker.com/networks/2022/06/17/http2-fingerprinting.html
 type HTTP2Settings struct {
+	streamReceiveWindow       uint32
+	receiveWindowUpdatePolicy func(http2.ReceiveWindowUpdateInfo) bool
 	registered                bool
 	priorityFrames            []http2.PriorityFrame
 	priorityParam             http2.PriorityParam
@@ -169,6 +171,8 @@ func (h *HTTP2Settings) Set() *Builder {
 		}
 
 		t2.HPACK = h.hpack.Clone()
+		t2.StreamReceiveWindow = h.streamReceiveWindow
+		t2.ReceiveWindowUpdatePolicy = h.receiveWindowUpdatePolicy
 		t2.MaxEncoderHeaderTableSize = h.maxEncoderHeaderTableSize
 		t2.HeaderPriority = h.headerPriority
 		t2.ChainStreamDependencies = h.chainStreamDependencies

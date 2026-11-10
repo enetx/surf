@@ -5,33 +5,33 @@ import (
 	"github.com/enetx/surf/profiles/chrome/android"
 	"github.com/enetx/surf/profiles/chrome/desktop"
 	"github.com/enetx/surf/profiles/chrome/ios"
-	chromequic "github.com/enetx/surf/profiles/chrome/quic"
+	"github.com/enetx/surf/profiles/chrome/quic"
 )
 
 // Desktop is the current Chrome 156 desktop variant.
 var Desktop = profiles.Variant{
-	ConfigureQUIC:        chromequic.ConfigureQUIC,
+	ConfigureQUIC:        quic.ConfigureQUIC,
 	HelloSpec:            &HelloChrome_156,
 	ShuffleExtensions:    true,
 	Boundary:             Boundary,
 	ConfigureH2:          desktop.ConfigureH2,
 	ConfigureH3:          desktop.ConfigureH3,
-	ConfigureQPACK:       chromequic.ConfigureQPACK,
-	ConfigureRequestBody: chromequic.ConfigureRequestBody,
+	ConfigureQPACK:       quic.ConfigureQPACK,
+	ConfigureRequestBody: quic.ConfigureRequestBody,
 	BuildHeaders:         desktop.BuildHeaders,
 	Headers:              DesktopApplier,
 }
 
 // Mobile is the current Chrome 156 Android variant.
 var Mobile = profiles.Variant{
-	ConfigureQUIC:        chromequic.ConfigureQUIC,
+	ConfigureQUIC:        quic.ConfigureQUIC,
 	HelloSpec:            &HelloChrome_156_Mobile,
 	ShuffleExtensions:    true,
 	Boundary:             Boundary,
 	ConfigureH2:          android.ConfigureH2,
 	ConfigureH3:          android.ConfigureH3,
-	ConfigureQPACK:       chromequic.ConfigureQPACK,
-	ConfigureRequestBody: chromequic.ConfigureRequestBody,
+	ConfigureQPACK:       quic.ConfigureQPACK,
+	ConfigureRequestBody: quic.ConfigureRequestBody,
 	BuildHeaders:         android.BuildHeaders,
 	Headers:              MobileApplier,
 }

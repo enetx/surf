@@ -7,6 +7,16 @@ import (
 	"github.com/enetx/surf/profiles"
 )
 
+func (a h2adapter) StreamReceiveWindow(n uint32) profiles.H2Config {
+	a.s.StreamReceiveWindow(n)
+	return a
+}
+
+func (a h2adapter) ReceiveWindowUpdatePolicy(policy func(http2.ReceiveWindowUpdateInfo) bool) profiles.H2Config {
+	a.s.ReceiveWindowUpdatePolicy(policy)
+	return a
+}
+
 func (a h2adapter) MaxEncoderHeaderTableSize(v uint32) profiles.H2Config {
 	a.s.MaxEncoderHeaderTableSize(v)
 	return a
@@ -135,6 +145,7 @@ func (a h3adapter) RequestBodyBufferSizePolicy(v func(int64) int) profiles.H3Con
 	a.s.RequestBodyBufferSizePolicy(v)
 	return a
 }
+
 func (a h3adapter) MaxDataFrameSize(v int) profiles.H3Config { a.s.MaxDataFrameSize(v); return a }
 
 func (a h3adapter) CompactPriorityUpdates(v bool) profiles.H3Config {
@@ -143,3 +154,13 @@ func (a h3adapter) CompactPriorityUpdates(v bool) profiles.H3Config {
 }
 
 func (a h3adapter) EarlyData(v bool) profiles.H3Config { a.s.EarlyData(v); return a }
+
+func (a h3adapter) RequestBodyFirstReadSizePolicy(v func(http3.RequestBodyReadInfo) int) profiles.H3Config {
+	a.s.RequestBodyFirstReadSizePolicy(v)
+	return a
+}
+
+func (a h3adapter) CoalesceInitialSettings(enabled bool) profiles.H3Config {
+	a.s.CoalesceInitialSettings(enabled)
+	return a
+}

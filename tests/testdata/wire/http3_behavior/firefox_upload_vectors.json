@@ -1,0 +1,1683 @@
+{
+  "schema": 1,
+  "browser": "Firefox/159.0.1",
+  "source_release": "v1.0.215",
+  "cases": [
+    {
+      "peer_capacity": 0,
+      "pcap_sha256": "2283fa886abb13505a466671c04381ef863edff1fdee3f90dbf449f072174294",
+      "requests_sha256": "6ddfed99d23481b92c85c65f235588186d608c8e98f9dc77796fc199b157eb5f",
+      "uploads": [
+        {
+          "method": "POST",
+          "path": "/step/0",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/0"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "1000"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 1000,
+          "data_lengths": [
+            1000
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/1",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/1"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "14520"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 14520,
+          "data_lengths": [
+            14520
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/2",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/2"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "17000"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 17000,
+          "data_lengths": [
+            17000
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/3",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/3"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "65536"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 65536,
+          "data_lengths": [
+            31957,
+            32768,
+            811
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/4",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/4"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "371712"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 371712,
+          "data_lengths": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/5",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/5"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "400000"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 400000,
+          "data_lengths": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/6",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/6"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "1"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 1,
+          "data_lengths": [
+            1
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/7",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/7"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "4096"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 4096,
+          "data_lengths": [
+            4096
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/8",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": ":path",
+              "value": "/step/8"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55640/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "8192"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55640"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55640"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 8192,
+          "data_lengths": [
+            8192
+          ]
+        }
+      ]
+    },
+    {
+      "peer_capacity": 65536,
+      "pcap_sha256": "3fe37865e9656e4bbae7d0710ad2b52d854685500310ea5674bd7b1f50222b66",
+      "requests_sha256": "f7f61eee695918b3c3952a34122d8dbe063dbc21cf021bee580ee94a19362daa",
+      "uploads": [
+        {
+          "method": "POST",
+          "path": "/step/0",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/0"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "1000"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 1000,
+          "data_lengths": [
+            1000
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/1",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/1"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "14520"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 14520,
+          "data_lengths": [
+            14520
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/2",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/2"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "17000"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 17000,
+          "data_lengths": [
+            17000
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/3",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/3"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "65536"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 65536,
+          "data_lengths": [
+            31957,
+            32768,
+            811
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/4",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/4"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "371712"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=xxxxxxxxxxxxxxxxx; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 371712,
+          "data_lengths": [
+            31956,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            12076
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/5",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/5"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "400000"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 400000,
+          "data_lengths": [
+            31955,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            32768,
+            7597
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/6",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/6"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "1"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 1,
+          "data_lengths": [
+            1
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/7",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/7"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "4096"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 4096,
+          "data_lengths": [
+            4096
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/step/8",
+          "fields": [
+            {
+              "name": ":method",
+              "value": "POST"
+            },
+            {
+              "name": ":scheme",
+              "value": "https"
+            },
+            {
+              "name": ":authority",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": ":path",
+              "value": "/step/8"
+            },
+            {
+              "name": "user-agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+            },
+            {
+              "name": "accept",
+              "value": "*/*"
+            },
+            {
+              "name": "accept-language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "referer",
+              "value": "https://127.0.0.1:55846/scenario"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain;charset=UTF-8"
+            },
+            {
+              "name": "content-length",
+              "value": "8192"
+            },
+            {
+              "name": "origin",
+              "value": "https://127.0.0.1:55846"
+            },
+            {
+              "name": "alt-used",
+              "value": "127.0.0.1:55846"
+            },
+            {
+              "name": "cookie",
+              "value": "a=vvvvvvvvvvvvvvvvvv; b=yyyyyyyyyyyyyyyyyy; c=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+            },
+            {
+              "name": "sec-fetch-dest",
+              "value": "empty"
+            },
+            {
+              "name": "sec-fetch-mode",
+              "value": "cors"
+            },
+            {
+              "name": "sec-fetch-site",
+              "value": "same-origin"
+            },
+            {
+              "name": "priority",
+              "value": "u=4"
+            },
+            {
+              "name": "pragma",
+              "value": "no-cache"
+            },
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            }
+          ],
+          "body_bytes": 8192,
+          "data_lengths": [
+            8192
+          ]
+        }
+      ]
+    }
+  ]
+}

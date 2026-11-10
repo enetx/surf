@@ -353,6 +353,8 @@ func h2cMW(client *Client) error {
 	// Apply HTTP/2 settings if configured
 	if client.builder.http2settings != nil {
 		h := client.builder.http2settings
+		t2.StreamReceiveWindow = h.streamReceiveWindow
+		t2.ReceiveWindowUpdatePolicy = h.receiveWindowUpdatePolicy
 
 		// Pre-allocate settings slice to avoid multiple allocations
 		t2.Settings = make([]http2.Setting, 0, 7)

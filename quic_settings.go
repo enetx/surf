@@ -121,6 +121,8 @@ func (q *QUICSettings) RequireStreamCreditRelease(required bool) *QUICSettings {
 // Zero selects quic-go's default.
 func (q *QUICSettings) InitialPacketSize(size uint16) *QUICSettings {
 	q.config().InitialPacketSize = size
+	q.handshake().NewInitialPacketSize = nil
+
 	return q
 }
 

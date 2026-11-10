@@ -13,6 +13,7 @@ import (
 func ConfigureH2(h profiles.H2Config) {
 	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/http2/hpack/hpack_encoder.cc
 	h.MaxEncoderHeaderTableSize(math.MaxInt32).
+		ReceiveWindowUpdatePolicy(common.ReceiveWindowUpdate).
 		HpackPolicy(common.HpackPolicy).
 		HpackNameReferencePolicy(http2.HPACKNameReferenceFirst).
 		HpackDeduplicateTableSizeUpdates(true).

@@ -21,6 +21,8 @@ import (
 type Request struct {
 	http3PriorityHandler func(*HTTP3PriorityUpdater)
 	http3PrioritySet     bool
+	streamingBody        bool
+	streamingFactory     bool
 	err                  error         // General error associated with the request (validation, setup, etc.)
 	remoteAddr           net.Addr      // Remote server address captured during connection
 	bodyBytes            []byte        // Cached body bytes for retry support
@@ -58,7 +60,7 @@ func (req *Request) prepareMultipart() {
 		return
 	}
 
-	if req.request.Body != nil {
+	if req.request.Body != nil || req.streamingBody {
 		req.err = fmt.Errorf("cannot use both Body() and Multipart() - they are mutually exclusive")
 		return
 	}
@@ -83,21 +85,29 @@ func (req *Request) prepareMultipart() {
 func (req *Request) Do() g.Result[*Response] {
 	// Return early if request has preparation errors
 	if req.err != nil {
+		req.closeStreamingBody()
 		return g.Err[*Response](req.err)
 	}
 
 	req.prepareMultipart()
 	if req.err != nil {
+		req.closeStreamingBody()
 		return g.Err[*Response](req.err)
 	}
 
+	if err := req.prepareStreamingBody(); err != nil {
+		req.closeStreamingBody()
+		return g.Err[*Response](err)
+	}
+
 	if err := req.cli.applyReqMW(req); err != nil {
+		req.closeStreamingBody()
 		return g.Err[*Response](err)
 	}
 
 	req.prepareHTTP3Priority()
 
-	if req.request.Method != http.MethodHead {
+	if !req.streamingBody && req.request.Method != http.MethodHead {
 		if req.multipart == nil || req.multipart.retry {
 			req.bodyBytes, req.request.Body, req.err = drainbody.DrainBody(req.request.Body)
 			if req.err != nil {
@@ -119,18 +129,26 @@ func (req *Request) Do() g.Result[*Response] {
 
 retry:
 	// Restore body from saved bytes for retry attempts
-	if attempts > 0 && req.bodyBytes != nil {
+	if attempts > 0 && req.streamingBody && req.request.GetBody != nil {
+		body, err := req.request.GetBody()
+		if err != nil {
+			return g.Err[*Response](err)
+		}
+		req.request.Body = body
+	}
+	if attempts > 0 && !req.streamingBody && req.bodyBytes != nil {
 		req.request.Body = io.NopCloser(bytes.NewReader(req.bodyBytes))
 	}
 
 	resp, err = cli.Do(req.request)
 	if err != nil {
+		req.closeStreamingBody()
 		return g.Err[*Response](err)
 	}
 
 	// Check if retry is needed based on status code and retry configuration
 	if builder != nil && builder.retryMax != 0 && attempts < builder.retryMax && !builder.retryCodes.IsEmpty() &&
-		builder.retryCodes.Contains(resp.StatusCode) {
+		builder.retryCodes.Contains(resp.StatusCode) && req.canReplayStreamingBody() {
 		retryAfter, _ := retryafter.Parse(resp.Header.Get(header.RETRY_AFTER), time.Now())
 
 		io.Copy(io.Discard, resp.Body)

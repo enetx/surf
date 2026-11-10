@@ -1,0 +1,1190 @@
+{
+  "schema": 1,
+  "method": "Application-level bidirectional UDP delay/drop on the local peer; 2 MiB bulk response; decrypted ACK ranges measured per QUIC connection. Capture points differ by direction; see tool README. Not a NIC timing or congestion/loss-recovery equivalence claim.",
+  "cases": [
+    {
+      "phase": "baseline",
+      "case": "chrome-h3-0",
+      "network": {
+        "one_way_delay_ms": 0,
+        "drop_every": 0,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "chrome",
+        "version": "Chrome/156.0.8078.79",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "captured_at": "2026-11-10T11:49:48.660Z",
+      "pcap_sha256": "8cc973db405f32b94cafa9804007b9c3f07ba25bb0b40b1f24b1be6d3c49840d",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "server_ack_eliciting_packets": 1697,
+          "early": {
+            "ack_frames": 51,
+            "median": 2,
+            "histogram": {
+              "1": 3,
+              "2": 48
+            }
+          },
+          "late": {
+            "ack_frames": 177,
+            "median": 10,
+            "histogram": {
+              "1": 7,
+              "2": 9,
+              "3": 2,
+              "4": 2,
+              "5": 1,
+              "7": 2,
+              "10": 154
+            }
+          },
+          "max_reported_ack_delay_ms": 2.952,
+          "connections": 1
+        },
+        {
+          "label": "surf-preset",
+          "server_ack_eliciting_packets": 1695,
+          "early": {
+            "ack_frames": 46,
+            "median": 2,
+            "histogram": {
+              "1": 2,
+              "2": 36,
+              "3": 8
+            }
+          },
+          "late": {
+            "ack_frames": 171,
+            "median": 10,
+            "histogram": {
+              "1": 8,
+              "2": 10,
+              "4": 1,
+              "10": 110,
+              "11": 41,
+              "12": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 0.56,
+          "connections": 1
+        },
+        {
+          "label": "surf-exact-input",
+          "server_ack_eliciting_packets": 1695,
+          "early": {
+            "ack_frames": 48,
+            "median": 2,
+            "histogram": {
+              "1": 2,
+              "2": 41,
+              "3": 5
+            }
+          },
+          "late": {
+            "ack_frames": 168,
+            "median": 10,
+            "histogram": {
+              "1": 3,
+              "2": 9,
+              "6": 1,
+              "10": 140,
+              "11": 13,
+              "12": 2
+            }
+          },
+          "max_reported_ack_delay_ms": 0.208,
+          "connections": 1
+        }
+      ]
+    },
+    {
+      "phase": "baseline",
+      "case": "firefox-h3-0",
+      "network": {
+        "one_way_delay_ms": 0,
+        "drop_every": 0,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "firefox",
+        "version": "159.0.1",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      },
+      "captured_at": "2026-11-10T11:49:50.146Z",
+      "pcap_sha256": "813e996ff513404126f1e6700ee64a96fc683914385520b6d9bfbd32c74c580a",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "server_ack_eliciting_packets": 1702,
+          "early": {
+            "ack_frames": 40,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 25,
+              "3": 11,
+              "4": 2,
+              "5": 1
+            }
+          },
+          "late": {
+            "ack_frames": 711,
+            "median": 2,
+            "histogram": {
+              "1": 11,
+              "2": 556,
+              "3": 121,
+              "4": 16,
+              "5": 5,
+              "7": 1,
+              "22": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 19.072,
+          "connections": 1
+        },
+        {
+          "label": "surf-preset",
+          "server_ack_eliciting_packets": 1701,
+          "early": {
+            "ack_frames": 41,
+            "median": 2,
+            "histogram": {
+              "2": 28,
+              "3": 11,
+              "4": 2
+            }
+          },
+          "late": {
+            "ack_frames": 713,
+            "median": 2,
+            "histogram": {
+              "1": 8,
+              "2": 534,
+              "3": 163,
+              "4": 7,
+              "10": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 0.144,
+          "connections": 1
+        },
+        {
+          "label": "surf-exact-input",
+          "server_ack_eliciting_packets": 1702,
+          "early": {
+            "ack_frames": 46,
+            "median": 2,
+            "histogram": {
+              "1": 2,
+              "2": 36,
+              "3": 8
+            }
+          },
+          "late": {
+            "ack_frames": 754,
+            "median": 2,
+            "histogram": {
+              "1": 10,
+              "2": 653,
+              "3": 85,
+              "4": 2,
+              "5": 2,
+              "6": 1,
+              "8": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 0.208,
+          "connections": 1
+        }
+      ]
+    },
+    {
+      "phase": "delay",
+      "case": "chrome-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 0,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "chrome",
+        "version": "Chrome/156.0.8078.79",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "captured_at": "2026-11-10T11:50:28.029Z",
+      "pcap_sha256": "c24b173aa373073bd1f25750847919e12f1dbe109098162fe1f7033a2cbd0626",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "server_ack_eliciting_packets": 1698,
+          "early": {
+            "ack_frames": 51,
+            "median": 2,
+            "histogram": {
+              "1": 2,
+              "2": 49
+            }
+          },
+          "late": {
+            "ack_frames": 175,
+            "median": 10,
+            "histogram": {
+              "1": 7,
+              "2": 9,
+              "3": 1,
+              "4": 1,
+              "6": 1,
+              "10": 156
+            }
+          },
+          "max_reported_ack_delay_ms": 6.312,
+          "connections": 1
+        },
+        {
+          "label": "surf-preset",
+          "server_ack_eliciting_packets": 1697,
+          "early": {
+            "ack_frames": 37,
+            "median": 2,
+            "histogram": {
+              "2": 22,
+              "3": 10,
+              "4": 3,
+              "6": 1,
+              "7": 1
+            }
+          },
+          "late": {
+            "ack_frames": 165,
+            "median": 10,
+            "histogram": {
+              "1": 4,
+              "2": 8,
+              "3": 2,
+              "5": 2,
+              "6": 1,
+              "8": 1,
+              "10": 88,
+              "11": 46,
+              "12": 9,
+              "13": 4
+            }
+          },
+          "max_reported_ack_delay_ms": 5.768,
+          "connections": 1
+        },
+        {
+          "label": "surf-exact-input",
+          "server_ack_eliciting_packets": 1695,
+          "early": {
+            "ack_frames": 30,
+            "median": 3,
+            "histogram": {
+              "1": 1,
+              "2": 11,
+              "3": 11,
+              "4": 4,
+              "5": 2,
+              "15": 1
+            }
+          },
+          "late": {
+            "ack_frames": 164,
+            "median": 10,
+            "histogram": {
+              "1": 3,
+              "2": 12,
+              "3": 2,
+              "4": 1,
+              "5": 2,
+              "6": 1,
+              "10": 64,
+              "11": 59,
+              "12": 14,
+              "13": 4,
+              "14": 1,
+              "19": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 5.32,
+          "connections": 1
+        }
+      ],
+      "emulator": {
+        "error": "",
+        "totals": {
+          "incoming": {
+            "flows": 3,
+            "Seen": 665,
+            "Dropped": 0,
+            "Overflow": 0,
+            "Delivered": 664
+          },
+          "outgoing": {
+            "flows": 3,
+            "Seen": 5099,
+            "Dropped": 0,
+            "Overflow": 0,
+            "Delivered": 5098
+          }
+        }
+      }
+    },
+    {
+      "phase": "delay",
+      "case": "firefox-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 0,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "firefox",
+        "version": "159.0.1",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      },
+      "captured_at": "2026-11-10T11:50:30.702Z",
+      "pcap_sha256": "aecf6d371e3cd463bd68a8bf7757537c9a049845809d13f706371f6530bf44f7",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "server_ack_eliciting_packets": 1705,
+          "early": {
+            "ack_frames": 41,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 29,
+              "3": 8,
+              "4": 2,
+              "8": 1
+            }
+          },
+          "late": {
+            "ack_frames": 634,
+            "median": 2,
+            "histogram": {
+              "1": 10,
+              "2": 443,
+              "3": 138,
+              "4": 24,
+              "5": 8,
+              "6": 5,
+              "7": 1,
+              "10": 1,
+              "11": 1,
+              "22": 1,
+              "24": 1,
+              "55": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 25.552,
+          "connections": 1
+        },
+        {
+          "label": "surf-preset",
+          "server_ack_eliciting_packets": 1704,
+          "early": {
+            "ack_frames": 35,
+            "median": 3,
+            "histogram": {
+              "2": 16,
+              "3": 12,
+              "4": 5,
+              "5": 1,
+              "6": 1
+            }
+          },
+          "late": {
+            "ack_frames": 634,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 420,
+              "3": 161,
+              "4": 36,
+              "5": 5,
+              "6": 2,
+              "7": 4,
+              "9": 1,
+              "12": 2,
+              "13": 1,
+              "26": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 0.28,
+          "connections": 1
+        },
+        {
+          "label": "surf-exact-input",
+          "server_ack_eliciting_packets": 1705,
+          "early": {
+            "ack_frames": 21,
+            "median": 4,
+            "histogram": {
+              "2": 5,
+              "3": 3,
+              "4": 6,
+              "5": 4,
+              "7": 1,
+              "13": 1,
+              "16": 1
+            }
+          },
+          "late": {
+            "ack_frames": 634,
+            "median": 2,
+            "histogram": {
+              "1": 4,
+              "2": 409,
+              "3": 177,
+              "4": 29,
+              "5": 8,
+              "6": 3,
+              "7": 1,
+              "12": 1,
+              "25": 1,
+              "32": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 23.368,
+          "connections": 1
+        }
+      ],
+      "emulator": {
+        "error": "",
+        "totals": {
+          "incoming": {
+            "flows": 3,
+            "Seen": 2059,
+            "Dropped": 0,
+            "Overflow": 0,
+            "Delivered": 2057
+          },
+          "outgoing": {
+            "flows": 3,
+            "Seen": 5118,
+            "Dropped": 0,
+            "Overflow": 0,
+            "Delivered": 5116
+          }
+        }
+      }
+    },
+    {
+      "phase": "loss",
+      "case": "chrome-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 37,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "chrome",
+        "version": "Chrome/156.0.8078.79",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "captured_at": "2026-11-10T11:51:37.291Z",
+      "pcap_sha256": "67729d8f1130c7ef4cc9ecdf4a8db55cfa0fcc9a8781b8c913008f3be8c13292",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1746,
+          "early": {
+            "ack_frames": 53,
+            "median": 2,
+            "histogram": {
+              "1": 11,
+              "2": 41,
+              "4": 1
+            }
+          },
+          "late": {
+            "ack_frames": 427,
+            "median": 3,
+            "histogram": {
+              "1": 168,
+              "2": 36,
+              "3": 39,
+              "4": 26,
+              "5": 32,
+              "6": 33,
+              "7": 18,
+              "8": 34,
+              "9": 25,
+              "10": 16
+            }
+          },
+          "max_reported_ack_delay_ms": 6.416
+        },
+        {
+          "label": "surf-preset",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1748,
+          "early": {
+            "ack_frames": 16,
+            "median": 4,
+            "histogram": {
+              "1": 1,
+              "2": 4,
+              "3": 1,
+              "4": 3,
+              "5": 2,
+              "8": 1,
+              "10": 1,
+              "11": 1,
+              "12": 1,
+              "22": 1
+            }
+          },
+          "late": {
+            "ack_frames": 349,
+            "median": 4,
+            "histogram": {
+              "1": 75,
+              "2": 45,
+              "3": 39,
+              "4": 25,
+              "5": 28,
+              "6": 31,
+              "7": 32,
+              "8": 24,
+              "9": 38,
+              "10": 7,
+              "11": 2,
+              "13": 1,
+              "14": 1,
+              "17": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 50.52
+        },
+        {
+          "label": "surf-exact-input",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1749,
+          "early": {
+            "ack_frames": 31,
+            "median": 2,
+            "histogram": {
+              "1": 4,
+              "2": 23,
+              "3": 1,
+              "4": 1,
+              "5": 1,
+              "33": 1
+            }
+          },
+          "late": {
+            "ack_frames": 319,
+            "median": 5,
+            "histogram": {
+              "1": 83,
+              "2": 42,
+              "3": 17,
+              "4": 10,
+              "5": 11,
+              "6": 24,
+              "7": 23,
+              "8": 36,
+              "9": 43,
+              "10": 23,
+              "11": 5,
+              "12": 1,
+              "15": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 14.584
+        }
+      ],
+      "emulator": {
+        "error": "",
+        "totals": {
+          "incoming": {
+            "flows": 3,
+            "Seen": 1297,
+            "Dropped": 33,
+            "Overflow": 0,
+            "Delivered": 1264
+          },
+          "outgoing": {
+            "flows": 3,
+            "Seen": 5254,
+            "Dropped": 141,
+            "Overflow": 0,
+            "Delivered": 5113
+          }
+        }
+      }
+    },
+    {
+      "phase": "loss",
+      "case": "firefox-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 37,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "firefox",
+        "version": "159.0.1",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      },
+      "captured_at": "2026-11-10T11:51:55.920Z",
+      "pcap_sha256": "489c2097ab4097b87df126042a0f7f6ee8a7064ae60ffae2f401589b1842fb39",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "connections": 2,
+          "server_ack_eliciting_packets": 1753,
+          "early": {
+            "ack_frames": 55,
+            "median": 2,
+            "histogram": {
+              "1": 4,
+              "2": 40,
+              "3": 10,
+              "4": 1
+            }
+          },
+          "late": {
+            "ack_frames": 500,
+            "median": 3,
+            "histogram": {
+              "1": 53,
+              "2": 180,
+              "3": 94,
+              "4": 66,
+              "5": 54,
+              "6": 23,
+              "7": 21,
+              "8": 8,
+              "9": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 27.4
+        },
+        {
+          "label": "surf-preset",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1753,
+          "early": {
+            "ack_frames": 31,
+            "median": 3,
+            "histogram": {
+              "1": 1,
+              "2": 9,
+              "3": 11,
+              "4": 8,
+              "5": 1,
+              "8": 1
+            }
+          },
+          "late": {
+            "ack_frames": 543,
+            "median": 2,
+            "histogram": {
+              "1": 51,
+              "2": 227,
+              "3": 127,
+              "4": 65,
+              "5": 38,
+              "6": 19,
+              "7": 7,
+              "8": 5,
+              "10": 1,
+              "16": 1,
+              "20": 1,
+              "24": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 38.864
+        },
+        {
+          "label": "surf-exact-input",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1751,
+          "early": {
+            "ack_frames": 35,
+            "median": 3,
+            "histogram": {
+              "2": 16,
+              "3": 14,
+              "4": 3,
+              "5": 1,
+              "6": 1
+            }
+          },
+          "late": {
+            "ack_frames": 614,
+            "median": 2,
+            "histogram": {
+              "1": 61,
+              "2": 273,
+              "3": 173,
+              "4": 69,
+              "5": 29,
+              "6": 7,
+              "7": 1,
+              "8": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 21.048
+        }
+      ],
+      "emulator": {
+        "error": "",
+        "totals": {
+          "incoming": {
+            "flows": 4,
+            "Seen": 1896,
+            "Dropped": 49,
+            "Overflow": 0,
+            "Delivered": 1845
+          },
+          "outgoing": {
+            "flows": 4,
+            "Seen": 5266,
+            "Dropped": 140,
+            "Overflow": 0,
+            "Delivered": 5123
+          }
+        }
+      }
+    },
+    {
+      "phase": "loss-repeat",
+      "case": "chrome-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 37,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "chrome",
+        "version": "Chrome/156.0.8078.79",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "captured_at": "2026-11-10T12:00:06.053Z",
+      "pcap_sha256": "536c5cbfe86a195cb86a90e1f39bb1031da5cc93fe36b19a3460956b7b345664",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1747,
+          "early": {
+            "ack_frames": 53,
+            "median": 2,
+            "histogram": {
+              "1": 12,
+              "2": 40,
+              "4": 1
+            }
+          },
+          "late": {
+            "ack_frames": 390,
+            "median": 2,
+            "histogram": {
+              "1": 178,
+              "2": 28,
+              "3": 10,
+              "4": 5,
+              "5": 6,
+              "6": 10,
+              "7": 46,
+              "8": 66,
+              "9": 31,
+              "10": 9,
+              "11": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 6.44
+        },
+        {
+          "label": "surf-preset",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1748,
+          "early": {
+            "ack_frames": 38,
+            "median": 2,
+            "histogram": {
+              "1": 2,
+              "2": 19,
+              "3": 12,
+              "4": 4,
+              "5": 1
+            }
+          },
+          "late": {
+            "ack_frames": 369,
+            "median": 4,
+            "histogram": {
+              "1": 99,
+              "2": 52,
+              "3": 32,
+              "4": 26,
+              "5": 28,
+              "6": 21,
+              "7": 20,
+              "8": 48,
+              "9": 24,
+              "10": 16,
+              "11": 3
+            }
+          },
+          "max_reported_ack_delay_ms": 6.048
+        },
+        {
+          "label": "surf-exact-input",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1746,
+          "early": {
+            "ack_frames": 39,
+            "median": 2,
+            "histogram": {
+              "1": 3,
+              "2": 24,
+              "3": 7,
+              "4": 3,
+              "5": 1,
+              "9": 1
+            }
+          },
+          "late": {
+            "ack_frames": 427,
+            "median": 3,
+            "histogram": {
+              "1": 126,
+              "2": 68,
+              "3": 53,
+              "4": 26,
+              "5": 31,
+              "6": 39,
+              "7": 30,
+              "8": 25,
+              "9": 19,
+              "10": 8,
+              "11": 1,
+              "12": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 6.952
+        }
+      ],
+      "emulator": {
+        "error": "",
+        "totals": {
+          "incoming": {
+            "flows": 3,
+            "Seen": 1435,
+            "Dropped": 38,
+            "Overflow": 0,
+            "Delivered": 1396
+          },
+          "outgoing": {
+            "flows": 3,
+            "Seen": 5246,
+            "Dropped": 141,
+            "Overflow": 0,
+            "Delivered": 5104
+          }
+        }
+      }
+    },
+    {
+      "phase": "loss-repeat",
+      "case": "firefox-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 37,
+        "drop_first": 0
+      },
+      "browser": {
+        "browser": "firefox",
+        "version": "159.0.1",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      },
+      "captured_at": "2026-11-10T12:00:21.795Z",
+      "pcap_sha256": "94ea7efefcaa24a170166c5b43b04fd0b3e376328607f1b7d80782eda033bdd2",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "connections": 2,
+          "server_ack_eliciting_packets": 1759,
+          "early": {
+            "ack_frames": 48,
+            "median": 2,
+            "histogram": {
+              "1": 5,
+              "2": 27,
+              "3": 10,
+              "4": 3,
+              "5": 1,
+              "6": 2
+            }
+          },
+          "late": {
+            "ack_frames": 567,
+            "median": 2,
+            "histogram": {
+              "1": 62,
+              "2": 228,
+              "3": 135,
+              "4": 84,
+              "5": 32,
+              "6": 15,
+              "7": 6,
+              "8": 4,
+              "9": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 21.04
+        },
+        {
+          "label": "surf-preset",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1749,
+          "early": {
+            "ack_frames": 36,
+            "median": 2,
+            "histogram": {
+              "2": 21,
+              "3": 6,
+              "4": 7,
+              "5": 2
+            }
+          },
+          "late": {
+            "ack_frames": 724,
+            "median": 2,
+            "histogram": {
+              "1": 90,
+              "2": 470,
+              "3": 115,
+              "4": 34,
+              "5": 6,
+              "6": 4,
+              "7": 2,
+              "8": 2,
+              "9": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 21.176
+        },
+        {
+          "label": "surf-exact-input",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1749,
+          "early": {
+            "ack_frames": 40,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 28,
+              "3": 6,
+              "4": 3,
+              "5": 2
+            }
+          },
+          "late": {
+            "ack_frames": 717,
+            "median": 2,
+            "histogram": {
+              "1": 91,
+              "2": 464,
+              "3": 105,
+              "4": 36,
+              "5": 11,
+              "6": 4,
+              "7": 5,
+              "10": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 21.424
+        }
+      ],
+      "emulator": {
+        "error": "",
+        "totals": {
+          "incoming": {
+            "flows": 4,
+            "Seen": 2267,
+            "Dropped": 59,
+            "Overflow": 0,
+            "Delivered": 2206
+          },
+          "outgoing": {
+            "flows": 4,
+            "Seen": 5268,
+            "Dropped": 141,
+            "Overflow": 0,
+            "Delivered": 5124
+          }
+        }
+      }
+    },
+    {
+      "phase": "first-loss-chrome",
+      "case": "chrome-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 0,
+        "drop_first": 1
+      },
+      "browser": {
+        "browser": "chrome",
+        "version": "Chrome/156.0.8078.79",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+      },
+      "captured_at": "2026-11-10T12:00:01.940Z",
+      "pcap_sha256": "0ceb3db4fa74c5fccde2f05165ee553b62859f9bc08e0273297c6e3c645bca05",
+      "complete": true,
+      "groups": [
+        {
+          "label": "browser",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1698,
+          "early": {
+            "ack_frames": 51,
+            "median": 2,
+            "histogram": {
+              "1": 2,
+              "2": 49
+            }
+          },
+          "late": {
+            "ack_frames": 177,
+            "median": 10,
+            "histogram": {
+              "1": 7,
+              "2": 10,
+              "4": 4,
+              "5": 1,
+              "10": 155
+            }
+          },
+          "max_reported_ack_delay_ms": 6.688
+        },
+        {
+          "label": "surf-preset",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1695,
+          "early": {
+            "ack_frames": 44,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 31,
+              "3": 11,
+              "4": 1
+            }
+          },
+          "late": {
+            "ack_frames": 168,
+            "median": 10,
+            "histogram": {
+              "1": 6,
+              "2": 11,
+              "3": 2,
+              "6": 2,
+              "7": 1,
+              "10": 81,
+              "11": 51,
+              "12": 13,
+              "13": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 5.76
+        },
+        {
+          "label": "surf-exact-input",
+          "connections": 1,
+          "server_ack_eliciting_packets": 1697,
+          "early": {
+            "ack_frames": 40,
+            "median": 2,
+            "histogram": {
+              "1": 1,
+              "2": 25,
+              "3": 9,
+              "4": 4,
+              "5": 1
+            }
+          },
+          "late": {
+            "ack_frames": 162,
+            "median": 10,
+            "histogram": {
+              "2": 9,
+              "3": 1,
+              "4": 3,
+              "7": 2,
+              "8": 1,
+              "10": 83,
+              "11": 51,
+              "12": 8,
+              "13": 3,
+              "14": 1
+            }
+          },
+          "max_reported_ack_delay_ms": 5.976
+        }
+      ],
+      "emulator": {
+        "error": "",
+        "totals": {
+          "incoming": {
+            "flows": 3,
+            "Seen": 700,
+            "Dropped": 3,
+            "Overflow": 0,
+            "Delivered": 696
+          },
+          "outgoing": {
+            "flows": 3,
+            "Seen": 5102,
+            "Dropped": 3,
+            "Overflow": 0,
+            "Delivered": 5098
+          }
+        }
+      }
+    },
+    {
+      "phase": "first-loss-firefox",
+      "case": "firefox-h3-0",
+      "network": {
+        "one_way_delay_ms": 10,
+        "drop_every": 0,
+        "drop_first": 1
+      },
+      "browser": {
+        "browser": "firefox",
+        "version": "159.0.1"
+      },
+      "captured_at": "2026-11-10T12:00:47.319Z",
+      "pcap_sha256": "8233c776da04014f991fa5354bd2a6794312b7c179ba504982bad9f453392f25",
+      "complete": false,
+      "error": "NS_ERROR_NET_RESET",
+      "finding": "Firefox attempted HTTP/1.1 TCP fallback; the peer only supports HTTP/2. No completed H3 or Surf replay comparison.",
+      "emulator": {
+        "error": "",
+        "overflow": 0
+      }
+    }
+  ]
+}

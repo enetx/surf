@@ -16,6 +16,10 @@ func ConfigureH2(h profiles.H2Config) {
 	// Http2Compressor::SetMaxBufferSize accepts the peer's SETTINGS value;
 	// let the native encoder use its full supported capacity range.
 	h.MaxEncoderHeaderTableSize(math.MaxInt32).
+		ReceiveWindowUpdatePolicy(common.ReceiveWindowUpdate).
+		// AdjustInitialWindow raises client-pulled streams above the push allowance.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/Http2StreamBase.cpp
+		StreamReceiveWindow(12 << 20).
 		HpackPolicy(common.HpackPolicy).
 		HpackIndexingLimit(common.HpackIndexingLimit).
 		HpackHuffman(http2.HPACKHuffmanAlways).

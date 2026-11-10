@@ -66,20 +66,21 @@ func TestHTTP3RequestBodyProfilesAndOverride(t *testing.T) {
 		{"chrome-small", 17000, []int{17000}},
 		{"chrome-min", 1000, []int{1000}},
 		{"chrome-max", 400000, []int{371712, 28288}},
-		{"firefox", 100000, []int{32768, 32768, 32768, 1696}},
+		{"firefox", 17000, []int{17000}},
 		{"override", 10000, []int{2000, 2000, 1000, 2000, 2000, 1000}},
+		{"firefox-override", 10000, []int{2000, 2000, 1000, 2000, 2000, 1000}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			b := surf.NewClient().Builder()
 			switch {
 			case strings.HasPrefix(tc.name, "chrome"), tc.name == "override":
 				b = b.Impersonate().Chrome()
-			case tc.name == "firefox":
+			case strings.HasPrefix(tc.name, "firefox"):
 				b = b.Impersonate().Firefox()
 			}
 			b.ForceHTTP3()
 			settings := b.HTTP3Settings()
-			if tc.name == "override" {
+			if strings.HasSuffix(tc.name, "override") {
 				settings.RequestBodyBufferSize(5000).MaxDataFrameSize(2000)
 			}
 			trace := new(bodyFrameTrace)

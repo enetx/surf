@@ -12,6 +12,7 @@ type HTTP3PriorityUpdater = http3.PriorityUpdater
 func (req *Request) HTTP3PriorityUpdates(handler func(*HTTP3PriorityUpdater)) *Request {
 	req.http3PriorityHandler = handler
 	req.http3PrioritySet = true
+
 	return req
 }
 
@@ -24,6 +25,8 @@ func (h *HTTP3Settings) CompactPriorityUpdates(enabled bool) *HTTP3Settings {
 
 func (req *Request) prepareHTTP3Priority() {
 	if req.http3PrioritySet {
-		req.request = req.request.WithContext(http3.WithPriorityUpdateHandler(req.request.Context(), req.http3PriorityHandler))
+		req.request = req.request.WithContext(
+			http3.WithPriorityUpdateHandler(req.request.Context(), req.http3PriorityHandler),
+		)
 	}
 }

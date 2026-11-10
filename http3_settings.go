@@ -97,12 +97,19 @@ func (h *HTTP3Settings) EnableWebtransport(num uint64) *HTTP3Settings {
 	return h
 }
 
-// Grease adds a GREASE parameter with random ID and value to prevent protocol ossification.
+// Grease generates a fresh reserved SETTINGS identifier/value per connection.
+// Call GreaseFactory(nil) to disable generated SETTINGS GREASE.
 func (h *HTTP3Settings) Grease() *HTTP3Settings {
-	maxn := (uint64(1<<62) - 1 - 0x21) / 0x1F
-	n := uint64(rand.Uint32()) % maxn
-	h.settings.Insert(0x1F*n+0x21, uint64(rand.Uint32()))
+	return h.GreaseFactory(func() (uint64, uint64, error) {
+		return 0x1f*uint64(rand.Uint32()) + 0x21, uint64(rand.Uint32()), nil
+	})
+}
 
+// GreaseFactory generates one reserved SETTINGS pair for each new HTTP/3
+// connection. It must be concurrency safe, return promptly and not reenter the
+// transport. Nil disables it. Errors are returned before control-stream writes.
+func (h *HTTP3Settings) GreaseFactory(factory func() (uint64, uint64, error)) *HTTP3Settings {
+	h.wire().SettingsGrease = factory
 	return h
 }
 
@@ -233,21 +240,25 @@ func (ut *uquicTransport) initTransport() error {
 			return err
 		}
 	}
+
 	if ut.datagrams != nil {
 		config.EnableDatagrams = *ut.datagrams
 	}
 
 	enableDatagrams := ut.settings.Get(SETTINGS_H3_DATAGRAM).UnwrapOrDefault() == 1
+
 	if enableDatagrams && !config.EnableDatagrams {
 		return errors.New("HTTP/3 datagrams require QUICConfig.EnableDatagrams")
 	}
 
 	if config.ClientHandshake != nil {
 		ut.receivePacketSize = int(config.ClientHandshake.MaxUDPPayloadSize)
+
 		if config.ClientHandshake.OmitMaxUDPPayloadSize {
 			ut.receivePacketSize = quic.MaxUDPReceivePacketSize
 		}
 	}
+
 	headerLimit := ut.maxResponseHeaderBytes
 	if headerLimit == 0 {
 		headerLimit = _maxResponseHeaderBytes
@@ -331,6 +342,7 @@ func (ut *uquicTransport) dialSOCKS5(
 	}
 
 	success := false
+
 	defer func() {
 		if !success {
 			conn.Close()
@@ -383,6 +395,7 @@ func (ut *uquicTransport) dialDirect(
 	if ut.useEarlyData(ctx) {
 		return ut.quictr.DialEarly(ctx, udpAddr, tlsCfg, cfg)
 	}
+
 	return ut.quictr.Dial(ctx, udpAddr, tlsCfg, cfg)
 }
 
@@ -484,6 +497,7 @@ func (ut *uquicTransport) handleError(req *http.Request, err error) (*http.Respo
 	if _, local := errors.AsType[*http3.RequestPreparationError](err); local {
 		return nil, err
 	}
+
 	if req.Context().Err() != nil {
 		return nil, err
 	}

@@ -107,7 +107,7 @@ func TestHTTP3EarlyDataResumption(t *testing.T) {
 		{"accepted", true, false, false, "GET"}, {"disabled", false, false, false, "GET"}, {"head", true, false, false, "HEAD"},
 		{"get-body", true, false, false, "GET"}, {"post", true, false, false, "POST"}, {"rejected", true, true, false, "GET"}, {"425", true, false, true, "GET"},
 	} {
-		for _, hello := range []string{"native", "dedicated", "socks5", "chrome", "firefox"} {
+		for _, hello := range []string{"native", "coalesced", "datagram-padding", "dedicated", "socks5", "chrome", "firefox"} {
 			if (hello == "chrome" || hello == "firefox") && tc.enabled {
 				continue
 			}
@@ -130,6 +130,13 @@ func TestHTTP3EarlyDataResumption(t *testing.T) {
 					}
 					go proxy.Serve(listener)
 					builder.Proxy(g.String("socks5://" + listener.Addr().String()))
+				}
+				if hello == "datagram-padding" {
+					builder.QUICSettings().InitialPaddingMode(quic.InitialPaddingDatagram).HandshakeAckBeforeData(true).Set()
+					builder.HTTP3Settings().CoalesceInitialSettings(true).Set()
+				}
+				if hello == "coalesced" {
+					builder.HTTP3Settings().CoalesceInitialSettings(true).Set()
 				}
 				if hello == "dedicated" {
 					builder.QUICSettings().ConnectionIDLength(0).Set()

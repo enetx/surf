@@ -137,3 +137,8 @@ func (a h3adapter) Grease() profiles.H3Config {
 	a.s.Grease()
 	return a
 }
+
+func (a h3adapter) GreaseFactory(factory func() (uint64, uint64, error)) profiles.H3Config {
+	a.s.GreaseFactory(factory)
+	return a
+}
