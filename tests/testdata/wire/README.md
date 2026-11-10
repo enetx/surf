@@ -495,15 +495,58 @@ reports exit status zero; large full decodes can exceed its 64 MiB buffer. Raw
 PCAP and key material remain private, and this report was generated from fresh
 filtered decodes, independently of those large full-output JSON files.
 
-Connection racing is a larger Surf change. Firefox's
+Connection racing is now available explicitly through
+`HTTP3Settings().ConnectionRacing(true)`. The selector prepares pooled connections,
+then gives the application request to exactly one normal transport. It does not
+race two HTTP requests. Firefox's
 [backup timer](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp)
 and [preferences](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/modules/libpref/init/StaticPrefList.yaml)
 use 100 ms in the applicable pending-transaction path; HTTPS DNS records and Happy
 Eyeballs use other paths. Chromium's
 [waiting-job policy](https://github.com/chromium/chromium/blob/156.0.8078.79/net/quic/quic_session_pool.cc)
 depends on network history, brokenness and cached RTT. Competing connection
-attempts must select one request sender, retain/reuse the appropriate background
-connection, and preserve cancellation, streaming bodies and proxy behavior.
+attempts share preparation per origin. A TCP winner can leave QUIC warming in the
+background; a later request uses the prepared QUIC pool. External tests cover
+non-replayable streams, factories, cancellation, proxies and cleanup, while private
+selector tests inspect coalescing and bounded history. Delay policy is in the
+profile, with a fixed-delay override and an application callback in the builder.
+Chrome's observations are per origin/client and do not implement the browser's
+full persisted network state, Alt-Svc backoff or DNS scheduler.
+
+## Ordinary browser references for connection-racing work
+
+`connection_racing_native_firefox_160.json` and
+`connection_racing_native_chromium_156.json` use new visible browser profiles and
+public TLS at `https://fp.impersonate.pro/api/http3`. Both selected HTTP/3 on their
+second ordinary navigation after Alt-Svc discovery. There was no forced protocol,
+headless mode, User-Agent override, certificate bypass or resolver/proxy override.
+Only profile isolation, automation and startup/JSON-viewer UI controls were used.
+This is an endpoint fingerprint comparison, not a packet capture under controlled
+loss or a measurement of browser connection-racing timers.
+
+Both controls match Surf's JA3n, stable ordered HTTP/3 SETTINGS, header order and
+client CID length. Firefox's complete request headers and TP order also match.
+Its native version_information includes QUIC v2, whereas Surf deliberately omits
+that capability until RFC 9368 switching is implemented. Chromium's stable TP
+values match; its TP order and GREASE vary. The installed browser is Chromium,
+so its Sec-CH-UA lacks the Google Chrome brand present in Surf's Chrome profile.
+The analyzer retains these differences instead of turning them into a full-match
+claim. Raw JA3 extension order is randomized; matching JA3n does not imply an
+identical ordered ClientHello on every connection.
+
+Earlier local timer observations used browser test preferences and trust overrides.
+They are diagnostics and cannot establish ordinary browser behavior. Firefox's
+forced Alt-Svc preference sets NS_HTTP_DISALLOW_SPDY in
+[nsHttpChannel.cpp](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpChannel.cpp),
+which explains the HTTP/1-only fallback seen there. Ordinary ALPN setup is in
+[TlsHandshaker.cpp](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/TlsHandshaker.cpp).
+Chromium's
+[proof verifier](https://github.com/chromium/chromium/blob/156.0.8078.79/net/quic/crypto/proof_verifier_chromium.cc)
+also rejects otherwise accepted QUIC chains with unknown roots unless explicitly
+allowed. A controlled, publicly trusted peer is unavailable in this environment.
+Normal-browser loss/racing parity remains unverified; the timer policy is pinned
+to source and the implementation is covered by offline transport tests.
+`connection_racing_sources.json` hashes the inspected source files.
 
 [RFC 9368](https://www.rfc-editor.org/rfc/rfc9368.html) is a larger engine change:
 v1 and v2 support individually is insufficient for switching within a handshake.

@@ -17,7 +17,7 @@ import (
 	"github.com/enetx/surf"
 )
 
-func replaySurf(path, origin, browser, protocol string, stock bool, scenario string, allowFallback bool, profileOS string) error {
+func replaySurf(path, origin, browser, protocol string, stock bool, scenario string, allowFallback bool, profileOS string, connectionRacing ...bool) error {
 	expectedMajor := 2
 	if protocol == "h3" {
 		expectedMajor = 3
@@ -52,6 +52,9 @@ func replaySurf(path, origin, browser, protocol string, stock bool, scenario str
 	builder := browserBuilder(browser, profileOS)
 	if protocol == "h3" {
 		builder.ForceHTTP3()
+		if len(connectionRacing) > 0 && connectionRacing[0] {
+			builder.HTTP3Settings().ConnectionRacing(true).Set()
+		}
 	} else {
 		builder.ForceHTTP2()
 	}

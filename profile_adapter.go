@@ -68,6 +68,11 @@ func (a h2adapter) PriorityFrames(v []http2.PriorityFrame) profiles.H2Config {
 // h3adapter wraps *HTTP3Settings to satisfy profiles.H3Config.
 type h3adapter struct{ s *HTTP3Settings }
 
+func (a h3adapter) ConnectionRacingPolicy(policy profiles.ConnectionRacingPolicy) profiles.H3Config {
+	a.s.ConnectionRacingPolicy(policy)
+	return a
+}
+
 func (a h3adapter) AltUsed(enabled bool) profiles.H3Config {
 	a.s.AltUsed(enabled)
 	return a

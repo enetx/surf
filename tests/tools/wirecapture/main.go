@@ -98,6 +98,7 @@ func main() {
 	endpoint := flag.String("probe-endpoint", "", "probe a public TLS/HTTP2 endpoint and save JSON under out")
 	stock := flag.Bool("stock", false, "use the stock Surf headers instead of exact captured headers")
 	allowFallback := flag.Bool("allow-fallback", false, "record fallback protocols instead of requiring the selected protocol")
+	connectionRacing := flag.Bool("connection-racing", false, "enable connection-only HTTP/3/TCP competition for Surf replay")
 	responseBytes := flag.Int("response-bytes", 0, "synthetic /step/0 response bytes for ACK observations")
 	legacyAckMinimum := flag.Duration("legacy-ack-frequency-min", 0, "advertise a legacy ACK_FREQUENCY receiver minimum (HTTP/3 only)")
 	udpDelay := flag.Duration("udp-delay", 0, "one-way pipelined UDP delay, e.g. 10ms")
@@ -117,7 +118,7 @@ func main() {
 		return
 	}
 	if *replay != "" {
-		if err := replaySurf(*replay, *origin, *browser, *protocol, *stock, *scenarioMode, *allowFallback, *profileOS); err != nil {
+		if err := replaySurf(*replay, *origin, *browser, *protocol, *stock, *scenarioMode, *allowFallback, *profileOS, *connectionRacing); err != nil {
 			log.Fatal(err)
 		}
 		return

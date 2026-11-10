@@ -1,4 +1,34 @@
-# Independent browser sequence capture
+# Ordinary browser references and local wire diagnostics
+
+Use `native-endpoint.mjs` for actual browser behavior on publicly trusted HTTPS.
+It launches an ordinary visible Chromium or Firefox with a fresh isolated profile
+and automation/UI controls only. It does not force QUIC, alter protocol preferences,
+override User-Agent, change proxy/resolver policy or bypass certificate validation.
+The browser learns HTTP/3 through the endpoint's normal Alt-Svc response. Repeated
+navigations allow discovery to complete; these are fingerprint snapshots, not a
+measurement of connection-racing timers or application scheduling.
+
+```sh
+node tests/tools/wirecapture/native-endpoint.mjs --browser=firefox --out=/tmp/firefox-native
+node tests/tools/wirecapture/native-endpoint.mjs --browser=chrome --out=/tmp/chromium-native
+node tests/tools/wirecapture/native-endpoint-analysis.mjs --browser=/tmp/firefox-native --surf=/tmp/surf-firefox --out=/tmp/firefox-native-comparison.json
+```
+
+Exact large endpoint integers require Node 22+ JSON source context; Node 26 is the
+tested manual-tool environment. Raw endpoint responses and profiles stay private.
+The analyzer normalizes GREASE entropy and SCIDs, while preserving version
+capabilities, headers and the observed transport-parameter order.
+
+The older `run.mjs` and `firefox-endpoint.mjs` are **diagnostic tools**. They require
+explicit `--diagnostic=true`, because they force protocols and use local trust
+overrides. Their captures can check encoders and transport mechanics; they are not
+ordinary browser behavior references. In particular Firefox's forced Alt-Svc
+testing preference also disables HTTP/2, affecting its TCP fallback. A local
+private CA is insufficient to claim ordinary QUIC selection: Chromium additionally
+checks whether a QUIC chain has a known root. Controlled loss/racing comparisons
+without overrides need a publicly trusted TLS peer that we control.
+
+## Local diagnostics
 
 This manual macOS tool runs installed Chromium and Firefox against a private
 local TLS/QUIC peer, then repeats the requests using Surf on the same origin.
@@ -17,7 +47,7 @@ Run from the Surf module root:
 
 ```sh
 go build -o /tmp/surf-wirecapture ./tests/tools/wirecapture
-node tests/tools/wirecapture/run.mjs --out=/tmp/surf-browser-sequences
+node tests/tools/wirecapture/run.mjs --diagnostic=true --out=/tmp/surf-browser-sequences
 node tests/tools/wirecapture/analyze.mjs --in=/tmp/surf-browser-sequences --out=/tmp/surf-browser-analysis
 go test -race -run TestIndependentBrowser ./tests ./tests/tools/wirecapture
 ```
@@ -83,7 +113,7 @@ synthetic response on `/step/0` and retain server-side decrypted QUIC frame trac
 
 ```sh
 go build -o /tmp/surf-wirecapture ./tests/tools/wirecapture
-node tests/tools/wirecapture/run.mjs --out=/tmp/surf-ack-observations --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false
+node tests/tools/wirecapture/run.mjs --diagnostic=true --out=/tmp/surf-ack-observations --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false
 node tests/tools/wirecapture/ack-analysis.mjs --in=/tmp/surf-ack-observations --out=/tmp/surf-ack-summary.json
 ```
 
@@ -106,8 +136,8 @@ caused those updates in a browser. Both scenarios work with capacities 0 and
 65536. Use a separate fresh output root for each scenario/repeat.
 
 ```sh
-node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-uploads --protocol=h3 --capacity=0,65536 --scenario=uploads
-node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-priorities --protocol=h3 --capacity=0,65536 --scenario=priorities
+node tests/tools/wirecapture/run.mjs --diagnostic=true --binary=/tmp/surf-wirecapture --out=/tmp/surf-uploads --protocol=h3 --capacity=0,65536 --scenario=uploads
+node tests/tools/wirecapture/run.mjs --diagnostic=true --binary=/tmp/surf-wirecapture --out=/tmp/surf-priorities --protocol=h3 --capacity=0,65536 --scenario=priorities
 node tests/tools/wirecapture/behavior-analysis.mjs --in=/tmp/surf-uploads,/tmp/surf-priorities --out=/tmp/surf-behavior.json
 ```
 
@@ -126,7 +156,7 @@ run the independent transport analyzer:
 
 ```sh
 go build -o /tmp/surf-transport ./tests/tools/wirecapture
-node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-transport --out=/tmp/surf-transport-capture --protocol=h2,h3 --capacity=0 --response-bytes=10485760 --decode=false
+node tests/tools/wirecapture/run.mjs --diagnostic=true --binary=/tmp/surf-transport --out=/tmp/surf-transport-capture --protocol=h2,h3 --capacity=0 --response-bytes=10485760 --decode=false
 node tests/tools/wirecapture/transport-analysis.mjs --in=/tmp/surf-transport-capture --out=/tmp/surf-transport-report.json
 ```
 
@@ -163,7 +193,7 @@ The local HTTP/3 peer can apply a constant delay in each direction and a
 repeatable drop rule independently for each remote UDP address and direction:
 
 ```sh
-node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-delay-loss --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false --udp-delay=10ms --udp-drop-every=37
+node tests/tools/wirecapture/run.mjs --diagnostic=true --binary=/tmp/surf-wirecapture --out=/tmp/surf-delay-loss --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false --udp-delay=10ms --udp-drop-every=37
 node tests/tools/wirecapture/ack-analysis.mjs --in=/tmp/surf-delay-loss --out=/tmp/surf-delay-loss-acks.json
 ```
 
@@ -205,7 +235,7 @@ requires the selected protocol for both browser and Surf. Explicitly allow mixed
 protocols for a fallback investigation:
 
 ```sh
-node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-fallback --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false --udp-delay=10ms --udp-drop-first=1 --allow-fallback=true
+node tests/tools/wirecapture/run.mjs --diagnostic=true --binary=/tmp/surf-wirecapture --out=/tmp/surf-fallback --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false --udp-delay=10ms --udp-drop-first=1 --allow-fallback=true
 node tests/tools/wirecapture/fallback-analysis.mjs --in=/tmp/surf-fallback --out=/tmp/surf-fallback-report.json
 ```
 
@@ -237,7 +267,7 @@ macOS. No normal browser profile is modified. HTTP/1.1 uses the current
 `network.http.http2.enabled` preference to disable HTTP/2.
 
 ```sh
-node tests/tools/wirecapture/firefox-endpoint.mjs --out=/tmp/firefox160-peet --os=windows --protocol=h2
+node tests/tools/wirecapture/firefox-endpoint.mjs --diagnostic=true --out=/tmp/firefox160-peet --os=windows --protocol=h2
 /tmp/surf-wirecapture -browser=firefox -os=windows -protocol=h2 -probe-endpoint=https://tls.peet.ws/api/all -out=/tmp/firefox160-surf
 node tests/tools/wirecapture/peet-golden.mjs --browser=/tmp/firefox160-peet/browser-endpoint.json --surf=/tmp/firefox160-surf/surf-endpoint.json --out=/tmp/firefox160.golden --report=/tmp/firefox160-comparison.json
 ```
@@ -249,6 +279,19 @@ to the browser script; `http3-golden.mjs --in=BROWSER_JSON --out=REFERENCE_JSON`
 extracts a browser-only reference. Browser responses, TLS keys and temporary
 profiles remain private; committed reports contain normalized fields and hashes.
 
+## Connection-racing validation
+
+Surf's offline Go tests prepare HTTP/1, HTTP/2 and HTTP/3 connections without
+touching streaming bodies. They exercise cancellation, shared waiters, body
+factories, certificate failures, HTTP CONNECT/SOCKS5, late QUIC readiness and
+client cleanup. Local browser diagnostics can additionally pass
+`--connection-racing=true --allow-fallback=true`; their protocol/trust overrides
+must remain identified as diagnostic. Per-client phase bounds prevent a later
+Surf TCP handshake from being attributed to an HTTP/3-only browser phase.
+`fallback-analysis.mjs` independently verifies HTTP/1 and HTTP/2 request methods,
+paths and connection attribution with Wireshark. No unmodified-browser loss/racing
+parity is asserted without the publicly trusted controlled peer.
+
 ## Outgoing legacy ACK_FREQUENCY
 
 Opt the local server into the Firefox legacy format with
@@ -256,7 +299,7 @@ Opt the local server into the Firefox legacy format with
 advertisement is independent of browser client receiver settings.
 
 ```sh
-node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-peer-ack --browser=firefox --os=windows --protocol=h3 --capacity=0 --response-bytes=2097152 --udp-delay=10ms --legacy-ack-frequency-min=1ms --decode=false
+node tests/tools/wirecapture/run.mjs --diagnostic=true --binary=/tmp/surf-wirecapture --out=/tmp/surf-peer-ack --browser=firefox --os=windows --protocol=h3 --capacity=0 --response-bytes=2097152 --udp-delay=10ms --legacy-ack-frequency-min=1ms --decode=false
 node tests/tools/wirecapture/peer-ack-frequency-analysis.mjs --in=/tmp/surf-peer-ack --out=/tmp/surf-peer-ack-report.json
 ```
 

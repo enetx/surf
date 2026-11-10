@@ -85,6 +85,7 @@ type H2Config interface {
 // H3Config is the fluent contract used by profile.ConfigureH3 callbacks. It mirrors the
 // methods on surf.HTTP3Settings, the surf package provides an adapter that satisfies it.
 type H3Config interface {
+	ConnectionRacingPolicy(ConnectionRacingPolicy) H3Config
 	CoalesceInitialSettings(bool) H3Config
 	EarlyData(bool) H3Config
 	RequestBodyBufferSize(int) H3Config

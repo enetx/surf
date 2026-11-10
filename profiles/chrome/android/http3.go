@@ -2,12 +2,14 @@ package android
 
 import (
 	"github.com/enetx/surf/profiles"
+	"github.com/enetx/surf/profiles/chrome/common"
 	"github.com/enetx/surf/profiles/chrome/quic"
 )
 
 // ConfigureH3 applies Chrome Android HTTP/3 settings.
 func ConfigureH3(h profiles.H3Config) {
 	h.QpackMaxTableCapacity(65536).
+		ConnectionRacingPolicy(common.ConnectionRacingAndroid).
 		MaxFieldSectionSize(262144).
 		QpackBlockedStreams(100).
 		SettingsH3Datagram(1).

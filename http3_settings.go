@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
@@ -37,6 +38,9 @@ const (
 // HTTP3Settings configures HTTP/3 SETTINGS, response limits and request options.
 // Use Builder.QUICSettings for the underlying QUIC transport and handshake.
 type HTTP3Settings struct {
+	connectionRacing       bool
+	connectionRacingPolicy ConnectionRacingPolicy
+	tcpFallbackDelay       *time.Duration
 	altUsed                bool
 	earlyData              bool
 	clientHandshake        *quic.ClientHandshake
@@ -143,6 +147,7 @@ func (h *HTTP3Settings) Set() *Builder {
 // It provides SOCKS5 proxy compatibility and automatic fallback to HTTP/2
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type uquicTransport struct {
+	racer                  *connectionRace
 	protocolHeaders        profiles.ProtocolHeaders
 	qpackConfig            *http3.QPACKConfig
 	wireConfig             *http3.WireConfig
@@ -227,6 +232,29 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 		return nil, err
 	}
 
+	if settings.connectionRacing {
+		if base, ok := ut.fallbackTransport.(*http.Transport); ok &&
+			(base.DisableKeepAlives || base.MaxIdleConnsPerHost < 0) {
+			ut.Close()
+			return nil, errors.New("HTTP/3 connection racing requires TCP keep-alives")
+		}
+
+		_, ok := ut.fallbackTransport.(connectionPreconnector)
+		if !ok {
+			ut.Close()
+			return nil, errors.New("HTTP/3 connection racing requires a transport with Preconnect support")
+		}
+
+		policy := settings.connectionRacingPolicy
+
+		if settings.tcpFallbackDelay != nil {
+			delay := *settings.tcpFallbackDelay
+			policy = func(ConnectionRacingInfo) time.Duration { return delay }
+		}
+
+		ut.racer = &connectionRace{policy: policy, quic: ut.http3tr.Preconnect, tcp: ut.preconnectTCP}
+	}
+
 	return ut, nil
 }
 
@@ -308,7 +336,12 @@ func (ut *uquicTransport) dial(
 	addr string,
 	tlsCfg *tls.Config,
 	cfg *quic.Config,
-) (*quic.Conn, error) {
+) (connection *quic.Conn, err error) {
+	defer func() {
+		if ut.racer != nil && connection != nil && err == nil {
+			ut.racer.observeQUIC(addr, connection)
+		}
+	}()
 	resolved, err := ut.resolve(ctx, addr)
 	if err != nil {
 		return nil, fmt.Errorf("DNS resolution: %w", err)
@@ -438,6 +471,14 @@ func (ut *uquicTransport) resolve(ctx context.Context, addr string) (string, err
 
 // RoundTrip executes an HTTP/3 request with automatic fallback to HTTP/2.
 func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if req == nil || req.URL == nil || req.URL.Host == "" {
+		if req != nil && req.Body != nil {
+			req.Body.Close()
+		}
+
+		return nil, errors.New("HTTP/3 requires a request URL and host")
+	}
+
 	if ut.proxy != "" && !isSOCKS5Proxy(ut.proxy) {
 		if ut.fallbackTransport != nil {
 			return ut.fallbackTransport.RoundTrip(req)
@@ -456,6 +497,10 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	if req.URL.Scheme == "" {
 		req = cloneRequestWithScheme(req, "https")
+	}
+
+	if ut.racer != nil && req.URL.Scheme == "https" {
+		return ut.roundTripRacing(req)
 	}
 
 	resp, err := ut.roundTripHTTP3(req)
@@ -527,6 +572,10 @@ func (ut *uquicTransport) handleError(req *http.Request, err error) (*http.Respo
 
 // CloseIdleConnections closes idle connections while keeping the transport usable.
 func (ut *uquicTransport) CloseIdleConnections() {
+	if ut.racer != nil {
+		ut.racer.close(true)
+	}
+
 	if ut.http3tr != nil {
 		ut.http3tr.CloseIdleConnections()
 	}
@@ -540,6 +589,10 @@ func (ut *uquicTransport) CloseIdleConnections() {
 
 // Close shuts down the transport and releases all resources.
 func (ut *uquicTransport) Close() error {
+	if ut.racer != nil {
+		ut.racer.close(false)
+	}
+
 	if ut.http3tr != nil {
 		ut.http3tr.Close()
 	}

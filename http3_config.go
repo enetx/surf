@@ -108,6 +108,14 @@ func (ut *uquicTransport) newQUICTransport(conn net.PacketConn) *quic.Transport 
 }
 
 func (h *HTTP3Settings) validateQUICConfig() error {
+	if h.tcpFallbackDelay != nil && *h.tcpFallbackDelay < 0 {
+		return fmt.Errorf("TCP fallback delay must be nonnegative")
+	}
+
+	if h.connectionRacing && h.earlyData {
+		return fmt.Errorf("HTTP/3 connection racing requires a full handshake; disable EarlyData")
+	}
+
 	if h.earlyData && h.clientHelloFactory != nil {
 		return fmt.Errorf(
 			"HTTP/3 early data with a custom ClientHello is not supported by the official uTLS QUIC API; disable EarlyData or use standard TLS",

@@ -7,6 +7,10 @@ import { launchBrowser } from "./browser.mjs";
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")),
 );
+if (args.diagnostic !== "true")
+  throw Error(
+    "This helper forces browser protocol/UA settings. Use native-endpoint.mjs for ordinary browser references; --diagnostic=true explicitly selects diagnostic references.",
+  );
 assert(
   args.out,
   "use --out=NEW_PRIVATE_DIRECTORY [--url=https://tls.peet.ws/api/all] [--os=windows|macos]",

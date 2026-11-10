@@ -72,7 +72,7 @@ func TestFirefoxHTTP3FallbackPseudoHeadersOnWire(t *testing.T) {
 	wantHello = strings.Join(slices.DeleteFunc(strings.Split(wantHello, "\n"), func(line string) bool {
 		return strings.HasPrefix(line, "ext 0:")
 	}), "\n")
-	for _, route := range []string{"http2", "proxy", "quic-timeout"} {
+	for _, route := range []string{"http2", "proxy", "quic-timeout", "quic-racing"} {
 		for _, method := range []string{http.MethodGet, http.MethodPost} {
 			for _, explicit := range []bool{false, true} {
 				name := route + "/" + method
@@ -147,6 +147,9 @@ func TestFirefoxHTTP3FallbackPseudoHeadersOnWire(t *testing.T) {
 							builder.Proxy(g.String(newHTTPConnectProxy(t).URL))
 						} else {
 							builder.QUICSettings().HandshakeIdleTimeout(30 * time.Millisecond).Set()
+							if route == "quic-racing" {
+								builder.HTTP3Settings().ConnectionRacing(true).TCPFallbackDelay(0).Set()
+							}
 						}
 					}
 					hellos := make(chan recordedClientHello, 4)

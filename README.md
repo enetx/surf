@@ -444,6 +444,37 @@ not replace the engine's subsequent congestion control or pacing. The
 [custom HTTP/3 example](examples/http/http3_custom/http3_custom.go) demonstrates
 both controls through the builder.
 
+HTTP/3 can race connection preparation against a TCP backup:
+
+```go
+client := surf.NewClient().Builder().Impersonate().Firefox().ForceHTTP3().
+    HTTP3Settings().ConnectionRacing(true).Set().Build().Unwrap()
+defer client.Close()
+```
+
+Enablement is explicit; profiles select the delay policy. Firefox uses the
+pending-transaction backup timer of 100ms. Chrome's policy uses this client's
+observed QUIC success/failure and RTT; Android adds its default 100ms main-job
+delay when applicable. These observations do not implement the browser's full
+Alt-Svc, persistent network state, DNS HTTPS records or Happy Eyeballs scheduler.
+`TCPFallbackDelay(d)` overrides the policy (zero starts both handshakes immediately).
+`ConnectionRacingPolicy(func(ConnectionRacingInfo) time.Duration)` supplies a custom
+nonnegative delay; callbacks must return promptly and be concurrency safe.
+
+Only handshakes and connection-level setup race. The selected normal transport
+then owns the request body, including non-replayable `StreamingBody` readers.
+An application error does not trigger a cross-protocol resend in this mode.
+Ordinary transport retries for explicit rejection or connection reuse still apply.
+Requests to one origin share preparation; canceling one waiter preserves others.
+A QUIC handshake that loses to TCP can finish into the shared pool for later use.
+`Close` cancels preparation; `CloseIdleConnections` also stops selected background
+attempts. TCP dials and idle connections retain native transport cleanup rules.
+
+Connection racing requires keep-alives and cannot be combined with `EarlyData`.
+HTTP CONNECT proxies use the ordinary TCP path; SOCKS5 can prepare both protocols.
+Disabling connection racing retains sequential fallback. Browser policy history
+is local to the client, with inactive history bounded to 256 origins.
+
 `HTTP3Settings().Grease().Set()` generates a fresh reserved SETTINGS pair for each
 new connection. Chrome profiles use two independent uint32 draws, matching the
 browser's identifier/value ranges. `GreaseFactory(factory)` accepts a custom

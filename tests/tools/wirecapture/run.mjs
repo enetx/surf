@@ -1,3 +1,5 @@
+// Local engine diagnostics with browser protocol/trust overrides.
+// Ordinary browser references belong in native-endpoint.mjs.
 import { launchBrowser as launch } from "./browser.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import {
@@ -14,6 +16,10 @@ import { tmpdir } from "node:os";
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")),
 );
+if (args.diagnostic !== "true")
+  throw Error(
+    "This local runner uses browser protocol/trust overrides. Use native-endpoint.mjs for ordinary browser references; --diagnostic=true explicitly selects local diagnostics.",
+  );
 const root = resolve(
   args.out || mkdtempSync(join(tmpdir(), "surf-browser-wire-")),
 );
@@ -262,8 +268,25 @@ async function captureCase(browser, protocol, capacity) {
     join(directory, "server.json"),
     JSON.stringify(server, null, 2) + "\n",
   );
+  const phases = [];
+  const startPhase = (label) => {
+    const phase = { label, start: Date.now() / 1000 };
+    phases.push(phase);
+    return () => {
+      phase.end = Date.now() / 1000;
+      writeFileSync(
+        join(directory, "phases.json"),
+        JSON.stringify(phases, null, 2) + "\n",
+      );
+    };
+  };
   try {
-    await browserRun(browser, server, directory, protocol);
+    const endBrowser = startPhase("browser");
+    try {
+      await browserRun(browser, server, directory, protocol);
+    } finally {
+      endBrowser();
+    }
     copyFileSync(
       join(directory, "requests.jsonl"),
       join(directory, "browser-requests.jsonl"),
@@ -294,6 +317,7 @@ async function captureCase(browser, protocol, capacity) {
     for (const stock of [true, false]) {
       const label = stock ? "surf-preset" : "surf-exact-input";
       await fetch(server.admin + "/label?value=" + label);
+      const endPhase = startPhase(label);
       const result = spawnSync(
         binary,
         [
@@ -311,9 +335,13 @@ async function captureCase(browser, protocol, capacity) {
           args.scenario || "headers",
           ...(stock ? ["-stock"] : []),
           ...(allowFallback ? ["-allow-fallback"] : []),
+          ...(args["connection-racing"] === "true"
+            ? ["-connection-racing"]
+            : []),
         ],
         { encoding: "utf8", timeout: 40000 },
       );
+      endPhase();
       writeFileSync(
         join(directory, label + ".log"),
         result.stdout + result.stderr,
@@ -343,7 +371,13 @@ async function captureCase(browser, protocol, capacity) {
     writeFileSync(
       join(directory, "comparison.json"),
       JSON.stringify(
-        { selected_protocol: protocol, allow_fallback: allowFallback, groups },
+        {
+          selected_protocol: protocol,
+          allow_fallback: allowFallback,
+          connection_racing: args["connection-racing"] === "true",
+          reference_kind: "local diagnostic with protocol/trust overrides",
+          groups,
+        },
         null,
         2,
       ) + "\n",

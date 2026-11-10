@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import { connectionTiming } from "./connection-timing.mjs";
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")),
@@ -48,7 +49,10 @@ for (const input of args.in.split(",")) {
         ],
         { encoding: "utf8", maxBuffer: 16 << 20 },
       );
-      assert.equal(result.status, 0, result.error?.message || result.stderr);
+      assert(
+        !result.error && result.status === 0,
+        result.error?.message || result.stderr,
+      );
       return JSON.parse(result.stdout).map((packet) => packet._source.layers);
     }
     const decoded = tshark("http.request", [
@@ -71,6 +75,26 @@ for (const input of args.in.split(",")) {
       expectedH1,
       "HTTP/1 method, URI and connection attribution must match independent decoding",
     );
+    const decodedH2 = tshark("http2.headers.method", [
+      "tcp.srcport",
+      "http2.headers.method",
+      "http2.headers.path",
+    ]);
+    const actualH2 = decodedH2.flatMap((packet) =>
+      packet["http2.headers.method"].map((method, i) => [
+        packet["tcp.srcport"][0],
+        method,
+        packet["http2.headers.path"][i],
+      ]),
+    );
+    const expectedH2 = records
+      .filter((r) => r.protocol === "h2")
+      .map((r) => [r.connection.split(":").at(-1), r.method, r.path]);
+    assert.deepEqual(
+      actualH2.toSorted(),
+      expectedH2.toSorted(),
+      "HTTP/2 methods, URIs and connection attribution must match independent decoding",
+    );
     const initial = tshark(
       `udp.dstport==${server.port} && quic.long.packet_type==0`,
       ["frame.time_epoch"],
@@ -85,6 +109,18 @@ for (const input of args.in.split(",")) {
     const firstTCP = hello.length
       ? Number(hello[0]["frame.time_epoch"][0])
       : null;
+    const phases = existsSync(join(directory, "phases.json"))
+      ? readJSON(join(directory, "phases.json"))
+      : [];
+    function phaseTiming(label) {
+      const phase = phases.find((p) => p.label === label);
+      // Date.now() has millisecond precision; include its final millisecond.
+      return connectionTiming(
+        initial.map((r) => Number(r["frame.time_epoch"][0])),
+        hello.map((r) => Number(r["frame.time_epoch"][0])),
+        phase ? { ...phase, end: phase.end + 0.001 } : null,
+      );
+    }
     const groups = comparison.groups.map((group) => {
       const selected = records.filter((r) => r.label === group.label);
       assert.equal(selected.length, group.requests.length);
@@ -98,6 +134,7 @@ for (const input of args.in.split(",")) {
         protocol_counts: group.protocol_counts,
         connections: new Set(selected.map((r) => r.connection)).size,
         sequence: selected.map((r) => [r.protocol, r.path]),
+        timing: phaseTiming(group.label),
       };
     });
     let network = null;
@@ -143,8 +180,15 @@ for (const input of args.in.split(",")) {
         .digest("hex"),
       network,
       independently_decoded_http1_requests: actualH1.length,
-      first_tcp_clienthello_after_first_udp_initial_ms:
-        firstUDP !== null && firstTCP !== null
+      independently_decoded_http2_requests: actualH2.length,
+      connection_racing: comparison.connection_racing || false,
+      firefox_force_alt_svc:
+        browser.prefs?.[
+          "network.http.http3.force-use-alt-svc-mapping-for-testing"
+        ] ?? null,
+      first_tcp_clienthello_after_first_udp_initial_ms: phases.length
+        ? (phaseTiming("browser")?.tcp_clienthello_after_udp_initial_ms ?? null)
+        : firstUDP !== null && firstTCP !== null
           ? Math.round((firstTCP - firstUDP) * 1000)
           : null,
       groups,
@@ -152,9 +196,9 @@ for (const input of args.in.split(",")) {
   }
 }
 const report = {
-  schema: 1,
+  schema: 2,
   method:
-    "Completed browser and Surf header scenarios; independent TLS/Wireshark verification of HTTP/1 requests. The interval measures server socket observations, not TCP SYN timing or NIC pacing. No TLS secrets, profile paths or session IDs are included.",
+    "Completed browser and Surf header scenarios; independent TLS/Wireshark verification of HTTP/1 and HTTP/2 requests. Per-client timing uses recorded phase bounds when available. The interval measures server socket observations, not TCP SYN timing or NIC pacing. No TLS secrets, profile paths or session IDs are included.",
   cases,
 };
 const output = JSON.stringify(report, null, 2) + "\n";

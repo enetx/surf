@@ -80,6 +80,10 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 // handleHTTPSRequest handles HTTPS requests with optional HTTP/2 support.
 // Reuses pre-built transports to avoid allocations.
 func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, error) {
+	if preferred, _ := req.Context().Value(preparedTCPHTTP1Key{}).(bool); preferred {
+		return rt.http1trFallback.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
+	}
+
 	// If HTTP/1 is forced, use it directly
 	if rt.http2tr == nil {
 		return rt.http1tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
