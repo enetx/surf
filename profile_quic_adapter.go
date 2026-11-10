@@ -322,3 +322,8 @@ func (a quicadapter) SortConnectionIDFrames(enabled bool) profiles.QUICConfig {
 	a.s.SortConnectionIDFrames(enabled)
 	return a
 }
+
+func (a quicadapter) LegacyAckFrequency(minimum time.Duration) profiles.QUICConfig {
+	a.s.LegacyAckFrequency(minimum)
+	return a
+}

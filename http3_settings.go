@@ -18,6 +18,7 @@ import (
 	"github.com/enetx/quic-go/http3"
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/pkg/quicconn"
+	"github.com/enetx/surf/profiles"
 	utls "github.com/refraction-networking/utls"
 	"github.com/wzshiming/socks5"
 )
@@ -142,6 +143,7 @@ func (h *HTTP3Settings) Set() *Builder {
 // It provides SOCKS5 proxy compatibility and automatic fallback to HTTP/2
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type uquicTransport struct {
+	protocolHeaders        profiles.ProtocolHeaders
 	qpackConfig            *http3.QPACKConfig
 	wireConfig             *http3.WireConfig
 	altUsed                bool
@@ -173,6 +175,7 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 	}
 
 	ut := &uquicTransport{
+		protocolHeaders:        builder.protocolHeaders,
 		qpackConfig:            settings.qpackConfig.Clone(),
 		wireConfig:             settings.wireConfig.Clone(),
 		altUsed:                settings.altUsed,

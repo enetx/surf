@@ -3,6 +3,8 @@ package desktop
 import (
 	"io"
 
+	"github.com/enetx/surf/profiles/firefox/internal/ech"
+
 	utls "github.com/refraction-networking/utls"
 )
 
@@ -17,7 +19,8 @@ type sessionTicketExtension struct {
 
 // BindClientHello finds the per-connection PSK after uTLS clones the spec.
 func (e *sessionTicketExtension) BindClientHello(conn *utls.UConn) {
-	e.innerLength = echInnerLength(conn)
+	hello := conn.HandshakeState.Hello
+	e.innerLength = ech.InnerLength(hello.CipherSuites, hello.CompressionMethods, conn.Extensions)
 
 	for _, extension := range conn.Extensions {
 		switch extension := extension.(type) {
@@ -32,11 +35,11 @@ func (e *sessionTicketExtension) BindClientHello(conn *utls.UConn) {
 func (e *sessionTicketExtension) Len() int {
 	innerLength := e.innerLength
 	if e.psk != nil && e.psk.IsInitialized() {
-		setECHPayloadLength(e.ech, innerLength+e.psk.Len())
+		ech.SetPayloadLength(e.ech, innerLength+e.psk.Len())
 		return 0
 	}
 
-	setECHPayloadLength(e.ech, innerLength)
+	ech.SetPayloadLength(e.ech, innerLength)
 
 	return e.SessionTicketExtension.Len()
 }

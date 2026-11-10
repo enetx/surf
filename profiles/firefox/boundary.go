@@ -3,41 +3,17 @@ package firefox
 import (
 	"crypto/rand"
 	"encoding/binary"
+	"strconv"
 
 	"github.com/enetx/g"
 )
 
-// Firefox implementation: https://github.com/mozilla/gecko-dev/blob/master/dom/html/HTMLFormSubmission.cpp#L355
+// Boundary follows Firefox's two unpadded hexadecimal random uint64 values.
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/dom/html/HTMLFormSubmission.cpp#L362
 func Boundary() g.String {
-	// C++
-	// mBoundary.AssignLiteral("----geckoformboundary");
-	// mBoundary.AppendInt(mozilla::RandomUint64OrDie(), 16);
-	// mBoundary.AppendInt(mozilla::RandomUint64OrDie(), 16);
-
-	// prefix := "----geckoformboundary"
-	// var num1, num2 uint64
-	// binary.Read(rand.Reader, binary.BigEndian, &num1)
-	// binary.Read(rand.Reader, binary.BigEndian, &num2)
-	// return g.Sprintf("%s%x%x", prefix, num1, num2)
-
-	////////////////////////////////////////////////////////////////////////////
-
-	// C++
-	// mBoundary.AssignLiteral("---------------------------");
-	// mBoundary.AppendInt(static_cast<uint32_t>(mozilla::RandomUint64OrDie()));
-	// mBoundary.AppendInt(static_cast<uint32_t>(mozilla::RandomUint64OrDie()));
-	// mBoundary.AppendInt(static_cast<uint32_t>(mozilla::RandomUint64OrDie()));
-
-	prefix := g.String("---------------------------")
-
-	var builder g.Builder
-	builder.WriteString(prefix)
-
-	for range 3 {
-		var b [4]byte
-		rand.Read(b[:])
-		builder.WriteString(g.Int(binary.LittleEndian.Uint32(b[:])).String())
-	}
-
-	return builder.String()
+	var random [16]byte
+	rand.Read(random[:])
+	return g.String("----geckoformboundary" +
+		strconv.FormatUint(binary.LittleEndian.Uint64(random[:8]), 16) +
+		strconv.FormatUint(binary.LittleEndian.Uint64(random[8:]), 16))
 }

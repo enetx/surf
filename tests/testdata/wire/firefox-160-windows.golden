@@ -1,4 +1,6 @@
-# firefox-159-windows
+# firefox-160-windows
+# Source: Firefox 160 on macOS with a Windows User-Agent override; https://tls.peet.ws/api/all
+# Browser response SHA-256: 57dbeb5ba3265cd0a921b217fefab806ea66d8e906db6cd862289f63434b22ec
 
 ## tcp client hello (h2)
 extensions 0,23,65281,10,11,35,16,5,34,18,51,43,13,45,28,27,65037
@@ -29,10 +31,10 @@ SETTINGS 1=65536 2=0 4=131072 5=16384
 WINDOW_UPDATE stream=0 increment=12517377
 HEADERS stream=3 flags=0x25 exclusive=false dep=0 weight=42
 :method: GET
-:path: /a
-:authority: 127.0.0.1:PORT
+:path: /api/all
+:authority: tls.peet.ws
 :scheme: https
-user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0
 accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
 accept-language: en-US,en;q=0.9
 accept-encoding: gzip, deflate, br, zstd

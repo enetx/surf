@@ -8,7 +8,7 @@ import (
 
 // PacketNumberLength follows Neqo's full-number encoding before the first ACK
 // and twice the unacknowledged range thereafter.
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
 func PacketNumberLength(info quic.PacketNumberLengthInfo) uint8 {
 	span := info.PacketNumber + 1
 	if info.LargestAcknowledged >= 0 {

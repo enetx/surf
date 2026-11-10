@@ -17,7 +17,7 @@ import (
 	"github.com/enetx/surf/tests/internal/wiretest"
 )
 
-func TestFirefox159JAEntryPoints(t *testing.T) {
+func TestFirefoxDesktopJAEntryPoints(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
@@ -25,7 +25,7 @@ func TestFirefox159JAEntryPoints(t *testing.T) {
 		configure func(*surf.Builder) *surf.Builder
 	}{
 		{"current", func(b *surf.Builder) *surf.Builder { return b.JA().Firefox() }},
-		{"versioned", func(b *surf.Builder) *surf.Builder { return b.JA().Firefox159() }},
+		{"versioned", func(b *surf.Builder) *surf.Builder { return b.JA().Firefox160() }},
 		{"impersonate", func(b *surf.Builder) *surf.Builder { return b.Impersonate().Firefox() }},
 	}
 	// The local IP endpoint omits SNI; all other extensions retain capture order.
@@ -35,28 +35,28 @@ func TestFirefox159JAEntryPoints(t *testing.T) {
 			r := newHelloRecorder(t)
 			for _, hello := range r.collect(t, 3, tc.configure) {
 				if !slices.Equal(hello, want) {
-					t.Errorf("Firefox 159 extension order\n got: %v\nwant: %v", hello, want)
+					t.Errorf("Firefox 160 extension order\n got: %v\nwant: %v", hello, want)
 				}
 			}
 		})
 	}
 }
 
-func TestFirefox159SessionResumption(t *testing.T) {
+func TestFirefoxDesktopSessionResumption(t *testing.T) {
 	t.Parallel()
 
 	for _, version := range []uint16{tls.VersionTLS12, tls.VersionTLS13} {
 		t.Run(tls.VersionName(version), func(t *testing.T) {
 			for _, protocol := range []string{"http/1.1", "h2"} {
 				t.Run(protocol, func(t *testing.T) {
-					testFirefox159SessionResumption(t, version, protocol)
+					testFirefoxDesktopSessionResumption(t, version, protocol)
 				})
 			}
 		})
 	}
 }
 
-func testFirefox159SessionResumption(t *testing.T, version uint16, protocol string) {
+func testFirefoxDesktopSessionResumption(t *testing.T, version uint16, protocol string) {
 	t.Helper()
 
 	var resumed atomic.Int32

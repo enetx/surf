@@ -2,7 +2,7 @@ package android
 
 import (
 	"github.com/enetx/surf/profiles"
-	chromequic "github.com/enetx/surf/profiles/chrome/quic"
+	"github.com/enetx/surf/profiles/chrome/quic"
 )
 
 // ConfigureH3 applies Chrome Android HTTP/3 settings.
@@ -11,5 +11,5 @@ func ConfigureH3(h profiles.H3Config) {
 		MaxFieldSectionSize(262144).
 		QpackBlockedStreams(100).
 		SettingsH3Datagram(1).
-		GreaseFactory(chromequic.NewSettingsGrease)
+		GreaseFactory(quic.NewSettingsGrease)
 }

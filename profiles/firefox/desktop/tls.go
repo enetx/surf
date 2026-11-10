@@ -6,7 +6,7 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
-// NewClientHelloSpec derives the current Firefox 159 desktop handshake from
+// NewClientHelloSpec derives the current Firefox 160 desktop handshake from
 // uTLS's native Firefox profile, retaining its hybrid/classical key-share reuse.
 func NewClientHelloSpec() utls.ClientHelloSpec {
 	spec, err := utls.UTLSIdToSpec(utls.HelloFirefox_148)

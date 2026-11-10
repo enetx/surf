@@ -17,6 +17,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptrace"
+	"github.com/enetx/surf/profiles"
 
 	utls "github.com/refraction-networking/utls"
 )
@@ -29,6 +30,7 @@ type roundtripper struct {
 	http2tr            *http2.Transport
 	clientSessionCache utls.ClientSessionCache
 	ja                 *JA
+	protocolHeaders    profiles.ProtocolHeaders
 }
 
 // newRoundTripper creates a new roundtripper wrapping the given base transport
@@ -40,8 +42,9 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 	}
 
 	rt := &roundtripper{
-		http1tr: http1tr,
-		ja:      ja,
+		http1tr:         http1tr,
+		ja:              ja,
+		protocolHeaders: ja.builder.protocolHeaders,
 	}
 
 	if ja.builder.cli.tlsConfig.ClientSessionCache != nil {
@@ -66,7 +69,7 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	switch scheme {
 	case "http":
 		// Plain HTTP always uses HTTP/1.1 (HTTP/2 requires TLS)
-		return rt.http1tr.RoundTrip(req)
+		return rt.http1tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
 	case "https":
 		return rt.handleHTTPSRequest(req)
 	default:
@@ -79,7 +82,7 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, error) {
 	// If HTTP/1 is forced, use it directly
 	if rt.http2tr == nil {
-		return rt.http1tr.RoundTrip(req)
+		return rt.http1tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
 	}
 
 	// Like Chrome, only resend after a reused connection closes without any
@@ -98,7 +101,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
 
 	// Try HTTP/2 first
-	resp, err := rt.http2tr.RoundTrip(req)
+	resp, err := rt.http2tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 2))
 	if err == nil {
 		return resp, nil
 	}
@@ -112,7 +115,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 			return nil, err
 		}
 
-		resp, err = rt.http2tr.RoundTrip(req)
+		resp, err = rt.http2tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 2))
 		if err == nil {
 			return resp, nil
 		}
@@ -129,7 +132,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	// Retry with HTTP/1.1
-	resp, err = rt.http1trFallback.RoundTrip(req)
+	resp, err = rt.http1trFallback.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
 	if err != nil {
 		return nil, &ErrHTTP2Fallback{HTTP2: h2Err, HTTP1: err}
 	}

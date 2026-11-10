@@ -17,7 +17,11 @@ import (
 	"github.com/enetx/surf"
 )
 
-func replaySurf(path, origin, browser, protocol string, stock bool, scenario string) error {
+func replaySurf(path, origin, browser, protocol string, stock bool, scenario string, allowFallback bool, profileOS string) error {
+	expectedMajor := 2
+	if protocol == "h3" {
+		expectedMajor = 3
+	}
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -45,13 +49,7 @@ func replaySurf(path, origin, browser, protocol string, stock bool, scenario str
 	if len(requests) != expected {
 		return fmt.Errorf("browser captured %d requests, expected %d", len(requests), expected)
 	}
-	im := surf.NewClient().Builder().Impersonate().MacOS()
-	var builder *surf.Builder
-	if browser == "firefox" {
-		builder = im.Firefox()
-	} else {
-		builder = im.Chrome()
-	}
+	builder := browserBuilder(browser, profileOS)
 	if protocol == "h3" {
 		builder.ForceHTTP3()
 	} else {
@@ -74,6 +72,10 @@ func replaySurf(path, origin, browser, protocol string, stock bool, scenario str
 			response := req.Do()
 			if response.IsErr() {
 				return response.Err()
+			}
+			if !allowFallback && response.Ok().GetResponse().ProtoMajor != expectedMajor {
+				response.Ok().Body.Close()
+				return fmt.Errorf("Surf protocol mismatch: expected %s, got %s", protocol, response.Ok().GetResponse().Proto)
 			}
 			if body := response.Ok().Body.Bytes(); body.IsErr() {
 				return body.Err()
@@ -131,6 +133,11 @@ func replaySurf(path, origin, browser, protocol string, stock bool, scenario str
 			cancel()
 			return err
 		}
+		if !allowFallback && response.ProtoMajor != expectedMajor {
+			response.Body.Close()
+			cancel()
+			return fmt.Errorf("Surf protocol mismatch: expected %s, got %s", protocol, response.Proto)
+		}
 		_, copyErr := io.Copy(io.Discard, response.Body)
 		closeErr := response.Body.Close()
 		cancel()
@@ -142,4 +149,17 @@ func replaySurf(path, origin, browser, protocol string, stock bool, scenario str
 		}
 	}
 	return nil
+}
+
+func browserBuilder(browser, profileOS string) *surf.Builder {
+	im := surf.NewClient().Builder().Impersonate()
+	if profileOS == "windows" {
+		im.Windows()
+	} else {
+		im.MacOS()
+	}
+	if browser == "firefox" {
+		return im.Firefox()
+	}
+	return im.Chrome()
 }

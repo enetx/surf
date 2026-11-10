@@ -7,7 +7,7 @@ import (
 
 // NewInitialPacketSize uses Neqo's 1280-byte starting path MTU minus IP/UDP
 // headers. IPv4 and IPv6 therefore use different UDP payload sizes.
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/pmtud.rs
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/pmtud.rs
 func NewInitialPacketSize(remote net.Addr) (uint16, error) {
 	addr, ok := remote.(*net.UDPAddr)
 	if !ok || addr.IP == nil {

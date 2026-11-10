@@ -89,7 +89,7 @@ func TestChromeHTTP3MatchesIndependentBrowser(t *testing.T) {
 			_, err = io.ReadFull(params, value)
 			require.NoError(t, err)
 			values[id] = value
-			if id >= 27 && (id-27)%31 == 0 {
+			if id >= 27 && (id-27)%31 == 0 && id != 0xff02de1a {
 				grease++
 				require.LessOrEqual(t, len(value), 15)
 				id = 27
@@ -192,7 +192,7 @@ func checkBrowserH3Settings(t *testing.T, settings []h3Setting, reference [][]an
 }
 
 func TestFirefoxHTTP3MatchesSupportedBrowserParameters(t *testing.T) {
-	data, err := os.ReadFile("testdata/wire/firefox_159_http3.json")
+	data, err := os.ReadFile("testdata/wire/firefox_160_http3.json")
 	require.NoError(t, err)
 	var reference browserH3Reference
 	require.NoError(t, json.Unmarshal(data, &reference))
@@ -231,13 +231,13 @@ func TestFirefoxHTTP3MatchesSupportedBrowserParameters(t *testing.T) {
 			_, err = io.ReadFull(params, value)
 			require.NoError(t, err)
 			values[id] = value
-			if id >= 27 && (id-27)%31 == 0 {
+			if id >= 27 && (id-27)%31 == 0 && id != 0xff02de1a {
 				require.Len(t, value, 2)
 				id = 27
 			}
 			order = append(order, id)
 		}
-		require.Equal(t, []uint64{1, 4, 5, 6, 7, 8, 9, 11, 14, 15, 17, 29, 32}, order)
+		require.Equal(t, []uint64{1, 4, 5, 6, 7, 8, 9, 11, 14, 15, 17, 29, 0xff02de1a, 32}, order)
 		for id, raw := range reference.TransportParameters {
 			number, err := strconv.ParseUint(id, 10, 64)
 			require.NoError(t, err)
@@ -253,7 +253,7 @@ func TestFirefoxHTTP3MatchesSupportedBrowserParameters(t *testing.T) {
 		require.Len(t, values[15], 3)
 		require.Empty(t, values[29])
 		require.NotContains(t, values, uint64(3))
-		require.NotContains(t, values, uint64(0xff02de1a), "legacy min_ack_delay requires ACK_FREQUENCY support")
+		require.Equal(t, []byte{0x43, 0xe8}, values[0xff02de1a], "legacy min_ack_delay advertises 1000 microseconds")
 		require.NotContains(t, values, uint64(0x17f7586d2cb571))
 		// RFC 9368 in-flight v1->v2 switching is unsupported by upstream. Do not
 		// advertise v2 and induce a switch that the transport cannot receive.
@@ -290,17 +290,44 @@ func TestHTTP3BrowserProfilesSessionResumption(t *testing.T) {
 				Unwrap()
 			defer client.Close()
 			peer.request(t, client)
+			var coldExtensions map[uint16][]byte
+			if firefox {
+				hello, _ := h3CapturedHello(t, peer)
+				coldExtensions = h3HelloExtensions(t, hello)
+			}
 			select {
 			case <-cache.stored:
 			case <-time.After(5 * time.Second):
 				t.Fatal("browser QUIC template did not store its ticket")
 			}
 			client.GetClient().CloseIdleConnections()
+			if firefox {
+				peer.packet.mu.Lock()
+				peer.packet.initials = nil
+				peer.packet.rawInitials = nil
+				peer.packet.mu.Unlock()
+			}
 			peer.request(t, client)
 			peer.mu.Lock()
 			resumed := slices.Clone(peer.resumed)
 			peer.mu.Unlock()
 			require.Equal(t, []bool{false, true}, resumed)
+			if firefox {
+				hello, _ := h3CapturedHello(t, peer)
+				warmExtensions := h3HelloExtensions(t, hello)
+				require.NotEmpty(t, warmExtensions[41], "resumed ClientHello must include PSK")
+				require.NotEqual(t, coldExtensions[51], warmExtensions[51], "resumption must refresh key shares")
+				payloadLength := func(value []byte) int {
+					require.GreaterOrEqual(t, len(value), 10)
+					enc := int(binary.BigEndian.Uint16(value[6:8]))
+					require.GreaterOrEqual(t, len(value), 10+enc)
+					return int(binary.BigEndian.Uint16(value[8+enc : 10+enc]))
+				}
+				cold := payloadLength(coldExtensions[65037])
+				warm := payloadLength(warmExtensions[65037])
+				require.Greater(t, warm, cold, "NSS GREASE sizing must include the actual resumed PSK")
+				require.Zero(t, (warm-16)%32, "NSS pads ClientHelloInner to 32 bytes before the AEAD tag")
+			}
 		})
 	}
 }

@@ -42,13 +42,12 @@ func NewTransportParameters(version quic.Version) (*transportparams.Layout, erro
 	// in flight, which this transport cannot process (RFC 9368).
 	info = binary.BigEndian.AppendUint32(info, uint32(version))
 
-	// The endpoint labels Firefox's 0xff02de1a as GREASE because its ID is
-	// congruent to 27 modulo 31. Neqo actually uses it for legacy min_ack_delay.
-	// Omit it until the transport supports that ACK_FREQUENCY draft; emitting
-	// random bytes here would falsely advertise protocol support.
+	// Legacy min_ack_delay is supplied by the enabled engine receiver, even
+	// though the parameter shares a reserved-number residue. Keep its captured
+	// position before max_datagram_frame_size.
 	return &transportparams.Layout{
 		DisableGrease: true,
-		Order:         []uint64{1, 4, 5, 6, 7, 8, 9, 11, 14, 15, 17, 29, 32},
+		Order:         []uint64{1, 4, 5, 6, 7, 8, 9, 11, 14, 15, 17, 29, 0xff02de1a, 32},
 		Additional:    []transportparams.Parameter{{ID: 17, Value: info}},
 	}, nil
 }

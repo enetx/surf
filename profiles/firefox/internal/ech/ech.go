@@ -1,17 +1,17 @@
-package desktop
+package ech
 
 import utls "github.com/refraction-networking/utls"
 
-// echInnerLength estimates Firefox's compressed ClientHelloInner before padding.
+// InnerLength estimates Firefox's compressed ClientHelloInner before padding.
 // Ordinary TLS 1.3 extensions become two-byte references; SNI and versions stay
 // inline. Firefox pads the server name to 100 bytes, then the inner to 32 bytes.
-func echInnerLength(conn *utls.UConn) int {
-	hello := conn.HandshakeState.Hello
-	length := 2 + 32 + 1 + 2 + 2*len(hello.CipherSuites) + 1 + len(hello.CompressionMethods) + 2
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/tls13ech.c
+func InnerLength(ciphers []uint16, compression []uint8, extensions []utls.TLSExtension) int {
+	length := 2 + 32 + 1 + 2 + 2*len(ciphers) + 1 + len(compression) + 2
 	length += 5 // Inner ECH extension: header plus the inner/outer byte.
 	namePadding, compressed := 100, 0
 
-	for _, extension := range conn.Extensions {
+	for _, extension := range extensions {
 		switch extension := extension.(type) {
 		case *utls.SNIExtension:
 			length += extension.Len()
@@ -35,9 +35,9 @@ func echInnerLength(conn *utls.UConn) int {
 	return length + namePadding
 }
 
-// setECHPayloadLength replaces a preliminary GREASE payload when session loading
+// SetPayloadLength replaces a preliminary GREASE payload when session loading
 // changes the inner size. Subsequent marshals and HelloRetryRequest reuse it.
-func setECHPayloadLength(ech *utls.GREASEEncryptedClientHelloExtension, innerLength int) {
+func SetPayloadLength(ech *utls.GREASEEncryptedClientHelloExtension, innerLength int) {
 	if ech == nil {
 		return
 	}

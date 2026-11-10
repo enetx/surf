@@ -2,6 +2,7 @@ package firefox_test
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -90,7 +91,7 @@ func TestUserAgentMap(t *testing.T) {
 		if !strings.Contains(string(ua.Unwrap()), c.marker) {
 			t.Errorf("UserAgent[%v] = %q, expected to contain %q", c.os, ua.Unwrap(), c.marker)
 		}
-		version := "159.0"
+		version := "160.0"
 		if c.os.IsMobile() {
 			version = "148.0"
 		}
@@ -103,8 +104,8 @@ func TestUserAgentMap(t *testing.T) {
 func TestVariantDesktopFields(t *testing.T) {
 	t.Parallel()
 
-	if firefox.Desktop.HelloSpec != &firefox.HelloFirefox_159 {
-		t.Error("Desktop.HelloSpec must point to HelloFirefox_159")
+	if firefox.Desktop.HelloSpec != &firefox.HelloFirefox_160 {
+		t.Error("Desktop.HelloSpec must point to HelloFirefox_160")
 	}
 	if firefox.Desktop.ShuffleExtensions {
 		t.Error("Firefox must retain its fixed extension order")
@@ -152,8 +153,8 @@ func TestBuildHeadersDesktop(t *testing.T) {
 		t.Errorf("Desktop[Accept-Language] = %q", got)
 	}
 	ua := h.Get(header.USER_AGENT).UnwrapOrDefault()
-	if !strings.Contains(string(ua), "Macintosh") || !strings.Contains(string(ua), "Firefox/159.0") {
-		t.Errorf("Desktop[User-Agent] = %q, expected Macintosh + Firefox/159.0", ua)
+	if !strings.Contains(string(ua), "Macintosh") || !strings.Contains(string(ua), "Firefox/160.0") {
+		t.Errorf("Desktop[User-Agent] = %q, expected Macintosh + Firefox/160.0", ua)
 	}
 	// Firefox does not emit UA Client Hints.
 	if h.Contains(header.SEC_CH_UA) {
@@ -184,9 +185,14 @@ func TestBuildHeadersMobile(t *testing.T) {
 func TestBoundaryFormat(t *testing.T) {
 	t.Parallel()
 
-	b := firefox.Boundary()
-	if !strings.HasPrefix(string(b), "---------------------------") {
-		t.Errorf("Boundary must start with 27 dashes, got: %s", b)
+	pattern := regexp.MustCompile(`^----geckoformboundary[0-9a-f]{2,32}$`)
+	seen := make(map[string]bool)
+	for range 64 {
+		b := string(firefox.Boundary())
+		if !pattern.MatchString(b) || seen[b] {
+			t.Fatalf("invalid or repeated Firefox multipart boundary: %s", b)
+		}
+		seen[b] = true
 	}
 }
 

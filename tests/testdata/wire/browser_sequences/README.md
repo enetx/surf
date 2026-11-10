@@ -143,8 +143,8 @@ Chromium 156.0.8078.79 pins Quiche revision
 The [HPACK encoder](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/http2/hpack/hpack_encoder.cc)
 and [QPACK string encoding](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/qpack_instruction_encoder.cc)
 explain the observed literal and Huffman choices. Firefox references are pinned
-to `FIREFOX_159_0_1_RELEASE`:
-[HPACK](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/Http2Compression.cpp),
-[vendored QPACK](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-qpack/src/encoder.rs),
-[HTTP/3 setup](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-http3/src/connection.rs),
-and [local Alt-Svc mapping](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp).
+to `FIREFOX_160_0_RELEASE`:
+[HPACK](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http2Compression.cpp),
+[vendored QPACK](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-qpack/src/encoder.rs),
+[HTTP/3 setup](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/connection.rs),
+and [local Alt-Svc mapping](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp).

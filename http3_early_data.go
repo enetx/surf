@@ -22,7 +22,7 @@ func (h *HTTP3Settings) EarlyData(enabled bool) *HTTP3Settings {
 type http3RequireHandshakeKey struct{}
 
 func (ut *uquicTransport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
-	attempt := ut.requestWithAltUsed(req)
+	attempt := ut.requestWithAltUsed(withProtocolHeaders(req, ut.protocolHeaders, 3))
 
 	eligible := ut.earlyData && (req.Body == nil || req.Body == http.NoBody) &&
 		(req.Method == http.MethodGet || req.Method == http.MethodHead)

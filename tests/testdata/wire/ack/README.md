@@ -1,8 +1,8 @@
-# Receive ACK policy — Chromium 156 and Firefox 159
+# Receive ACK policy — Chromium 156 and Firefox 160
 
 Browser sources are pinned to Chromium 156.0.8078.79's Quiche
 `a1628192cf32ba40d21e0dd80f485d68c24ff87a` and Firefox
-`FIREFOX_159_0_1_RELEASE` (vendored Neqo).
+`FIREFOX_160_0_RELEASE` (vendored Neqo).
 
 | Default receive behavior | Chromium | Firefox |
 | --- | --- | --- |
@@ -28,8 +28,8 @@ Sources:
 [constants](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_constants.h),
 [default RTT fraction](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/common/quiche_protocol_flags_list.h),
 [Initial/Handshake ACK policy](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/uber_received_packet_manager.cc),
-[Neqo receive tracking](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/tracking.rs).
-Neqo's [ackrate.rs](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-transport/src/ackrate.rs)
+[Neqo receive tracking](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/tracking.rs).
+Neqo's [ackrate.rs](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/ackrate.rs)
 requests acknowledgment behavior from the **peer**; its ratio must not be applied
 to Firefox's local receive threshold. Negotiated ACK_FREQUENCY and optional
 QUICHE AKD3/AKDU/1ACK options are outside the default policies above.

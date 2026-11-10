@@ -23,6 +23,7 @@ type Builder struct {
 	http3settings            *HTTP3Settings                             // HTTP/3 specific settings
 	cliMWs                   *middleware[*Client]                       // Priority-ordered client middlewares
 	headersApplier           profiles.HeadersApplier                    // Profile-specific request header pipeline (set by Impersonate)
+	protocolHeaders          profiles.ProtocolHeaders                   // Profile defaults for the selected transport protocol
 	retryWait                time.Duration                              // Wait duration between retry attempts
 	retryMax                 int                                        // Maximum number of retry attempts
 	maxRedirects             int                                        // Maximum number of redirects to follow

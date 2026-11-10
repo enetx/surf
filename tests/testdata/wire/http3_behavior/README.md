@@ -27,8 +27,11 @@ The Firefox policy counts the serialized request line, Host, actual wire fields,
 the input-only Connection header and the final empty line. It uses the remaining
 space in the 32768-byte segment, rather than a fitted constant. Normal later reads
 remain 32768 bytes. The profile adds no Connection header to HTTP/3 traffic.
-`firefox_upload_vectors.json` also preserves all 18 original Firefox vectors as
-offline regressions. This establishes these captured cases, not every possible
+`firefox_upload_vectors.json` now preserves 18 fresh Firefox 160 vectors, captured
+on macOS with a Windows User-Agent override and independently decoded with
+Wireshark. Their DATA boundaries match both Surf replays; the current capture
+audit is [firefox_160_audit.json](../firefox_160_audit.json). Earlier reports above
+retain their original browser versions. This establishes these captured cases, not every possible
 upload source, browser preference or packet scheduling behavior.
 
 Changing a visible image's `fetchPriority` during its response emitted no new
@@ -42,17 +45,17 @@ frames demonstrate the API; they are not an observed browser resource scheduler.
 - [Chromium upload buffer bounds](https://github.com/chromium/chromium/blob/156.0.8078.79/net/quic/quic_http_stream.cc)
   and [QUICHE packet-size constant](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_constants.h):
   clamp body length to 10–256 times 1452. Unknown-length bodies use the minimum.
-- [Firefox HTTP/3 segment reader and header consumption](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/Http3Stream.cpp),
-  [transaction input streams](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp),
-  [segment preference application](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/base/nsIOService.cpp)
-  and [shipped 32768-byte preference](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/modules/libpref/init/all.js).
+- [Firefox HTTP/3 segment reader and header consumption](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Stream.cpp),
+  [transaction input streams](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp),
+  [segment preference application](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/base/nsIOService.cpp)
+  and [shipped 32768-byte preference](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/modules/libpref/init/all.js).
   The C++ static initializer of 4096 is overridden by the shipped preference.
-- [Firefox serialized request line](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpRequestHead.cpp),
-  [header serialization](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpHeaderArray.cpp)
-  and [Connection header construction](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp).
+- [Firefox serialized request line](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpRequestHead.cpp),
+  [header serialization](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHeaderArray.cpp)
+  and [Connection header construction](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp).
 - [Chromium priority updates](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_spdy_stream.cc)
   and [priority serialization](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_stream_priority.cc).
-- [Firefox priority state and serialization](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-http3/src/priority.rs):
+- [Firefox priority state and serialization](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/priority.rs):
   no initial change, repeated values suppressed, `u=N,i` without a space.
 
 ## TLS 0-RTT scope

@@ -20,7 +20,7 @@ import (
 // These representation assertions come from the pinned browser source rules,
 // rather than a decoder-only snapshot of our own headers.
 // https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/http2/hpack/hpack_encoder.cc
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/Http2Compression.cpp
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http2Compression.cpp
 func TestBrowserHTTP2SensitiveFieldsAndCookieBoundary(t *testing.T) {
 	for _, firefox := range []bool{false, true} {
 		t.Run(map[bool]string{false: "chrome", true: "firefox"}[firefox], func(t *testing.T) {

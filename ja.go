@@ -199,7 +199,7 @@ func (j *JA) Edge85() *Builder { return j.SetHelloID(utls.HelloEdge_85) }
 func (j *JA) Edge106() *Builder { return j.SetHelloID(utls.HelloEdge_106) }
 
 // Firefox sets the current Firefox desktop TLS fingerprint.
-func (j *JA) Firefox() *Builder { return j.Firefox159() }
+func (j *JA) Firefox() *Builder { return j.Firefox160() }
 
 // Firefox55 sets the JA3/4 fingerprint to mimic Firefox version 55.
 func (j *JA) Firefox55() *Builder { return j.SetHelloID(utls.HelloFirefox_55) }
@@ -228,8 +228,8 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 // Firefox148 sets the JA3/4 fingerprint to mimic Firefox version 148.
 func (j *JA) Firefox148() *Builder { return j.SetHelloID(utls.HelloFirefox_148) }
 
-// Firefox159 sets the current Firefox 159 desktop TLS fingerprint.
-func (j *JA) Firefox159() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_159) }
+// Firefox160 sets the current Firefox 160 desktop TLS fingerprint.
+func (j *JA) Firefox160() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_160) }
 
 // IOS sets the JA3/4 fingerprint to mimic the latest iOS Safari browser (auto-detection).
 func (j *JA) IOS() *Builder { return j.SetHelloID(utls.HelloIOS_Auto) }

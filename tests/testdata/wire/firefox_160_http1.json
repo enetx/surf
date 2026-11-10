@@ -1,0 +1,30 @@
+{
+  "browser": "Firefox 160.0",
+  "profile_os": "Windows User-Agent override",
+  "capture_os": "macOS",
+  "endpoint": "https://tls.peet.ws/api/all",
+  "source_sha256": "e1061b1b5b8b8dda2101d06bcf86771a01b26e3c4007c82983012def10f6452d",
+  "headers": [
+    "Host: tls.peet.ws",
+    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language: en-US,en;q=0.9",
+    "Accept-Encoding: gzip, deflate, br, zstd",
+    "Connection: keep-alive",
+    "Upgrade-Insecure-Requests: 1",
+    "Sec-Fetch-Dest: document",
+    "Sec-Fetch-Mode: navigate",
+    "Sec-Fetch-Site: none",
+    "Sec-Fetch-User: ?1",
+    "Priority: u=0, i"
+  ],
+  "matched": {
+    "tls": true,
+    "http1": true,
+    "ordered_headers": true
+  },
+  "tls": "extensions 0,23,65281,10,11,35,16,5,34,18,51,43,13,45,28,27,65037\nlegacy_version 0x0303\nsession_id 32 bytes\ncipher_suites 4865,4867,4866,49195,49199,52393,52392,49196,49200,49171,49172,156,157,47,53\ncompression 00\next 0: 000e00000b746c732e706565742e7773\next 10: 4588 29 23 24 25\next 11: 0100\next 13: 1027 1283 1539 2052 2053 2054 1025 1281 1537 515 513\next 16: 000908687474702f312e31\next 18:\next 23:\next 27: 1 2 3\next 28: 4001\next 34: 00080403050306030203\next 35:\next 43: 772 771\next 45: 0101\next 5: 0100000000\next 51: 4588:1216 29:32 23:65\next 65037: type=0 kdf=1 enc=32 payload%16=0\next 65281: 00\n",
+  "ja3": "9d42e90b0225e779f03141ddcd699df2",
+  "ja4": "t13d1517h1_8daaf6152771_3cbfd9057e0d",
+  "peetprint": "1dc0210ced467664114e1e66e5fd5feb"
+}

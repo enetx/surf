@@ -11,10 +11,10 @@ import (
 // network.buffer.cache.size preference (custom browser prefs can differ).
 // Necko buffers serialized HTTP/1 request headers and the body together, even
 // for HTTP/3. The first body segment uses only the space left after the headers.
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/Http3Stream.cpp
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/base/nsIOService.cpp
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/modules/libpref/init/all.js
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Stream.cpp
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/base/nsIOService.cpp
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/modules/libpref/init/all.js
 func ConfigureRequestBody(h profiles.H3Config) {
 	h.RequestBodyBufferSize(32768).RequestBodyFirstReadSizePolicy(firstRequestBodyReadSize)
 }
@@ -22,9 +22,9 @@ func ConfigureRequestBody(h profiles.H3Config) {
 // firstRequestBodyReadSize models the input buffer consumed by Http3Stream,
 // independently of QPACK compression. Connection is present in Necko's input
 // but removed before HTTP/3 field encoding; its bytes consume input buffer space.
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpRequestHead.cpp
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpHeaderArray.cpp
-// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpRequestHead.cpp
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHeaderArray.cpp
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp
 func firstRequestBodyReadSize(info http3.RequestBodyReadInfo) int {
 	method, path, authority := info.Request.Method, info.Request.URL.RequestURI(), info.Request.Host
 	if method == "" {

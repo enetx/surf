@@ -15,7 +15,7 @@
 ## ✨ Key Features
 
 ### 🎭 **Browser Impersonation**
-- **Chrome & Firefox Support**: Accurately mimic Chrome v156 (desktop/Android), Chrome v157 (iOS), and Firefox v159 (desktop) browser fingerprints
+- **Chrome & Firefox Support**: Accurately mimic Chrome v156 (desktop/Android), Chrome v157 (iOS), and Firefox v160 (desktop) browser fingerprints
 - **Platform Diversity**: Impersonate Windows, macOS, Linux, Android, and iOS devices
 - **TLS Fingerprinting**: Full JA3/JA4 fingerprint customization for enhanced privacy
 - **Automatic Headers**: Proper header ordering and browser-specific values
@@ -169,11 +169,11 @@ profile keeps full handshakes even with `Session()`; its cookies still persist.
 HTTP/3 uses the minimal enetx QUIC fork with separate browser ClientHello templates.
 Independent browser fixtures cover supported QUIC/TLS parameters, SETTINGS and
 header order. The [wire notes](tests/testdata/wire/README.md) describe differences,
-including Firefox compatible version negotiation, legacy ACK_FREQUENCY,
-QPACK startup timing and scheduling.
+including Firefox compatible version negotiation, outgoing adaptive ACK-rate
+requests and transport scheduling.
 
-Firefox desktop uses the current 159 TLS template and headers. `JA().Firefox()` and
-`JA().Firefox159()` select that TLS fingerprint; `JA().Firefox148()` retains the native
+Firefox desktop uses the current 160 TLS template and headers. `JA().Firefox()` and
+`JA().Firefox160()` select that TLS fingerprint; `JA().Firefox148()` retains the native
 uTLS preset. Android and iOS keep their existing 148 placeholders until verified
 mobile captures are available.
 
@@ -296,7 +296,7 @@ without receiving the request's HEADERS priority.
 GREASE and local QUIC `StreamPriority`. `QpackSplitCookies` and `QpackNeverIndex`
 control request fields. Browser presets select these independently:
 
-| Behavior | Chrome 156 desktop / Android | Firefox 159 desktop |
+| Behavior | Chrome 156 desktop / Android | Firefox 160 desktop |
 | --- | --- | --- |
 | HPACK varying `:path` | Literal without indexing | Literal without indexing, including static paths |
 | HPACK Authorization | Normal indexing | Never indexed |
@@ -317,7 +317,7 @@ control request fields. Browser presets select these independently:
 | Initial HTTP/3 priority update | Explicit nondefault Priority | Disabled; Neqo uses updates for changed priority |
 
 Sources are pinned to [Chrome 156's Quiche revision](https://github.com/chromium/chromium/blob/156.0.8078.79/DEPS)
-and [Firefox 159.0.1](https://github.com/mozilla-firefox/firefox/tree/FIREFOX_159_0_1_RELEASE).
+and [Firefox 160.0](https://github.com/mozilla-firefox/firefox/tree/FIREFOX_160_0_RELEASE).
 The profile functions link directly to the corresponding browser source files.
 iOS profiles keep their WebKit behavior; these desktop engine policies are not
 applied to iOS. Browser resource-loading decisions remain outside this API.
@@ -423,6 +423,14 @@ leaving it unset retains the profile's value or the native four-byte default.
 `HTTP3Settings()` configures ordered SETTINGS, QPACK, header limits and local
 stream priority. `AdditionalSettings` merges settings, preserving existing positions.
 `QUICSettings().EnableDatagrams` configures both transport and HTTP/3 support.
+
+`QUICSettings().LegacyAckFrequency(time.Millisecond).Set()` opts into the legacy
+ACK_FREQUENCY receiver and advertises its minimum delay. Firefox configures this
+through the same builder; Chrome leaves it off. Zero disables the extension.
+Peer requests can change local ACK tolerance, delay and ignore_order behavior;
+local ACK settings apply until the first valid request. This is separate from
+`MinAckDelay`, which is the local RTT-based timer floor. It does not generate
+adaptive outgoing requests for the peer's ACK rate.
 
 `HTTP3Settings().Grease().Set()` generates a fresh reserved SETTINGS pair for each
 new connection. Chrome profiles use two independent uint32 draws, matching the

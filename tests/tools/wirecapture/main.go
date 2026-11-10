@@ -94,20 +94,34 @@ func main() {
 	replay := flag.String("replay", "", "replay request JSONL against an already running origin")
 	origin := flag.String("origin", "", "origin for replay")
 	browser := flag.String("browser", "chrome", "Surf profile: chrome or firefox")
+	profileOS := flag.String("os", "macos", "Surf desktop OS: macos or windows")
+	endpoint := flag.String("probe-endpoint", "", "probe a public TLS/HTTP2 endpoint and save JSON under out")
 	stock := flag.Bool("stock", false, "use the stock Surf headers instead of exact captured headers")
+	allowFallback := flag.Bool("allow-fallback", false, "record fallback protocols instead of requiring the selected protocol")
 	responseBytes := flag.Int("response-bytes", 0, "synthetic /step/0 response bytes for ACK observations")
 	udpDelay := flag.Duration("udp-delay", 0, "one-way pipelined UDP delay, e.g. 10ms")
 	udpDropFirst := flag.Uint64("udp-drop-first", 0, "drop the first N UDP datagrams per remote/direction")
+	udpJitter := flag.Duration("udp-jitter", 0, "deterministic per-flow jitter bounded by the one-way delay")
+	udpReorderEvery := flag.Uint64("udp-reorder-every", 0, "delay every Nth datagram to allow overtaking; zero disables")
 	udpDropEvery := flag.Uint64("udp-drop-every", 0, "drop every Nth UDP datagram per remote/direction; zero disables")
 	scenarioMode := flag.String("scenario", "headers", "headers, uploads or priorities (HTTP/3 only)")
 	flag.Parse()
-	if *replay != "" {
-		if err := replaySurf(*replay, *origin, *browser, *protocol, *stock, *scenarioMode); err != nil {
+	if *profileOS != "macos" && *profileOS != "windows" {
+		log.Fatal("invalid desktop OS")
+	}
+	if *endpoint != "" {
+		if err := probeSurfEndpoint(*endpoint, *out, *browser, *profileOS, *protocol); err != nil {
 			log.Fatal(err)
 		}
 		return
 	}
-	if *udpDelay < 0 || *udpDelay > time.Second || *udpDropEvery == 1 || *udpDropFirst > 10 {
+	if *replay != "" {
+		if err := replaySurf(*replay, *origin, *browser, *protocol, *stock, *scenarioMode, *allowFallback, *profileOS); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if *udpJitter < 0 || *udpJitter > *udpDelay || *udpReorderEvery == 1 || *udpDelay < 0 || *udpDelay > time.Second || *udpDropEvery == 1 || *udpDropFirst > 10 {
 		log.Fatal("invalid UDP impairment settings")
 	}
 	if (*scenarioMode != "headers" && *scenarioMode != "uploads" && *scenarioMode != "priorities") || (*scenarioMode != "headers" && *protocol != "h3") || *out == "" || (*protocol != "h2" && *protocol != "h3") || *responseBytes < 0 || *responseBytes > 16<<20 {
@@ -145,7 +159,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer frameRecords.Close()
-	s := &captureServer{scenarioMode: *scenarioMode, frameRecords: frameRecords, capacity: *capacity, packets: packets, records: records, packetRecords: packetRecords, responseBytes: *responseBytes, currentLabel: "browser", tlsConfig: &tls.Config{Certificates: []tls.Certificate{cert}, NextProtos: []string{"h2"}, KeyLogWriter: &lockedWriter{writer: keys}}}
+	s := &captureServer{scenarioMode: *scenarioMode, frameRecords: frameRecords, capacity: *capacity, packets: packets, records: records, packetRecords: packetRecords, responseBytes: *responseBytes, currentLabel: "browser", tlsConfig: &tls.Config{Certificates: []tls.Certificate{cert}, NextProtos: []string{"h2", "http/1.1"}, KeyLogWriter: &lockedWriter{writer: keys}}}
 	tcp, err := net.Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		log.Fatal(err)
@@ -196,12 +210,12 @@ func main() {
 				w.Write(body)
 			})}
 		var peer net.PacketConn = &capturedUDP{PacketConn: udp, capture: packets}
-		if *udpDelay > 0 || *udpDropEvery > 0 || *udpDropFirst > 0 {
+		if *udpReorderEvery > 0 || *udpDelay > 0 || *udpDropEvery > 0 || *udpDropFirst > 0 {
 			events, err := os.OpenFile(filepath.Join(*out, "network.jsonl"), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
 			if err != nil {
 				log.Fatal(err)
 			}
-			shaped := newShapedUDP(peer, *udpDelay, *udpDropEvery, *udpDropFirst, events)
+			shaped := newShapedUDP(peer, *udpDelay, *udpDropEvery, *udpDropFirst, events, networkOptions{Jitter: *udpJitter, ReorderEvery: *udpReorderEvery})
 			peer = shaped
 			defer func() {
 				shaped.Close()
@@ -245,7 +259,7 @@ func main() {
 	})
 	mux.HandleFunc("/finish", func(w stdhttp.ResponseWriter, r *stdhttp.Request) { w.Write([]byte("ok")); stop() })
 	go stdhttp.Serve(admin, mux)
-	json.NewEncoder(os.Stdout).Encode(map[string]any{"origin": fmt.Sprintf("https://127.0.0.1:%d", port), "admin": "http://" + admin.Addr().String(), "port": port, "spki": spki, "certificate": filepath.Join(*out, "certificate.pem"), "protocol": *protocol, "capacity": *capacity, "network": map[string]any{"one_way_delay_ms": udpDelay.Milliseconds(), "drop_every_per_flow_direction": *udpDropEvery, "drop_first_per_flow_direction": *udpDropFirst}})
+	json.NewEncoder(os.Stdout).Encode(map[string]any{"origin": fmt.Sprintf("https://127.0.0.1:%d", port), "admin": "http://" + admin.Addr().String(), "port": port, "spki": spki, "certificate": filepath.Join(*out, "certificate.pem"), "protocol": *protocol, "capacity": *capacity, "network": map[string]any{"one_way_delay_ms": udpDelay.Milliseconds(), "jitter_ms": float64(*udpJitter) / float64(time.Millisecond), "reorder_every_per_flow_direction": *udpReorderEvery, "drop_every_per_flow_direction": *udpDropEvery, "drop_first_per_flow_direction": *udpDropFirst}})
 	<-ctx.Done()
 }
 

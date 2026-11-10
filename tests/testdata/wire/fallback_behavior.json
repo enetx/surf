@@ -1,0 +1,1006 @@
+{
+  "schema": 1,
+  "method": "Completed browser and Surf header scenarios; independent TLS/Wireshark verification of HTTP/1 requests. The interval measures server socket observations, not TCP SYN timing or NIC pacing. No TLS secrets, profile paths or session IDs are included.",
+  "cases": [
+    {
+      "run": "surf-fallback-first-loss",
+      "case": "chrome-h3-0",
+      "browser_version": "Chrome/156.0.8078.79",
+      "captured_at": "2026-11-10T14:22:17.880Z",
+      "complete": true,
+      "pcap_sha256": "fe58e84bd1285ee4769b4a4d6ef8fd2d5e05b7b4e3df9a1a4d086a3c26fce12c",
+      "network": {
+        "one_way_delay_ms": 10,
+        "jitter_ms": 0,
+        "drop_every": 0,
+        "drop_first": 1,
+        "reorder_every": 0,
+        "totals": {
+          "incoming": {
+            "seen": 697,
+            "dropped": 3,
+            "delivered": 693,
+            "reordered": 0,
+            "overflow": 0
+          },
+          "outgoing": {
+            "seen": 5104,
+            "dropped": 3,
+            "delivered": 5100,
+            "reordered": 0,
+            "overflow": 0
+          }
+        }
+      },
+      "independently_decoded_http1_requests": 0,
+      "first_tcp_clienthello_after_first_udp_initial_ms": null,
+      "groups": [
+        {
+          "label": "browser",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "run": "surf-fallback-firefox-first-loss",
+      "case": "firefox-h3-0",
+      "browser_version": "160.0",
+      "captured_at": "2026-11-10T14:23:13.743Z",
+      "complete": true,
+      "pcap_sha256": "1552d262e48fc2235e544e70fd041c4663411acf04a873967bb8f7c8eb26b2b9",
+      "network": {
+        "one_way_delay_ms": 10,
+        "jitter_ms": 0,
+        "drop_every": 0,
+        "drop_first": 1,
+        "reorder_every": 0,
+        "totals": {
+          "incoming": {
+            "seen": 1543,
+            "dropped": 3,
+            "delivered": 1538,
+            "reordered": 0,
+            "overflow": 0
+          },
+          "outgoing": {
+            "seen": 3437,
+            "dropped": 3,
+            "delivered": 3432,
+            "reordered": 0,
+            "overflow": 0
+          }
+        }
+      },
+      "independently_decoded_http1_requests": 2,
+      "first_tcp_clienthello_after_first_udp_initial_ms": 101,
+      "groups": [
+        {
+          "label": "browser",
+          "protocol_counts": {
+            "h1": 2,
+            "h2": 0,
+            "h3": 9
+          },
+          "connections": 3,
+          "sequence": [
+            [
+              "h1",
+              "/scenario"
+            ],
+            [
+              "h1",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "run": "surf-fallback-firefox-repeat",
+      "case": "firefox-h3-0",
+      "browser_version": "160.0",
+      "captured_at": "2026-11-10T14:28:37.325Z",
+      "complete": true,
+      "pcap_sha256": "f1c30f5d3a571f17f5bfd8d7bfba36fd768bc93e596f4f7e4d7991ffe95fba96",
+      "network": {
+        "one_way_delay_ms": 10,
+        "jitter_ms": 0,
+        "drop_every": 0,
+        "drop_first": 1,
+        "reorder_every": 0,
+        "totals": {
+          "incoming": {
+            "seen": 1359,
+            "dropped": 3,
+            "delivered": 1354,
+            "reordered": 0,
+            "overflow": 0
+          },
+          "outgoing": {
+            "seen": 3438,
+            "dropped": 3,
+            "delivered": 3433,
+            "reordered": 0,
+            "overflow": 0
+          }
+        }
+      },
+      "independently_decoded_http1_requests": 2,
+      "first_tcp_clienthello_after_first_udp_initial_ms": 101,
+      "groups": [
+        {
+          "label": "browser",
+          "protocol_counts": {
+            "h1": 2,
+            "h2": 0,
+            "h3": 9
+          },
+          "connections": 3,
+          "sequence": [
+            [
+              "h1",
+              "/scenario"
+            ],
+            [
+              "h1",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "run": "surf-jitter-reorder-audit",
+      "case": "chrome-h3-0",
+      "browser_version": "Chrome/156.0.8078.79",
+      "captured_at": "2026-11-10T14:33:27.038Z",
+      "complete": true,
+      "pcap_sha256": "a92e838e30c04db7a2b83c0f06f590b10126a9187374e7afbe08660b32fee56b",
+      "network": {
+        "one_way_delay_ms": 10,
+        "jitter_ms": 5,
+        "drop_every": 37,
+        "drop_first": 0,
+        "reorder_every": 17,
+        "totals": {
+          "incoming": {
+            "seen": 5131,
+            "dropped": 137,
+            "delivered": 4994,
+            "reordered": 2036,
+            "overflow": 0
+          },
+          "outgoing": {
+            "seen": 5729,
+            "dropped": 153,
+            "delivered": 5576,
+            "reordered": 2636,
+            "overflow": 0
+          }
+        }
+      },
+      "independently_decoded_http1_requests": 0,
+      "first_tcp_clienthello_after_first_udp_initial_ms": null,
+      "groups": [
+        {
+          "label": "browser",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "run": "surf-jitter-reorder-audit",
+      "case": "firefox-h3-0",
+      "browser_version": "160.0",
+      "captured_at": "2026-11-10T14:33:43.821Z",
+      "complete": true,
+      "pcap_sha256": "25a1d7608b8ed2e48ce1a7254991c28757de636e72335f6c924efd1170b9d893",
+      "network": {
+        "one_way_delay_ms": 10,
+        "jitter_ms": 5,
+        "drop_every": 37,
+        "drop_first": 0,
+        "reorder_every": 17,
+        "totals": {
+          "incoming": {
+            "seen": 4287,
+            "dropped": 113,
+            "delivered": 4172,
+            "reordered": 1490,
+            "overflow": 0
+          },
+          "outgoing": {
+            "seen": 5690,
+            "dropped": 152,
+            "delivered": 5535,
+            "reordered": 2582,
+            "overflow": 0
+          }
+        }
+      },
+      "independently_decoded_http1_requests": 0,
+      "first_tcp_clienthello_after_first_udp_initial_ms": null,
+      "groups": [
+        {
+          "label": "browser",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 2,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-preset",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        },
+        {
+          "label": "surf-exact-input",
+          "protocol_counts": {
+            "h1": 0,
+            "h2": 0,
+            "h3": 11
+          },
+          "connections": 1,
+          "sequence": [
+            [
+              "h3",
+              "/scenario"
+            ],
+            [
+              "h3",
+              "/step/0"
+            ],
+            [
+              "h3",
+              "/step/1"
+            ],
+            [
+              "h3",
+              "/step/2"
+            ],
+            [
+              "h3",
+              "/step/3"
+            ],
+            [
+              "h3",
+              "/step/4"
+            ],
+            [
+              "h3",
+              "/step/5"
+            ],
+            [
+              "h3",
+              "/step/6"
+            ],
+            [
+              "h3",
+              "/step/7"
+            ],
+            [
+              "h3",
+              "/step/8"
+            ],
+            [
+              "h3",
+              "/complete"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

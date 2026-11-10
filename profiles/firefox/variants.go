@@ -8,10 +8,10 @@ import (
 	"github.com/enetx/surf/profiles/firefox/quic"
 )
 
-// Desktop is the current Firefox 159 desktop variant.
+// Desktop is the current Firefox 160 desktop variant.
 var Desktop = profiles.Variant{
 	ConfigureQUIC:        quic.ConfigureQUIC,
-	HelloSpec:            &HelloFirefox_159,
+	HelloSpec:            &HelloFirefox_160,
 	Boundary:             Boundary,
 	ConfigureH2:          desktop.ConfigureH2,
 	ConfigureH3:          desktop.ConfigureH3,
@@ -19,6 +19,7 @@ var Desktop = profiles.Variant{
 	ConfigureRequestBody: quic.ConfigureRequestBody,
 	BuildHeaders:         desktop.BuildHeaders,
 	Headers:              DesktopApplier,
+	ProtocolHeaders:      desktop.ProtocolHeaders,
 }
 
 // Mobile is the current Firefox 148 Android variant.

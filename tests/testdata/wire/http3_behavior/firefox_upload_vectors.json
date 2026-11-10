@@ -1,12 +1,13 @@
 {
   "schema": 1,
-  "browser": "Firefox/159.0.1",
-  "source_release": "v1.0.215",
+  "browser": "Firefox/160.0",
+  "capture_os": "macOS with Windows User-Agent override",
+  "source": "Independent browser uploads; DATA frame lengths cross-checked with decrypted Wireshark frames.",
   "cases": [
     {
       "peer_capacity": 0,
-      "pcap_sha256": "2283fa886abb13505a466671c04381ef863edff1fdee3f90dbf449f072174294",
-      "requests_sha256": "6ddfed99d23481b92c85c65f235588186d608c8e98f9dc77796fc199b157eb5f",
+      "pcap_sha256": "bdaae126e0d7d65668856559a7f10551416ec45d52a97783818232f2d9794ed8",
+      "requests_sha256": "57af50d34fd6abc1e835073b35dec3d1f8d8825943d10c74a6c9aacdc04e55e9",
       "uploads": [
         {
           "method": "POST",
@@ -22,7 +23,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -30,7 +31,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -46,7 +47,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -58,11 +59,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "sec-fetch-dest",
@@ -108,7 +109,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -116,7 +117,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -132,7 +133,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -144,11 +145,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -198,7 +199,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -206,7 +207,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -222,7 +223,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -234,11 +235,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -288,7 +289,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -296,7 +297,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -312,7 +313,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -324,11 +325,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -361,9 +362,9 @@
           ],
           "body_bytes": 65536,
           "data_lengths": [
-            31957,
+            31961,
             32768,
-            811
+            807
           ]
         },
         {
@@ -380,7 +381,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -388,7 +389,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -404,7 +405,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -416,11 +417,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -453,7 +454,7 @@
           ],
           "body_bytes": 371712,
           "data_lengths": [
-            31956,
+            31960,
             32768,
             32768,
             32768,
@@ -464,7 +465,7 @@
             32768,
             32768,
             32768,
-            12076
+            12072
           ]
         },
         {
@@ -481,7 +482,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -489,7 +490,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -505,7 +506,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -517,11 +518,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -554,7 +555,7 @@
           ],
           "body_bytes": 400000,
           "data_lengths": [
-            31955,
+            31959,
             32768,
             32768,
             32768,
@@ -566,7 +567,7 @@
             32768,
             32768,
             32768,
-            7597
+            7593
           ]
         },
         {
@@ -583,7 +584,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -591,7 +592,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -607,7 +608,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -619,11 +620,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -673,7 +674,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -681,7 +682,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -697,7 +698,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -709,11 +710,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -763,7 +764,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": ":path",
@@ -771,7 +772,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -787,7 +788,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55640/scenario"
+              "value": "https://127.0.0.1:61359/scenario"
             },
             {
               "name": "content-type",
@@ -799,11 +800,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55640"
+              "value": "https://127.0.0.1:61359"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55640"
+              "value": "127.0.0.1:61359"
             },
             {
               "name": "cookie",
@@ -843,8 +844,8 @@
     },
     {
       "peer_capacity": 65536,
-      "pcap_sha256": "3fe37865e9656e4bbae7d0710ad2b52d854685500310ea5674bd7b1f50222b66",
-      "requests_sha256": "f7f61eee695918b3c3952a34122d8dbe063dbc21cf021bee580ee94a19362daa",
+      "pcap_sha256": "60eae70c47c96362c02c5a9872fa7fd02fc866a35c28e9216580675cab10ee40",
+      "requests_sha256": "6e66f9da974b6a363e1807556af56bc5e5a02b8ab2314b2d20eb86de3a1225d0",
       "uploads": [
         {
           "method": "POST",
@@ -860,7 +861,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -868,7 +869,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -884,7 +885,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -896,11 +897,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "sec-fetch-dest",
@@ -946,7 +947,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -954,7 +955,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -970,7 +971,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -982,11 +983,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",
@@ -1036,7 +1037,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -1044,7 +1045,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -1060,7 +1061,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -1072,11 +1073,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",
@@ -1126,7 +1127,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -1134,7 +1135,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -1150,7 +1151,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -1162,11 +1163,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",
@@ -1199,9 +1200,9 @@
           ],
           "body_bytes": 65536,
           "data_lengths": [
-            31957,
+            31961,
             32768,
-            811
+            807
           ]
         },
         {
@@ -1218,7 +1219,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -1226,7 +1227,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -1242,7 +1243,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -1254,11 +1255,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",
@@ -1291,7 +1292,7 @@
           ],
           "body_bytes": 371712,
           "data_lengths": [
-            31956,
+            31960,
             32768,
             32768,
             32768,
@@ -1302,7 +1303,7 @@
             32768,
             32768,
             32768,
-            12076
+            12072
           ]
         },
         {
@@ -1319,7 +1320,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -1327,7 +1328,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -1343,7 +1344,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -1355,11 +1356,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",
@@ -1392,7 +1393,7 @@
           ],
           "body_bytes": 400000,
           "data_lengths": [
-            31955,
+            31959,
             32768,
             32768,
             32768,
@@ -1404,7 +1405,7 @@
             32768,
             32768,
             32768,
-            7597
+            7593
           ]
         },
         {
@@ -1421,7 +1422,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -1429,7 +1430,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -1445,7 +1446,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -1457,11 +1458,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",
@@ -1511,7 +1512,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -1519,7 +1520,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -1535,7 +1536,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -1547,11 +1548,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",
@@ -1601,7 +1602,7 @@
             },
             {
               "name": ":authority",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": ":path",
@@ -1609,7 +1610,7 @@
             },
             {
               "name": "user-agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0"
             },
             {
               "name": "accept",
@@ -1625,7 +1626,7 @@
             },
             {
               "name": "referer",
-              "value": "https://127.0.0.1:55846/scenario"
+              "value": "https://127.0.0.1:61374/scenario"
             },
             {
               "name": "content-type",
@@ -1637,11 +1638,11 @@
             },
             {
               "name": "origin",
-              "value": "https://127.0.0.1:55846"
+              "value": "https://127.0.0.1:61374"
             },
             {
               "name": "alt-used",
-              "value": "127.0.0.1:55846"
+              "value": "127.0.0.1:61374"
             },
             {
               "name": "cookie",

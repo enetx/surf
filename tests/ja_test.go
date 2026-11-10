@@ -172,7 +172,7 @@ func TestJAFirefoxVersions(t *testing.T) {
 		{"Firefox105", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox105().Build().Unwrap() }},
 		{"Firefox120", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox120().Build().Unwrap() }},
 		{"Firefox148", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox148().Build().Unwrap() }},
-		{"Firefox159", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox159().Build().Unwrap() }},
+		{"Firefox160", func() *surf.Client { return surf.NewClient().Builder().JA().Firefox160().Build().Unwrap() }},
 	}
 
 	for _, tc := range firefoxVersions {

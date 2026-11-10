@@ -173,7 +173,7 @@ func TestQUICFluentOverridesPreserveBrowserProfiles(t *testing.T) {
 			}
 			referenceName := "chrome_156_http3.json"
 			if browser == "firefox" {
-				referenceName = "firefox_159_http3.json"
+				referenceName = "firefox_160_http3.json"
 			}
 			// Existing independent fixtures also verify no H3 setting is lost.
 			data, err := os.ReadFile("testdata/wire/" + referenceName)
@@ -288,7 +288,7 @@ func TestQUICFluentGreaseOverrides(t *testing.T) {
 				require.Equal(t, uint64(15), order[0])
 				grease := 0
 				for _, id := range order {
-					if id >= 27 && (id-27)%31 == 0 {
+					if id >= 27 && (id-27)%31 == 0 && id != 0xff02de1a {
 						grease++
 					}
 				}
@@ -299,6 +299,9 @@ func TestQUICFluentGreaseOverrides(t *testing.T) {
 					require.True(t, order[1] >= 27 && (order[1]-27)%31 == 0)
 				}
 				require.Contains(t, values, uint64(17))
+				if browser == "firefox" {
+					require.Equal(t, []byte{0x43, 0xe8}, values[0xff02de1a], "GREASE overrides must preserve the enabled legacy receiver")
+				}
 			})
 		}
 	}
@@ -348,7 +351,7 @@ func TestQUICFluentProfileReplacement(t *testing.T) {
 			_, parameters, number := quicWireParameters(t, peer)
 			fixture := "chrome_156_http3.json"
 			if browser == "firefox" {
-				fixture = "firefox_159_http3.json"
+				fixture = "firefox_160_http3.json"
 			}
 			data, err := os.ReadFile("testdata/wire/" + fixture)
 			require.NoError(t, err)

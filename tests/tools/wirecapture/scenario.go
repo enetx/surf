@@ -28,6 +28,8 @@ type observedRequest struct {
 	Path        string        `json:"path"`
 	Fields      []headerField `json:"fields"`
 	HeaderBlock string        `json:"header_block_hex,omitempty"`
+	RawHeaders  string        `json:"raw_headers_hex,omitempty"`
+	RecordedAt  string        `json:"recorded_at,omitempty"`
 	StreamID    uint64        `json:"stream_id,omitempty"`
 }
 

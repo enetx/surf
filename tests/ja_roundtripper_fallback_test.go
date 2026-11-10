@@ -16,6 +16,7 @@ import (
 	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptest"
 	"github.com/enetx/surf"
+	"golang.org/x/net/http2/hpack"
 )
 
 func TestRoundTripperHTTP1FallbackOnServerErrors(t *testing.T) {
@@ -28,6 +29,7 @@ func TestRoundTripperHTTP1FallbackOnServerErrors(t *testing.T) {
 		debugData    string
 		keepOpen     bool
 		fallback     bool
+		firefox      bool
 	}{
 		{name: "rst_http11_required", reset: true, code: http2.ErrCodeHTTP11Required, fallback: true},
 		{name: "rst_internal_error", reset: true, code: http2.ErrCodeInternal},
@@ -41,6 +43,8 @@ func TestRoundTripperHTTP1FallbackOnServerErrors(t *testing.T) {
 		{name: "goaway_protocol_unprocessed", code: http2.ErrCodeProtocol, lastStreamID: 0},
 		{name: "goaway_protocol_processed", code: http2.ErrCodeProtocol, lastStreamID: 1},
 		{name: "goaway_no_error_processed", code: http2.ErrCodeNo, lastStreamID: 1},
+		{name: "firefox_rst_http11_required", reset: true, code: http2.ErrCodeHTTP11Required, fallback: true, firefox: true},
+		{name: "firefox_goaway_http11_required", code: http2.ErrCodeHTTP11Required, fallback: true, firefox: true},
 	}
 	for _, tc := range cases {
 		for _, method := range []string{http.MethodGet, http.MethodPost} {
@@ -49,6 +53,9 @@ func TestRoundTripperHTTP1FallbackOnServerErrors(t *testing.T) {
 				var h1Requests, h2Requests atomic.Int32
 				release := make(chan struct{})
 				ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if tc.firefox && (r.Header.Get("TE") != "" || r.Header.Get("Connection") != "keep-alive") {
+						t.Errorf("Firefox fallback headers: TE=%q Connection=%q", r.Header.Get("TE"), r.Header.Get("Connection"))
+					}
 					h1Requests.Add(1)
 					body, err := io.ReadAll(r.Body)
 					if err != nil {
@@ -86,6 +93,24 @@ func TestRoundTripperHTTP1FallbackOnServerErrors(t *testing.T) {
 									}
 								}
 							case *http2.HeadersFrame:
+								if tc.firefox {
+									fields, err := hpack.NewDecoder(4096, nil).DecodeFull(f.HeaderBlockFragment())
+									if err != nil {
+										t.Error(err)
+									}
+									var te string
+									for _, field := range fields {
+										if field.Name == "te" {
+											te = field.Value
+										}
+										if field.Name == "connection" {
+											t.Error("HTTP/1 default leaked into HTTP/2")
+										}
+									}
+									if te != "trailers" {
+										t.Errorf("Firefox HTTP/2 TE=%q, want trailers", te)
+									}
+								}
 								h2Requests.Add(1)
 								streamID = f.StreamID
 								ended = f.StreamEnded()
@@ -112,7 +137,13 @@ func TestRoundTripperHTTP1FallbackOnServerErrors(t *testing.T) {
 				ts.StartTLS()
 				defer ts.Close()
 				defer close(release)
-				client := surf.NewClient().Builder().JA().Chrome156().Timeout(5 * time.Second).Build().Unwrap()
+				builder := surf.NewClient().Builder().Timeout(5 * time.Second)
+				if tc.firefox {
+					builder.Impersonate().Windows().Firefox()
+				} else {
+					builder.JA().Chrome156()
+				}
+				client := builder.Build().Unwrap()
 				defer client.CloseIdleConnections()
 				var body io.Reader
 				payload := ""

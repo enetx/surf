@@ -5,7 +5,13 @@ import (
 
 	"github.com/enetx/g"
 	"github.com/enetx/g/cmp"
+	"github.com/enetx/http"
 )
+
+// ProtocolHeaders adjusts headers for the protocol used by one transport
+// attempt. It receives a private header map and the HTTP major version.
+// Policies must support concurrent calls and preserve explicit user values.
+type ProtocolHeaders func(http.Header, int)
 
 // HeadersApplier applies the browser-specific request-header pipeline (insert defaults +
 // reorder by header-order map) to a request header map. Form-factor (desktop/mobile) is baked

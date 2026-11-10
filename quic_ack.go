@@ -81,3 +81,12 @@ func (q *QUICSettings) ResetAckPolicy() *QUICSettings {
 	q.handshake().AckPolicy = nil
 	return q
 }
+
+// LegacyAckFrequency enables the legacy single-byte ignore_order extension and
+// advertises its minimum requested ACK delay. Zero disables it. The delay must
+// be a whole number of microseconds no larger than MaxAckDelay. Local ACK policy
+// remains in effect until a valid peer update arrives; this is receive support.
+func (q *QUICSettings) LegacyAckFrequency(minimum time.Duration) *QUICSettings {
+	q.handshake().LegacyAckFrequencyMinDelay = minimum
+	return q
+}

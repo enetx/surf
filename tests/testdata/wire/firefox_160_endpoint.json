@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "source": "Firefox 160.0 on macOS with Windows User-Agent override; direct browser navigation and Surf request to https://tls.peet.ws/api/all. This does not claim a Windows kernel TCP fingerprint.",
+  "browser_sha256": "57dbeb5ba3265cd0a921b217fefab806ea66d8e906db6cd862289f63434b22ec",
+  "surf_sha256": "f8bdcb3fd12a93d42895b2457a6c4bb13091769ae504ac3c839f53f95048ab1e",
+  "matched": {
+    "tls": true,
+    "http2": true,
+    "ordered_headers": true
+  },
+  "browser": {
+    "hello": "extensions 0,23,65281,10,11,35,16,5,34,18,51,43,13,45,28,27,65037\nlegacy_version 0x0303\nsession_id 32 bytes\ncipher_suites 4865,4867,4866,49195,49199,52393,52392,49196,49200,49171,49172,156,157,47,53\ncompression 00\next 0: 000e00000b746c732e706565742e7773\next 10: 4588 29 23 24 25\next 11: 0100\next 13: 1027 1283 1539 2052 2053 2054 1025 1281 1537 515 513\next 16: 000c02683208687474702f312e31\next 18:\next 23:\next 27: 1 2 3\next 28: 4001\next 34: 00080403050306030203\next 35:\next 43: 772 771\next 45: 0101\next 5: 0100000000\next 51: 4588:1216 29:32 23:65\next 65037: type=0 kdf=1 enc=32 payload%16=0\next 65281: 00\n",
+    "ech": {
+      "type": 0,
+      "kdf": 1,
+      "aead": 1,
+      "enc": 32,
+      "payload": 240
+    },
+    "ja3": "9d42e90b0225e779f03141ddcd699df2",
+    "ja4": "t13d1517h2_8daaf6152771_3cbfd9057e0d",
+    "peetprint": "a4bbbc7e3adf3db97d276fd0adb1efc4",
+    "tcp_syn": {
+      "ip_version": 4,
+      "ttl": 42,
+      "df": true,
+      "ecn": true,
+      "window": 65535,
+      "mss": 1280,
+      "window_scale": 6,
+      "sack_permitted": true,
+      "timestamps": true,
+      "option_order": "mss,nop,wscale,nop,nop,timestamp,sackOK,eol",
+      "payload_len": 0,
+      "packet_len": 64
+    },
+    "navigation": "SETTINGS 1=65536 2=0 4=131072 5=16384\nWINDOW_UPDATE stream=0 increment=12517377\nHEADERS stream=3 flags=0x25 exclusive=false dep=0 weight=42\n:method: GET\n:path: /api/all\n:authority: tls.peet.ws\n:scheme: https\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0\naccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\naccept-language: en-US,en;q=0.9\naccept-encoding: gzip, deflate, br, zstd\nupgrade-insecure-requests: 1\nsec-fetch-dest: document\nsec-fetch-mode: navigate\nsec-fetch-site: none\nsec-fetch-user: ?1\npriority: u=0, i\nte: trailers\n",
+    "h2_fingerprint": "1:65536;2:0;4:131072;5:16384|12517377|0|m,p,a,s",
+    "http2_frames": [
+      {
+        "frame_type": "SETTINGS",
+        "length": 24,
+        "settings": [
+          "HEADER_TABLE_SIZE = 65536",
+          "ENABLE_PUSH = 0",
+          "INITIAL_WINDOW_SIZE = 131072",
+          "MAX_FRAME_SIZE = 16384"
+        ]
+      },
+      {
+        "frame_type": "WINDOW_UPDATE",
+        "length": 4,
+        "increment": 12517377
+      },
+      {
+        "frame_type": "HEADERS",
+        "stream_id": 3,
+        "length": 286,
+        "headers": [
+          ":method: GET",
+          ":path: /api/all",
+          ":authority: tls.peet.ws",
+          ":scheme: https",
+          "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+          "accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "accept-language: en-US,en;q=0.9",
+          "accept-encoding: gzip, deflate, br, zstd",
+          "upgrade-insecure-requests: 1",
+          "sec-fetch-dest: document",
+          "sec-fetch-mode: navigate",
+          "sec-fetch-site: none",
+          "sec-fetch-user: ?1",
+          "priority: u=0, i",
+          "te: trailers"
+        ],
+        "flags": [
+          "EndStream (0x1)",
+          "EndHeaders (0x4)",
+          "Priority (0x20)"
+        ],
+        "priority": {
+          "weight": 42,
+          "depends_on": 0,
+          "exclusive": 0
+        }
+      }
+    ]
+  },
+  "surf": {
+    "hello": "extensions 0,23,65281,10,11,35,16,5,34,18,51,43,13,45,28,27,65037\nlegacy_version 0x0303\nsession_id 32 bytes\ncipher_suites 4865,4867,4866,49195,49199,52393,52392,49196,49200,49171,49172,156,157,47,53\ncompression 00\next 0: 000e00000b746c732e706565742e7773\next 10: 4588 29 23 24 25\next 11: 0100\next 13: 1027 1283 1539 2052 2053 2054 1025 1281 1537 515 513\next 16: 000c02683208687474702f312e31\next 18:\next 23:\next 27: 1 2 3\next 28: 4001\next 34: 00080403050306030203\next 35:\next 43: 772 771\next 45: 0101\next 5: 0100000000\next 51: 4588:1216 29:32 23:65\next 65037: type=0 kdf=1 enc=32 payload%16=0\next 65281: 00\n",
+    "ech": {
+      "type": 0,
+      "kdf": 1,
+      "aead": 1,
+      "enc": 32,
+      "payload": 240
+    },
+    "ja3": "9d42e90b0225e779f03141ddcd699df2",
+    "ja4": "t13d1517h2_8daaf6152771_3cbfd9057e0d",
+    "peetprint": "a4bbbc7e3adf3db97d276fd0adb1efc4",
+    "tcp_syn": {
+      "ip_version": 4,
+      "ttl": 42,
+      "df": true,
+      "ecn": true,
+      "window": 65535,
+      "mss": 1280,
+      "window_scale": 6,
+      "sack_permitted": true,
+      "timestamps": true,
+      "option_order": "mss,nop,wscale,nop,nop,timestamp,sackOK,eol",
+      "payload_len": 0,
+      "packet_len": 64
+    },
+    "navigation": "SETTINGS 1=65536 2=0 4=131072 5=16384\nWINDOW_UPDATE stream=0 increment=12517377\nHEADERS stream=3 flags=0x25 exclusive=false dep=0 weight=42\n:method: GET\n:path: /api/all\n:authority: tls.peet.ws\n:scheme: https\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0\naccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\naccept-language: en-US,en;q=0.9\naccept-encoding: gzip, deflate, br, zstd\nupgrade-insecure-requests: 1\nsec-fetch-dest: document\nsec-fetch-mode: navigate\nsec-fetch-site: none\nsec-fetch-user: ?1\npriority: u=0, i\nte: trailers\n",
+    "h2_fingerprint": "1:65536;2:0;4:131072;5:16384|12517377|0|m,p,a,s",
+    "http2_frames": [
+      {
+        "frame_type": "SETTINGS",
+        "length": 24,
+        "settings": [
+          "HEADER_TABLE_SIZE = 65536",
+          "ENABLE_PUSH = 0",
+          "INITIAL_WINDOW_SIZE = 131072",
+          "MAX_FRAME_SIZE = 16384"
+        ]
+      },
+      {
+        "frame_type": "WINDOW_UPDATE",
+        "length": 4,
+        "increment": 12517377
+      },
+      {
+        "frame_type": "HEADERS",
+        "stream_id": 3,
+        "length": 286,
+        "headers": [
+          ":method: GET",
+          ":path: /api/all",
+          ":authority: tls.peet.ws",
+          ":scheme: https",
+          "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+          "accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "accept-language: en-US,en;q=0.9",
+          "accept-encoding: gzip, deflate, br, zstd",
+          "upgrade-insecure-requests: 1",
+          "sec-fetch-dest: document",
+          "sec-fetch-mode: navigate",
+          "sec-fetch-site: none",
+          "sec-fetch-user: ?1",
+          "priority: u=0, i",
+          "te: trailers"
+        ],
+        "flags": [
+          "EndStream (0x1)",
+          "EndHeaders (0x4)",
+          "Priority (0x20)"
+        ],
+        "priority": {
+          "weight": 42,
+          "depends_on": 0,
+          "exclusive": 0
+        }
+      }
+    ]
+  }
+}

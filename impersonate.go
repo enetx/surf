@@ -63,7 +63,7 @@ func (im *Impersonate) Chrome() *Builder {
 	return im.applyVariant(v)
 }
 
-// Firefox impersonates Firefox 159 on desktop and the existing mobile profiles.
+// Firefox impersonates Firefox 160 on desktop and the existing mobile profiles.
 func (im *Impersonate) Firefox() *Builder {
 	v := firefox.Desktop
 	switch im.os {
@@ -80,6 +80,7 @@ func (im *Impersonate) Firefox() *Builder {
 // own all data (TLS spec, boundary, H2/H3 SETTINGS, header set), this method owns sequencing.
 func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	im.builder.headersApplier = v.Headers
+	im.builder.protocolHeaders = v.ProtocolHeaders
 	im.builder.Boundary(v.Boundary)
 
 	if v.HelloSpec != nil {

@@ -5,7 +5,7 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
-// NewClientHelloSpec follows the independently captured Firefox 159 QUIC
+// NewClientHelloSpec follows the independently captured Firefox 160 QUIC
 // handshake. NSS permutes these extensions, unlike this profile's TCP handshake.
 func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 	spec := desktop.NewClientHelloSpec()
@@ -79,7 +79,7 @@ func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 
 	extensions = append(extensions, &utls.QUICTransportParametersExtension{})
 	if psk != nil {
-		extensions = append(extensions, psk)
+		extensions = append(extensions, &echPreSharedKey{UtlsPreSharedKeyExtension: psk})
 	}
 
 	spec.Extensions = utls.ShuffleChromeTLSExtensions(extensions)

@@ -52,6 +52,16 @@ func Factory(spec func() (utls.ClientHelloSpec, error)) tlsquic.NewClient {
 			return nil, errors.New("QUIC ClientHello requires QUICTransportParametersExtension and ALPNExtension")
 		}
 
+		// Per-connection public configuration hooks let a custom extension bind
+		// SNI-dependent wire state before ApplyPreset, without private TLS access.
+		for _, extension := range template.Extensions {
+			if prepare, ok := extension.(interface {
+				PrepareClientHello(*utls.ClientHelloSpec, *tls.Config)
+			}); ok {
+				prepare.PrepareClientHello(&template, config)
+			}
+		}
+
 		c := &utls.Config{
 			Rand: config.Rand, Time: config.Time, RootCAs: config.RootCAs,
 			ServerName: config.ServerName, NextProtos: slices.Clone(config.NextProtos),

@@ -1,10 +1,12 @@
 {
   "source": {
-    "browser": "Firefox 159.0.1",
-    "capture": "independent headless browser, fresh profile, forced HTTP/3 via Alt-Svc mapping",
-    "endpoint": "https://fp.impersonate.pro/api/http3"
+    "browser": "Firefox 160.0",
+    "capture": "Independent installed Firefox on macOS; fresh profile with Windows User-Agent override and forced HTTP/3. No Windows kernel TCP claim.",
+    "endpoint": "https://fp.impersonate.pro/api/http3",
+    "sha256": "1c5e11d0de7d5045a514aff1a56e37be5f8beefb414d0eb204ff430cc63ac033"
   },
-  "initial_packet_number": 13,
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+  "initial_packet_number": 9,
   "client_connection_id_length": 3,
   "settings": [
     [
@@ -69,8 +71,25 @@
       ]
     },
     "29": "0x",
-    "32": 65535
+    "32": 65535,
+    "4278378010": 1000
   },
+  "transport_parameter_order": [
+    1,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    11,
+    14,
+    15,
+    17,
+    29,
+    4278378010,
+    32
+  ],
   "tls": {
     "cipher_suites": [
       4865,
@@ -143,15 +162,6 @@
       "28": "4001",
       "34": "00080403050306030203",
       "65281": "00"
-    }
-  },
-  "transport_parameter_notes": {
-    "4278378010": {
-      "name": "legacy min_ack_delay",
-      "value_microseconds": 1000,
-      "wire_value": "0x43e8",
-      "endpoint_label": "GREASE",
-      "surf": "omitted until legacy ACK_FREQUENCY is implemented"
     }
   }
 }

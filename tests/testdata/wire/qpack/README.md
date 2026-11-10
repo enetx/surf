@@ -16,8 +16,8 @@ reported in the earlier historical notes.
 Sources:
 [Chromium encoder](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/qpack_encoder.cc),
 [Chromium string encoding](https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/qpack_instruction_encoder.cc),
-[Firefox encoder](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-qpack/src/encoder.rs),
-[Firefox field sections](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/third_party/rust/neqo-qpack/src/header_block.rs).
+[Firefox encoder](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-qpack/src/encoder.rs),
+[Firefox field sections](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-qpack/src/header_block.rs).
 
 ## Independent verification
 

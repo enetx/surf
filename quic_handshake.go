@@ -207,7 +207,8 @@ func (q *QUICSettings) DisableTransportParameterGrease(disabled bool) *QUICSetti
 	return q
 }
 
-func isQUICGreaseParameter(id uint64) bool { return id >= 27 && (id-27)%31 == 0 }
+// The implemented legacy min_ack_delay is a protocol field, despite its residue.
+func isQUICGreaseParameter(id uint64) bool { return id >= 27 && (id-27)%31 == 0 && id != 0xff02de1a }
 
 // TransportParametersFactory supplies a layout per handshake attempt, replacing
 // any previous factory and its edits. Later layout setters amend its result.

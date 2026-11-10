@@ -46,7 +46,7 @@ func TestIndependentBrowserHTTP2Sequence(t *testing.T) {
 				defer close(done)
 				conn, err := listener.Accept()
 				if err == nil {
-					s.serveH2(conn, "surf-exact-input")
+					s.serveTLS(conn, "surf-exact-input")
 				}
 			}()
 			input, err := os.Create(filepath.Join(directory, "browser.jsonl"))
@@ -55,7 +55,7 @@ func TestIndependentBrowserHTTP2Sequence(t *testing.T) {
 				require.NoError(t, json.NewEncoder(input).Encode(request))
 			}
 			require.NoError(t, input.Close())
-			require.NoError(t, replaySurf(input.Name(), "https://"+listener.Addr().String(), browser, "h2", false, "headers"))
+			require.NoError(t, replaySurf(input.Name(), "https://"+listener.Addr().String(), browser, "h2", false, "headers", false, "macos"))
 			select {
 			case <-done:
 			case <-time.After(5 * time.Second):

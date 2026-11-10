@@ -28,7 +28,7 @@ import (
 func TestBrowserHTTP2Wire(t *testing.T) {
 	t.Parallel()
 
-	for _, name := range []string{"chrome-156-windows", "chrome-156-android", "chrome-157-ios", "firefox-159-windows"} {
+	for _, name := range []string{"chrome-156-windows", "chrome-156-android", "chrome-157-ios", "firefox-160-windows"} {
 		t.Run(name, func(t *testing.T) {
 			type capture struct {
 				settings []http2.Setting
@@ -110,6 +110,19 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 				// Reproduce the supplied iPhone navigation, including the encoded
 				// header length, while keeping the connection entirely local.
 				builder.SetHeaders("accept-language", "ru").With(func(c *surf.Client) error {
+					transport := c.GetTransport().(*http.Transport)
+					dial := transport.DialContext
+					transport.DialContext = func(ctx context.Context, network, _ string) (net.Conn, error) {
+						return dial(ctx, network, ts.Listener.Addr().String())
+					}
+					return nil
+				})
+				url = "https://tls.peet.ws/api/all"
+			}
+			if name == "firefox-160-windows" {
+				// Replay the new independent tls.peet.ws navigation entirely
+				// against the local peer, retaining its authority and path.
+				builder.With(func(c *surf.Client) error {
 					transport := c.GetTransport().(*http.Transport)
 					dial := transport.DialContext
 					transport.DialContext = func(ctx context.Context, network, _ string) (net.Conn, error) {

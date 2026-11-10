@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"math/rand/v2"
 	"net"
 	"os"
 	"sync"
@@ -15,14 +16,18 @@ import (
 // accidentally impose a per-packet bandwidth limit. Loss counters start anew for
 // each remote address and direction, so all clients receive the same rule.
 type networkPacket struct {
-	data  []byte
-	addr  net.Addr
-	ready time.Time
-	flow  string
+	data              []byte
+	addr              net.Addr
+	ready             time.Time
+	flow              string
+	sequence, ordinal uint64
+	delay             time.Duration
 }
 
 type networkFlow struct {
-	Seen, Dropped, Overflow, Delivered uint64
+	Seen, Dropped, Overflow, Delivered, Reordered uint64
+	lastDelivered                                 uint64
+	random                                        *rand.Rand
 }
 
 type shapedUDP struct {
@@ -30,6 +35,8 @@ type shapedUDP struct {
 	delay           time.Duration
 	dropEvery       uint64
 	dropFirst       uint64
+	options         networkOptions
+	ordinal         uint64
 	logger          *os.File
 	closed          chan struct{}
 	once            sync.Once
@@ -43,10 +50,13 @@ type shapedUDP struct {
 	changed         chan struct{}
 }
 
-func newShapedUDP(base net.PacketConn, delay time.Duration, dropEvery, dropFirst uint64, logger *os.File) *shapedUDP {
+func newShapedUDP(base net.PacketConn, delay time.Duration, dropEvery, dropFirst uint64, logger *os.File, options ...networkOptions) *shapedUDP {
 	c := &shapedUDP{PacketConn: base, delay: delay, dropEvery: dropEvery, dropFirst: dropFirst, logger: logger,
 		closed: make(chan struct{}), changed: make(chan struct{}), flows: make(map[string]*networkFlow),
 		in: make(chan networkPacket, 4096), out: make(chan networkPacket, 4096), delivered: make(chan networkPacket, 4096)}
+	if len(options) > 0 {
+		c.options = options[0]
+	}
 	c.wg.Add(3)
 	go c.receive()
 	go c.schedule(c.in, false)
@@ -60,7 +70,7 @@ func (c *shapedUDP) packet(data []byte, addr net.Addr, direction string) (networ
 	key := direction + "|" + addr.String()
 	flow := c.flows[key]
 	if flow == nil {
-		flow = new(networkFlow)
+		flow = &networkFlow{random: rand.New(rand.NewPCG(1, 2))}
 		c.flows[key] = flow
 	}
 	flow.Seen++
@@ -68,8 +78,16 @@ func (c *shapedUDP) packet(data []byte, addr net.Addr, direction string) (networ
 	if drop {
 		flow.Dropped++
 	}
+	delay := c.delay
+	if c.options.Jitter > 0 {
+		delay += time.Duration(flow.random.Int64N(int64(2*c.options.Jitter)+1)) - c.options.Jitter
+	}
+	reorder := c.options.ReorderEvery > 0 && flow.Seen%c.options.ReorderEvery == 0
+	if reorder {
+		delay += max(time.Millisecond, 2*c.delay, c.options.ReorderDelay)
+	}
 	if c.logger != nil {
-		err := json.NewEncoder(c.logger).Encode(map[string]any{"time": time.Now().UTC(), "direction": direction, "remote": addr.String(), "sequence": flow.Seen, "dropped": drop, "bytes": len(data)})
+		err := json.NewEncoder(c.logger).Encode(map[string]any{"time": time.Now().UTC(), "direction": direction, "remote": addr.String(), "sequence": flow.Seen, "dropped": drop, "bytes": len(data), "scheduled_delay_ms": float64(delay) / float64(time.Millisecond), "reorder_delayed": reorder})
 		if err != nil && c.err == nil {
 			c.err = err
 		}
@@ -79,7 +97,8 @@ func (c *shapedUDP) packet(data []byte, addr net.Addr, direction string) (networ
 	}
 	copyAddr := *addr.(*net.UDPAddr)
 	copyAddr.IP = bytes.Clone(copyAddr.IP)
-	return networkPacket{data: bytes.Clone(data), addr: &copyAddr, ready: time.Now().Add(c.delay), flow: key}, false
+	c.ordinal++
+	return networkPacket{data: bytes.Clone(data), addr: &copyAddr, ready: time.Now().Add(delay), flow: key, sequence: flow.Seen, ordinal: c.ordinal, delay: delay}, false
 }
 
 func (c *shapedUDP) receive() {
@@ -107,7 +126,7 @@ func (c *shapedUDP) receive() {
 	}
 }
 
-func (c *shapedUDP) schedule(queue <-chan networkPacket, outgoing bool) {
+func (c *shapedUDP) scheduleFIFO(queue <-chan networkPacket, outgoing bool) {
 	defer c.wg.Done()
 	for {
 		var packet networkPacket
@@ -125,21 +144,9 @@ func (c *shapedUDP) schedule(queue <-chan networkPacket, outgoing bool) {
 				return
 			}
 		}
-		if outgoing {
-			if _, err := c.PacketConn.WriteTo(packet.data, packet.addr); err != nil {
-				c.stop(err)
-				return
-			}
-		} else {
-			select {
-			case c.delivered <- packet:
-			case <-c.closed:
-				return
-			}
+		if !c.deliver(packet, outgoing) {
+			return
 		}
-		c.mu.Lock()
-		c.flows[packet.flow].Delivered++
-		c.mu.Unlock()
 	}
 }
 
@@ -271,7 +278,11 @@ func (c *shapedUDP) summary() any {
 	for key, flow := range c.flows {
 		flows[key] = *flow
 	}
-	return map[string]any{"one_way_delay_ms": c.delay.Milliseconds(), "drop_every_per_flow_direction": c.dropEvery, "drop_first_per_flow_direction": c.dropFirst, "flows": flows, "error": func() string {
+	extraDelay := time.Duration(0)
+	if c.options.ReorderEvery > 0 {
+		extraDelay = max(time.Millisecond, 2*c.delay, c.options.ReorderDelay)
+	}
+	return map[string]any{"one_way_delay_ms": c.delay.Milliseconds(), "jitter_ms": float64(c.options.Jitter) / float64(time.Millisecond), "reorder_every_per_flow_direction": c.options.ReorderEvery, "reorder_extra_delay_ms": float64(extraDelay) / float64(time.Millisecond), "drop_every_per_flow_direction": c.dropEvery, "drop_first_per_flow_direction": c.dropFirst, "flows": flows, "error": func() string {
 		if c.err != nil {
 			return c.err.Error()
 		}

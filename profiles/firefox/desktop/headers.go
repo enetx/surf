@@ -1,10 +1,10 @@
 package desktop
 
 import (
-	"net/http"
 	"strings"
 
 	"github.com/enetx/g"
+	"github.com/enetx/http"
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/profiles"
 	"github.com/enetx/surf/profiles/firefox/common"
@@ -129,9 +129,6 @@ func BuildHeaders(os profiles.OSKey) *g.MapOrd[g.String, g.String] {
 }
 
 func insertHeaders[T ~string](headers *g.MapOrd[T, T], method string) {
-	if !strings.HasSuffix(method, "http3") {
-		headers.Insert(header.TE, "trailers")
-	}
 	switch strings.TrimSuffix(method, "http3") {
 	case http.MethodPost:
 		headers.Insert(header.ACCEPT, "*/*")

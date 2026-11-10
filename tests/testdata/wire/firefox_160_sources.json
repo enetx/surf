@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "release": "FIREFOX_160_0_RELEASE",
+  "scope": "Referenced Firefox source files, including vendored NSS and Neqo. Hashes identify inspected source files; this is not an audit of the entire browser tree.",
+  "files": [
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/dom/html/HTMLFormSubmission.cpp",
+      "sha256": "33880da2cf568f1762cbbf8bf217c07d56744fae8fe14df463ce160e72b2e879"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/modules/libpref/init/all.js",
+      "sha256": "efe901b727d640d776b60a5e5c04c8b068e1f2c0456b853552c515e42013277f",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/base/nsIOService.cpp",
+      "sha256": "41dc85fa9dd49011f612ca1295a3b7fbdb481e5f8b04d574540bb0c453445dd2",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http2Compression.cpp",
+      "sha256": "02db887fb5e7734d47f0263512a1e23446e0613377613ec803b3df5fb684577d",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http2Session.cpp",
+      "sha256": "436b7c7259bc3f971753d5796964570027f6b9b2a63a066d29b0429e5ad60788",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http2Session.h",
+      "sha256": "57d57cc64961e4bdebf7ec56620e6562675cb69bf6984cc7d8d3de08528342a4",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http2Stream.cpp",
+      "sha256": "7692f140f3c43fcdd9521efb3e2a01e43c3275db0962af219834dd6a88bb3dae",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http2StreamBase.cpp",
+      "sha256": "49ac306d8687b3b37ef4f0a33dc90d48ee4daa48d98ebf22ed99230e3319c334",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Stream.cpp",
+      "sha256": "f50b3b712375657899c1baa41385e32cfa15150202b3b77b2378e271d58e5fac",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp",
+      "sha256": "f1bda356eefa77f59361ff1e69be468c5101ea4df98f0c6f5cb2c3eb291b9364",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHeaderArray.cpp",
+      "sha256": "b483b4e2f8ae996f2b24f1ff09534f804e2d95a4a49dbbf4a7a1d4fb9eebe964",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpRequestHead.cpp",
+      "sha256": "0095a56bff91f017a0707ccf3f81737b83ff36f347f42573e2d736229a7799cb",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp",
+      "sha256": "1982338b39ce282ba63f98d7dcdc9d4bc754540866a5cce73093957106e95ad6",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/socket/neqo_glue/src/lib.rs",
+      "sha256": "84e335f21af53620a0e62e2c4099680475ecbb2a634e0d1b1a783e5262a8435d",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/tls13ech.c",
+      "sha256": "7f56c9663d95d1c8b318faa3be99c329abfcbadf4eec94cf5fc9c812a9720446",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/connection.rs",
+      "sha256": "17c54864ef79aa59d4d863ccc1e2e61ff3ed19023553a683ba8cb4cdb3b85437",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/frames/hframe.rs",
+      "sha256": "64b1e9eae30c7be363746b9c27c2a092d523b236f59b5017c3e68e9c919e0da3",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/priority.rs",
+      "sha256": "8b3af9d0073472a5bf76bcccbc247ca8206ee78a85b8ace629ec549c7d84ffdc",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-qpack/src/encoder.rs",
+      "sha256": "091e1122b2da4e1f309492825df3e1632979a54ab63dbcedaa4a1ebf81436d73",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-qpack/src/header_block.rs",
+      "sha256": "48e22ed6d5b5b294c9fa1aac20da646bdcb3303e9b8cb2542f507688a6bccb6b",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/ackrate.rs",
+      "sha256": "d7a6c3aa9d384329103983e25d8cbd8377f3196712d8cbc2f109811d56f79982",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cid.rs",
+      "sha256": "0c59e038220a969611f45bf4b78c42716128670224191f088de8f655d8a88c6e",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs",
+      "sha256": "d154797bbb444029df2333a2ac8149625656fced897994c97e1a903a087d66d4",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/fc.rs",
+      "sha256": "705ed63d95a6520a82906ea25a82d658b2a6395e4e2779e6d165e2d60e38e54b"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/frame.rs",
+      "sha256": "26601cb5f7f6817a0177432f69b36d131fcd294a8328d46cbd962fc71d381200",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/path.rs",
+      "sha256": "6dd711acd964b9afc39b19fa71c3e39673e304179c6708e65c11cac9a967f23b",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/pmtud.rs",
+      "sha256": "b27aaa8db65ea1573b4ff43e30d01a3a93c0cb860e0916bf86d58a666ae46919",
+      "changed_from_159": false
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/recovery/mod.rs",
+      "sha256": "92b6fd1e3139bcc64ad286a46de3080051078f9422658c6992b675bf34e623c3",
+      "changed_from_159": true
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/tracking.rs",
+      "sha256": "139acfec48b48545a83bbb2eeff7e91c927156eb2bf49c1613f847d23a4694fe",
+      "changed_from_159": false
+    }
+  ]
+}

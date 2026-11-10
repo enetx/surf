@@ -1,3 +1,4 @@
+import { launchBrowser as launch } from "./browser.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import {
   mkdirSync,
@@ -16,93 +17,19 @@ const args = Object.fromEntries(
 const root = resolve(
   args.out || mkdtempSync(join(tmpdir(), "surf-browser-wire-")),
 );
+const allowFallback = args["allow-fallback"] === "true";
 const binary = args.binary || "/tmp/surf-wirecapture";
 const browsers = (args.browser || "chrome,firefox").split(",");
 const protocols = (args.protocol || "h2,h3").split(",");
+const profileOS = args.os || "macos";
+if (
+  !["macos", "windows"].includes(profileOS) ||
+  (profileOS === "windows" && browsers.some((b) => b !== "firefox"))
+)
+  throw Error("--os=windows requires --browser=firefox; default is macos");
 const capacities = (args.capacity || "0,128,4096,65536").split(",").map(Number);
 mkdirSync(root, { recursive: true, mode: 0o700 });
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function launch(executable, flags, pattern) {
-  const proc = spawn(executable, flags, { stdio: ["ignore", "pipe", "pipe"] });
-  let logs = "";
-  const exited = new Promise((r) => proc.once("exit", r));
-  const address = await new Promise((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(Error("browser startup: " + logs.slice(-1500))),
-      30000,
-    );
-    function consume(chunk) {
-      logs += chunk.toString();
-      const m = logs.match(pattern);
-      if (m) {
-        clearTimeout(timer);
-        resolve(m[1]);
-      }
-    }
-    proc.stdout.on("data", consume);
-    proc.stderr.on("data", consume);
-    proc.once("error", reject);
-    proc.once("exit", (code) => {
-      clearTimeout(timer);
-      reject(Error("browser exited " + code + ": " + logs.slice(-1000)));
-    });
-  });
-  const ws = new WebSocket(
-    address + (executable.includes("Firefox") ? "/session" : ""),
-  );
-  await new Promise((resolve, reject) => {
-    ws.addEventListener("open", resolve, { once: true });
-    ws.addEventListener("error", reject, { once: true });
-  });
-  let next = 0;
-  const pending = new Map();
-  ws.addEventListener("message", (event) => {
-    const data = JSON.parse(event.data);
-    const p = pending.get(data.id);
-    if (!p) return;
-    pending.delete(data.id);
-    clearTimeout(p.timer);
-    if (data.type === "error" || data.error)
-      p.reject(Error(JSON.stringify(data)));
-    else p.resolve(data.result);
-  });
-  function send(method, params = {}, sessionId) {
-    return new Promise((resolve, reject) => {
-      const id = ++next;
-      const timer = setTimeout(
-        () => {
-          pending.delete(id);
-          reject(Error(method + " timeout"));
-        },
-        method === "session.new" ? 60000 : 20000,
-      );
-      pending.set(id, { resolve, reject, timer });
-      ws.send(
-        JSON.stringify({
-          id,
-          method,
-          params,
-          ...(sessionId ? { sessionId } : {}),
-        }),
-      );
-    });
-  }
-  async function close(method) {
-    try {
-      await send(method);
-    } catch {}
-    if (ws.readyState === WebSocket.OPEN) ws.close();
-    for (const p of pending.values()) {
-      clearTimeout(p.timer);
-      p.reject(Error("browser closed"));
-    }
-    proc.kill("SIGTERM");
-    await Promise.race([exited, delay(3000)]);
-    if (proc.exitCode === null) proc.kill("SIGKILL");
-  }
-  return { send, close, logs: () => logs };
-}
 
 async function browserRun(browser, server, directory, protocol) {
   const profile = mkdtempSync(join(directory, "profile-"));
@@ -201,8 +128,19 @@ async function browserRun(browser, server, directory, protocol) {
       "network.proxy.type": 0,
       "network.http.http3.enable": protocol === "h3",
     };
+    if (profileOS === "windows") {
+      const result = spawnSync(
+        "/Applications/Firefox.app/Contents/MacOS/firefox",
+        ["--version"],
+        { encoding: "utf8" },
+      );
+      const major = result.stdout.match(/Firefox (\d+)/)?.[1];
+      if (!major) throw Error("cannot determine Firefox version");
+      prefs["general.useragent.override"] =
+        `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:${major}.0) Gecko/20100101 Firefox/${major}.0`;
+    }
     // The testing map is keyed by GetAsciiHost(), without the origin port.
-    // https://github.com/mozilla-firefox/firefox/blob/FIREFOX_159_0_1_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp
+    // https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpHandler.cpp
     // The imported root belongs only to this disposable NSS profile.
     if (protocol === "h3")
       Object.assign(prefs, {
@@ -285,6 +223,10 @@ async function captureCase(browser, protocol, capacity) {
       args["response-bytes"] || "0",
       "-udp-delay",
       args["udp-delay"] || "0",
+      "-udp-jitter",
+      args["udp-jitter"] || "0",
+      "-udp-reorder-every",
+      args["udp-reorder-every"] || "0",
       "-udp-drop-every",
       args["udp-drop-every"] || "0",
       "-udp-drop-first",
@@ -333,7 +275,15 @@ async function captureCase(browser, protocol, capacity) {
       .map(JSON.parse);
     if (
       captured.length !== (args.scenario === "priorities" ? 3 : 11) ||
-      captured.some((r) => r.protocol !== protocol)
+      captured.some(
+        (r) =>
+          r.protocol !== protocol &&
+          !(
+            allowFallback &&
+            protocol === "h3" &&
+            ["h1", "h2"].includes(r.protocol)
+          ),
+      )
     )
       throw Error(
         "browser protocol/count mismatch: " +
@@ -351,11 +301,14 @@ async function captureCase(browser, protocol, capacity) {
           server.origin,
           "-browser",
           browser,
+          "-os",
+          profileOS,
           "-protocol",
           protocol,
           "-scenario",
           args.scenario || "headers",
           ...(stock ? ["-stock"] : []),
+          ...(allowFallback ? ["-allow-fallback"] : []),
         ],
         { encoding: "utf8", timeout: 40000 },
       );
@@ -365,6 +318,34 @@ async function captureCase(browser, protocol, capacity) {
       );
       if (result.status !== 0) throw Error(label + ": " + result.stderr);
     }
+    const status = await fetch(server.admin + "/status").then((r) => r.json());
+    const groups = ["browser", "surf-preset", "surf-exact-input"].map(
+      (label) => {
+        const requests = status.requests.filter((r) => r.label === label);
+        return {
+          label,
+          requests: requests.map((r) => ({
+            protocol: r.protocol,
+            path: r.path,
+            connection: r.connection,
+          })),
+          protocol_counts: Object.fromEntries(
+            ["h1", "h2", "h3"].map((p) => [
+              p,
+              requests.filter((r) => r.protocol === p).length,
+            ]),
+          ),
+        };
+      },
+    );
+    writeFileSync(
+      join(directory, "comparison.json"),
+      JSON.stringify(
+        { selected_protocol: protocol, allow_fallback: allowFallback, groups },
+        null,
+        2,
+      ) + "\n",
+    );
   } catch (error) {
     const status = await fetch(server.admin + "/status")
       .then((r) => r.json())
@@ -377,6 +358,8 @@ async function captureCase(browser, protocol, capacity) {
           status,
           network: {
             delay: args["udp-delay"] || "0",
+            jitter: args["udp-jitter"] || "0",
+            reorder_every: args["udp-reorder-every"] || "0",
             drop_every: args["udp-drop-every"] || "0",
             drop_first: args["udp-drop-first"] || "0",
           },

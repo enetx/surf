@@ -14,10 +14,15 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
-func TestFirefox159ClientHelloMatchesGolden(t *testing.T) {
+func TestFirefox160ClientHelloMatchesGolden(t *testing.T) {
 	t.Parallel()
+	testFirefoxHelloGolden(t, "firefox-160-windows", &firefox.HelloFirefox_160)
+}
 
-	fixture, err := os.ReadFile("../../testdata/wire/firefox-159-windows.golden")
+func testFirefoxHelloGolden(t *testing.T, name string, spec *utls.ClientHelloSpec) {
+	t.Helper()
+
+	fixture, err := os.ReadFile("../../testdata/wire/" + name + ".golden")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +39,7 @@ func TestFirefox159ClientHelloMatchesGolden(t *testing.T) {
 			ServerName:   "tls.peet.ws",
 			OmitEmptyPsk: true,
 		}, utls.HelloCustom)
-		if err := conn.ApplyPreset(specclone.Clone(&firefox.HelloFirefox_159)); err != nil {
+		if err := conn.ApplyPreset(specclone.Clone(spec)); err != nil {
 			t.Fatal(err)
 		}
 		if err := conn.BuildHandshakeState(); err != nil {
@@ -42,7 +47,7 @@ func TestFirefox159ClientHelloMatchesGolden(t *testing.T) {
 		}
 		got, details := wiretest.ClientHello(t, conn.HandshakeState.Hello.Raw, false)
 		if got != want {
-			t.Fatalf("Firefox 159 ClientHello differs from browser capture\n got:\n%s\nwant:\n%s", got, want)
+			t.Fatalf("Firefox ClientHello differs from browser capture\n got:\n%s\nwant:\n%s", got, want)
 		}
 		if details.ECHPayloadLength != 240 {
 			t.Errorf("ECH payload = %d bytes, want 240", details.ECHPayloadLength)
@@ -59,7 +64,7 @@ func TestFirefox159ClientHelloMatchesGolden(t *testing.T) {
 		}
 		previousKey = bytes.Clone(classical)
 	}
-	if !reflect.DeepEqual(&before, &firefox.HelloFirefox_159) {
+	if !reflect.DeepEqual(&before, spec) {
 		t.Error("handshakes mutated the source Firefox TLS template")
 	}
 }

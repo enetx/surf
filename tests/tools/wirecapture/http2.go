@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -10,35 +9,12 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/enetx/http/http2"
 	"golang.org/x/net/http2/hpack"
 )
 
-func (s *captureServer) serveTCP(listener net.Listener) {
-	for {
-		raw, err := listener.Accept()
-		if err != nil {
-			return
-		}
-		label := s.label()
-		go s.serveH2(raw, label)
-	}
-}
-
-func (s *captureServer) serveH2(raw net.Conn, label string) {
-	defer raw.Close()
-	raw.SetDeadline(time.Now().Add(90 * time.Second))
-	conn := tls.Server(&capturedTCP{Conn: raw, capture: s.packets}, s.tlsConfig)
-	if err := conn.Handshake(); err != nil {
-		s.fail(fmt.Errorf("TLS: %w", err))
-		return
-	}
-	if conn.ConnectionState().NegotiatedProtocol != "h2" {
-		s.fail(fmt.Errorf("unexpected ALPN %q", conn.ConnectionState().NegotiatedProtocol))
-		return
-	}
+func (s *captureServer) serveH2(conn net.Conn, label string) {
 	preface := make([]byte, len(http2.ClientPreface))
 	if _, err := io.ReadFull(conn, preface); err != nil {
 		return
@@ -100,7 +76,7 @@ func (s *captureServer) serveH2(raw net.Conn, label string) {
 			s.fail(err)
 			return
 		}
-		req := observedRequest{Label: label, Connection: raw.RemoteAddr().String(), Protocol: "h2", HeaderBlock: hex.EncodeToString(block), StreamID: uint64(stream)}
+		req := observedRequest{Label: label, Connection: conn.RemoteAddr().String(), Protocol: "h2", HeaderBlock: hex.EncodeToString(block), StreamID: uint64(stream)}
 		for _, field := range fields {
 			req.Fields = append(req.Fields, headerField{field.Name, field.Value})
 			if field.Name == ":path" {

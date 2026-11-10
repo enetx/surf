@@ -189,8 +189,62 @@ numbers without conflating ACKs. Node regressions cover this and bounded range
 processing; CI runs all `*.test.mjs` analyzers.
 
 Failed navigations retain `browser.json`, logs and `failure.json` with the peer
-status. They remain failed runs. In the first-datagram-loss experiment Firefox
-attempted TCP fallback with HTTP/1.1, while this peer accepts HTTP/2 only. Its
-`NS_ERROR_NET_RESET` is an incomplete experiment, not a successful H3 comparison.
-Chromium and both Surf replays completed that experiment. Loss-induced fallback
-racing and HTTP/1.1 peer support need a separate investigation.
+status. They remain failed runs. Before HTTP/1.1 support was added, the first-datagram-loss experiment failed
+when Firefox attempted HTTP/1.1 TCP fallback against the HTTP/2-only peer. Its
+`NS_ERROR_NET_RESET` remains an incomplete historical experiment. The completed
+replacement scenarios are documented below; browser connection racing remains
+different from Surf.
+
+## Fallback and packet reordering
+
+The TCP peer offers both h2 and http/1.1 and accepts HTTP/1.1 without ALPN. Its
+bounded header capture preserves raw spelling/order/repeated fields while using
+the same buffered reader for body framing and pipelined requests. It serves the
+same synthetic scenario over all three protocols. The default runner still
+requires the selected protocol for both browser and Surf. Explicitly allow mixed
+protocols for a fallback investigation:
+
+```sh
+node tests/tools/wirecapture/run.mjs --binary=/tmp/surf-wirecapture --out=/tmp/surf-fallback --protocol=h3 --capacity=0 --response-bytes=2097152 --decode=false --udp-delay=10ms --udp-drop-first=1 --allow-fallback=true
+node tests/tools/wirecapture/fallback-analysis.mjs --in=/tmp/surf-fallback --out=/tmp/surf-fallback-report.json
+```
+
+`comparison.json` preserves per-client request protocols and connection attribution.
+The fallback analyzer independently decrypts HTTP/1 requests with Wireshark and
+compares method, URI and source port with peer records. It measures the first TCP
+ClientHello relative to the first UDP Initial at the capture socket, not SYN or
+browser scheduling timestamps. Its summary excludes secrets, profile paths and
+session identifiers. A case directory can be supplied instead of a whole root.
+Fallback replay compares transport behavior; it is not an exact cross-protocol
+header-encoding comparison. Full expected request counts are still required.
+
+Add `--udp-jitter=5ms --udp-reorder-every=17` to a 10 ms one-way-delay run to vary
+packet delay and permit overtaking. Jitter uses a fixed independent PRNG per
+remote/direction for reproducibility, uniformly within +/- the requested duration;
+it must not exceed the base delay. Every Nth datagram is delayed by an additional
+max(1 ms, twice the base delay). Reordering is observed, not guaranteed when
+traffic is sparse. Summary counters include actually delivered reordered packets.
+A bounded deadline heap permits later packets to overtake delayed ones; both its
+storage and each admission queue are limited to 4096 entries. Zero options retain
+the original constant-delay FIFO scheduler. Deadline and Close behavior is tested.
+
+## Direct Firefox endpoint references
+
+`firefox-endpoint.mjs` navigates an isolated installed Firefox to a public
+fingerprint endpoint. The selected protocol is verified from the response.
+Windows mode overrides only the browser User-Agent; the host kernel remains
+macOS. No normal browser profile is modified. HTTP/1.1 uses the current
+`network.http.http2.enabled` preference to disable HTTP/2.
+
+```sh
+node tests/tools/wirecapture/firefox-endpoint.mjs --out=/tmp/firefox160-peet --os=windows --protocol=h2
+/tmp/surf-wirecapture -browser=firefox -os=windows -protocol=h2 -probe-endpoint=https://tls.peet.ws/api/all -out=/tmp/firefox160-surf
+node tests/tools/wirecapture/peet-golden.mjs --browser=/tmp/firefox160-peet/browser-endpoint.json --surf=/tmp/firefox160-surf/surf-endpoint.json --out=/tmp/firefox160.golden --report=/tmp/firefox160-comparison.json
+```
+
+Use `h1` for an independent HTTP/1.1 reference. `peet-golden.mjs` compares full
+HTTP/1.1 or HTTP/2 endpoint sections and normalized TLS before writing a browser
+golden. For HTTP/3, pass `--protocol=h3 --url=https://fp.impersonate.pro/api/http3`
+to the browser script; `http3-golden.mjs --in=BROWSER_JSON --out=REFERENCE_JSON`
+extracts a browser-only reference. Browser responses, TLS keys and temporary
+profiles remain private; committed reports contain normalized fields and hashes.
