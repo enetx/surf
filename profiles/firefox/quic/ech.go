@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 
 	"github.com/enetx/surf/profiles/firefox/internal/ech"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // NSS estimates a compressed ClientHelloInner, pads the name to 100 bytes and

@@ -1,6 +1,9 @@
 package surf
 
-import "github.com/enetx/http"
+import (
+	"github.com/enetx/http"
+	h3transport "github.com/enetx/surf/internal/http3"
+)
 
 // Preconnect warms the same JA transports used by RoundTrip. No alternate TLS
 // implementation, request body reader or separate connection pool is introduced.
@@ -33,9 +36,7 @@ func (rt *roundtripper) Preconnect(req *http.Request) error {
 		return err
 	}
 
-	if preferred, ok := req.Context().Value(preparedTCPHTTP1Key{}).(*bool); ok {
-		*preferred = true
-	}
+	h3transport.MarkPreparedHTTP1(req.Context())
 
 	return nil
 }

@@ -3,7 +3,7 @@ package quic
 import (
 	"slices"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // NewClientHelloSpec follows the independently captured Chromium 157 QUIC

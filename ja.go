@@ -4,11 +4,11 @@ import (
 	"math"
 
 	"github.com/enetx/g"
+	h3transport "github.com/enetx/surf/internal/http3"
 	"github.com/enetx/surf/internal/specclone"
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
-
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // JA provides JA3/4 TLS fingerprinting capabilities for HTTP clients.
@@ -18,10 +18,11 @@ import (
 //
 // Reference: https://lwthiker.com/networks/2022/06/17/tls-fingerprinting.html
 type JA struct {
-	spec    utls.ClientHelloSpec // Custom TLS ClientHello specification
-	id      utls.ClientHelloID   // Predefined TLS ClientHello identifier
-	builder *Builder             // Reference to the parent builder for method chaining
-	shuffle bool                 // Re-shuffle the spec's extension order on every connection (Chrome behaviour)
+	echInner utls.ECHClientHelloInnerFunc
+	spec     utls.ClientHelloSpec // Custom TLS ClientHello specification
+	id       utls.ClientHelloID   // Predefined TLS ClientHello identifier
+	builder  *Builder             // Reference to the parent builder for method chaining
+	shuffle  bool                 // Re-shuffle the spec's extension order on every connection (Chrome behaviour)
 }
 
 // SetHelloID sets a ClientHelloID for the TLS connection.
@@ -87,14 +88,14 @@ func (j *JA) ShuffleExtensions() *JA {
 // Returns the builder instance for method chaining.
 func (j *JA) build() *Builder {
 	return j.builder.addCliMW(func(c *Client) error {
-		if transport, ok := c.GetTransport().(*uquicTransport); ok {
-			base := transport.fallbackTransport
+		if transport, ok := c.GetTransport().(*h3transport.Transport); ok {
+			base := transport.Fallback
 			if previous, ok := base.(*roundtripper); ok {
 				// Reapplying JA replaces the previous TCP fingerprint.
 				base = previous.http1tr
 			}
 
-			transport.fallbackTransport = newRoundTripper(j, base)
+			transport.Fallback = newRoundTripper(j, base)
 			return nil
 		}
 
@@ -147,7 +148,9 @@ func (j *JA) Chrome() *Builder { return j.Chrome157() }
 
 // Chrome157 applies the current Chrome TLS template with per-connection shuffling.
 func (j *JA) Chrome157() *Builder {
-	return j.ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_157)
+	return j.ECHClientHelloInner(chrome.Desktop.ECHClientHelloInner).
+		ShuffleExtensions().
+		SetHelloSpec(chrome.HelloChrome_157)
 }
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.
@@ -190,7 +193,9 @@ func (j *JA) Firefox120() *Builder { return j.SetHelloID(utls.HelloFirefox_120) 
 func (j *JA) Firefox148() *Builder { return j.SetHelloID(utls.HelloFirefox_148) }
 
 // Firefox160 sets the current Firefox 160 desktop TLS fingerprint.
-func (j *JA) Firefox160() *Builder { return j.SetHelloSpec(firefox.HelloFirefox_160) }
+func (j *JA) Firefox160() *Builder {
+	return j.ECHClientHelloInner(firefox.Desktop.ECHClientHelloInner).SetHelloSpec(firefox.HelloFirefox_160)
+}
 
 // IOS sets the JA3/4 fingerprint to mimic the latest iOS Safari browser (auto-detection).
 func (j *JA) IOS() *Builder { return j.SetHelloID(utls.HelloIOS_Auto) }
@@ -221,3 +226,10 @@ func (j *JA) Safari() *Builder { return j.SetHelloID(utls.HelloSafari_Auto) }
 
 // Safari26_3 sets the TLS fingerprint to Safari 26.3 (also used by Chrome on iOS).
 func (j *JA) Safari26_3() *Builder { return j.SetHelloID(utls.HelloSafari_26_3) }
+
+// ECHClientHelloInner supplies the real encrypted inner ClientHello policy.
+// Chain before SetHelloSpec or SetHelloID. Nil restores the engine default.
+func (j *JA) ECHClientHelloInner(policy utls.ECHClientHelloInnerFunc) *JA {
+	j.echInner = policy
+	return j
+}

@@ -5,7 +5,7 @@ import (
 
 	"github.com/enetx/surf/profiles/firefox/internal/ech"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // sessionTicketExtension keeps TLS 1.2 tickets available, but omits extension 35

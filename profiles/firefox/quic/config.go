@@ -1,6 +1,7 @@
 package quic
 
 import (
+	"github.com/enetx/surf/profiles/firefox/desktop"
 	"time"
 
 	"github.com/enetx/quic-go"
@@ -48,6 +49,7 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		EnableStreamResetPartialDelivery(true).
 		ConnectionIDLength(ConnectionIDLength).
 		ClientHelloFactory(NewClientHelloSpec).
+		ECHClientHelloInner(desktop.ClientHelloInner).
 		StreamReceiveWindows(12<<20, 1<<20, 1<<20).
 		TransportParametersFactory(NewTransportParameters).
 		InitialPacketNumberFactory(NewInitialPacketNumber).

@@ -1,6 +1,6 @@
 package ios
 
-import utls "github.com/refraction-networking/utls"
+import utls "github.com/enetx/utls"
 
 // HelloID selects WebKit TLS with fixed extension order for Chrome on iOS.
 var HelloID = utls.HelloSafari_26_3

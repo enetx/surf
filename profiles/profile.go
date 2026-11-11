@@ -27,7 +27,7 @@ import (
 	"github.com/enetx/quic-go/qlogwriter"
 	"github.com/enetx/quic-go/tlsquic"
 	"github.com/enetx/quic-go/transportparams"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // OSKey identifies the impersonated operating system. Surf's Impersonate stores it directly
@@ -134,6 +134,7 @@ type H3Config interface {
 // method delegates to surf.QUICSettings, so profiles are examples of the same
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
+	ECHClientHelloInner(utls.ECHClientHelloInnerFunc) QUICConfig
 	AddressFallbackDelay(time.Duration) QUICConfig
 	CompatibleVersionNegotiation(bool) QUICConfig
 	CongestionControl(quic.CongestionControlAlgorithm) QUICConfig
@@ -220,6 +221,8 @@ type QUICConfig interface {
 
 // Variant is a self-contained description of one browser and form-factor combination.
 type Variant struct {
+	// ECHClientHelloInner supplies the TCP policy. QUIC uses its fluent profile setter.
+	ECHClientHelloInner utls.ECHClientHelloInnerFunc
 	// HelloSpec takes precedence over HelloID when non-nil.
 	HelloSpec *utls.ClientHelloSpec
 	HelloID   utls.ClientHelloID

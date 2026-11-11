@@ -69,10 +69,11 @@ exclusion, HTTP/2 fallback and preservation of the caller's method/headers.
 A direct probe with both official-uTLS browser templates resumed TLS but sent no
 0-RTT request data. The current adapter therefore rejects `EarlyData(true)` with
 custom ClientHello templates at build time. Ordinary Chrome/Firefox TLS session
-resumption remains tested and supported. No private-layout casts, TLS handshake
-patches, or new TLS fork were introduced to bypass this limitation.
-The adapter uses [official uTLS QUIC](https://github.com/refraction-networking/utls/blob/a13c59ffe98b/u_quic.go)
-and its [custom ClientHello/session handling](https://github.com/refraction-networking/utls/blob/a13c59ffe98b/u_conn.go).
+resumption remains tested and supported with GREASE ECH. The adapter now uses
+the [minimal uTLS fork](https://github.com/enetx/utls), based on that official
+revision, to supply browser-owned real-ECH inner layouts. No private-layout
+casts or 0-RTT bypass were added. Real ECH with custom PSK resumption remains
+explicitly unsupported; see the [ECH report](../ech/README.md).
 This is not a claim of browser 0-RTT fingerprint parity.
 
 ## Regression coverage

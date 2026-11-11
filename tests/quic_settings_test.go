@@ -20,7 +20,7 @@ import (
 	"github.com/enetx/quic-go/tlsquic"
 	"github.com/enetx/quic-go/transportparams"
 	"github.com/enetx/surf"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 	"github.com/stretchr/testify/require"
 )
 

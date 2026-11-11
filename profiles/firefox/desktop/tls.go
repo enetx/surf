@@ -3,7 +3,7 @@ package desktop
 import (
 	"slices"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // NewClientHelloSpec derives the current Firefox 160 desktop handshake from

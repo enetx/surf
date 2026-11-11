@@ -12,7 +12,7 @@ import (
 	"github.com/enetx/g"
 	"github.com/enetx/surf"
 	"github.com/enetx/surf/profiles/chrome"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // helloRecorder is a bare TCP listener that reads the ClientHello of every incoming connection,

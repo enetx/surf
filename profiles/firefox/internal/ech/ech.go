@@ -1,6 +1,6 @@
 package ech
 
-import utls "github.com/refraction-networking/utls"
+import utls "github.com/enetx/utls"
 
 // InnerLength estimates Firefox's compressed ClientHelloInner before padding.
 // Ordinary TLS 1.3 extensions become two-byte references; SNI and versions stay

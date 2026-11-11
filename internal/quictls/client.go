@@ -1,4 +1,4 @@
-// Package quictls adapts the official uTLS QUIC API to the transport's event
+// Package quictls adapts the uTLS QUIC API to the transport's event
 // interface. Browser templates and policies are supplied by Surf, not QUIC.
 package quictls
 
@@ -11,13 +11,17 @@ import (
 
 	"github.com/enetx/quic-go/tlsquic"
 	"github.com/enetx/surf/internal/tlsstate"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // Factory builds an independent client for each attempt.
 // SessionState's private TLS fields never cross package layouts:
 // the adapter retains the original uTLS state and forwards only public metadata.
-func Factory(spec func() (utls.ClientHelloSpec, error)) tlsquic.NewClient {
+func Factory(spec func() (utls.ClientHelloSpec, error), inner ...utls.ECHClientHelloInnerFunc) tlsquic.NewClient {
+	var innerPolicy utls.ECHClientHelloInnerFunc
+	if len(inner) > 0 {
+		innerPolicy = inner[0]
+	}
 	return func(config *tls.Config) (tlsquic.Conn, error) {
 		if config.GetClientCertificate != nil {
 			return nil, errors.New(
@@ -64,7 +68,8 @@ func Factory(spec func() (utls.ClientHelloSpec, error)) tlsquic.NewClient {
 		}
 
 		c := &utls.Config{
-			Rand: config.Rand, Time: config.Time, RootCAs: config.RootCAs,
+			ECHClientHelloInner: innerPolicy,
+			Rand:                config.Rand, Time: config.Time, RootCAs: config.RootCAs,
 			ServerName: config.ServerName, NextProtos: slices.Clone(config.NextProtos),
 			InsecureSkipVerify: config.InsecureSkipVerify, VerifyPeerCertificate: config.VerifyPeerCertificate,
 			MinVersion: utls.VersionTLS13, MaxVersion: utls.VersionTLS13, KeyLogWriter: config.KeyLogWriter,

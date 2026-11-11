@@ -1,4 +1,4 @@
-package surf
+package h3transport
 
 import (
 	"context"
@@ -53,7 +53,12 @@ func TestAlternativeFailureCancellationExpiryAndRefresh(t *testing.T) {
 		now := time.Now()
 		d := newAlternativeDiscovery(nil, func(uint32) time.Duration { return time.Second }, discard)
 		d.now = func() time.Time { return now }
-		route := alternativeRoute{origin: "origin:443", address: "alt:8443", expires: now.Add(time.Hour), fromAltSvc: true}
+		route := alternativeRoute{
+			origin:     "origin:443",
+			address:    "alt:8443",
+			expires:    now.Add(time.Hour),
+			fromAltSvc: true,
+		}
 		d.put(route)
 		d.result(route, context.Canceled)
 		_, ok := d.get(route.origin)
@@ -83,9 +88,22 @@ func TestHTTPSBindingSelectionAndCache(t *testing.T) {
 	d := newAlternativeDiscovery(func(_ context.Context, name string) ([]HTTPSRecord, error) {
 		queries = append(queries, name)
 		return []HTTPSRecord{
-			{Priority: 1, Target: "unsupported.example", ALPN: []string{"h3"}, TTL: time.Minute, Mandatory: []uint16{65000}},
+			{
+				Priority:  1,
+				Target:    "unsupported.example",
+				ALPN:      []string{"h3"},
+				TTL:       time.Minute,
+				Mandatory: []uint16{65000},
+			},
 			{Priority: 3, Target: "last.example", ALPN: []string{"h3"}, TTL: time.Minute},
-			{Priority: 2, Target: "selected.example.", Port: 9443, ALPN: []string{"h2", "h3"}, TTL: time.Minute, ECH: []byte{0, 1}},
+			{
+				Priority: 2,
+				Target:   "selected.example.",
+				Port:     9443,
+				ALPN:     []string{"h2", "h3"},
+				TTL:      time.Minute,
+				ECH:      []byte{0, 1},
+			},
 		}, nil
 	}, nil, false)
 	route, ok := d.resolve(t.Context(), "origin.example:8443")
@@ -187,7 +205,9 @@ func TestHTTPSBindingLifetimeAndECHSurviveBackoff(t *testing.T) {
 		if failLookup {
 			return nil, errors.New("DNS unavailable")
 		}
-		return []HTTPSRecord{{Priority: 1, Target: "alt.example", ALPN: []string{"h3"}, TTL: 5 * time.Second, ECH: []byte{1, 2, 3}}}, nil
+		return []HTTPSRecord{
+			{Priority: 1, Target: "alt.example", ALPN: []string{"h3"}, TTL: 5 * time.Second, ECH: []byte{1, 2, 3}},
+		}, nil
 	}, func(uint32) time.Duration { return time.Second }, true)
 	d.now = func() time.Time { return now }
 	origin := "origin.example:443"

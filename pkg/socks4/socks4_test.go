@@ -10,9 +10,8 @@ import (
 )
 
 type mockDialer struct {
-	writeResp []byte
-	readResp  []byte
-	failDial  bool
+	readResp []byte
+	failDial bool
 }
 
 func (m *mockDialer) Dial(network, addr string) (net.Conn, error) {

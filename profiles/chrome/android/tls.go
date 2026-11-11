@@ -1,6 +1,6 @@
 package android
 
-import utls "github.com/refraction-networking/utls"
+import utls "github.com/enetx/utls"
 
 // NewClientHelloSpec creates an independent Chrome 157 android TLS template.
 // Official uTLS supplies these wire fields through its older constructor name.

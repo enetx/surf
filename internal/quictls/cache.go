@@ -3,7 +3,7 @@ package quictls
 import (
 	"crypto/tls"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // Session caches have public serialization APIs. The ticket is carried separately

@@ -395,7 +395,7 @@ client := surf.NewClient().
 - ✅ **SOCKS5 UDP Support**: HTTP/3 works seamlessly over SOCKS5 UDP proxies
 - ✅ **Automatic Fallback**: HTTP/2 or HTTP/1.1 fallback retains the configured TCP TLS fingerprint and protocol-specific header defaults
 - ✅ **DNS Integration**: Custom DNS and DNS-over-TLS support
-- ✅ **TLS Templates**: Separate HTTP/3 ClientHello templates with official uTLS
+- ✅ **TLS Templates**: Separate HTTP/3 ClientHello templates with Surf's minimal uTLS fork
 - ✅ **Order Independence**: `ForceHTTP3()` works regardless of call order
 
 ### Native HTTP/3 configuration
@@ -707,9 +707,18 @@ a public resolver. `HTTPSRecordsLookup` integrates platform or application DNS
 resolvers elsewhere. Bindings support priority, alias chains, ALPN, port, IP
 hints, mandatory keys and ECH. DNS bindings also route TCP-only services without
 changing Host/SNI; `no-default-alpn` can exclude the TCP backup. ECH configuration is retained on both QUIC and
-TCP preparation, using official TLS/uTLS APIs. Rejected ECH is not retried without
+TCP preparation, using standard TLS configuration and Surf's uTLS adapter. Rejected ECH is not retried without
 ECH. Proxies bypass local HTTPS discovery. Application-owned transports/TLS
 dialers and disabled TCP keep-alives retain their existing connection policy.
+
+Chrome 157 and Firefox 160 provide real-ECH inner ClientHello policies from
+their browser profile packages. The minimal `enetx/utls` fork preserves their
+cipher order and complete shared extension payloads, including fields unknown
+to Go. Custom templates can supply a policy through `JA().ECHClientHelloInner`
+or `QUICSettings().ECHClientHelloInner` before the terminal builder method.
+Real ECH with populated custom PSK resumption remains explicitly unsupported.
+The [ECH verification report](tests/testdata/wire/ech/README.md) distinguishes
+native Chrome captures, Firefox source checks and local integration tests.
 
 QUIC profiles now include send scheduling as fluent configuration. Chromium
 uses scheduled pacing with PRR and a 2000 × 1460-byte window ceiling. Firefox
@@ -1428,6 +1437,29 @@ resp := surf.NewClient().
 
 ## 🤝 Contributing
 
+The root `surf` package owns the public client, builders, settings, callbacks and
+adapters. Keep their names, signatures and import paths stable when moving code.
+`GetTLSConfig()` and `GetDialer()` retain their shared configuration pointers.
+
+| Location | Responsibility |
+| --- | --- |
+| `http2_settings.go` | HTTP/2 settings, HPACK and receive-window policy |
+| `http3_settings.go`, `http3_qpack.go` | Public HTTP/3 types and fluent configuration |
+| `quic_settings.go` | Public QUIC types and fluent configuration |
+| `internal/http3` | HTTP/3 transport, DNS/discovery, ECH, protocol fallback and private tests |
+| `internal/quic` | UDP ownership, QUIC dialing, SOCKS relay, address racing and private tests |
+| `internal/connrace` | Shared connection preparation, cancellation and policy history, with private tests |
+| `internal/quictls`, `internal/tlsstate`, `internal/specclone` | TLS integration, state conversion and template cloning |
+| `internal/drainbody`, `internal/retryafter` | Body cleanup and Retry-After parsing |
+| `profiles/`, `header/`, `pkg/` | Existing public profiles, header constants and supporting packages |
+| `tests/` | Public API and wire behavior; internal tests stay with their implementation |
+
+Public record types remain defined in `surf`; custom HTTPS lookups cross the
+internal boundary through a checked struct conversion. Builders retain their
+existing methods and return types. Browser policies remain in `profiles/`;
+library refactoring preserves their wire fixtures and the coverage package list
+in CI.
+
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 1. Fork the repository
@@ -1454,7 +1486,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [enetx/http](https://github.com/enetx/http) for enhanced HTTP functionality
 - HTTP/3 support and configurable QUIC fingerprinting based on [QUIC-GO](https://github.com/quic-go/quic-go)
-- TLS fingerprinting powered by [uTLS](https://github.com/refraction-networking/utls)
+- TLS fingerprinting powered by the [minimal uTLS fork](https://github.com/enetx/utls), based on [official uTLS](https://github.com/refraction-networking/utls)
 - Generic utilities from [enetx/g](https://github.com/enetx/g)
 
 ## 📞 Support

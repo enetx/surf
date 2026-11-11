@@ -11,7 +11,7 @@ import (
 	"github.com/enetx/surf/profiles/firefox"
 	"github.com/enetx/surf/profiles/firefox/desktop"
 	"github.com/enetx/surf/tests/internal/wiretest"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 func TestFirefox160ClientHelloMatchesGolden(t *testing.T) {

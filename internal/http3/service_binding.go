@@ -1,4 +1,4 @@
-package surf
+package h3transport
 
 import (
 	"context"
@@ -105,7 +105,7 @@ func (d *alternativeDiscovery) clearBinding(origin string) {
 	}
 }
 
-func (ut *uquicTransport) preconnectDiscoveredTCP(req *http.Request) error {
+func (ut *Transport) preconnectDiscoveredTCP(req *http.Request) error {
 	if route, ok := req.Context().Value(alternativeRouteKey{}).(alternativeRoute); ok && route.noTCP {
 		return errHTTPSNoTCP
 	}
@@ -113,7 +113,7 @@ func (ut *uquicTransport) preconnectDiscoveredTCP(req *http.Request) error {
 	return ut.preconnectTCP(req)
 }
 
-func tcpBindingDial(
+func TCPBindingDial(
 	original func(context.Context, string, string) (net.Conn, error),
 ) func(context.Context, string, string) (net.Conn, error) {
 	if original == nil {
@@ -161,4 +161,8 @@ func tcpBindingDial(
 
 		return nil, err
 	}
+}
+func ECHConfig(ctx context.Context) []byte {
+	route, _ := ctx.Value(alternativeRouteKey{}).(alternativeRoute)
+	return route.ech
 }

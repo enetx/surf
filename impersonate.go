@@ -82,24 +82,28 @@ func (im *Impersonate) Firefox() *Builder {
 func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	im.builder.headersApplier = v.Headers
 	im.builder.protocolHeaders = nil
+
 	if v.ProtocolHeaders != nil || v.RequestHeaders != nil {
 		im.builder.protocolHeaders = func(req *http.Request, major int) {
 			if v.ProtocolHeaders != nil {
 				v.ProtocolHeaders(req.Header, major)
 			}
+
 			if v.RequestHeaders != nil {
 				v.RequestHeaders(req, major)
 			}
 		}
 	}
+
 	im.builder.Boundary(v.Boundary)
 
 	if v.HelloSpec != nil {
 		ja := im.builder.JA()
 		ja.shuffle = v.ShuffleExtensions
+		ja.ECHClientHelloInner(v.ECHClientHelloInner)
 		ja.SetHelloSpec(*v.HelloSpec)
 	} else {
-		im.builder.JA().SetHelloID(v.HelloID)
+		im.builder.JA().ECHClientHelloInner(v.ECHClientHelloInner).SetHelloID(v.HelloID)
 	}
 
 	h2 := im.builder.HTTP2Settings()

@@ -1,4 +1,4 @@
-package surf
+package h3transport
 
 import (
 	"context"
@@ -15,8 +15,21 @@ import (
 )
 
 func httpsDNSAnswer(query dnsmessage.Message, data []byte) dnsmessage.Message {
-	return dnsmessage.Message{Header: dnsmessage.Header{ID: query.ID, Response: true}, Questions: query.Questions,
-		Answers: []dnsmessage.Resource{{Header: dnsmessage.ResourceHeader{Name: query.Questions[0].Name, Class: dnsmessage.ClassINET, Type: dnsTypeHTTPS, TTL: 60}, Body: &dnsmessage.UnknownResource{Type: dnsTypeHTTPS, Data: data}}}}
+	return dnsmessage.Message{
+		Header:    dnsmessage.Header{ID: query.ID, Response: true},
+		Questions: query.Questions,
+		Answers: []dnsmessage.Resource{
+			{
+				Header: dnsmessage.ResourceHeader{
+					Name:  query.Questions[0].Name,
+					Class: dnsmessage.ClassINET,
+					Type:  dnsTypeHTTPS,
+					TTL:   60,
+				},
+				Body: &dnsmessage.UnknownResource{Type: dnsTypeHTTPS, Data: data},
+			},
+		},
+	}
 }
 
 func streamDNSResolver(t *testing.T, reply func(dnsmessage.Message) dnsmessage.Message) *net.Resolver {
@@ -92,7 +105,10 @@ func TestHTTPSDNSRejectsSpoofedResponseAndAliasLoop(t *testing.T) {
 				case "name":
 					response.Answers[0].Header.Name = dnsmessage.MustNewName("attacker.example.")
 				case "loop":
-					response = httpsDNSAnswer(query, []byte{0, 0, 6, 'o', 'r', 'i', 'g', 'i', 'n', 7, 'e', 'x', 'a', 'm', 'p', 'l', 'e', 0})
+					response = httpsDNSAnswer(
+						query,
+						[]byte{0, 0, 6, 'o', 'r', 'i', 'g', 'i', 'n', 7, 'e', 'x', 'a', 'm', 'p', 'l', 'e', 0},
+					)
 				}
 				return response
 			})
@@ -146,7 +162,10 @@ func TestHTTPSDNSUDPTruncationRetriesTCP(t *testing.T) {
 			done <- err
 			return
 		}
-		response := dnsmessage.Message{Header: dnsmessage.Header{ID: query.ID, Response: true, Truncated: true}, Questions: query.Questions}
+		response := dnsmessage.Message{
+			Header:    dnsmessage.Header{ID: query.ID, Response: true, Truncated: true},
+			Questions: query.Questions,
+		}
 		data, err = response.Pack()
 		if err == nil {
 			_, err = udp.WriteTo(data, address)

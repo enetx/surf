@@ -70,21 +70,4 @@ const (
 	// Prevents hanging on slow or stalled write operations.
 	// Set to 0 to disable (no timeout for writes).
 	_http2WriteByteTimeout = 10 * time.Second
-
-	// HTTP/3 (QUIC) Transport timeouts
-	// _quicHandshakeTimeout is the timeout for QUIC handshake completion.
-	// Similar to TLS handshake timeout but for QUIC protocol.
-	_quicHandshakeTimeout = 10 * time.Second
-
-	// _quicMaxIdleTimeout is the maximum time a QUIC connection can remain idle.
-	// After this timeout, the connection is closed.
-	_quicMaxIdleTimeout = 30 * time.Second
-
-	// _quicKeepAlivePeriod is the interval for QUIC keep-alive pings.
-	// Helps maintain connections through NAT and detect dead connections.
-	_quicKeepAlivePeriod = 15 * time.Second
-
-	// _maxResponseHeaderBytes is the maximum size of response headers in HTTP/3.
-	// Limits memory usage when receiving large headers. Default 10MB.
-	_maxResponseHeaderBytes = 10 << 20
 )

@@ -2,7 +2,7 @@ package quic
 
 import (
 	"github.com/enetx/surf/profiles/firefox/desktop"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // NewClientHelloSpec follows the independently captured Firefox 160 QUIC

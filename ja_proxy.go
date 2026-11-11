@@ -1,26 +1,12 @@
 package surf
 
 import (
-	"context"
 	"net/url"
 
 	"github.com/enetx/http"
+	h3transport "github.com/enetx/surf/internal/http3"
 	"github.com/enetx/surf/pkg/connectproxy"
 )
-
-type (
-	tlsProxyKey    struct{}
-	proxySelection struct{ url *url.URL }
-)
-
-func withProxySelection(req *http.Request, proxy *url.URL) *http.Request {
-	if proxy != nil {
-		clone := *proxy
-		proxy = &clone
-	}
-
-	return req.WithContext(context.WithValue(req.Context(), tlsProxyKey{}, proxySelection{url: proxy}))
-}
 
 // Plain HTTP forwarding remains with net/http. HTTPS tunnels are established
 // before uTLS so net/http cannot substitute its native ClientHello.
@@ -38,7 +24,7 @@ func (rt *roundtripper) configureProxy() {
 }
 
 func (rt *roundtripper) prepareProxy(req *http.Request) (*http.Request, error) {
-	if _, selected := req.Context().Value(tlsProxyKey{}).(proxySelection); selected {
+	if _, selected := h3transport.SelectedProxy(req); selected {
 		return req, nil
 	}
 
@@ -51,18 +37,18 @@ func (rt *roundtripper) prepareProxy(req *http.Request) (*http.Request, error) {
 		return req, err
 	}
 
-	return withProxySelection(req, proxy), nil
+	return h3transport.WithProxySelection(req, proxy), nil
 }
 
 // Separate pools prevent a connection opened directly or through another
 // proxy from being reused when an application proxy selector changes routes.
 func (rt *roundtripper) proxyTransport(req *http.Request) (*roundtripper, error) {
-	route, _ := req.Context().Value(tlsProxyKey{}).(proxySelection)
-	if rt.requestProxy == nil || route.url == nil {
+	proxy, _ := h3transport.SelectedProxy(req)
+	if rt.requestProxy == nil || proxy == nil {
 		return nil, nil
 	}
 
-	key := route.url.String()
+	key := proxy.String()
 	rt.proxyMu.Lock()
 	if child := rt.proxyTransports[key]; child != nil {
 		rt.proxyMu.Unlock()
@@ -78,7 +64,7 @@ func (rt *roundtripper) proxyTransport(req *http.Request) (*roundtripper, error)
 	dialer.Dialer = *rt.ja.builder.cli.GetDialer()
 	base := rt.http1tr.Clone()
 	base.Proxy = nil
-	base.DialContext = tcpBindingDial(dialer.DialContext)
+	base.DialContext = h3transport.TCPBindingDial(dialer.DialContext)
 
 	child := &roundtripper{
 		http1tr:            base,

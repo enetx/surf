@@ -1,4 +1,4 @@
-package surf
+package h3transport
 
 import (
 	"context"
@@ -28,20 +28,25 @@ func httpsLookupForResolver(resolver *net.Resolver) HTTPSRecordsLookup {
 		if len(servers) == 0 && resolver != nil && resolver.Dial != nil {
 			servers = []string{"127.0.0.1:53"}
 		}
+
 		if len(servers) == 0 {
 			return nil, errors.New("no system DNS addresses available for HTTPS lookup")
 		}
+
 		var last error
 		for _, server := range servers {
 			records, err := queryHTTPS(ctx, host, server, resolver, 0)
 			if err == nil {
 				return records, nil
 			}
+
 			last = err
+
 			if ctx.Err() != nil {
 				break
 			}
 		}
+
 		return nil, last
 	}
 }
@@ -51,6 +56,7 @@ func systemDNSServers() []string {
 	if err != nil {
 		return nil
 	}
+
 	var servers []string
 	for line := range strings.SplitSeq(string(data), "\n") {
 		fields := strings.Fields(line)
@@ -60,6 +66,7 @@ func systemDNSServers() []string {
 			}
 		}
 	}
+
 	return servers
 }
 
@@ -67,74 +74,107 @@ func queryHTTPS(ctx context.Context, host, server string, resolver *net.Resolver
 	if depth >= 8 {
 		return nil, errors.New("HTTPS alias chain exceeds limit")
 	}
+
 	name, err := dnsmessage.NewName(strings.TrimSuffix(host, ".") + ".")
 	if err != nil {
 		return nil, err
 	}
+
 	id := uint16(rand.UintN(1 << 16))
-	query := dnsmessage.Message{Header: dnsmessage.Header{ID: id, RecursionDesired: true}, Questions: []dnsmessage.Question{{Name: name, Type: dnsTypeHTTPS, Class: dnsmessage.ClassINET}}}
+
+	query := dnsmessage.Message{
+		ID: id, RecursionDesired: true,
+		Questions: []dnsmessage.Question{{Name: name, Type: dnsTypeHTTPS, Class: dnsmessage.ClassINET}},
+	}
+
 	data, err := query.Pack()
 	if err != nil {
 		return nil, err
 	}
+
 	message, err := exchangeHTTPS(ctx, data, server, "udp", resolver)
 	if err != nil {
 		return nil, err
 	}
+
 	if message.Truncated {
 		message, err = exchangeHTTPS(ctx, data, server, "tcp", resolver)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if !message.Response || message.ID != id || message.OpCode != 0 || message.Truncated || len(message.Questions) != 1 || message.Questions[0].Type != dnsTypeHTTPS || message.Questions[0].Class != dnsmessage.ClassINET || !strings.EqualFold(message.Questions[0].Name.String(), name.String()) {
+
+	if !message.Response || message.ID != id || message.OpCode != 0 || message.Truncated ||
+		len(message.Questions) != 1 ||
+		message.Questions[0].Type != dnsTypeHTTPS ||
+		message.Questions[0].Class != dnsmessage.ClassINET ||
+		!strings.EqualFold(message.Questions[0].Name.String(), name.String()) {
 		return nil, errors.New("invalid HTTPS DNS response")
 	}
+
 	if message.RCode == dnsmessage.RCodeNameError {
 		return nil, nil
 	}
+
 	if message.RCode != dnsmessage.RCodeSuccess {
 		return nil, fmt.Errorf("HTTPS DNS response: %s", message.RCode)
 	}
+
 	var records []HTTPSRecord
 	for _, answer := range message.Answers {
-		if !strings.EqualFold(answer.Header.Name.String(), name.String()) || answer.Header.Class != dnsmessage.ClassINET {
+		if !strings.EqualFold(answer.Header.Name.String(), name.String()) ||
+			answer.Header.Class != dnsmessage.ClassINET {
 			continue
 		}
+
 		if cname, ok := answer.Body.(*dnsmessage.CNAMEResource); ok {
 			resolved, err := queryHTTPS(ctx, cname.CNAME.String(), server, resolver, depth+1)
 			for i := range resolved {
 				resolved[i].TTL = min(resolved[i].TTL, time.Duration(answer.Header.TTL)*time.Second)
 			}
+
 			return resolved, err
 		}
+
 		raw, ok := answer.Body.(*dnsmessage.UnknownResource)
 		if !ok || answer.Header.Type != dnsTypeHTTPS {
 			continue
 		}
+
 		record, err := parseHTTPSRecord(raw.Data, time.Duration(answer.Header.TTL)*time.Second)
 		if err != nil {
 			continue
 		} // RFC 9460: malformed bindings are unusable.
+
 		if record.Priority == 0 {
 			if record.Target == "." {
 				return nil, nil
 			}
+
 			resolved, err := queryHTTPS(ctx, record.Target, server, resolver, depth+1)
 			for i := range resolved {
 				resolved[i].TTL = min(resolved[i].TTL, record.TTL)
 			}
+
 			return resolved, err
 		}
+
 		if record.Target == "." {
 			record.Target = answer.Header.Name.String()
 		}
+
 		records = append(records, record)
 	}
+
 	return records, nil
 }
 
-func exchangeHTTPS(ctx context.Context, data []byte, server, network string, resolver *net.Resolver) (dnsmessage.Message, error) {
+func exchangeHTTPS(
+	ctx context.Context,
+	data []byte,
+	server, network string,
+	resolver *net.Resolver,
+) (dnsmessage.Message, error) {
 	var message dnsmessage.Message
 	var conn net.Conn
 	var err error
@@ -143,56 +183,70 @@ func exchangeHTTPS(ctx context.Context, data []byte, server, network string, res
 	} else {
 		conn, err = new(net.Dialer).DialContext(ctx, network, server)
 	}
+
 	if err != nil {
 		return message, err
 	}
 	defer conn.Close()
+
 	stop := context.AfterFunc(ctx, func() { conn.Close() })
 	defer stop()
+
 	deadline := time.Now().Add(5 * time.Second)
 	if d, ok := ctx.Deadline(); ok {
 		deadline = minTime(deadline, d)
 	}
+
 	if err = conn.SetDeadline(deadline); err != nil {
 		return message, err
 	}
+
 	_, packet := conn.(net.PacketConn)
 	var response []byte
+
 	if packet {
 		if n, e := conn.Write(data); e != nil {
 			return message, e
 		} else if n != len(data) {
 			return message, io.ErrShortWrite
 		}
+
 		response = make([]byte, 65535)
 		n, e := conn.Read(response)
 		if e != nil {
 			return message, e
 		}
+
 		response = response[:n]
 	} else {
 		framed := make([]byte, 2+len(data))
 		binary.BigEndian.PutUint16(framed, uint16(len(data)))
 		copy(framed[2:], data)
+
 		for len(framed) > 0 {
 			n, e := conn.Write(framed)
 			if e != nil {
 				return message, e
 			}
+
 			if n == 0 {
 				return message, io.ErrShortWrite
 			}
+
 			framed = framed[n:]
 		}
+
 		var prefix [2]byte
 		if _, err = io.ReadFull(conn, prefix[:]); err != nil {
 			return message, err
 		}
+
 		response = make([]byte, int(binary.BigEndian.Uint16(prefix[:])))
 		if _, err = io.ReadFull(conn, response); err != nil {
 			return message, err
 		}
 	}
+
 	return unpackHTTPSMessage(response)
 }
 
@@ -200,6 +254,7 @@ func minTime(a, b time.Time) time.Time {
 	if a.Before(b) {
 		return a
 	}
+
 	return b
 }
 
@@ -210,40 +265,50 @@ func unpackHTTPSMessage(data []byte) (dnsmessage.Message, error) {
 	var message dnsmessage.Message
 	var parser dnsmessage.Parser
 	var err error
+
 	if message.Header, err = parser.Start(data); err != nil {
 		return message, err
 	}
+
 	if message.Questions, err = parser.AllQuestions(); err != nil {
 		return message, err
 	}
+
 	for {
 		header, err := parser.AnswerHeader()
 		if err == dnsmessage.ErrSectionDone {
 			break
 		}
+
 		if err != nil {
 			return message, err
 		}
+
 		if header.Type == dnsTypeHTTPS {
 			raw, err := parser.UnknownResource()
 			if err != nil {
 				return message, err
 			}
+
 			message.Answers = append(message.Answers, dnsmessage.Resource{Header: header, Body: &raw})
 		} else {
 			answer, err := parser.Answer()
 			if err != nil {
 				return message, err
 			}
+
 			message.Answers = append(message.Answers, answer)
 		}
 	}
+
 	if err = parser.SkipAllAuthorities(); err != nil {
 		return message, err
 	}
+
 	if err = parser.SkipAllAdditionals(); err != nil {
 		return message, err
 	}
+
 	return message, nil
 }
 
@@ -256,41 +321,51 @@ func parseHTTPSRecord(data []byte, ttl time.Duration) (HTTPSRecord, error) {
 	if len(data) < 3 {
 		return r, bad
 	}
+
 	r.Priority = binary.BigEndian.Uint16(data)
 	data = data[2:]
 	var labels []string
+
 	for {
 		if len(data) == 0 {
 			return r, bad
 		}
+
 		n := int(data[0])
 		data = data[1:]
 		if n == 0 {
 			break
 		}
+
 		if n > 63 || len(data) < n || len(labels) > 126 {
 			return r, bad
 		}
+
 		labels = append(labels, string(data[:n]))
 		data = data[n:]
 	}
+
 	r.Target = strings.Join(labels, ".") + "."
 	if len(r.Target) > 254 {
 		return r, bad
 	}
+
 	var params []dnsmessage.SVCParam
 	for len(data) > 0 {
 		if len(data) < 4 {
 			return r, bad
 		}
+
 		key, n := binary.BigEndian.Uint16(data), int(binary.BigEndian.Uint16(data[2:]))
 		data = data[4:]
 		if len(data) < n {
 			return r, bad
 		}
+
 		params = append(params, dnsmessage.SVCParam{Key: dnsmessage.SVCParamKey(key), Value: data[:n]})
 		data = data[n:]
 	}
+
 	return parseHTTPSParams(r, params)
 }
 
@@ -298,14 +373,17 @@ func parseHTTPSParams(r HTTPSRecord, params []dnsmessage.SVCParam) (HTTPSRecord,
 	bad := errors.New("invalid HTTPS service binding")
 	last := -1
 	present := make(map[uint16]bool)
+
 	for _, param := range params {
 		key, value := uint16(param.Key), param.Value
 		n := len(value)
 		if int(key) <= last {
 			return r, bad
 		}
+
 		last = int(key)
 		present[key] = true
+
 		switch key {
 		case 0:
 			if n == 0 || n%2 != 0 {
@@ -317,18 +395,21 @@ func parseHTTPSParams(r HTTPSRecord, params []dnsmessage.SVCParam) (HTTPSRecord,
 				if k == 0 || len(r.Mandatory) > 0 && k <= r.Mandatory[len(r.Mandatory)-1] {
 					return r, bad
 				}
+
 				r.Mandatory = append(r.Mandatory, k)
 			}
 		case 1:
 			if n == 0 {
 				return r, bad
 			}
+
 			for len(value) > 0 {
 				l := int(value[0])
 				value = value[1:]
 				if l == 0 || len(value) < l {
 					return r, bad
 				}
+
 				r.ALPN = append(r.ALPN, string(value[:l]))
 				value = value[l:]
 			}
@@ -350,19 +431,23 @@ func parseHTTPSParams(r HTTPSRecord, params []dnsmessage.SVCParam) (HTTPSRecord,
 			if key == 6 {
 				width = 16
 			}
+
 			if n == 0 || n%width != 0 {
 				return r, bad
 			}
+
 			for len(value) > 0 {
 				address, ok := netip.AddrFromSlice(value[:width])
 				if !ok {
 					return r, bad
 				}
+
 				if width == 4 {
 					r.IPv4Hint = append(r.IPv4Hint, address)
 				} else {
 					r.IPv6Hint = append(r.IPv6Hint, address)
 				}
+
 				value = value[width:]
 			}
 		case 5:
@@ -372,13 +457,16 @@ func parseHTTPSParams(r HTTPSRecord, params []dnsmessage.SVCParam) (HTTPSRecord,
 			r.ECH = slices.Clone(value)
 		}
 	}
+
 	for _, key := range r.Mandatory {
 		if !present[key] {
 			return r, bad
 		}
 	}
+
 	if r.NoDefaultALPN && len(r.ALPN) == 0 {
 		return r, bad
 	}
+
 	return r, nil
 }

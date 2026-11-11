@@ -14,6 +14,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/cookiejar"
 	"github.com/enetx/http/http2"
+	h3transport "github.com/enetx/surf/internal/http3"
 	"github.com/enetx/surf/pkg/connectproxy"
 	"golang.org/x/net/publicsuffix"
 )
@@ -297,7 +298,7 @@ func unixSocketMW(client *Client, address g.String) error {
 // proxyMW configures HTTP proxy settings for the client transport.
 func proxyMW(client *Client, proxy g.String) error {
 	// Skip if HTTP/3 transport is being used (handled separately)
-	if _, ok := client.GetTransport().(*uquicTransport); ok {
+	if _, ok := client.GetTransport().(*h3transport.Transport); ok {
 		return nil
 	}
 
@@ -337,7 +338,7 @@ func proxyMW(client *Client, proxy g.String) error {
 // Skips configuration if HTTP/3 transport is being used as they are incompatible.
 func h2cMW(client *Client) error {
 	// H2C is incompatible with HTTP/3 transport - skip if HTTP/3 is being used
-	if _, ok := client.transport.(*uquicTransport); ok {
+	if _, ok := client.transport.(*h3transport.Transport); ok {
 		return nil
 	}
 

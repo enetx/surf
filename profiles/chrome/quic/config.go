@@ -1,6 +1,7 @@
 package quic
 
 import (
+	"github.com/enetx/surf/profiles/chrome/common"
 	"time"
 
 	"github.com/enetx/quic-go"
@@ -51,6 +52,7 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		EnableDatagrams(true).
 		ConnectionIDLength(ConnectionIDLength).
 		ClientHelloFactory(NewClientHelloSpec).
+		ECHClientHelloInner(common.ClientHelloInner).
 		TransportParametersFactory(NewTransportParameters).
 		MaxUDPPayloadSize(1472).
 		MaxDatagramFrameSize(65536).

@@ -18,7 +18,7 @@ import (
 
 	"github.com/enetx/quic-go/tlsquic"
 	"github.com/enetx/surf/internal/quictls"
-	u "github.com/refraction-networking/utls"
+	u "github.com/enetx/utls"
 )
 
 func configs(t *testing.T) (*tls.Config, *tls.Config) {

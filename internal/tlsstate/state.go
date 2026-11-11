@@ -3,7 +3,8 @@ package tlsstate
 
 import (
 	"crypto/tls"
-	utls "github.com/refraction-networking/utls"
+
+	utls "github.com/enetx/utls"
 )
 
 func FromUTLS(s utls.ConnectionState) tls.ConnectionState {

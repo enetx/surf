@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"

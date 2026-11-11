@@ -13,7 +13,7 @@ import (
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/profiles"
 	"github.com/enetx/surf/profiles/chrome"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 func TestHeaders_POST(t *testing.T) {

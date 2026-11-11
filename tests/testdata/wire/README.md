@@ -177,8 +177,10 @@ larger peer limits, constrained stream credit, STOP_SENDING and dynamic response
 
 Surf imports HTTP/3 from the local `enetx/quic-go` fork based on official v0.65.0.
 The fork contains generic controls without browser templates or uTLS dependencies.
-Surf uses official uTLS via a small TLS event adapter; no uTLS/QPACK fork was
-introduced. Dynamic `GetClientCertificate` is rejected for custom QUIC templates;
+Surf uses a small TLS event adapter with the [minimal uTLS fork](https://github.com/enetx/utls).
+The fork provides a generic real-ECH inner layout callback; browser policies live
+in Surf. See [ECH references](ech/README.md) for native captures, source checks
+and the remaining custom-PSK limitation. Dynamic `GetClientCertificate` is rejected for custom QUIC templates;
 static certificates work. Standard-library ConnectionState snapshots cannot carry
 uTLS's private TLS exporter closure. The default standard TLS path is unchanged.
 Initial SETTINGS are queued before request headers; a local packet trace checks

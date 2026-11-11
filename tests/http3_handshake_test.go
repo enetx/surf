@@ -19,7 +19,7 @@ import (
 	"github.com/enetx/quic-go/quicvarint"
 	"github.com/enetx/quic-go/transportparams"
 	"github.com/enetx/surf"
-	u "github.com/refraction-networking/utls"
+	u "github.com/enetx/utls"
 )
 
 // Independent RFC 9001 / RFC 9369 Initial decoder. These checks observe actual UDP bytes,

@@ -7,9 +7,9 @@ require (
 	github.com/enetx/g v1.1.1
 	github.com/enetx/http v1.0.37
 	github.com/enetx/quic-go v1.0.15
+	github.com/enetx/utls v1.0.1
 	github.com/klauspost/compress v1.20.3
 	github.com/quic-go/qpack v0.6.0
-	github.com/refraction-networking/utls v1.8.3-0.20261108164504-a13c59ffe98b
 	github.com/stretchr/testify v1.12.1
 	github.com/wzshiming/socks5 v0.8.0
 	golang.org/x/crypto v0.58.0

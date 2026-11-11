@@ -19,9 +19,9 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptrace"
+	h3transport "github.com/enetx/surf/internal/http3"
 	"github.com/enetx/surf/internal/tlsstate"
-
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // roundtripper is a higher-level wrapper around HTTP transports, providing
@@ -122,7 +122,7 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 // handleHTTPSRequest handles HTTPS requests with optional HTTP/2 support.
 // Reuses pre-built transports to avoid allocations.
 func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, error) {
-	if preferred, _ := req.Context().Value(preparedTCPHTTP1Key{}).(bool); preferred {
+	if h3transport.PreparedHTTP1(req.Context()) {
 		return rt.http1trFallback.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
 	}
 
@@ -419,7 +419,8 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 
 	source := rt.ja.builder.cli.tlsConfig
 	config := &utls.Config{
-		RootCAs: source.RootCAs, Rand: source.Rand, Time: source.Time,
+		ECHClientHelloInner: rt.ja.echInner,
+		RootCAs:             source.RootCAs, Rand: source.Rand, Time: source.Time,
 		VerifyPeerCertificate:          source.VerifyPeerCertificate,
 		EncryptedClientHelloConfigList: slices.Clone(source.EncryptedClientHelloConfigList),
 		ServerName:                     host,
@@ -443,8 +444,8 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 		}
 	}
 
-	if route, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok && len(route.ech) > 0 {
-		config.EncryptedClientHelloConfigList = slices.Clone(route.ech)
+	if ech := h3transport.ECHConfig(ctx); len(ech) > 0 {
+		config.EncryptedClientHelloConfigList = slices.Clone(ech)
 	}
 
 	if len(config.EncryptedClientHelloConfigList) > 0 {
@@ -560,4 +561,20 @@ func setAlpnProtocolToHTTP1(utlsSpec *utls.ClientHelloSpec) {
 	utlsSpec.Extensions = append(utlsSpec.Extensions, &utls.ALPNExtension{
 		AlpnProtocols: []string{"http/1.1"},
 	})
+}
+
+// HTTP transports recognize the standard ConnectionState signature. Keep uTLS's
+// methods available through embedding while translating only public state.
+type profileTLSConn struct{ *utls.UConn }
+
+func (c *profileTLSConn) ConnectionState() tls.ConnectionState {
+	return tlsstate.FromUTLS(c.UConn.ConnectionState())
+}
+
+func wrapProfileTLS(c *utls.UConn, err error) (net.Conn, error) {
+	if err != nil {
+		return nil, err
+	}
+
+	return &profileTLSConn{c}, nil
 }

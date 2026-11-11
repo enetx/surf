@@ -6,6 +6,8 @@ github.com/enetx/http v1.0.37 h1:DlkFKtiN4IsIWygn3qIgu099M7HLA5XXrsLmy2LfEdM=
 github.com/enetx/http v1.0.37/go.mod h1:5gUSfUXVty5/7tAZxFKSX4anUMNS2CEf3ekjJFMAHQE=
 github.com/enetx/quic-go v1.0.15 h1:Nvo+bwXbzHomNzmvvbPbWdR1CXgUr4p5UyvyTmuksSM=
 github.com/enetx/quic-go v1.0.15/go.mod h1:N7+jbUlhtyPk9GyXfuu6vf2qRy5RtdJu0UrIRUeH76o=
+github.com/enetx/utls v1.0.1 h1:6mvYzQOK7NuwOigk8mkMvwbygCVhG+Ng3u4Z+EU404I=
+github.com/enetx/utls v1.0.1/go.mod h1:jOmmDqyp/KUURXXSZyiFYcUFwuRRZjR4h904AQHsm6o=
 github.com/klauspost/compress v1.20.3 h1:zWNoFqq/lSuYQRim3dUXlXeA0IqwuZGicdG5ZTfY5j4=
 github.com/klauspost/compress v1.20.3/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=
 github.com/molecule-man/go-brrr v1.3.1 h1:EwaJUzRIlp/dFmIpzq4J17CA5Zi5OHo2vOGmu09hF1w=
@@ -14,8 +16,6 @@ github.com/quic-go/go-ossfuzz-seeds v0.1.0 h1:APacT+iIaNF6fd8AGEiN3bT/Jtkd2jz4v4
 github.com/quic-go/go-ossfuzz-seeds v0.1.0/go.mod h1:3IOHRbJIc+L6YKMwfDtJAM9Vj9k0YY4muhuyUYk5tbk=
 github.com/quic-go/qpack v0.6.0 h1:g7W+BMYynC1LbYLSqRt8PBg5Tgwxn214ZZR34VIOjz8=
 github.com/quic-go/qpack v0.6.0/go.mod h1:lUpLKChi8njB4ty2bFLX2x4gzDqXwUpaO1DP9qMDZII=
-github.com/refraction-networking/utls v1.8.3-0.20261108164504-a13c59ffe98b h1:Mi/DuaTxHeNIQ9g1ylZicAqa6Cb9wkHRiNtQH9uZ7Ts=
-github.com/refraction-networking/utls v1.8.3-0.20261108164504-a13c59ffe98b/go.mod h1:rc/ctWeKlh9LSk5k90KlSPcwF7P6D31mn/9GI2NAfBI=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 github.com/wzshiming/socks5 v0.8.0 h1:kkREpWqIcwYlyUO1YInoEk6qzFgEmJnqkNpTrAYUEtU=

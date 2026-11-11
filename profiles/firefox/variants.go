@@ -10,6 +10,7 @@ import (
 
 // Desktop is the current Firefox 160 desktop variant.
 var Desktop = profiles.Variant{
+	ECHClientHelloInner:  desktop.ClientHelloInner,
 	ConfigureQUIC:        quic.ConfigureQUIC,
 	HelloSpec:            &HelloFirefox_160,
 	Boundary:             Boundary,

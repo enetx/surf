@@ -10,7 +10,7 @@ import (
 	"github.com/enetx/quic-go/tlsquic"
 	"github.com/enetx/quic-go/transportparams"
 	"github.com/enetx/surf/profiles"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // quicadapter delegates profile chains to the public QUICSettings implementation.
@@ -413,5 +413,10 @@ func (a quicadapter) AddressFallbackDelay(delay time.Duration) profiles.QUICConf
 
 func (a quicadapter) PacketNumberSkipping(enabled bool) profiles.QUICConfig {
 	a.s.PacketNumberSkipping(enabled)
+	return a
+}
+
+func (a quicadapter) ECHClientHelloInner(policy utls.ECHClientHelloInnerFunc) profiles.QUICConfig {
+	a.s.ECHClientHelloInner(policy)
 	return a
 }

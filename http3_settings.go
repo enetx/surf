@@ -2,106 +2,117 @@ package surf
 
 import (
 	"context"
-	"crypto/tls"
-	"errors"
-	"fmt"
 	"math"
 	"math/rand/v2"
-	"net"
-	"net/url"
-	"strings"
-	"sync"
-	"syscall"
+	"net/netip"
 	"time"
 
 	"github.com/enetx/g"
 	"github.com/enetx/http"
 	"github.com/enetx/quic-go"
 	"github.com/enetx/quic-go/http3"
-	"github.com/enetx/surf/header"
-	utls "github.com/refraction-networking/utls"
+	h3transport "github.com/enetx/surf/internal/http3"
+	quictransport "github.com/enetx/surf/internal/quic"
+	"github.com/enetx/surf/internal/specclone"
+	"github.com/enetx/surf/profiles"
+	utls "github.com/enetx/utls"
 )
 
 // HTTP/3 SETTINGS frame parameter identifiers as defined in RFC 9114.
 const (
-	SETTINGS_QPACK_MAX_TABLE_CAPACITY = 0x01
-	SETTINGS_MAX_FIELD_SECTION_SIZE   = 0x06
-	SETTINGS_QPACK_BLOCKED_STREAMS    = 0x07
-	SETTINGS_ENABLE_CONNECT_PROTOCOL  = 0x08
-	SETTINGS_H3_DATAGRAM              = 0x33
-	H3_DATAGRAM                       = 0xFFD277
-	SETTINGS_ENABLE_WEBTRANSPORT      = 0x2B603742
+	SETTINGS_QPACK_MAX_TABLE_CAPACITY = h3transport.SETTINGS_QPACK_MAX_TABLE_CAPACITY
+	SETTINGS_MAX_FIELD_SECTION_SIZE   = h3transport.SETTINGS_MAX_FIELD_SECTION_SIZE
+	SETTINGS_QPACK_BLOCKED_STREAMS    = h3transport.SETTINGS_QPACK_BLOCKED_STREAMS
+	SETTINGS_ENABLE_CONNECT_PROTOCOL  = h3transport.SETTINGS_ENABLE_CONNECT_PROTOCOL
+	SETTINGS_H3_DATAGRAM              = h3transport.SETTINGS_H3_DATAGRAM
+	H3_DATAGRAM                       = h3transport.H3_DATAGRAM
+	SETTINGS_ENABLE_WEBTRANSPORT      = h3transport.SETTINGS_ENABLE_WEBTRANSPORT
 )
 
 // HTTP3Settings configures HTTP/3 SETTINGS, response limits and request options.
 // Use Builder.QUICSettings for the underlying QUIC transport and handshake.
 type HTTP3Settings struct {
-	discovery                 bool
-	expireFailedAlternatives  bool
-	httpsRecordsLookup        HTTPSRecordsLookup
-	alternativeServiceBackoff AlternativeServiceBackoff
-	addressFallbackDelay      time.Duration
-	connectionRacing          bool
-	connectionRacingPolicy    ConnectionRacingPolicy
-	tcpFallbackDelay          *time.Duration
-	altUsed                   bool
-	earlyData                 bool
-	clientHandshake           *quic.ClientHandshake
-	clientHelloFactory        func() (utls.ClientHelloSpec, error)
-	builder                   *Builder
-	settings                  g.MapOrd[uint64, uint64]
-	quicConfig                *quic.Config
-	qpackConfig               *http3.QPACKConfig
-	wireConfig                *http3.WireConfig
-	connectionIDLength        *int
-	connectionIDGenerator     quic.ConnectionIDGenerator
-	streamPriority            *http3.StreamPriority
-	maxResponseHeaderBytes    int
-	datagrams                 *bool
-	registered                bool
+	options    h3transport.Options
+	builder    *Builder
+	registered bool
 }
+
+// HTTP3GreaseFrame describes one RFC 9114 reserved frame and its payload.
+type HTTP3GreaseFrame = http3.GreaseFrame
+
+// HTTP3RequestBodyReadInfo contains validated wire fields and the effective buffer size.
+type HTTP3RequestBodyReadInfo = http3.RequestBodyReadInfo
+
+type (
+	ConnectionRacingInfo   = profiles.ConnectionRacingInfo
+	ConnectionRacingPolicy = profiles.ConnectionRacingPolicy
+)
+
+// HTTPSRecord describes an RFC 9460 HTTPS service binding. Lookup callbacks
+// must return resolved ServiceMode bindings with owned slices and honor
+// cancellation. The built-in resolver follows CNAME/AliasMode chains.
+type HTTPSRecord struct {
+	Priority           uint16
+	Target             string
+	ALPN               []string
+	Port               uint16
+	IPv4Hint, IPv6Hint []netip.Addr
+	TTL                time.Duration
+	ECH                []byte
+	Mandatory          []uint16
+	NoDefaultALPN      bool
+}
+
+type (
+	HTTPSRecordsLookup        func(context.Context, string) ([]HTTPSRecord, error)
+	AlternativeServiceBackoff = func(consecutiveFailures uint32) time.Duration
+)
+
+// HTTP3PriorityUpdater queues RFC 9218 priority changes for one open request.
+// Update is concurrency safe; it does not change local QUIC upload scheduling.
+type HTTP3PriorityUpdater = http3.PriorityUpdater
 
 // QpackMaxTableCapacity sets the advertised and enforced receive-side QPACK
 // dynamic table capacity. Zero selects the static-only decoder.
 func (h *HTTP3Settings) QpackMaxTableCapacity(num uint64) *HTTP3Settings {
-	h.settings.Insert(SETTINGS_QPACK_MAX_TABLE_CAPACITY, num)
+	h.options.Settings.Insert(SETTINGS_QPACK_MAX_TABLE_CAPACITY, num)
 	return h
 }
 
 // MaxFieldSectionSize sets the maximum size of a field section the peer is willing to accept.
 func (h *HTTP3Settings) MaxFieldSectionSize(num uint64) *HTTP3Settings {
-	h.settings.Insert(SETTINGS_MAX_FIELD_SECTION_SIZE, num)
+	h.options.Settings.Insert(SETTINGS_MAX_FIELD_SECTION_SIZE, num)
 	return h
 }
 
 // QpackBlockedStreams sets the maximum number of streams that can be blocked on QPACK.
 func (h *HTTP3Settings) QpackBlockedStreams(num uint64) *HTTP3Settings {
-	h.settings.Insert(SETTINGS_QPACK_BLOCKED_STREAMS, num)
+	h.options.Settings.Insert(SETTINGS_QPACK_BLOCKED_STREAMS, num)
 	return h
 }
 
 // EnableConnectProtocol enables the extended CONNECT protocol (RFC 9220).
 func (h *HTTP3Settings) EnableConnectProtocol(num uint64) *HTTP3Settings {
-	h.settings.Insert(SETTINGS_ENABLE_CONNECT_PROTOCOL, num)
+	h.options.Settings.Insert(SETTINGS_ENABLE_CONNECT_PROTOCOL, num)
 	return h
 }
 
 // SettingsH3Datagram sets the H3_DATAGRAM setting value.
 func (h *HTTP3Settings) SettingsH3Datagram(num uint64) *HTTP3Settings {
-	h.settings.Insert(SETTINGS_H3_DATAGRAM, num)
+	h.options.Settings.Insert(SETTINGS_H3_DATAGRAM, num)
 	return h
 }
 
 // H3Datagram sets a custom H3_DATAGRAM value for datagram support.
 func (h *HTTP3Settings) H3Datagram(num uint64) *HTTP3Settings {
-	h.settings.Insert(H3_DATAGRAM, num)
+	h.options.Settings.Insert(H3_DATAGRAM, num)
 	return h
 }
 
 // EnableWebtransport advertises a WebTransport setting. It does not implement
 // a WebTransport application protocol.
 func (h *HTTP3Settings) EnableWebtransport(num uint64) *HTTP3Settings {
-	h.settings.Insert(SETTINGS_ENABLE_WEBTRANSPORT, num)
+	h.options.Settings.Insert(SETTINGS_ENABLE_WEBTRANSPORT, num)
 	return h
 }
 
@@ -130,15 +141,15 @@ func (h *HTTP3Settings) Set() *Builder {
 	h.registered = true
 
 	return h.builder.addCliMW(func(c *Client) error {
-		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || (!h.builder.forceHTTP3 && !h.discovery) {
+		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || (!h.builder.forceHTTP3 && !h.options.Discovery) {
 			return nil
 		}
 
 		// An application-owned transport or TLS dialer keeps ownership of its
 		// connection policy. Automatic discovery also needs reusable TCP pools.
-		if h.discovery && !h.builder.forceHTTP3 {
+		if h.options.Discovery && !h.builder.forceHTTP3 {
 			base := c.GetTransport()
-			if _, ok := base.(connectionPreconnector); !ok {
+			if _, ok := base.(h3transport.Preconnector); !ok {
 				return nil
 			}
 
@@ -148,7 +159,7 @@ func (h *HTTP3Settings) Set() *Builder {
 			}
 		}
 
-		transport, err := newUQUICTransport(h, c, h.builder)
+		transport, err := h.newTransport(c)
 		if err != nil {
 			return err
 		}
@@ -160,629 +171,335 @@ func (h *HTTP3Settings) Set() *Builder {
 	}, math.MaxInt-1)
 }
 
-// uquicTransport implements http.RoundTripper with HTTP/3 support.
-// It provides SOCKS5 proxy compatibility and automatic fallback to HTTP/2
-// when HTTP/3 is unavailable or for non-SOCKS5 proxies.
-type uquicTransport struct {
-	sharedMu               sync.Mutex
-	sharedClosed           bool
-	lazySharedQUIC         bool
-	discovery              *alternativeDiscovery
-	addressFallbackDelay   time.Duration
-	racer                  *connectionRace
-	protocolHeaders        requestHeadersPolicy
-	qpackConfig            *http3.QPACKConfig
-	wireConfig             *http3.WireConfig
-	altUsed                bool
-	earlyData              bool
-	configureHandshake     func(*quic.Config) error
-	receivePacketSize      int
-	http3tr                *http3.Transport
-	quictr                 *quic.Transport
-	pconn                  net.PacketConn
-	fallbackTransport      http.RoundTripper
-	requestProxy           func(*http.Request) (*url.URL, error)
-	tlsConfig              *tls.Config
-	dialer                 *net.Dialer
-	settings               g.MapOrd[uint64, uint64]
-	proxy                  string
-	quicConfig             *quic.Config
-	connectionIDLength     int
-	connectionIDGenerator  quic.ConnectionIDGenerator
-	streamPriority         *http3.StreamPriority
-	dedicatedConn          bool
-	maxResponseHeaderBytes int
-	datagrams              *bool
-	disableCompression     bool
+// EarlyData opts bodyless GET and HEAD requests into TLS 0-RTT on resumed
+// HTTP/3 connections. Disabled by default. Enable only when replay of these
+// requests is acceptable; POST and requests with bodies always wait for 1-RTT.
+// A TLS ClientSessionCache is needed to resume a connection. Custom uTLS
+// ClientHello templates currently do not support this option.
+func (h *HTTP3Settings) EarlyData(enabled bool) *HTTP3Settings {
+	h.options.EarlyData = enabled
+	return h
 }
 
-// newUQUICTransport creates a new HTTP/3 transport with the given settings.
-func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*uquicTransport, error) {
-	if err := settings.validateQUICConfig(); err != nil {
-		return nil, err
+// AltUsed sends the current request's destination authority in the Alt-Used
+// header on HTTP/3 attempts. The Firefox desktop profile enables this to match
+// its captured alternative-service requests. Explicit headers take precedence.
+// Port 443 is omitted; non-default ports and IPv6 brackets are preserved.
+func (h *HTTP3Settings) AltUsed(enabled bool) *HTTP3Settings {
+	h.options.AltUsed = enabled
+	return h
+}
+
+// QUICConfig replaces Surf's QUIC defaults with a snapshot of config.
+// Zero-valued fields use the official quic-go defaults. Nil restores Surf's
+// defaults. Token stores, tracers and callbacks retain their shared identity.
+// RequireStreamCreditRelease is an advanced option for applications that manage
+// incoming stream credit; it does not add a transport parameter to the handshake.
+// Use Builder.QUICSettings for fluent configuration of individual options.
+func (h *HTTP3Settings) QUICConfig(config *quic.Config) *HTTP3Settings {
+	h.options.QUICConfig = quictransport.CloneConfig(config)
+	return h
+}
+
+// ConnectionIDLength sets the length of locally generated connection IDs.
+// Valid explicit lengths are 0 through 20. Zero uses a zero-length generator and
+// a dedicated UDP socket per connection. Unset retains quic-go's 4-byte default.
+// This does not control the independently generated initial destination ID.
+func (h *HTTP3Settings) ConnectionIDLength(length int) *HTTP3Settings {
+	h.options.ConnectionIDLength = new(length)
+	return h
+}
+
+// AdditionalSettings merges ordered HTTP/3 SETTINGS. Existing keys keep their
+// position; new keys append in input order. Advertising a setting does not add
+// implementation support for extensions such as WebTransport. QPACK settings
+// configure the receive-side decoder; request encoding is configured separately.
+func (h *HTTP3Settings) AdditionalSettings(settings g.MapOrd[uint64, uint64]) *HTTP3Settings {
+	for id, value := range settings.Iter() {
+		h.options.Settings.Insert(id, value)
 	}
 
-	ut := &uquicTransport{
-		protocolHeaders:        builder.protocolHeaders,
-		lazySharedQUIC:         settings.discovery && !builder.forceHTTP3,
-		addressFallbackDelay:   settings.addressFallbackDelay,
-		qpackConfig:            settings.qpackConfig.Clone(),
-		wireConfig:             settings.wireConfig.Clone(),
-		altUsed:                settings.altUsed,
-		earlyData:              settings.earlyData,
-		tlsConfig:              c.tlsConfig.Clone(),
-		dialer:                 c.GetDialer(),
-		settings:               settings.settings.Clone(),
-		proxy:                  builder.proxy.Std(),
-		quicConfig:             cloneQUICConfig(settings.quicConfig),
-		connectionIDGenerator:  settings.connectionIDGenerator,
-		maxResponseHeaderBytes: settings.maxResponseHeaderBytes,
-		disableCompression:     builder.disableCompression,
+	return h
+}
+
+// EnableDatagrams configures both QUIC and HTTP/3 datagram support.
+func (h *HTTP3Settings) EnableDatagrams(enabled bool) *HTTP3Settings {
+	h.options.Datagrams = new(enabled)
+
+	value := uint64(0)
+	if enabled {
+		value = 1
 	}
 
-	if settings.connectionIDLength != nil {
-		ut.connectionIDLength = *settings.connectionIDLength
+	h.options.Settings.Insert(SETTINGS_H3_DATAGRAM, value)
 
-		if ut.connectionIDLength == 0 && ut.connectionIDGenerator == nil {
-			ut.connectionIDGenerator = zeroConnectionIDGenerator{}
-		}
+	return h
+}
+
+// MaxResponseHeaderBytes sets the local response header limit. Zero restores
+// Surf's default. Use MaxFieldSectionSize separately for the advertised setting.
+func (h *HTTP3Settings) MaxResponseHeaderBytes(limit int) *HTTP3Settings {
+	h.options.MaxResponseHeaderBytes = limit
+	return h
+}
+
+// ConnectionIDGenerator supplies the official quic-go connection ID generator.
+// It takes precedence over ConnectionIDLength and may generate zero-length IDs.
+func (h *HTTP3Settings) ConnectionIDGenerator(generator quic.ConnectionIDGenerator) *HTTP3Settings {
+	h.options.ConnectionIDGenerator = generator
+	return h
+}
+
+// StreamPriority sets local QUIC scheduling for request data. Urgency is clipped
+// to 0 through 7 by quic-go. This does not send a PRIORITY_UPDATE frame or set
+// the HTTP Priority header.
+func (h *HTTP3Settings) StreamPriority(urgency int8, incremental bool) *HTTP3Settings {
+	h.options.StreamPriority = &http3.StreamPriority{Urgency: urgency, Incremental: incremental}
+	return h
+}
+
+func (h *HTTP3Settings) wire() *http3.WireConfig {
+	if h.options.WireConfig == nil {
+		h.options.WireConfig = &http3.WireConfig{}
 	}
 
-	ut.dedicatedConn = ut.connectionIDGenerator != nil && ut.connectionIDGenerator.ConnectionIDLen() == 0
+	return h.options.WireConfig
+}
 
-	if settings.datagrams != nil {
-		datagrams := *settings.datagrams
-		ut.datagrams = &datagrams
+// ControlGreaseFrames adds reserved frames after SETTINGS on every connection.
+// Types must be 0x1f*N+0x21. Frames and payloads are copied.
+func (h *HTTP3Settings) ControlGreaseFrames(frames ...HTTP3GreaseFrame) *HTTP3Settings {
+	copy := h3transport.CloneGreaseFrames(frames)
+	return h.ControlGreaseFramesFactory(func() ([]HTTP3GreaseFrame, error) { return copy, nil })
+}
+
+// ControlGreaseFramesFactory generates fresh frames once per connection.
+// The callback must be safe for concurrent connections.
+func (h *HTTP3Settings) ControlGreaseFramesFactory(factory func() ([]HTTP3GreaseFrame, error)) *HTTP3Settings {
+	h.wire().ControlGreaseFrames = factory
+	return h
+}
+
+// RequestGreaseFrames adds reserved frames before each request's HEADERS.
+// Types must be 0x1f*N+0x21. Frames and payloads are copied.
+func (h *HTTP3Settings) RequestGreaseFrames(frames ...HTTP3GreaseFrame) *HTTP3Settings {
+	copy := h3transport.CloneGreaseFrames(frames)
+	return h.RequestGreaseFramesFactory(func(*http.Request) ([]HTTP3GreaseFrame, error) { return copy, nil })
+}
+
+// RequestGreaseFramesFactory generates frames for each request. The callback
+// must be safe for concurrent connections and must not mutate the request.
+func (h *HTTP3Settings) RequestGreaseFramesFactory(
+	factory func(*http.Request) ([]HTTP3GreaseFrame, error),
+) *HTTP3Settings {
+	h.wire().RequestGreaseFrames = factory
+	return h
+}
+
+// PriorityUpdates sends RFC 9218 control frames for explicit, nondefault
+// request Priority headers. Independent of GREASE and local StreamPriority.
+func (h *HTTP3Settings) PriorityUpdates(enabled bool) *HTTP3Settings {
+	h.wire().SendPriorityUpdates = enabled
+	return h
+}
+
+// CoalesceInitialSettings queues SETTINGS with the first post-handshake flight
+// when peer flow-control credit permits. Backpressure uses an asynchronous
+// write on the same control stream. Control frame factories must not block.
+func (h *HTTP3Settings) CoalesceInitialSettings(enabled bool) *HTTP3Settings {
+	h.wire().CoalesceInitialSettings = enabled
+	return h
+}
+
+// CoalesceRequestHeaders stages initial priority, HEADERS and a bodyless
+// request's FIN together. Blocked streams retain asynchronous control writes.
+func (h *HTTP3Settings) CoalesceRequestHeaders(enabled bool) *HTTP3Settings {
+	h.wire().CoalesceRequestHeaders = enabled
+	return h
+}
+
+// RequestBodyBufferSize sets reads from HTTP/3 request bodies (0 uses 8 KiB).
+// It clears previously configured size and first-read policies. Sizes must be in [0, 16 MiB].
+func (h *HTTP3Settings) RequestBodyBufferSize(size int) *HTTP3Settings {
+	h.wire().RequestBodyBufferSize = size
+	h.wire().RequestBodyBufferSizePolicy = nil
+	h.wire().RequestBodyFirstReadSizePolicy = nil
+
+	return h
+}
+
+// RequestBodyBufferSizePolicy chooses a buffer using ContentLength (-1 when
+// unknown). It must be concurrency safe; zero uses 8 KiB. Nil restores the fixed size.
+func (h *HTTP3Settings) RequestBodyBufferSizePolicy(policy func(int64) int) *HTTP3Settings {
+	h.wire().RequestBodyBufferSizePolicy = policy
+	return h
+}
+
+// MaxDataFrameSize caps request DATA payloads. Zero preserves one frame per
+// body read or Write. This does not set QUIC packet boundaries.
+func (h *HTTP3Settings) MaxDataFrameSize(size int) *HTTP3Settings {
+	h.wire().MaxDataFrameSize = size
+	return h
+}
+
+// RequestBodyFirstReadSizePolicy caps the first nonempty HTTP/3 body read.
+// Zero restores the normal buffer size; a positive result must not exceed it.
+// The callback receives actual outgoing fields, including implicit headers, and
+// runs before request bytes or QPACK state changes. It must be concurrency safe.
+// Nil clears this policy. It does not change QUIC packet boundaries.
+func (h *HTTP3Settings) RequestBodyFirstReadSizePolicy(policy func(HTTP3RequestBodyReadInfo) int) *HTTP3Settings {
+	h.wire().RequestBodyFirstReadSizePolicy = policy
+	return h
+}
+
+// ClientHandshake sets optional QUIC handshake controls. The supplied values are
+// snapshotted; nil removes this override and retains any QUICConfig controls.
+// Use Builder.QUICSettings for fluent configuration of individual controls.
+func (h *HTTP3Settings) ClientHandshake(config *quic.ClientHandshake) *HTTP3Settings {
+	h.options.ClientHandshake = config.Clone()
+	return h
+}
+
+// ClientHelloSpec sets an explicit QUIC ClientHello template. It must contain
+// QUICTransportParametersExtension and ALPNExtension; TCP templates are rejected.
+// QUIC supplies real transport parameters and the HTTP/3 ALPN for each dial.
+// Browser TCP JA settings remain independent. Nil restores standard crypto/tls.
+func (h *HTTP3Settings) ClientHelloSpec(spec *utls.ClientHelloSpec) *HTTP3Settings {
+	if spec == nil {
+		h.options.ClientHelloFactory = nil
+		return h
 	}
 
-	if settings.streamPriority != nil {
-		priority := *settings.streamPriority
-		ut.streamPriority = &priority
-	}
+	snapshot := specclone.Clone(spec)
+	h.options.ClientHelloFactory = func() (utls.ClientHelloSpec, error) { return *specclone.Clone(snapshot), nil }
 
-	snapshot := *settings
-	snapshot.clientHandshake = settings.clientHandshake.Clone()
-	ut.configureHandshake = snapshot.configureClientHandshake
-	ut.fallbackTransport = c.GetTransport()
+	return h
+}
 
-	switch base := ut.fallbackTransport.(type) {
-	case *http.Transport:
-		ut.requestProxy = base.Proxy
-		if selectProxy := base.Proxy; selectProxy != nil {
-			base.Proxy = func(req *http.Request) (*url.URL, error) {
-				if selected, ok := req.Context().Value(tlsProxyKey{}).(proxySelection); ok {
-					return selected.url, nil
-				}
-				return selectProxy(req)
+// ClientHelloFactory supplies a fresh QUIC template per connection attempt,
+// including retries after version negotiation. The factory may run concurrently.
+// Returned templates must not share mutable extensions with other attempts.
+func (h *HTTP3Settings) ClientHelloFactory(factory func() (utls.ClientHelloSpec, error)) *HTTP3Settings {
+	h.options.ClientHelloFactory = factory
+	return h
+}
+
+// ConnectionRacing enables connection-only competition between HTTP/3 and a TCP
+// backup. No request headers or body are sent until a connection wins. Disabled
+// by default, independently of the selected profile's delay policy.
+func (h *HTTP3Settings) ConnectionRacing(enabled bool) *HTTP3Settings {
+	h.options.ConnectionRacing = enabled
+	return h
+}
+
+// TCPFallbackDelay replaces the profile's policy with a fixed nonnegative delay.
+// Zero starts both handshakes immediately. Enable with ConnectionRacing(true).
+func (h *HTTP3Settings) TCPFallbackDelay(delay time.Duration) *HTTP3Settings {
+	h.options.TCPFallbackDelay = new(delay)
+	return h
+}
+
+// ConnectionRacingPolicy selects a delay from per-origin observations. Nil uses
+// Surf's 100ms default. Enable separately with ConnectionRacing(true). This setter
+// replaces any fixed delay previously selected with TCPFallbackDelay.
+func (h *HTTP3Settings) ConnectionRacingPolicy(policy ConnectionRacingPolicy) *HTTP3Settings {
+	h.options.ConnectionRacingPolicy = policy
+	h.options.TCPFallbackDelay = nil
+	return h
+}
+
+// Discovery learns HTTP/3 alternatives from authenticated Alt-Svc responses
+// and HTTPS DNS records. Without an advertisement requests use TCP. ForceHTTP3
+// retains its direct-attempt behavior. Cache and failures belong to this client.
+func (h *HTTP3Settings) Discovery(enabled bool) *HTTP3Settings {
+	h.options.Discovery = enabled
+	return h
+}
+
+// HTTPSRecordsLookup supplies HTTPS records from an application resolver. Nil
+// uses the client's configured DNS transport and system resolver addresses.
+// No public DNS provider is substituted. Proxies bypass local HTTPS discovery.
+func (h *HTTP3Settings) HTTPSRecordsLookup(lookup HTTPSRecordsLookup) *HTTP3Settings {
+	if lookup == nil {
+		h.options.HTTPSRecordsLookup = nil
+	} else {
+		h.options.HTTPSRecordsLookup = func(ctx context.Context, name string) ([]h3transport.HTTPSRecord, error) {
+			records, err := lookup(ctx, name)
+			if records == nil {
+				return nil, err
 			}
-		}
-	case *roundtripper:
-		ut.requestProxy = base.requestProxy
-	}
-
-	if settings.discovery {
-		if base, ok := ut.fallbackTransport.(*http.Transport); ok && base.DialTLSContext == nil {
-			base.DialContext = tcpBindingDial(base.DialContext)
-			base.DialTLSContext = ut.dialTCPWithECH(base)
+			converted := make([]h3transport.HTTPSRecord, len(records))
+			for i, record := range records {
+				converted[i] = h3transport.HTTPSRecord(record)
+			}
+			return converted, err
 		}
 	}
+	return h
+}
 
-	if ut.proxy != "" && !isSOCKS5Proxy(ut.proxy) {
-		if ut.fallbackTransport == nil {
-			return nil, errors.New("HTTP/3 requires SOCKS5 proxy for UDP relay")
-		}
+// AlternativeServiceBackoff selects the retry delay after a failed alternative
+// handshake. Cancellation and a TCP race win do not count as service failure.
+// The callback must be prompt, concurrency safe, and must not reenter this client.
+func (h *HTTP3Settings) AlternativeServiceBackoff(policy AlternativeServiceBackoff) *HTTP3Settings {
+	h.options.AlternativeServiceBackoff = policy
+	return h
+}
 
-		return ut, nil
-	}
+// ExpireFailedAlternatives discards a failed advertisement when its retry
+// interval expires; a new advertisement or DNS answer is then required.
+func (h *HTTP3Settings) ExpireFailedAlternatives(enabled bool) *HTTP3Settings {
+	h.options.ExpireFailedAlternatives = enabled
+	return h
+}
 
-	if err := ut.initTransport(); err != nil {
-		return nil, err
-	}
+// HTTP3PriorityUpdates calls handler after HTTP/3 request HEADERS are sent on
+// each attempt. Return promptly; retain the updater to change priority while
+// the response is open. HTTP/1 and HTTP/2 do not invoke the handler.
+func (req *Request) HTTP3PriorityUpdates(handler func(*HTTP3PriorityUpdater)) *Request {
+	req.http3PriorityHandler = handler
+	req.http3PrioritySet = true
 
-	if settings.discovery && !builder.forceHTTP3 {
-		lookup := settings.httpsRecordsLookup
-		if ut.proxy != "" {
-			lookup = nil
-		} else if lookup == nil {
-			lookup = httpsLookupForResolver(ut.dialer.Resolver)
-		}
+	return req
+}
 
-		ut.discovery = newAlternativeDiscovery(
-			lookup,
-			settings.alternativeServiceBackoff,
-			settings.expireFailedAlternatives,
+// CompactPriorityUpdates omits spaces after commas in PRIORITY_UPDATE fields.
+// It applies to initial frames and later HTTP3PriorityUpdater.Update calls.
+func (h *HTTP3Settings) CompactPriorityUpdates(enabled bool) *HTTP3Settings {
+	h.wire().CompactPriorityUpdates = enabled
+	return h
+}
+
+func (req *Request) prepareHTTP3Priority() {
+	if req.http3PrioritySet {
+		req.request = req.request.WithContext(
+			http3.WithPriorityUpdateHandler(req.request.Context(), req.http3PriorityHandler),
 		)
 	}
-
-	if settings.connectionRacing || ut.discovery != nil {
-		if base, ok := ut.fallbackTransport.(*http.Transport); ok &&
-			(base.DisableKeepAlives || base.MaxIdleConnsPerHost < 0) {
-			ut.Close()
-			return nil, errors.New("HTTP/3 connection racing requires TCP keep-alives")
-		}
-
-		_, ok := ut.fallbackTransport.(connectionPreconnector)
-		if !ok {
-			ut.Close()
-			return nil, errors.New("HTTP/3 connection racing requires a transport with Preconnect support")
-		}
-
-		policy := settings.connectionRacingPolicy
-
-		if settings.tcpFallbackDelay != nil {
-			delay := *settings.tcpFallbackDelay
-			policy = func(ConnectionRacingInfo) time.Duration { return delay }
-		}
-
-		tcp := ut.preconnectTCP
-		if ut.discovery != nil {
-			tcp = ut.preconnectDiscoveredTCP
-		}
-		ut.racer = &connectionRace{policy: policy, quic: ut.http3tr.Preconnect, tcp: tcp}
-	}
-
-	return ut, nil
 }
 
-// initTransport initializes the underlying QUIC and HTTP/3 transports.
-func (ut *uquicTransport) initTransport() error {
-	config := cloneQUICConfig(ut.quicConfig)
+func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) {
+	options := h.options
+	builder := h.builder
 
-	if config == nil {
-		config = defaultQUICConfig()
+	options.ForceHTTP3 = builder.forceHTTP3
+	options.Proxy = builder.proxy.Std()
+	options.DisableCompression = builder.disableCompression
+	options.ProtocolHeaders = builder.protocolHeaders
+	options.Fallback = c.GetTransport()
+	options.TLSConfig = c.GetTLSConfig()
+	options.Dialer = c.GetDialer()
+
+	if base, ok := options.Fallback.(*roundtripper); ok {
+		options.RequestProxy = base.requestProxy
 	}
 
-	if ut.configureHandshake != nil {
-		if err := ut.configureHandshake(config); err != nil {
-			return err
-		}
-	}
-
-	if ut.datagrams != nil {
-		config.EnableDatagrams = *ut.datagrams
-	}
-
-	enableDatagrams := ut.settings.Get(SETTINGS_H3_DATAGRAM).UnwrapOrDefault() == 1
-
-	if enableDatagrams && !config.EnableDatagrams {
-		return errors.New("HTTP/3 datagrams require QUICConfig.EnableDatagrams")
-	}
-
-	if config.ClientHandshake != nil {
-		ut.receivePacketSize = int(config.ClientHandshake.MaxUDPPayloadSize)
-
-		if config.ClientHandshake.OmitMaxUDPPayloadSize {
-			ut.receivePacketSize = quic.MaxUDPReceivePacketSize
-		}
-	}
-
-	headerLimit := ut.maxResponseHeaderBytes
-	if headerLimit == 0 {
-		headerLimit = _maxResponseHeaderBytes
-	}
-
-	if ut.proxy == "" && !ut.dedicatedConn && !ut.lazySharedQUIC {
-		var err error
-		ut.pconn, err = ut.createUDPPacketConn()
-		if err != nil {
-			return fmt.Errorf("create packet conn: %w", err)
-		}
-
-		ut.quictr = ut.newQUICTransport(ut.pconn)
-	}
-
-	ut.http3tr = &http3.Transport{
-		QPACKConfig:            ut.qpackConfig.Clone(),
-		WireConfig:             ut.wireConfig.Clone(),
-		TLSClientConfig:        ut.tlsConfig,
-		QUICConfig:             config,
-		StreamPriority:         ut.streamPriority,
-		EnableDatagrams:        enableDatagrams,
-		DisableCompression:     ut.disableCompression,
-		AdditionalSettings:     ut.settings,
-		MaxResponseHeaderBytes: headerLimit,
-		Dial:                   ut.dial,
-	}
-
-	return nil
+	return h3transport.New(options)
 }
 
-// createUDPPacketConn creates a UDP listener, preferring IPv4.
-func (ut *uquicTransport) createUDPPacketConn() (net.PacketConn, error) {
-	if conn, err := net.ListenUDP("udp4", nil); err == nil {
-		return conn, nil
-	}
-
-	return net.ListenUDP("udp6", nil)
-}
-
-// dial establishes a QUIC connection, routing through SOCKS5 proxy if configured.
-func (ut *uquicTransport) dial(
-	ctx context.Context,
-	addr string,
-	tlsCfg *tls.Config,
-	cfg *quic.Config,
-) (connection *quic.Conn, err error) {
-	defer func() {
-		if ut.racer != nil && connection != nil && err == nil {
-			ut.racer.observeQUIC(addr, connection)
-		}
-	}()
-
-	target := addr
-	var route alternativeRoute
-
-	if candidate, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok &&
-		strings.EqualFold(candidate.origin, addr) {
-		route = candidate
-		target = route.address
-		defer func() {
-			if ut.discovery != nil {
-				ut.discovery.result(route, err)
-			}
-		}()
-	}
-
-	host, _, _ := net.SplitHostPort(addr)
-	if tlsCfg.ServerName == "" && host != "" && net.ParseIP(host) == nil {
-		tlsCfg = tlsCfg.Clone()
-		tlsCfg.ServerName = host
-	}
-
-	if len(route.ech) > 0 {
-		tlsCfg = tlsCfg.Clone()
-		tlsCfg.EncryptedClientHelloConfigList = append([]byte(nil), route.ech...)
-		tlsCfg.MinVersion = tls.VersionTLS13
-	}
-
-	if ut.discovery != nil || ut.addressFallbackDelay > 0 {
-		addresses, resolveErr := ut.resolveAddresses(ctx, target, route.hints)
-		if resolveErr != nil {
-			return nil, resolveErr
-		}
-		return ut.dialAddresses(ctx, addresses, tlsCfg, cfg)
-	}
-
-	resolved, err := ut.resolve(ctx, target)
-	if err != nil {
-		return nil, fmt.Errorf("DNS resolution: %w", err)
-	}
-
-	if ut.proxy != "" {
-		return ut.dialSOCKS5(ctx, resolved, tlsCfg, cfg)
-	}
-
-	return ut.dialDirect(ctx, resolved, tlsCfg, cfg)
-}
-
-// dialDirect establishes a direct QUIC connection without proxy.
-func (ut *uquicTransport) dialDirect(
-	ctx context.Context,
-	resolved string,
-	tlsCfg *tls.Config,
-	cfg *quic.Config,
-) (*quic.Conn, error) {
-	udpAddr, err := net.ResolveUDPAddr("udp", resolved)
-	if err != nil {
-		return nil, fmt.Errorf("resolve UDP addr: %w", err)
-	}
-
-	if ut.dedicatedConn || udpAddr.IP.To4() == nil {
-		var packetConn net.PacketConn
-		var err error
-
-		if udpAddr.IP.To4() == nil {
-			packetConn, err = net.ListenUDP("udp6", nil)
-		} else {
-			packetConn, err = ut.createUDPPacketConn()
-		}
-
-		if err != nil {
-			return nil, err
-		}
-
-		return ut.dialOwnedPacketConn(ctx, packetConn, udpAddr, tlsCfg, cfg, ut.useEarlyData(ctx))
-	}
-
-	transport, err := ut.sharedQUICTransport()
-	if err != nil {
-		return nil, err
-	}
-
-	if ut.useEarlyData(ctx) {
-		return transport.DialEarly(ctx, udpAddr, tlsCfg, cfg)
-	}
-
-	return transport.Dial(ctx, udpAddr, tlsCfg, cfg)
-}
-
-// resolve resolves a hostname to an IP address, preferring IPv4.
-func (ut *uquicTransport) resolve(ctx context.Context, addr string) (string, error) {
-	host, port, err := net.SplitHostPort(addr)
-	if err != nil {
-		return "", fmt.Errorf("split host/port: %w", err)
-	}
-
-	if net.ParseIP(host) != nil {
-		return addr, nil
-	}
-
-	resolver := net.DefaultResolver
-	if ut.dialer != nil && ut.dialer.Resolver != nil {
-		resolver = ut.dialer.Resolver
-	}
-
-	ips, err := resolver.LookupIPAddr(ctx, host)
-	if err != nil {
-		return "", fmt.Errorf("DNS lookup: %w", err)
-	}
-
-	if len(ips) == 0 {
-		return "", fmt.Errorf("no IP addresses found for %s", host)
-	}
-
-	for _, ip := range ips {
-		if ip.IP.To4() != nil {
-			return net.JoinHostPort(ip.IP.String(), port), nil
-		}
-	}
-
-	return net.JoinHostPort(ips[0].IP.String(), port), nil
-}
-
-// RoundTrip executes an HTTP/3 request with automatic fallback to HTTP/2.
-func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	if req == nil || req.URL == nil || req.URL.Host == "" {
-		if req != nil && req.Body != nil {
-			req.Body.Close()
-		}
-
-		return nil, errors.New("HTTP/3 requires a request URL and host")
-	}
-
-	// Environment or application-selected TCP proxies own this request's route.
-	// Do not bypass them through direct UDP or local HTTPS-record discovery.
-	if ut.proxy == "" && ut.requestProxy != nil {
-		proxy, err := ut.requestProxy(req)
-		if err != nil {
-			if req.Body != nil {
-				req.Body.Close()
-			}
-
-			return nil, err
-		}
-
-		req = withProxySelection(req, proxy)
-		if proxy != nil {
-			return ut.roundTripProxy(req)
-		}
-	}
-
-	if ut.proxy != "" && !isSOCKS5Proxy(ut.proxy) {
-		if ut.fallbackTransport != nil {
-			return ut.fallbackTransport.RoundTrip(req)
-		}
-
-		return nil, errors.New("non-SOCKS5 proxy requires HTTP/2 fallback")
-	}
-
-	if ut.http3tr == nil {
-		if ut.fallbackTransport != nil {
-			return ut.fallbackTransport.RoundTrip(req)
-		}
-
-		return nil, errors.New("no transport available")
-	}
-
-	if req.URL.Scheme == "" {
-		req = cloneRequestWithScheme(req, "https")
-	}
-
-	if ut.discovery != nil {
-		if req.URL.Scheme != "https" || requiresTCPHTTP(req) {
-			return ut.fallbackTransport.RoundTrip(req)
-		}
-		return ut.roundTripDiscovered(req)
-	}
-
-	if ut.racer != nil && req.URL.Scheme == "https" {
-		return ut.roundTripRacing(req)
-	}
-
-	resp, err := ut.roundTripHTTP3(req)
-	if err != nil {
-		return ut.handleError(req, err)
-	}
-
-	return resp, nil
-}
-
-// Add the profile header to a private HTTP/3 attempt, so automatic protocol
-// fallback and redirects do not inherit an authority from a previous attempt.
-func (ut *uquicTransport) requestWithAltUsed(req *http.Request) *http.Request {
-	if !ut.altUsed || req.URL.Host == "" {
-		return req
-	}
-
-	for name := range req.Header {
-		if strings.EqualFold(name, header.ALT_USED) {
-			return req
-		}
-	}
-
-	authority := req.URL.Host
-	if ut.discovery != nil {
-		origin, _ := raceAddress(req)
-		ut.discovery.mu.Lock()
-		if actual, ok := ut.discovery.actual[origin]; ok {
-			authority = actual.address
-		} else if route, ok := req.Context().Value(alternativeRouteKey{}).(alternativeRoute); ok {
-			authority = route.address
-		}
-
-		ut.discovery.mu.Unlock()
-	}
-
-	if _, port, err := net.SplitHostPort(authority); err == nil && port == "443" {
-		authority = strings.TrimSuffix(authority, ":443")
-	}
-
-	clone := *req
-	clone.Header = req.Header.Clone()
-	if clone.Header == nil {
-		clone.Header = make(http.Header)
-	}
-
-	clone.Header.Set(header.ALT_USED, authority)
-
-	return &clone
-}
-
-// handleError attempts HTTP/2 fallback for recoverable HTTP/3 errors.
-func (ut *uquicTransport) handleError(req *http.Request, err error) (*http.Response, error) {
-	if _, local := errors.AsType[*http3.RequestPreparationError](err); local {
-		return nil, err
-	}
-
-	if req.Context().Err() != nil {
-		return nil, err
-	}
-
-	if !isHTTP3UnsupportedError(err) || ut.fallbackTransport == nil {
-		return nil, err
-	}
-
-	if req.Body != nil && req.Body != http.NoBody {
-		if req.GetBody == nil {
-			return nil, fmt.Errorf("HTTP/3 failed, cannot retry (GetBody is nil): %w", err)
-		}
-
-		body, bodyErr := req.GetBody()
-		if bodyErr != nil {
-			return nil, fmt.Errorf("failed to restore body: %w", bodyErr)
-		}
-
-		req.Body = body
-	}
-
-	return ut.fallbackTransport.RoundTrip(req)
-}
-
-// CloseIdleConnections closes idle connections while keeping the transport usable.
-func (ut *uquicTransport) CloseIdleConnections() {
-	if ut.racer != nil {
-		ut.racer.close(true)
-	}
-
-	if ut.http3tr != nil {
-		ut.http3tr.CloseIdleConnections()
-	}
-
-	if ut.fallbackTransport != nil {
-		if c, ok := ut.fallbackTransport.(interface{ CloseIdleConnections() }); ok {
-			c.CloseIdleConnections()
-		}
-	}
-}
-
-// Close shuts down the transport and releases all resources.
-func (ut *uquicTransport) Close() error {
-	if ut.discovery != nil {
-		ut.discovery.close()
-	}
-	if ut.racer != nil {
-		ut.racer.close(false)
-	}
-
-	if ut.http3tr != nil {
-		ut.http3tr.Close()
-	}
-
-	ut.sharedMu.Lock()
-	ut.sharedClosed = true
-	transport, socket := ut.quictr, ut.pconn
-	ut.sharedMu.Unlock()
-	if transport != nil {
-		transport.Close()
-	}
-	if socket != nil {
-		socket.Close()
-	}
-
-	if ut.fallbackTransport != nil {
-		if c, ok := ut.fallbackTransport.(interface{ Close() error }); ok {
-			c.Close()
-		} else if c, ok := ut.fallbackTransport.(interface{ CloseIdleConnections() }); ok {
-			c.CloseIdleConnections()
-		}
-	}
-
-	return nil
-}
-
-func cloneRequestWithScheme(req *http.Request, scheme string) *http.Request {
-	clone := *req
-	urlClone := *req.URL
-	urlClone.Scheme = scheme
-	clone.URL = &urlClone
-
-	return &clone
-}
-
-func isHTTP3UnsupportedError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-		return false
-	}
-
-	if _, ok := errors.AsType[*proxyUDPError](err); ok {
-		return true
-	}
-
-	if _, ok := errors.AsType[*quic.ApplicationError](err); ok {
-		return true
-	}
-
-	var handshakeErr *quic.HandshakeTimeoutError
-	var idleErr *quic.IdleTimeoutError
-	var versionErr *quic.VersionNegotiationError
-	var resetErr *quic.StatelessResetError
-
-	if errors.As(err, &handshakeErr) ||
-		errors.As(err, &idleErr) ||
-		errors.As(err, &versionErr) ||
-		errors.As(err, &resetErr) {
-		return true
-	}
-
-	if opErr, ok := errors.AsType[*net.OpError](err); ok {
-		if opErr.Op == "dial" || opErr.Op == "write" || opErr.Op == "read" {
-			return true
-		}
-
-		if errno, ok := errors.AsType[syscall.Errno](opErr.Err); ok {
-			switch errno {
-			case syscall.ECONNREFUSED, syscall.ENETUNREACH, syscall.EHOSTUNREACH, syscall.ECONNRESET:
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-func isSOCKS5Proxy(proxyURL string) bool {
-	if proxyURL == "" {
-		return false
-	}
-
-	u, err := url.Parse(proxyURL)
-	if err != nil {
-		return false
-	}
-
-	return u.Scheme == "socks5" || u.Scheme == "socks5h"
+// ECHClientHelloInner supplies the real QUIC ECH inner ClientHello policy.
+// Browser profiles select their policy automatically. Nil restores engine defaults.
+func (h *HTTP3Settings) ECHClientHelloInner(policy utls.ECHClientHelloInnerFunc) *HTTP3Settings {
+	h.options.ECHClientHelloInner = policy
+	return h
 }

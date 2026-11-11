@@ -8,7 +8,7 @@ import (
 	"github.com/enetx/surf/internal/specclone"
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/tests/internal/wiretest"
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 // Each platform has a separate normalized wire reference.

@@ -11,6 +11,7 @@ import (
 
 // Desktop is the current Chrome 157 desktop variant.
 var Desktop = profiles.Variant{
+	ECHClientHelloInner:  common.ClientHelloInner,
 	ConfigureQUIC:        quic.ConfigureQUIC,
 	HelloSpec:            &HelloChrome_157,
 	ShuffleExtensions:    true,
@@ -26,6 +27,7 @@ var Desktop = profiles.Variant{
 
 // Mobile is the current Chrome 157 Android variant.
 var Mobile = profiles.Variant{
+	ECHClientHelloInner:  common.ClientHelloInner,
 	ConfigureQUIC:        quic.ConfigureQUIC,
 	HelloSpec:            &HelloChrome_157_Mobile,
 	ShuffleExtensions:    true,

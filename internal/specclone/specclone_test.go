@@ -7,7 +7,7 @@ import (
 
 	"github.com/enetx/surf/internal/specclone"
 
-	utls "github.com/refraction-networking/utls"
+	utls "github.com/enetx/utls"
 )
 
 func TestSpecClone_NilInput(t *testing.T) {
