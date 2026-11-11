@@ -60,21 +60,22 @@ frames demonstrate the API; they are not an observed browser resource scheduler.
 
 ## TLS 0-RTT scope
 
-`EarlyData(true)` supports bodyless GET/HEAD with standard TLS and an explicit
-session cache. It is disabled by default. Tests observe request-stream bytes in
+`EarlyData(true)` supports bodyless GET/HEAD with standard TLS or Chrome/Firefox
+ClientHello templates, including ECH, and an explicit session cache.
+It is disabled by default. Tests observe request-stream bytes in
 actual 0-RTT packets, rejection, 425 retries using 1-RTT, normal and zero-length
 connection IDs, SOCKS5 relay, cancellation before sending, GET with a body / POST
 exclusion, HTTP/2 fallback and preservation of the caller's method/headers.
 
-A direct probe with both official-uTLS browser templates resumed TLS but sent no
-0-RTT request data. The current adapter therefore rejects `EarlyData(true)` with
-custom ClientHello templates at build time. Ordinary Chrome/Firefox TLS session
-resumption remains tested and supported with GREASE ECH. The adapter now uses
-the [minimal uTLS fork](https://github.com/enetx/utls), based on that official
-revision, to supply browser-owned real-ECH inner layouts. No private-layout
-casts or 0-RTT bypass were added. Real ECH with custom PSK resumption remains
-explicitly unsupported; see the [ECH report](../ech/README.md).
-This is not a claim of browser 0-RTT fingerprint parity.
+The adapter uses the [minimal uTLS fork](https://github.com/enetx/utls) for
+browser-owned real-ECH inner layouts, private PSK binders and engine-controlled
+early-data offers. Ordinary and ECH session resumption are supported. Local peers
+verify matching early traffic secrets, HRR handling, ALPN changes, application
+vetoes and authenticated ECH retry; see the [ECH report](../ech/README.md).
+Connection racing and address racing still require a full handshake. Use
+`ForceHTTP3()` when the selected profile normally races TCP and QUIC.
+Native fresh-handshake references do not establish browser resumption or 0-RTT
+fingerprint parity.
 
 ## Regression coverage
 
