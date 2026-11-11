@@ -83,7 +83,9 @@ func TestHTTP3LivePriorityUpdates(t *testing.T) {
 }
 
 func TestHTTP3LivePriorityCancellation(t *testing.T) {
-	peer := newH3Peer(t)
+	// Hold the response so this tests cancellation of a live request rather
+	// than racing a completed HTTP response against cancel().
+	peer := startH3Peer(t, nil, make(chan struct{}))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	client := surf.NewClient().Builder().ForceHTTP3().HTTP3Settings().Set().TLSConfig(&tls.Config{InsecureSkipVerify: true}).Build().Unwrap()
@@ -92,8 +94,14 @@ func TestHTTP3LivePriorityCancellation(t *testing.T) {
 	result := client.Get(g.String(peer.url)).WithContext(ctx).HTTP3PriorityUpdates(func(p *surf.HTTP3PriorityUpdater) {
 		updater = p
 		cancel()
-		require.True(t, errors.Is(p.Update(2, true), context.Canceled))
+		// Cancellation can finish the request before Update takes its lock.
+		// Both lifetime errors must reject the update; cleanup timing does
+		// not promise which one the updater observes first.
+		err := p.Update(2, true)
+		require.Error(t, err)
+		require.True(t, errors.Is(err, context.Canceled) || errors.Is(err, http3.ErrRequestCompleted), "%v", err)
 	}).Do()
 	require.True(t, result.IsErr())
+	require.ErrorIs(t, result.Err(), context.Canceled)
 	require.NotNil(t, updater)
 }

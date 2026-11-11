@@ -69,6 +69,7 @@ func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
 
 type h3Peer struct {
 	controlFrames chan h3WireFrame
+	responseGate  <-chan struct{}
 	qpackCapacity *uint64
 	qpackStreams  chan h3QPACKCapture
 	packet        *h3CaptureConn
@@ -102,6 +103,10 @@ func newH3Peer(t *testing.T) *h3Peer {
 }
 
 func newH3PeerWithQPACK(t *testing.T, capacity *uint64, configure ...func(*quic.Config)) *h3Peer {
+	return startH3Peer(t, capacity, nil, configure...)
+}
+
+func startH3Peer(t *testing.T, capacity *uint64, responseGate <-chan struct{}, configure ...func(*quic.Config)) *h3Peer {
 	t.Helper()
 	s, udp, _, err := createHTTP3TestServer(func(w http.ResponseWriter, r *http.Request) {})
 	if err != nil {
@@ -109,6 +114,7 @@ func newH3PeerWithQPACK(t *testing.T, capacity *uint64, configure ...func(*quic.
 	}
 	p := &h3Peer{
 		controlFrames: make(chan h3WireFrame, 128),
+		responseGate:  responseGate,
 		packet:        &h3CaptureConn{PacketConn: udp},
 		requests:      make(chan h3RequestCapture, 16),
 		errors:        make(chan error, 16),
@@ -310,6 +316,15 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 				return
 			}
 			p.requests <- h3RequestCapture{settings: slices.Clone(settings), headers: headers, greaseFrames: grease, headerBlock: buf}
+			if p.responseGate != nil {
+				select {
+				case <-p.responseGate:
+				case <-ctx.Done():
+					return
+				case <-conn.Context().Done():
+					return
+				}
+			}
 			var block bytes.Buffer
 			enc := qpack.NewEncoder(&block)
 			if err := enc.WriteField(qpack.HeaderField{Name: ":status", Value: "200"}); err != nil {
