@@ -71,3 +71,10 @@ func (h *HTTP3Settings) CoalesceInitialSettings(enabled bool) *HTTP3Settings {
 	h.wire().CoalesceInitialSettings = enabled
 	return h
 }
+
+// CoalesceRequestHeaders stages initial priority, HEADERS and a bodyless
+// request's FIN together. Blocked streams retain asynchronous control writes.
+func (h *HTTP3Settings) CoalesceRequestHeaders(enabled bool) *HTTP3Settings {
+	h.wire().CoalesceRequestHeaders = enabled
+	return h
+}

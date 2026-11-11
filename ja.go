@@ -142,57 +142,12 @@ func (j *JA) getSpec() g.Result[utls.ClientHelloSpec] {
 // Android sets the JA3/4 fingerprint to mimic Android 11 OkHttp client.
 func (j *JA) Android() *Builder { return j.SetHelloID(utls.HelloAndroid_11_OkHttp) }
 
-// Chrome sets the JA3/4 fingerprint to mimic the latest Chrome browser (auto-detection).
-func (j *JA) Chrome() *Builder { return j.SetHelloID(utls.HelloChrome_Auto) }
+// Chrome applies the current Chrome 157 TLS template.
+func (j *JA) Chrome() *Builder { return j.Chrome157() }
 
-// Chrome58 sets the JA3/4 fingerprint to mimic Chrome version 58.
-func (j *JA) Chrome58() *Builder { return j.SetHelloID(utls.HelloChrome_58) }
-
-// Chrome62 sets the JA3/4 fingerprint to mimic Chrome version 62.
-func (j *JA) Chrome62() *Builder { return j.SetHelloID(utls.HelloChrome_62) }
-
-// Chrome70 sets the JA3/4 fingerprint to mimic Chrome version 70.
-func (j *JA) Chrome70() *Builder { return j.SetHelloID(utls.HelloChrome_70) }
-
-// Chrome72 sets the JA3/4 fingerprint to mimic Chrome version 72.
-func (j *JA) Chrome72() *Builder { return j.SetHelloID(utls.HelloChrome_72) }
-
-// Chrome83 sets the JA3/4 fingerprint to mimic Chrome version 83.
-func (j *JA) Chrome83() *Builder { return j.SetHelloID(utls.HelloChrome_83) }
-
-// Chrome87 sets the JA3/4 fingerprint to mimic Chrome version 87.
-func (j *JA) Chrome87() *Builder { return j.SetHelloID(utls.HelloChrome_87) }
-
-// Chrome96 sets the JA3/4 fingerprint to mimic Chrome version 96.
-func (j *JA) Chrome96() *Builder { return j.SetHelloID(utls.HelloChrome_96) }
-
-// Chrome100 sets the JA3/4 fingerprint to mimic Chrome version 100.
-func (j *JA) Chrome100() *Builder { return j.SetHelloID(utls.HelloChrome_100) }
-
-// Chrome102 sets the JA3/4 fingerprint to mimic Chrome version 102.
-func (j *JA) Chrome102() *Builder { return j.SetHelloID(utls.HelloChrome_102) }
-
-// Chrome106 sets the JA3/4 fingerprint to mimic Chrome version 106 with shuffled extensions.
-func (j *JA) Chrome106() *Builder { return j.SetHelloID(utls.HelloChrome_106_Shuffle) }
-
-// Chrome120 sets the JA3/4 fingerprint to mimic Chrome version 120.
-func (j *JA) Chrome120() *Builder { return j.SetHelloID(utls.HelloChrome_120) }
-
-// Chrome120PQ sets the JA3/4 fingerprint to mimic Chrome version 120 with post-quantum cryptography support.
-func (j *JA) Chrome120PQ() *Builder { return j.SetHelloID(utls.HelloChrome_120_PQ) }
-
-// Chrome131 sets the TLS fingerprint to Chrome 131 with ML-KEM.
-func (j *JA) Chrome131() *Builder { return j.SetHelloID(utls.HelloChrome_131) }
-
-// Chrome133 sets the TLS fingerprint to Chrome 133 with the new ALPS codepoint.
-func (j *JA) Chrome133() *Builder { return j.SetHelloID(utls.HelloChrome_133) }
-
-// Chrome155 sets the TLS fingerprint to uTLS's native Chrome 155 profile.
-func (j *JA) Chrome155() *Builder { return j.SetHelloID(utls.HelloChrome_155) }
-
-// Chrome156 applies the current Chrome TLS template with per-connection shuffling.
-func (j *JA) Chrome156() *Builder {
-	return j.ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_156)
+// Chrome157 applies the current Chrome TLS template with per-connection shuffling.
+func (j *JA) Chrome157() *Builder {
+	return j.ShuffleExtensions().SetHelloSpec(chrome.HelloChrome_157)
 }
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.

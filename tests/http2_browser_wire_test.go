@@ -28,7 +28,7 @@ import (
 func TestBrowserHTTP2Wire(t *testing.T) {
 	t.Parallel()
 
-	for _, name := range []string{"chrome-156-windows", "chrome-156-android", "chrome-157-ios", "firefox-160-windows"} {
+	for _, name := range []string{"chrome-157-windows", "chrome-157-android", "chrome-157-macos", "chrome-157-ios", "firefox-160-windows"} {
 		t.Run(name, func(t *testing.T) {
 			type capture struct {
 				settings []http2.Setting
@@ -38,6 +38,7 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 				streamID uint32
 				flags    http2.Flags
 				length   uint32
+				block    []byte
 			}
 			captured := make(chan capture, 1)
 			ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -54,7 +55,7 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 						return
 					}
 					fr := http2.NewFramer(conn, conn)
-					fr.ReadMetaHeaders = hpack.NewDecoder(65536, nil)
+					decoder := hpack.NewDecoder(65536, nil)
 					if err := fr.WriteSettings(); err != nil {
 						return
 					}
@@ -74,8 +75,16 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 							if f.StreamID == 0 {
 								got.window = f.Increment
 							}
-						case *http2.MetaHeadersFrame:
-							got.headers = slices.Clone(f.Fields)
+						case *http2.HeadersFrame:
+							if !f.HeadersEnded() {
+								return
+							}
+							got.block = slices.Clone(f.HeaderBlockFragment())
+							fields, err := decoder.DecodeFull(got.block)
+							if err != nil {
+								return
+							}
+							got.headers = fields
 							got.priority = f.Priority
 							got.streamID = f.StreamID
 							got.flags = f.Flags
@@ -94,8 +103,10 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 
 			im := surf.NewClient().Builder().Impersonate().Windows()
 			switch name {
-			case "chrome-156-android":
+			case "chrome-157-android":
 				im.Android()
+			case "chrome-157-macos":
+				im.MacOS()
 			case "chrome-157-ios":
 				im.IOS()
 			}
@@ -105,6 +116,7 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 			} else {
 				builder = im.Chrome()
 			}
+			builder.Proxy("")
 			url := g.String(ts.URL + "/a")
 			if name == "chrome-157-ios" {
 				// Reproduce the supplied iPhone navigation, including the encoded
@@ -119,7 +131,7 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 				})
 				url = "https://tls.peet.ws/api/all"
 			}
-			if name == "firefox-160-windows" {
+			if name == "firefox-160-windows" || name == "chrome-157-macos" {
 				// Replay the new independent tls.peet.ws navigation entirely
 				// against the local peer, retaining its authority and path.
 				builder.With(func(c *surf.Client) error {
@@ -162,13 +174,16 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 			}
 			fmt.Fprintf(&normalized, "\nWINDOW_UPDATE stream=0 increment=%d\n", got.window)
 			fmt.Fprintf(&normalized, "HEADERS stream=%d flags=0x%x", got.streamID, got.flags)
-			if name == "chrome-157-ios" {
+			if name == "chrome-157-ios" || name == "chrome-157-macos" {
 				fmt.Fprintf(&normalized, " length=%d", got.length)
 			}
 			if got.flags.Has(http2.FlagHeadersPriority) {
 				fmt.Fprintf(&normalized, " exclusive=%t dep=%d weight=%d", got.priority.Exclusive, got.priority.StreamDep, int(got.priority.Weight)+1)
 			}
 			normalized.WriteByte('\n')
+			if name == "chrome-157-macos" {
+				fmt.Fprintf(&normalized, "HPACK %x\n", got.block)
+			}
 			for _, field := range got.headers {
 				value := field.Value
 				if field.Name == ":authority" {

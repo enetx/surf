@@ -8,8 +8,10 @@ import (
 	"io"
 	"net"
 	"net/textproto"
+	"net/url"
 	"slices"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"syscall"
 	"time"
@@ -18,7 +20,6 @@ import (
 	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptrace"
 	"github.com/enetx/surf/internal/tlsstate"
-	"github.com/enetx/surf/profiles"
 
 	utls "github.com/refraction-networking/utls"
 )
@@ -31,7 +32,11 @@ type roundtripper struct {
 	http2tr            *http2.Transport
 	clientSessionCache utls.ClientSessionCache
 	ja                 *JA
-	protocolHeaders    profiles.ProtocolHeaders
+	protocolHeaders    requestHeadersPolicy
+	requestProxy       func(*http.Request) (*url.URL, error)
+	http2settings      *HTTP2Settings
+	proxyMu            sync.Mutex
+	proxyTransports    map[string]*roundtripper
 }
 
 // newRoundTripper creates a new roundtripper wrapping the given base transport
@@ -46,21 +51,35 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 		http1tr:         http1tr,
 		ja:              ja,
 		protocolHeaders: ja.builder.protocolHeaders,
+		requestProxy:    http1tr.Proxy,
 	}
+
+	rt.configureProxy()
 
 	if ja.builder.cli.tlsConfig.ClientSessionCache != nil {
 		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
 	}
 
-	rt.http1tr.DialTLSContext = rt.dialTLS
-	rt.http1trFallback = http1tr.Clone()
-	rt.http1trFallback.DialTLSContext = rt.dialTLSHTTP1
-
-	if !ja.builder.forceHTTP1 {
-		rt.http2tr = rt.buildHTTP2Transport()
+	if h := ja.builder.http2settings; h != nil {
+		snapshot := *h
+		snapshot.hpack = h.hpack.Clone()
+		snapshot.priorityFrames = slices.Clone(h.priorityFrames)
+		rt.http2settings = &snapshot
 	}
 
+	rt.configureTransports(!ja.builder.forceHTTP1)
+
 	return rt
+}
+
+func (rt *roundtripper) configureTransports(enableHTTP2 bool) {
+	rt.http1tr.DialTLSContext = rt.dialTLS
+	rt.http1trFallback = rt.http1tr.Clone()
+	rt.http1trFallback.DialTLSContext = rt.dialTLSHTTP1
+
+	if enableHTTP2 {
+		rt.http2tr = rt.buildHTTP2Transport()
+	}
 }
 
 // RoundTrip executes a single HTTP request using cached transports.
@@ -72,6 +91,28 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 		// Plain HTTP always uses HTTP/1.1 (HTTP/2 requires TLS)
 		return rt.http1tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
 	case "https":
+		var err error
+		req, err = rt.prepareProxy(req)
+		if err != nil {
+			if req.Body != nil {
+				req.Body.Close()
+			}
+
+			return nil, err
+		}
+
+		child, err := rt.proxyTransport(req)
+		if err != nil {
+			if req.Body != nil {
+				req.Body.Close()
+			}
+
+			return nil, err
+		}
+
+		if child != nil {
+			return child.RoundTrip(req)
+		}
 		return rt.handleHTTPSRequest(req)
 	default:
 		return nil, fmt.Errorf("invalid URL scheme: %s", req.URL.Scheme)
@@ -93,6 +134,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	// Like Chrome, only resend after a reused connection closes without any
 	// response, including informational headers. Keep the caller's trace hooks.
 	var reused, receivedInformational atomic.Bool
+
 	trace := &httptrace.ClientTrace{
 		GotConn: func(info httptrace.GotConnInfo) {
 			reused.Store(info.Reused)
@@ -103,6 +145,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 			return nil
 		},
 	}
+
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
 
 	// Try HTTP/2 first
@@ -219,10 +262,12 @@ func wantsHTTP1(err error) bool {
 	// with LastStreamID=0. Match its complete message until that path also
 	// returns a GoAwayError; other GOAWAY codes must not enable fallback.
 	const firstStreamHTTP1Required = "http2: Transport received GOAWAY from server ErrCode:HTTP_1_1_REQUIRED"
+
 	for err != nil {
 		if err.Error() == firstStreamHTTP1Required {
 			return true
 		}
+
 		err = errors.Unwrap(err)
 	}
 
@@ -231,6 +276,7 @@ func wantsHTTP1(err error) bool {
 
 // CloseIdleConnections closes all idle connections.
 func (rt *roundtripper) CloseIdleConnections() {
+	rt.closeProxyIdleConnections()
 	if rt.http1tr != nil {
 		rt.http1tr.CloseIdleConnections()
 	}
@@ -244,7 +290,7 @@ func (rt *roundtripper) CloseIdleConnections() {
 	}
 }
 
-// buildHTTP2Transport builds a new HTTP/2 transport using settings from builder.
+// buildHTTP2Transport builds a new HTTP/2 transport using the completed builder snapshot.
 func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	t := &http2.Transport{
 		DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
@@ -257,8 +303,8 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 		WriteByteTimeout:   _http2WriteByteTimeout,
 	}
 
-	if rt.ja.builder.http2settings != nil {
-		h := rt.ja.builder.http2settings
+	if rt.http2settings != nil {
+		h := rt.http2settings
 		t.HPACK = h.hpack.Clone()
 		t.MaxEncoderHeaderTableSize = h.maxEncoderHeaderTableSize
 		t.HeaderPriority = h.headerPriority
@@ -386,17 +432,21 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 	if source.ServerName != "" {
 		config.ServerName = source.ServerName
 	}
+
 	if source.VerifyConnection != nil {
 		config.VerifyConnection = func(s utls.ConnectionState) error { return source.VerifyConnection(tlsstate.FromUTLS(s)) }
 	}
+
 	if source.EncryptedClientHelloRejectionVerify != nil {
 		config.EncryptedClientHelloRejectionVerify = func(s utls.ConnectionState) error {
 			return source.EncryptedClientHelloRejectionVerify(tlsstate.FromUTLS(s))
 		}
 	}
+
 	if route, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok && len(route.ech) > 0 {
 		config.EncryptedClientHelloConfigList = slices.Clone(route.ech)
 	}
+
 	if len(config.EncryptedClientHelloConfigList) > 0 {
 		config.MinVersion = utls.VersionTLS13
 		// With real ECH, uTLS takes inner ALPN from Config rather than the

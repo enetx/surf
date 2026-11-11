@@ -10,17 +10,17 @@ import (
 func ConfigureQPACK(h profiles.H3Config) {
 	// Cookie splitting belongs to the HTTP/3 header encoder. Initial priority
 	// updates belong to QuicSpdyStream and are separate from GREASE frames.
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/value_splitting_header_list.cc
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_spdy_stream.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/qpack/value_splitting_header_list.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/quic_spdy_stream.cc
 	// Priority fields use QUICHE structured-header dictionary serialization.
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_stream_priority.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_stream_priority.cc
 	// QUICHE indexes eligible fields, drains the oldest quarter of the table,
 	// and uses Huffman only when shorter. Base equals Required Insert Count.
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/qpack_encoder.cc
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/qpack/qpack_instruction_encoder.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/qpack/qpack_encoder.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/qpack/qpack_instruction_encoder.cc
 	// SendInitialData runs as soon as application encryption is established.
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/http/quic_spdy_session.cc
-	h.CoalesceInitialSettings(true).QpackDynamicTable(true).
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/quic_spdy_session.cc
+	h.CoalesceInitialSettings(true).CoalesceRequestHeaders(true).QpackDynamicTable(true).
 		QpackHuffman(http3.QPACKHuffmanAuto).
 		QpackIndexing(http3.QPACKIndexAll).
 		QpackIndexingPolicy(nil).
@@ -29,7 +29,9 @@ func ConfigureQPACK(h profiles.H3Config) {
 		QpackLiteralInsertNames(false).
 		QpackStopOnInsertionFailure(false).
 		QpackMaxTrackedSections(0).
-		QpackEncoderZeroCapacity(true).
+		// OnSetting handles an explicit zero, but no callback occurs for an
+		// omitted capacity. The lazy stream stays silent in the latter case.
+		QpackEncoderZeroCapacity(true).QpackEncoderCapacityRequiresSetting(true).
 		QpackNeverIndex().
 		QpackSplitCookies(true).
 		PriorityUpdates(true).

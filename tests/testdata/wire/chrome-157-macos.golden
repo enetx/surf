@@ -1,11 +1,12 @@
-# chrome-156-windows
+# chrome-157-macos
 
 ## tcp client hello (h2)
-extensions (permuted) 10,11,13,16,17613,18,23,27,35,43,45,5,51,51764,65037,65281,GREASE,GREASE
+extensions (permuted) 0,10,11,13,16,17613,18,23,27,35,43,45,5,51,51764,65037,65281,GREASE,GREASE
 legacy_version 0x0303
 session_id 32 bytes
 cipher_suites GREASE,4865,4866,4867,49195,49199,49196,49200,52393,52392,49171,49172,156,157,47,53
 compression 00
+ext 0: 000e00000b746c732e706565742e7773
 ext 10: GREASE 4588 29 23 24
 ext 11: 0100
 ext 13: GREASE 2308 2309 2310 1027 2052 1025 1283 2053 1281 2054 1537
@@ -28,16 +29,17 @@ ext GREASE: 00
 ## http/2 navigation
 SETTINGS 1=65536 2=0 4=6291456 6=262144
 WINDOW_UPDATE stream=0 increment=15663105
-HEADERS stream=1 flags=0x25 exclusive=true dep=0 weight=256
+HEADERS stream=1 flags=0x25 length=469 exclusive=true dep=0 weight=256
+HPACK 8241884d085eb2952bf84787048660759981d14740874148b1275ad1ffb8fe749d2b42bddb07549fcfdf783f97dffe7e94fe711cf350552f4f61e92ff3f7de0fe42dbbfcfd29fcde9ec3d26b69fe7efbc1fc85b77f9f408b4148b1275ad1ad49e33505023f30408d4148b1275ad1ad5d034ca7b29f07226d61634f53224092b6b9ac1c8558d520a4b6c2ad617b5a54251f01317ad9d07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda97a7b0f49580b6eae05c0b814dc394761986d975765cf53ec497ca589d34d1f43aeba0c41a4c7a98f33a69a3fdf9a68fa1d75d0620d263d4c79a68fbed00177fe8d48e62b1d3cd1f46a4731581f734bf46a473158f058ebfa352398ac0ebaa6faf963e7efb4005defa1d75d0620d263d4c20d35459162f924e3aa62fdf782367efb4005dd408a4148b4a549275906497f83a8f517408a4148b4a549275a93c85f86a87dcd30d25f408a4148b4a549275ad416cf023f31408a4148b4a549275a42a13f8690e4b692d49f50929bd9abfa5242cb40d25fa523b3e94f684c9f518b2d4b70ddf45abefb4005df4086aec31ec327d785b6007d286f
 :method: GET
-:authority: 127.0.0.1:PORT
+:authority: tls.peet.ws
 :scheme: https
-:path: /a
-sec-ch-ua: "Not:A-Brand";v="8", "Chromium";v="156", "Google Chrome";v="156"
+:path: /api/all
+sec-ch-ua: "Not-A.Brand";v="99", "Google Chrome";v="157", "Chromium";v="157"
 sec-ch-ua-mobile: ?0
-sec-ch-ua-platform: "Windows"
+sec-ch-ua-platform: "macOS"
 upgrade-insecure-requests: 1
-user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36
 accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
 sec-fetch-site: none
 sec-fetch-mode: navigate

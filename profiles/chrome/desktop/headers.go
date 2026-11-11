@@ -138,12 +138,15 @@ func BuildHeaders(os profiles.OSKey) *g.MapOrd[g.String, g.String] {
 }
 
 func insertHeaders[T ~string](headers *g.MapOrd[T, T], method string) {
+	// Reserve its position; the selected protocol supplies the actual default.
+	if !headers.Contains(header.PRIORITY) {
+		headers.Insert(header.PRIORITY, "")
+	}
 	switch strings.TrimSuffix(method, "http3") {
 	case http.MethodPost:
 		headers.Insert(header.ACCEPT, "*/*")
 		headers.Insert(header.CONTENT_TYPE, "")
 		headers.Insert(header.CONTENT_LENGTH, "")
-		headers.Insert(header.PRIORITY, "u=1, i")
 		headers.Insert(header.SEC_FETCH_DEST, "empty")
 		headers.Insert(header.SEC_FETCH_MODE, "cors")
 		headers.Insert(header.SEC_FETCH_SITE, "same-origin")
@@ -152,7 +155,6 @@ func insertHeaders[T ~string](headers *g.MapOrd[T, T], method string) {
 			header.ACCEPT,
 			"text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
 		)
-		headers.Insert(header.PRIORITY, "u=0, i")
 		headers.Insert(header.SEC_FETCH_DEST, "document")
 		headers.Insert(header.SEC_FETCH_MODE, "navigate")
 		headers.Insert(header.SEC_FETCH_SITE, "none")

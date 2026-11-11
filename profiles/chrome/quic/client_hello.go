@@ -6,7 +6,7 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
-// NewClientHelloSpec follows the independently captured Chromium 156 QUIC
+// NewClientHelloSpec follows the independently captured Chromium 157 QUIC
 // handshake. It is separate from the browser's TCP template. uTLS generates the
 // key material, GREASE ECH payload and PSK binders; Surf owns the advertised fields.
 func NewClientHelloSpec() (utls.ClientHelloSpec, error) {

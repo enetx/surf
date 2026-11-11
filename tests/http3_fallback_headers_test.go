@@ -272,12 +272,12 @@ func TestHTTP3FallbackReplacesEarlierTLSProfile(t *testing.T) {
 			want := []uint16{23, 65281, 10, 11, 35, 16, 5, 34, 18, 51, 43, 13, 45, 28, 27, 65037}
 			if name == "firefox" {
 				b = profile.Firefox().ForceHTTP3()
-				b.JA().Chrome156()
+				b.JA().Chrome157()
 				b.JA().Firefox160()
 			} else {
 				b = profile.Chrome().ForceHTTP3()
 				b.JA().Firefox160()
-				b.JA().Chrome156()
+				b.JA().Chrome157()
 				// Independent Chrome 156 navigation golden, without DNS SNI.
 				want = []uint16{10, 11, 13, 16, 17613, 18, 23, 27, 35, 43, 45, 5, 51, 51764, 65037, 65281, 0x0a0a, 0x0a0a}
 			}

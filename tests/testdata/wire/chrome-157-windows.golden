@@ -1,4 +1,4 @@
-# chrome-156-android
+# chrome-157-windows
 
 ## tcp client hello (h2)
 extensions (permuted) 10,11,13,16,17613,18,23,27,35,43,45,5,51,51764,65037,65281,GREASE,GREASE
@@ -33,11 +33,11 @@ HEADERS stream=1 flags=0x25 exclusive=true dep=0 weight=256
 :authority: 127.0.0.1:PORT
 :scheme: https
 :path: /a
-sec-ch-ua: "Not:A-Brand";v="8", "Chromium";v="156", "Google Chrome";v="156"
-sec-ch-ua-mobile: ?1
-sec-ch-ua-platform: "Android"
+sec-ch-ua: "Not-A.Brand";v="99", "Google Chrome";v="157", "Chromium";v="157"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
 upgrade-insecure-requests: 1
-user-agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Mobile Safari/537.36
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36
 accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
 sec-fetch-site: none
 sec-fetch-mode: navigate

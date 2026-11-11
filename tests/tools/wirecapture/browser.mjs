@@ -26,7 +26,7 @@ export async function launchBrowser(executable, flags, pattern) {
     });
   });
   const ws = new WebSocket(
-    address + (executable.includes("Firefox") ? "/session" : ""),
+    address + (pattern.source.includes("WebDriver BiDi") ? "/session" : ""),
   );
   await new Promise((resolve, reject) => {
     ws.addEventListener("open", resolve, { once: true });

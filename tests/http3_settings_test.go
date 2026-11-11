@@ -323,7 +323,7 @@ func TestHTTP3Compatibility(t *testing.T) {
 
 	t.Run("HTTP3 with JA3 compatibility", func(t *testing.T) {
 		client := surf.NewClient().Builder().
-			JA().Chrome156().
+			JA().Chrome157().
 			HTTP3Settings().Set().
 			ForceHTTP3().
 			Build().Unwrap()

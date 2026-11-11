@@ -19,6 +19,7 @@ func (q *QUICSettings) pacing() *quic.PacingConfig {
 	if h.Pacing == nil {
 		h.Pacing = &quic.PacingConfig{BurstPackets: 1, LumpyPackets: 1, SlowStartGain: 1000, AvoidanceGain: 1000}
 	}
+
 	return h.Pacing
 }
 

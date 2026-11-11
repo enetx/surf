@@ -8,33 +8,33 @@ import (
 )
 
 // ConfigureQUIC applies Chromium's QUIC settings through Surf's fluent API.
-// Flow-control limits and empty SCIDs follow Chromium 156's quic_context.cc;
+// Flow-control limits and empty SCIDs follow Chromium 157's quic_context.cc;
 // see tests/testdata/wire/README.md for sources and remaining limitations.
 func ConfigureQUIC(q profiles.QUICConfig) {
 	// QUICHE's external BBR defaults are false. TcpCubicSenderBytes uses
 	// kDefaultTCPMSS=1460 and kDefaultNumConnections=2, independently of UDP MTU.
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/common/quiche_feature_flags_list.h
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/common/platform/default/quiche_platform_impl/quiche_flags_impl.cc
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/congestion_control/tcp_cubic_sender_bytes.cc
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_constants.h
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/common/quiche_feature_flags_list.h
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/common/platform/default/quiche_platform_impl/quiche_flags_impl.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/congestion_control/tcp_cubic_sender_bytes.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_constants.h
 	q.CongestionControl(quic.CongestionControlCubicBytes).
 		SlowStart(quic.SlowStartHybrid).
 		CongestionControlSegmentSize(1460).
 		CongestionControlConnections(2).
 		PeerAckFrequencyPolicy(nil).
 		// quic_max_congestion_window counts fixed accounting segments.
-		// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/common/quiche_protocol_flags_list.h
+		// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/common/quiche_protocol_flags_list.h
 		MaxCongestionWindowPackets(2000).
 		InitialCongestionWindowPackets(32)
 	// QUICHE scheduled pacing, idle burst, lumpy thresholds, and PRR.
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/congestion_control/pacing_sender.cc
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/congestion_control/prr_sender.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/congestion_control/pacing_sender.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/congestion_control/prr_sender.cc
 	q.Pacing(quic.PacingScheduled).PacingBurstPackets(10).
 		PacingGains(2000, 1250).PacingGranularity(time.Millisecond).
 		PacingLumpyBurst(2, 250, 150000).ProportionalRateReduction(true).
 		RecoveryBurstPackets(0).PersistentCongestionThreshold(0)
 	// QuicPacketCreator increments one packet_.packet_number across levels.
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_packet_creator.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_packet_creator.cc
 	q.SeparatePacketNumberSpaces(false).CompatibleVersionNegotiation(false).
 		Versions(quic.Version1).
 		HandshakeIdleTimeout(10*time.Second).
@@ -60,16 +60,16 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		ReceiveWindowUpdateDivisor(2).
 		AckOnlyPingThreshold(-1).
 		// OnAckNeedsRetransmittableFrame repeats the current connection window.
-		// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_session.cc
-		// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_constants.h
+		// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_session.cc
+		// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_constants.h
 		AckOnlyMaxDataThreshold(19).
 		OmitInitialAckOnHandshake(true).
 		// QUICHE retains peer-issued IDs until retirement or a path change.
-		// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_connection_id_manager.cc
+		// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_connection_id_manager.cc
 		DisableConnectionIDRotation(true).
 		// QUICHE's packet-local and multi-packet Chaos Protection ranges.
-		// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_chaos_protector.cc
-		// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/quic/core/quic_packet_creator.cc
+		// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_chaos_protector.cc
+		// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_packet_creator.cc
 		InitialCryptoFrameSplits(2, 10).
 		InitialPingFrames(2, 10).
 		InitialCryptoFirstFrameSize(55, 86).

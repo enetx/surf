@@ -90,6 +90,7 @@ type H3Config interface {
 	ExpireFailedAlternatives(bool) H3Config
 	ConnectionRacingPolicy(ConnectionRacingPolicy) H3Config
 	CoalesceInitialSettings(bool) H3Config
+	CoalesceRequestHeaders(bool) H3Config
 	EarlyData(bool) H3Config
 	RequestBodyBufferSize(int) H3Config
 	RequestBodyBufferSizePolicy(func(int64) int) H3Config
@@ -116,6 +117,7 @@ type H3Config interface {
 	QpackStopOnInsertionFailure(bool) H3Config
 	QpackMaxTrackedSections(uint64) H3Config
 	QpackEncoderZeroCapacity(bool) H3Config
+	QpackEncoderCapacityRequiresSetting(bool) H3Config
 	PriorityUpdates(bool) H3Config
 	CompactPriorityUpdates(bool) H3Config
 	ControlGreaseFramesFactory(func() ([]http3.GreaseFrame, error)) H3Config
@@ -258,4 +260,8 @@ type Variant struct {
 	// ProtocolHeaders supplies protocol-specific defaults after routing. It
 	// operates on a private attempt, so fallback does not inherit those defaults.
 	ProtocolHeaders ProtocolHeaders
+
+	// RequestHeaders adjusts protocol defaults using the request method. Only
+	// Header may be changed; the request and header map are private to the attempt.
+	RequestHeaders func(*http.Request, int)
 }

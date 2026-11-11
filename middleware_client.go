@@ -323,6 +323,9 @@ func proxyMW(client *Client, proxy g.String) error {
 		dialer.SetResolver(client.dialer.Resolver)
 	}
 
+	// The explicit proxy owns routing, including an explicit direct connection.
+	// Otherwise an environment proxy can wrap the configured tunnel a second time.
+	transport.Proxy = nil
 	transport.DialContext = dialer.DialContext
 
 	return nil

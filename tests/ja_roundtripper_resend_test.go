@@ -141,7 +141,7 @@ func TestRoundTripperResendPolicy(t *testing.T) {
 			}
 			ts.StartTLS()
 			defer ts.Close()
-			client := surf.NewClient().Builder().JA().Chrome156().Timeout(5 * time.Second).Build().Unwrap()
+			client := surf.NewClient().Builder().JA().Chrome157().Timeout(5 * time.Second).Build().Unwrap()
 			defer client.CloseIdleConnections()
 			if tc.warm {
 				warmup := client.Get(g.String(ts.URL + "/warmup")).Do()
@@ -252,7 +252,7 @@ func TestRoundTripperDoesNotResendDialConnectionErrors(t *testing.T) {
 			client := surf.NewClient().Builder().With(func(c *surf.Client) error {
 				c.GetTransport().(*http.Transport).DialContext = func(context.Context, string, string) (net.Conn, error) { calls.Add(1); return nil, dialErr }
 				return nil
-			}).JA().Chrome156().Build().Unwrap()
+			}).JA().Chrome157().Build().Unwrap()
 			response := client.Get("https://example.invalid/").Do()
 			if !response.IsErr() || !errors.Is(response.Err(), dialErr) {
 				t.Fatalf("expected original dial error, got %v", response.Err())
@@ -331,7 +331,7 @@ func TestRoundTripperResendsOtherStreamsAfterBlockResponse(t *testing.T) {
 	ts.StartTLS()
 	defer ts.Close()
 	defer cancel()
-	client := surf.NewClient().Builder().JA().Chrome156().Timeout(5 * time.Second).Build().Unwrap()
+	client := surf.NewClient().Builder().JA().Chrome157().Timeout(5 * time.Second).Build().Unwrap()
 	defer client.CloseIdleConnections()
 	type result struct {
 		status         int
@@ -445,7 +445,7 @@ func TestRoundTripperDoesNotResendFailedDialAfterReusedGoAway(t *testing.T) {
 			return dial(ctx, network, address)
 		}
 		return nil
-	}).JA().Chrome156().Timeout(5 * time.Second).Build().Unwrap()
+	}).JA().Chrome157().Timeout(5 * time.Second).Build().Unwrap()
 	warmup := client.Get(g.String(ts.URL)).Do()
 	if warmup.IsErr() {
 		t.Fatal(warmup.Err())

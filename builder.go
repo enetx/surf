@@ -23,7 +23,7 @@ type Builder struct {
 	http3settings            *HTTP3Settings                             // HTTP/3 specific settings
 	cliMWs                   *middleware[*Client]                       // Priority-ordered client middlewares
 	headersApplier           profiles.HeadersApplier                    // Profile-specific request header pipeline (set by Impersonate)
-	protocolHeaders          profiles.ProtocolHeaders                   // Profile defaults for the selected transport protocol
+	protocolHeaders          requestHeadersPolicy                       // Profile defaults for the selected transport protocol
 	retryWait                time.Duration                              // Wait duration between retry attempts
 	retryMax                 int                                        // Maximum number of retry attempts
 	maxRedirects             int                                        // Maximum number of redirects to follow
@@ -165,10 +165,11 @@ func (b *Builder) QUICSettings() *QUICSettings {
 	return &QUICSettings{http3: b.HTTP3Settings()}
 }
 
-// ForceHTTP3 configures the client to use HTTP/3 forcefully.
+// ForceHTTP3 attempts HTTP/3 directly, without requiring Alt-Svc or HTTPS DNS.
+// An unavailable UDP path or a TCP-only proxy can still select HTTP/2 or HTTP/1.
 func (b *Builder) ForceHTTP3() *Builder {
 	b.forceHTTP3 = true
-	return b
+	return b.HTTP3Settings().Set()
 }
 
 // Impersonate configures something related to impersonation and returns an impersonate struct.
@@ -214,7 +215,7 @@ func (b *Builder) InterfaceAddr(address g.String) *Builder {
 // Proxy sets the proxy URL for the client.
 func (b *Builder) Proxy(proxy g.String) *Builder {
 	b.proxy = proxy
-	return b.addCliMW(func(client *Client) error { return proxyMW(client, proxy) }, 0)
+	return b.addCliMW(func(client *Client) error { return proxyMW(client, b.proxy) }, 0)
 }
 
 // BasicAuth sets the basic authentication credentials for the client.

@@ -33,7 +33,7 @@ func TestFirefoxHTTP1ClientHello(t *testing.T) {
 	}))
 	defer server.Close()
 	hellos := make(chan recordedClientHello, 1)
-	client := surf.NewClient().Builder().With(func(c *surf.Client) error {
+	client := surf.NewClient().Builder().Proxy("").With(func(c *surf.Client) error {
 		transport := c.GetTransport().(*http.Transport)
 		dial := transport.DialContext
 		transport.DialContext = func(ctx context.Context, network, _ string) (net.Conn, error) {

@@ -125,3 +125,34 @@ func TestHTTP3QPACKFluentValidation(t *testing.T) {
 		})
 	}
 }
+
+func TestChromeQPACKOmittedAndExplicitZeroCapacity(t *testing.T) {
+	for _, explicit := range []bool{false, true} {
+		t.Run(fmt.Sprint(explicit), func(t *testing.T) {
+			var peer *h3Peer
+			if explicit {
+				zero := uint64(0)
+				peer = newH3PeerWithQPACK(t, &zero)
+			} else {
+				peer = newH3Peer(t)
+			}
+			client := surf.NewClient().Builder().Impersonate().Chrome().ForceHTTP3().Proxy("").Build().Unwrap()
+			defer client.Close()
+			peer.request(t, client)
+			peer.request(t, client)
+			if explicit {
+				stream := nextSurfQPACKStream(t, peer)
+				require.EqualValues(t, 2, stream.typ)
+				require.Zero(t, readSurfQPACKCapacity(t, stream))
+			} else {
+				select {
+				case stream := <-peer.qpackStreams:
+					t.Fatalf("omitted capacity opened QPACK stream %d", stream.typ)
+				case err := <-peer.errors:
+					t.Fatal(err)
+				case <-time.After(30 * time.Millisecond):
+				}
+			}
+		})
+	}
+}

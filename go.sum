@@ -2,10 +2,10 @@ github.com/andybalholm/brotli v1.2.8 h1:H9F6r7RNwzSRsx/lytpIYkbjNFMt2yNBwsJ2+0gp
 github.com/andybalholm/brotli v1.2.8/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/enetx/g v1.1.1 h1:Lu3l3/Vy51cd52o1V37iCDmE5jAympCWQYHcb7AKlpI=
 github.com/enetx/g v1.1.1/go.mod h1:nVdbiRFOVdOb/TDVPB3gMaMd8161Wv6dQZYdqvg9IHE=
-github.com/enetx/http v1.0.36 h1:TG6YJCIahWS15aJKE9NZCUx1U/dMeSLV6WOKLvh/fnM=
-github.com/enetx/http v1.0.36/go.mod h1:5gUSfUXVty5/7tAZxFKSX4anUMNS2CEf3ekjJFMAHQE=
-github.com/enetx/quic-go v1.0.14 h1:cAw2wm3+db2K5r01mTrvOd8id6lAP3jYYSY6BomuDXw=
-github.com/enetx/quic-go v1.0.14/go.mod h1:b+Cjf0olZVTzLNdv+GY/1VrdCKr84psriyzj8teFBa0=
+github.com/enetx/http v1.0.37 h1:DlkFKtiN4IsIWygn3qIgu099M7HLA5XXrsLmy2LfEdM=
+github.com/enetx/http v1.0.37/go.mod h1:5gUSfUXVty5/7tAZxFKSX4anUMNS2CEf3ekjJFMAHQE=
+github.com/enetx/quic-go v1.0.15 h1:Nvo+bwXbzHomNzmvvbPbWdR1CXgUr4p5UyvyTmuksSM=
+github.com/enetx/quic-go v1.0.15/go.mod h1:N7+jbUlhtyPk9GyXfuu6vf2qRy5RtdJu0UrIRUeH76o=
 github.com/klauspost/compress v1.20.3 h1:zWNoFqq/lSuYQRim3dUXlXeA0IqwuZGicdG5ZTfY5j4=
 github.com/klauspost/compress v1.20.3/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=
 github.com/molecule-man/go-brrr v1.3.1 h1:EwaJUzRIlp/dFmIpzq4J17CA5Zi5OHo2vOGmu09hF1w=

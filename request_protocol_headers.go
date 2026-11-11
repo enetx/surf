@@ -1,14 +1,13 @@
 package surf
 
-import (
-	"github.com/enetx/http"
-	"github.com/enetx/surf/profiles"
-)
+import "github.com/enetx/http"
+
+type requestHeadersPolicy func(*http.Request, int)
 
 // withProtocolHeaders applies profile defaults to a private attempt. Keeping
 // them out of the original request lets fallback select different defaults
 // without confusing them with headers supplied by the caller.
-func withProtocolHeaders(req *http.Request, policy profiles.ProtocolHeaders, major int) *http.Request {
+func withProtocolHeaders(req *http.Request, policy requestHeadersPolicy, major int) *http.Request {
 	if policy == nil {
 		return req
 	}
@@ -18,6 +17,8 @@ func withProtocolHeaders(req *http.Request, policy profiles.ProtocolHeaders, maj
 	if clone.Header == nil {
 		clone.Header = make(http.Header)
 	}
-	policy(clone.Header, major)
+
+	policy(&clone, major)
+
 	return &clone
 }

@@ -3,15 +3,16 @@ package chrome
 import (
 	"github.com/enetx/surf/profiles"
 	"github.com/enetx/surf/profiles/chrome/android"
+	"github.com/enetx/surf/profiles/chrome/common"
 	"github.com/enetx/surf/profiles/chrome/desktop"
 	"github.com/enetx/surf/profiles/chrome/ios"
 	"github.com/enetx/surf/profiles/chrome/quic"
 )
 
-// Desktop is the current Chrome 156 desktop variant.
+// Desktop is the current Chrome 157 desktop variant.
 var Desktop = profiles.Variant{
 	ConfigureQUIC:        quic.ConfigureQUIC,
-	HelloSpec:            &HelloChrome_156,
+	HelloSpec:            &HelloChrome_157,
 	ShuffleExtensions:    true,
 	Boundary:             Boundary,
 	ConfigureH2:          desktop.ConfigureH2,
@@ -20,12 +21,13 @@ var Desktop = profiles.Variant{
 	ConfigureRequestBody: quic.ConfigureRequestBody,
 	BuildHeaders:         desktop.BuildHeaders,
 	Headers:              DesktopApplier,
+	RequestHeaders:       common.RequestHeaders,
 }
 
-// Mobile is the current Chrome 156 Android variant.
+// Mobile is the current Chrome 157 Android variant.
 var Mobile = profiles.Variant{
 	ConfigureQUIC:        quic.ConfigureQUIC,
-	HelloSpec:            &HelloChrome_156_Mobile,
+	HelloSpec:            &HelloChrome_157_Mobile,
 	ShuffleExtensions:    true,
 	Boundary:             Boundary,
 	ConfigureH2:          android.ConfigureH2,
@@ -34,6 +36,7 @@ var Mobile = profiles.Variant{
 	ConfigureRequestBody: quic.ConfigureRequestBody,
 	BuildHeaders:         android.BuildHeaders,
 	Headers:              MobileApplier,
+	RequestHeaders:       common.RequestHeaders,
 }
 
 // IOS is the current Chrome 157 iOS variant.

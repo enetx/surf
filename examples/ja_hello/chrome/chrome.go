@@ -7,15 +7,12 @@ import (
 )
 
 func main() {
-	// https://github.com/lwthiker/curl-impersonate/tree/main/chrome
 
-	// const url = "https://localhost:8443"
 	const url = "https://tls.peet.ws/api/all"
-	// const url = "http://tools.scrapfly.io/api/fp/anything"
 
 	cli := surf.NewClient().
 		Builder().
-		JA().Chrome87().
+		JA().Chrome157().
 		Build().
 		Unwrap()
 

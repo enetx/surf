@@ -7,10 +7,10 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/enetx/surf/internal/tlsstate"
 	"slices"
 
 	"github.com/enetx/quic-go/tlsquic"
+	"github.com/enetx/surf/internal/tlsstate"
 	utls "github.com/refraction-networking/utls"
 )
 
@@ -134,6 +134,7 @@ func (c *client) syncSession() {
 	}
 }
 func (c *client) Start(ctx context.Context) error { return convertError(c.conn.Start(ctx)) }
+
 func (c *client) NextEvent() tls.QUICEvent {
 	c.syncSession()
 	event := c.conn.NextEvent()
@@ -161,6 +162,7 @@ func (c *client) HandleData(level tls.QUICEncryptionLevel, data []byte) error {
 }
 
 func (c *client) SetTransportParameters(data []byte) { c.conn.SetTransportParameters(data) }
+
 func (c *client) SendSessionTicket(tls.QUICSessionTicketOptions) error {
 	return errors.New("QUIC TLS client cannot send session tickets")
 }
@@ -177,6 +179,7 @@ func (c *client) StoreSession(state *tls.SessionState) error {
 }
 
 func (c *client) Close() error { return convertError(c.conn.Close()) }
+
 func (c *client) ConnectionState() tls.ConnectionState {
 	return tlsstate.FromUTLS(c.conn.ConnectionState())
 }

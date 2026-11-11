@@ -311,3 +311,19 @@ are listed separately. Reports preserve browser version, network controls, hashe
 and per-connection frame values without TLS keys or temporary profile identifiers.
 Older capture metadata can explicitly supply `--peer-min-us=1000`; current runs
 record the server minimum directly. Chromium is a negative sender control.
+
+
+For the current Chrome reference, select an ordinary Chrome157 executable rather
+than relying on an older system Chromium installation:
+
+```sh
+node tests/tools/wirecapture/native-endpoint.mjs --browser=chrome \
+  --executable="/path/to/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --netlog=true --out=/private/new-chrome157-capture
+```
+
+The optional NetLog is passive observation stored inside the private capture
+directory. No protocol, certificate, resolver, proxy or User-Agent override is
+introduced. The active offline fixture/audit is
+`tests/testdata/wire/chrome_157_audit.json`; historical codec/recovery corpora
+retain the versions actually captured.

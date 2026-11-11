@@ -1,0 +1,683 @@
+{
+  "schema": 1,
+  "browser": "Chrome/157.0.8103.51",
+  "captured_at": "2026-11-11T07:15:53.220Z",
+  "method": "Fresh ordinary Chrome157, isolated profile, CDP navigation and passive NetLog observation; standard certificate verification and Alt-Svc, no protocol/resolver/proxy/certificate/UA override.",
+  "endpoint": "https://fp.impersonate.pro/api/http3",
+  "attempts": [
+    {
+      "attempt": 1,
+      "protocol": null,
+      "error": null
+    },
+    {
+      "attempt": 2,
+      "protocol": "http3",
+      "error": null
+    }
+  ],
+  "browser_response_sha256": "f0a298fb1099d908d088e8385d6d89b55c65722b3125ad083ce8e5302f245f2d",
+  "surf_response_sha256": "e1b42ad912ddddbdfa64a77939b8d5a7ca0cd932d72a5c76a4cb9f023a155997",
+  "scope": "Ordinary browser navigation over public TLS and standard Alt-Svc. Endpoint-observed fingerprints, not a packet capture or a controlled loss/racing experiment. GREASE entropy and SCID values are normalized; version capabilities and brand headers are retained.",
+  "comparison": {
+    "ja3n": {
+      "equal": true,
+      "browser": {
+        "text": "771,4865-4866-4867,0-10-13-16-27-43-45-51-57-17613-51764-65037,4588-29-23-24,",
+        "hash": "18555a4ad0bd66d5fd99e1a493aa9f70"
+      },
+      "surf": {
+        "text": "771,4865-4866-4867,0-10-13-16-27-43-45-51-57-17613-51764-65037,4588-29-23-24,",
+        "hash": "18555a4ad0bd66d5fd99e1a493aa9f70"
+      }
+    },
+    "client_connection_id_length": {
+      "equal": true,
+      "browser": 0,
+      "surf": 0
+    },
+    "settings": {
+      "equal": true,
+      "browser": [
+        [
+          1,
+          65536
+        ],
+        [
+          6,
+          262144
+        ],
+        [
+          7,
+          100
+        ],
+        [
+          51,
+          1
+        ]
+      ],
+      "surf": [
+        [
+          1,
+          65536
+        ],
+        [
+          6,
+          262144
+        ],
+        [
+          7,
+          100
+        ],
+        [
+          51,
+          1
+        ]
+      ]
+    },
+    "generated_settings_grease": {
+      "equal": true,
+      "browser": true,
+      "surf": true
+    },
+    "header_order": {
+      "equal": true,
+      "browser": [
+        ":method",
+        ":authority",
+        ":scheme",
+        ":path",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform",
+        "upgrade-insecure-requests",
+        "user-agent",
+        "accept",
+        "sec-fetch-site",
+        "sec-fetch-mode",
+        "sec-fetch-user",
+        "sec-fetch-dest",
+        "accept-encoding",
+        "accept-language",
+        "priority"
+      ],
+      "surf": [
+        ":method",
+        ":authority",
+        ":scheme",
+        ":path",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform",
+        "upgrade-insecure-requests",
+        "user-agent",
+        "accept",
+        "sec-fetch-site",
+        "sec-fetch-mode",
+        "sec-fetch-user",
+        "sec-fetch-dest",
+        "accept-encoding",
+        "accept-language",
+        "priority"
+      ]
+    },
+    "headers": {
+      "equal": true,
+      "browser": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "fp.impersonate.pro"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/api/http3"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "upgrade-insecure-requests",
+          "value": "1"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "accept",
+          "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "none"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "navigate"
+        },
+        {
+          "name": "sec-fetch-user",
+          "value": "?1"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "document"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "priority",
+          "value": "u=0, i"
+        }
+      ],
+      "surf": [
+        {
+          "name": ":method",
+          "value": "GET"
+        },
+        {
+          "name": ":authority",
+          "value": "fp.impersonate.pro"
+        },
+        {
+          "name": ":scheme",
+          "value": "https"
+        },
+        {
+          "name": ":path",
+          "value": "/api/http3"
+        },
+        {
+          "name": "sec-ch-ua",
+          "value": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\""
+        },
+        {
+          "name": "sec-ch-ua-mobile",
+          "value": "?0"
+        },
+        {
+          "name": "sec-ch-ua-platform",
+          "value": "\"macOS\""
+        },
+        {
+          "name": "upgrade-insecure-requests",
+          "value": "1"
+        },
+        {
+          "name": "user-agent",
+          "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36"
+        },
+        {
+          "name": "accept",
+          "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+        },
+        {
+          "name": "sec-fetch-site",
+          "value": "none"
+        },
+        {
+          "name": "sec-fetch-mode",
+          "value": "navigate"
+        },
+        {
+          "name": "sec-fetch-user",
+          "value": "?1"
+        },
+        {
+          "name": "sec-fetch-dest",
+          "value": "document"
+        },
+        {
+          "name": "accept-encoding",
+          "value": "gzip, deflate, br, zstd"
+        },
+        {
+          "name": "accept-language",
+          "value": "en-US,en;q=0.9"
+        },
+        {
+          "name": "priority",
+          "value": "u=0, i"
+        }
+      ]
+    },
+    "transport_parameter_order": {
+      "equal": false,
+      "browser": [
+        3,
+        9,
+        "GREASE",
+        4,
+        17,
+        12584,
+        8,
+        7,
+        5,
+        6,
+        15,
+        32,
+        1
+      ],
+      "surf": [
+        32,
+        9,
+        8,
+        7,
+        5,
+        12584,
+        4,
+        15,
+        17,
+        3,
+        6,
+        "GREASE",
+        1
+      ]
+    },
+    "transport_parameters": {
+      "equal": true,
+      "browser": [
+        [
+          1,
+          30000
+        ],
+        [
+          3,
+          1472
+        ],
+        [
+          4,
+          15728640
+        ],
+        [
+          5,
+          6291456
+        ],
+        [
+          6,
+          6291456
+        ],
+        [
+          7,
+          6291456
+        ],
+        [
+          8,
+          100
+        ],
+        [
+          9,
+          103
+        ],
+        [
+          15,
+          "AUTO"
+        ],
+        [
+          17,
+          {
+            "chosen_version": 1,
+            "available_versions": [
+              1,
+              "GREASE"
+            ]
+          }
+        ],
+        [
+          32,
+          65536
+        ],
+        [
+          12584,
+          "0x4f524947"
+        ]
+      ],
+      "surf": [
+        [
+          1,
+          30000
+        ],
+        [
+          3,
+          1472
+        ],
+        [
+          4,
+          15728640
+        ],
+        [
+          5,
+          6291456
+        ],
+        [
+          6,
+          6291456
+        ],
+        [
+          7,
+          6291456
+        ],
+        [
+          8,
+          100
+        ],
+        [
+          9,
+          103
+        ],
+        [
+          15,
+          "AUTO"
+        ],
+        [
+          17,
+          {
+            "chosen_version": 1,
+            "available_versions": [
+              1,
+              "GREASE"
+            ]
+          }
+        ],
+        [
+          32,
+          65536
+        ],
+        [
+          12584,
+          "0x4f524947"
+        ]
+      ]
+    }
+  },
+  "expected_differences": [
+    "Transport parameter order is independently shuffled per connection."
+  ],
+  "http1": {
+    "browser": "Google Chrome 157.0.8103.51",
+    "scope": "ordinary localhost HTTP navigation; no TLS bypass or protocol override",
+    "request": "GET /reference HTTP/1.1\r\nHost: localhost:PORT\r\nConnection: keep-alive\r\nsec-ch-ua: \"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"\r\nsec-ch-ua-mobile: ?0\r\nsec-ch-ua-platform: \"macOS\"\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\r\nSec-Fetch-Site: none\r\nSec-Fetch-Mode: navigate\r\nSec-Fetch-User: ?1\r\nSec-Fetch-Dest: document\r\nAccept-Encoding: gzip, deflate, br, zstd\r\nAccept-Language: en-US,en;q=0.9"
+  },
+  "sources": [
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/DEPS",
+      "sha256": "0a801f8993af6f90d1eb87f72183ab5103834026fb91e0d52397862adaf2fc0e"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/components/embedder_support/user_agent_utils.cc",
+      "sha256": "ef18c93ab393e38414b35bf860af05aa07bf16499690de330706963202aead94"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/base/features.cc",
+      "sha256": "333f71afad453fd8648c47da6480cb1ecb55b74578184825438037dc8eeeebdc"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/http/broken_alternative_services.cc",
+      "sha256": "81ccf9a5383e00474514f87c08a8a8cfe75008822c4d39c9be5f25e9ad1a3c3e"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/http/http_network_transaction.cc",
+      "sha256": "b0cc081b148d1908d7ca0b3c186b58c8ada4bad7802cd51162aeebde8660d1f2"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/http/http_request_headers.cc",
+      "sha256": "3779bfae5b346d7f62658d4682f8700f8e2e0601ece51b89f12739622e624f44"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/quic/quic_http_stream.cc",
+      "sha256": "1389c99ae66a4d8fb4a1ff920c1df335fcdef091346663fbcbaa069833d30b29"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/quic/quic_session_pool.cc",
+      "sha256": "c47104bee57e08ff6c801266ba7bb19bc4de52403d4170e7cc9256bdbb4d5d4d"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/http2_priority_dependencies.cc",
+      "sha256": "6be35debd2391e58253c691c24d00c9a5ff44c9a86c14c7da48ced04bea337d8"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/spdy_http_utils.cc",
+      "sha256": "02e4d73be5acdab72f5cbf2c95fcf94881bc02183287cb272ec35ba9bd637fee"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/spdy_session.cc",
+      "sha256": "721cff0260ffbe58320c47aec8a0a96f2aec446bfdeea114e97881b2b6eef5aa"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/spdy_session.h",
+      "sha256": "f0f0d1e13b501833bc45ac799093bfc312326eeb191a68296b33e3bd2c7df38b"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/spdy_stream.cc",
+      "sha256": "3c3b8b4fc4b5d0b942e1f34e7184c28b6584fe6acc8168384535c7ca71021777"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/common/platform/default/quiche_platform_impl/quiche_flags_impl.cc",
+      "sha256": "6c2e9877cc0cce257c449e3ab1405a18d5619ed40e033083f6b9a625e8d3ee65"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/common/quiche_feature_flags_list.h",
+      "sha256": "4d5d3d49d2cd4ef3a01bf46c847a82fc8a9eb5afaf52428c9261089e068fcfb4"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/common/quiche_protocol_flags_list.h",
+      "sha256": "14cf4084c39c446fc6687ff6a9ffe17be01a1c8f44b3e11b4357655c7e8d304e"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/http2/hpack/hpack_encoder.cc",
+      "sha256": "4d67ed7775cd8cb152cbcd96bad736b0587a0edeeb8ed4ad6b5ccf46bcc6cc10"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/congestion_control/pacing_sender.cc",
+      "sha256": "6f4577121772e1bc3765c1c639e024e708c51ee3b70c6fa906452f0e15e628ac"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/congestion_control/prr_sender.cc",
+      "sha256": "c04aa893afceeb57021fc39de77c3cffc6b1168ec3d7a072d698f01d0ee5c4bf"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/congestion_control/tcp_cubic_sender_bytes.cc",
+      "sha256": "d2aec3ac948a1750152cb0c672b5f586420947c9e4ab223fc5e4ad7feae40ab9"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/http_encoder.cc",
+      "sha256": "1bf378c35bca0eee3375fd8a00daadfa83c93b47091c2b6001d54ef00e4e868a"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/quic_send_control_stream.cc",
+      "sha256": "7f722ea627b04379425b12a309da822cc9f9c9ace0616f55ac0a04bc3ad66c71"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/quic_spdy_session.cc",
+      "sha256": "f2cb6199011635a2af5771cf5c3681f653d95ce73fe768711102d00d582f84f3"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/quic_spdy_stream.cc",
+      "sha256": "4e14e776b58e767b858c66cf4e12ff7fc7e0858dde36a1e965ac370319f5dac0"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/qpack/qpack_encoder.cc",
+      "sha256": "8033cef00c96c6da33f1950818e1cbad95f3aa95a342545cf0a7ed8f28dd7d5d"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/qpack/qpack_instruction_encoder.cc",
+      "sha256": "f080531b8ef81992cfe6d85d044c113e98e5dcbb475a879f3147cd3649882c94"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/qpack/value_splitting_header_list.cc",
+      "sha256": "4ebf44306f916bc8e42cb91aac4a87d549916ee6334cfb6e9e6a9162e87f572a"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_chaos_protector.cc",
+      "sha256": "a7de17d2656a9e7d450ebb285542cdaf18a28885647fb07865730e035a6905ef"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_connection_id_manager.cc",
+      "sha256": "8f0690ca85e15c93d02aa9f8560a8b1872f395421ccd0c8cd8932bf0d2e40cd5"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_constants.h",
+      "sha256": "8b38b35a52cdb822224f97e634a61816f0e0f103de0e415d972c1230ead22ec1"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_packet_creator.cc",
+      "sha256": "d36c42b7ef00bbf2acd0a20475c6847e1a26d9baee36fdb2c33606eccd505a6e"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_received_packet_manager.cc",
+      "sha256": "bb608c74e1b811db0d609c6c98749864e06f464f093920a5b30ea3918bd73066"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_sent_packet_manager.h",
+      "sha256": "5cfa079c461011f85b6293ecbfc26b6427290f09467822ceb3cbb7e43c8df6b6"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_session.cc",
+      "sha256": "1f31feb68a998ec20dc391915641e801deed1fde8bddb0a298c516866950b5d7"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_stream_priority.cc",
+      "sha256": "a5484a830218323065472e05c4f71f55f6abf1a2c2026f2dec63b05161bbe105"
+    }
+  ],
+  "tcp_reference": {
+    "browser": "Google Chrome 157.0.8103.51",
+    "endpoint": "https://tls.peet.ws/api/all",
+    "normalization": "TCP ClientHello from native NetLog; SNI removed for loopback tests. Windows UA/platform are profile values; Android is derived from the unchanged shared Chromium TLS/H2 source and earlier Android profile, not a new Android-device capture.",
+    "clienthello": "extensions (permuted) 10,11,13,16,17613,18,23,27,35,43,45,5,51,51764,65037,65281,GREASE,GREASE\nlegacy_version 0x0303\nsession_id 32 bytes\ncipher_suites GREASE,4865,4866,4867,49195,49199,49196,49200,52393,52392,49171,49172,156,157,47,53\ncompression 00\next 10: GREASE 4588 29 23 24\next 11: 0100\next 13: GREASE 2308 2309 2310 1027 2052 1025 1283 2053 1281 2054 1537\next 16: 000c02683208687474702f312e31\next 17613: 0003026832\next 18:\next 23:\next 27: 2\next 35:\next 43: GREASE 772 771\next 45: 0101\next 5: 0100000000\next 51: GREASE:1 4588:1216 29:32\next 51764: 00b80582df1302010582df1302060582df13020d0582df13020e0582df13020f0582df1302120582df1302130582df13021408839a648c9b2d010708839a648c9b2d010808839a648c9b2d010908839a648c9b2d010a08839a648c9b2d010b08839a648c9b2d010c08839a648c9b2d010d08839a648c9b2d011208839a648c9b2d011304d679090104d679090404d679090504d679090604d679090704d679090804d679090a04d679090b04d679090c04d679090d04d679090f\next 65037: type=0 kdf=1 enc=32 payload%16=0\next 65281: 00\next GREASE:\next GREASE: 00\n",
+    "ja4": "t13d1517h2_8daaf6152771_cb7bf5808d99",
+    "ja4_r": "t13d1517h2_002f,0035,009c,009d,1301,1302,1303,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_0005,000a,000b,000d,0012,0017,001b,0023,002b,002d,0033,44cd,ca34,fe0d,ff01_0904,0905,0906,0403,0804,0401,0503,0805,0501,0806,0601",
+    "response_sha256": "8fb8ed3f016111adbd97f6317e40e758bfb1a798811750893b2693bc9d9e3173",
+    "hpack_hex": "8241884d085eb2952bf84787048660759981d14740874148b1275ad1ffb8fe749d2b42bddb07549fcfdf783f97dffe7e94fe711cf350552f4f61e92ff3f7de0fe42dbbfcfd29fcde9ec3d26b69fe7efbc1fc85b77f9f408b4148b1275ad1ad49e33505023f30408d4148b1275ad1ad5d034ca7b29f07226d61634f53224092b6b9ac1c8558d520a4b6c2ad617b5a54251f01317ad9d07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda97a7b0f49580b6eae05c0b814dc394761986d975765cf53ec497ca589d34d1f43aeba0c41a4c7a98f33a69a3fdf9a68fa1d75d0620d263d4c79a68fbed00177fe8d48e62b1d3cd1f46a4731581f734bf46a473158f058ebfa352398ac0ebaa6faf963e7efb4005defa1d75d0620d263d4c20d35459162f924e3aa62fdf782367efb4005dd408a4148b4a549275906497f83a8f517408a4148b4a549275a93c85f86a87dcd30d25f408a4148b4a549275ad416cf023f31408a4148b4a549275a42a13f8690e4b692d49f50929bd9abfa5242cb40d25fa523b3e94f684c9f518b2d4b70ddf45abefb4005df4086aec31ec327d785b6007d286f",
+    "headers_length": 469
+  },
+  "packet_observation": {
+    "scope": "Native browser NetLog stream/packet events, not a NIC capture. This browser connection was warmed by normal Alt-Svc discovery and had peer QPACK capacity 4096. Other connection states can send a static first header block.",
+    "packets": [
+      {
+        "number": 6,
+        "encryption_level": "ENCRYPTION_FORWARD_SECURE",
+        "stream_frames": [
+          {
+            "stream_id": 2,
+            "offset": 0,
+            "length": 43,
+            "fin": false
+          }
+        ]
+      },
+      {
+        "number": 8,
+        "encryption_level": "ENCRYPTION_FORWARD_SECURE",
+        "stream_frames": [
+          {
+            "stream_id": 2,
+            "offset": 0,
+            "length": 43,
+            "fin": false
+          }
+        ]
+      },
+      {
+        "number": 10,
+        "encryption_level": "ENCRYPTION_FORWARD_SECURE",
+        "stream_frames": [
+          {
+            "stream_id": 2,
+            "offset": 0,
+            "length": 43,
+            "fin": false
+          }
+        ]
+      },
+      {
+        "number": 12,
+        "encryption_level": "ENCRYPTION_FORWARD_SECURE",
+        "stream_frames": [
+          {
+            "stream_id": 2,
+            "offset": 0,
+            "length": 43,
+            "fin": false
+          }
+        ]
+      },
+      {
+        "number": 14,
+        "encryption_level": "ENCRYPTION_FORWARD_SECURE",
+        "stream_frames": [
+          {
+            "stream_id": 2,
+            "offset": 0,
+            "length": 43,
+            "fin": false
+          }
+        ]
+      },
+      {
+        "number": 16,
+        "encryption_level": "ENCRYPTION_FORWARD_SECURE",
+        "stream_frames": [
+          {
+            "stream_id": 2,
+            "offset": 43,
+            "length": 12,
+            "fin": false
+          },
+          {
+            "stream_id": 10,
+            "offset": 0,
+            "length": 444,
+            "fin": false
+          },
+          {
+            "stream_id": 0,
+            "offset": 0,
+            "length": 22,
+            "fin": true
+          }
+        ]
+      }
+    ]
+  },
+  "independent_connections": {
+    "count": 9,
+    "observed_ech_extension_lengths": [
+      186,
+      218,
+      250
+    ]
+  },
+  "verified_fixes": [
+    "HTTP/1 field defaults and case",
+    "Chrome157 headers and current-only TLS API",
+    "priority/HEADERS/bodyless-FIN grouped stream writes",
+    "omitted versus explicit-zero QPACK capacity",
+    "proxy routing and TLS preservation",
+    "SOCKS UDP refusal fallback",
+    "ForceHTTP3 standalone transport registration"
+  ]
+}

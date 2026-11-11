@@ -124,6 +124,11 @@ func (a h3adapter) QpackEncoderZeroCapacity(v bool) profiles.H3Config {
 	return a
 }
 
+func (a h3adapter) QpackEncoderCapacityRequiresSetting(v bool) profiles.H3Config {
+	a.s.QpackEncoderCapacityRequiresSetting(v)
+	return a
+}
+
 func (a h3adapter) PriorityUpdates(v bool) profiles.H3Config { a.s.PriorityUpdates(v); return a }
 
 func (a h3adapter) ControlGreaseFramesFactory(v func() ([]http3.GreaseFrame, error)) profiles.H3Config {
@@ -162,5 +167,10 @@ func (a h3adapter) RequestBodyFirstReadSizePolicy(v func(http3.RequestBodyReadIn
 
 func (a h3adapter) CoalesceInitialSettings(enabled bool) profiles.H3Config {
 	a.s.CoalesceInitialSettings(enabled)
+	return a
+}
+
+func (a h3adapter) CoalesceRequestHeaders(enabled bool) profiles.H3Config {
+	a.s.CoalesceRequestHeaders(enabled)
 	return a
 }

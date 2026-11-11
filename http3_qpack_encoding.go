@@ -87,3 +87,10 @@ func (h *HTTP3Settings) QpackEncoderZeroCapacity(enabled bool) *HTTP3Settings {
 	h.qpack().EncoderZeroCapacity = enabled
 	return h
 }
+
+// QpackEncoderCapacityRequiresSetting keeps an omitted peer capacity distinct
+// from an explicit zero. Zero announcements still use QpackEncoderZeroCapacity.
+func (h *HTTP3Settings) QpackEncoderCapacityRequiresSetting(enabled bool) *HTTP3Settings {
+	h.qpack().EncoderCapacityRequiresSetting = enabled
+	return h
+}

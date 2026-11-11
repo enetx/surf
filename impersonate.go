@@ -3,6 +3,7 @@ package surf
 import (
 	"github.com/enetx/g"
 	"github.com/enetx/g/rand"
+	"github.com/enetx/http"
 	"github.com/enetx/surf/profiles"
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
@@ -50,7 +51,7 @@ func (im *Impersonate) IOS() *Impersonate {
 	return im
 }
 
-// Chrome impersonates Chrome 156 on desktop/Android and the captured Chrome 157 on iOS.
+// Chrome impersonates Chrome 157 on desktop/Android and the captured Chrome 157 on iOS.
 func (im *Impersonate) Chrome() *Builder {
 	v := chrome.Desktop
 	switch im.os {
@@ -80,7 +81,17 @@ func (im *Impersonate) Firefox() *Builder {
 // own all data (TLS spec, boundary, H2/H3 SETTINGS, header set), this method owns sequencing.
 func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	im.builder.headersApplier = v.Headers
-	im.builder.protocolHeaders = v.ProtocolHeaders
+	im.builder.protocolHeaders = nil
+	if v.ProtocolHeaders != nil || v.RequestHeaders != nil {
+		im.builder.protocolHeaders = func(req *http.Request, major int) {
+			if v.ProtocolHeaders != nil {
+				v.ProtocolHeaders(req.Header, major)
+			}
+			if v.RequestHeaders != nil {
+				v.RequestHeaders(req, major)
+			}
+		}
+	}
 	im.builder.Boundary(v.Boundary)
 
 	if v.HelloSpec != nil {
@@ -120,7 +131,7 @@ func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 	h3.Set()
 
 	headers := v.BuildHeaders(im.os)
-	if v.ProtocolHeaders != nil {
+	if im.builder.protocolHeaders != nil {
 		// Protocol-aware profiles choose default pseudo-header order after
 		// routing. Defer these placeholders so explicit request metadata stays
 		// distinguishable from defaults when HTTP/3 falls back to HTTP/2.

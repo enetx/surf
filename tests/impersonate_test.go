@@ -404,7 +404,7 @@ func TestImpersonateChromeHeaders(t *testing.T) {
 		"Sec-Fetch-Site":            true,
 		"Sec-Fetch-User":            true,
 		"Upgrade-Insecure-Requests": true,
-		"Priority":                  true,
+		"Connection":                true,
 	}
 
 	for header := range expectedHeaders {

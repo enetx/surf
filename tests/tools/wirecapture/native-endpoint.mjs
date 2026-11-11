@@ -11,7 +11,7 @@ const args = Object.fromEntries(
 );
 assert(
   args.out && ["chrome", "firefox"].includes(args.browser),
-  "use --browser=chrome|firefox --out=NEW_PRIVATE_DIRECTORY [--url=https://fp.impersonate.pro/api/http3]",
+  "use --browser=chrome|firefox --out=NEW_PRIVATE_DIRECTORY [--url=https://fp.impersonate.pro/api/http3] [--executable=PATH] [--netlog=true]",
 );
 const directory = resolve(args.out);
 mkdirSync(directory, { mode: 0o700 });
@@ -33,6 +33,9 @@ const flags = firefox
       "--no-first-run",
       "about:blank",
     ];
+if (args.netlog === "true" && !firefox) {
+ flags.push("--log-net-log=" + join(directory, "netlog.json"), "--net-log-capture-mode=Everything");
+}
 const prefs = firefox
   ? {
       "remote.prefs.recommended": false,
@@ -50,9 +53,9 @@ if (firefox)
     { mode: 0o600 },
   );
 const browser = await launchBrowser(
-  firefox
+  args.executable || (firefox
     ? "/Applications/Firefox.app/Contents/MacOS/firefox"
-    : "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    : "/Applications/Chromium.app/Contents/MacOS/Chromium"),
   flags,
   firefox
     ? /WebDriver BiDi listening on (ws:\/\/127\.0\.0\.1:\d+)/

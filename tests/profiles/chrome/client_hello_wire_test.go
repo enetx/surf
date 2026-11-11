@@ -23,8 +23,8 @@ func TestChromeClientHelloMatchesGolden(t *testing.T) {
 		spec    *utls.ClientHelloSpec
 		shuffle bool
 	}{
-		{"chrome-156-windows", &chrome.HelloChrome_156, true},
-		{"chrome-156-android", &chrome.HelloChrome_156_Mobile, true},
+		{"chrome-157-windows", &chrome.HelloChrome_157, true},
+		{"chrome-157-android", &chrome.HelloChrome_157_Mobile, true},
 		{"chrome-157-ios", chrome.IOS.HelloSpec, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

@@ -19,10 +19,7 @@ import (
 	"github.com/enetx/quic-go"
 	"github.com/enetx/quic-go/http3"
 	"github.com/enetx/surf/header"
-	"github.com/enetx/surf/pkg/quicconn"
-	"github.com/enetx/surf/profiles"
 	utls "github.com/refraction-networking/utls"
-	"github.com/wzshiming/socks5"
 )
 
 // HTTP/3 SETTINGS frame parameter identifiers as defined in RFC 9114.
@@ -144,7 +141,9 @@ func (h *HTTP3Settings) Set() *Builder {
 			if _, ok := base.(connectionPreconnector); !ok {
 				return nil
 			}
-			if tcp, ok := base.(*http.Transport); ok && (tcp.DisableKeepAlives || tcp.MaxIdleConnsPerHost < 0 || tcp.DialTLSContext != nil) {
+
+			if tcp, ok := base.(*http.Transport); ok &&
+				(tcp.DisableKeepAlives || tcp.MaxIdleConnsPerHost < 0 || tcp.DialTLSContext != nil) {
 				return nil
 			}
 		}
@@ -171,7 +170,7 @@ type uquicTransport struct {
 	discovery              *alternativeDiscovery
 	addressFallbackDelay   time.Duration
 	racer                  *connectionRace
-	protocolHeaders        profiles.ProtocolHeaders
+	protocolHeaders        requestHeadersPolicy
 	qpackConfig            *http3.QPACKConfig
 	wireConfig             *http3.WireConfig
 	altUsed                bool
@@ -182,6 +181,7 @@ type uquicTransport struct {
 	quictr                 *quic.Transport
 	pconn                  net.PacketConn
 	fallbackTransport      http.RoundTripper
+	requestProxy           func(*http.Request) (*url.URL, error)
 	tlsConfig              *tls.Config
 	dialer                 *net.Dialer
 	settings               g.MapOrd[uint64, uint64]
@@ -244,6 +244,22 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 	snapshot.clientHandshake = settings.clientHandshake.Clone()
 	ut.configureHandshake = snapshot.configureClientHandshake
 	ut.fallbackTransport = c.GetTransport()
+
+	switch base := ut.fallbackTransport.(type) {
+	case *http.Transport:
+		ut.requestProxy = base.Proxy
+		if selectProxy := base.Proxy; selectProxy != nil {
+			base.Proxy = func(req *http.Request) (*url.URL, error) {
+				if selected, ok := req.Context().Value(tlsProxyKey{}).(proxySelection); ok {
+					return selected.url, nil
+				}
+				return selectProxy(req)
+			}
+		}
+	case *roundtripper:
+		ut.requestProxy = base.requestProxy
+	}
+
 	if settings.discovery {
 		if base, ok := ut.fallbackTransport.(*http.Transport); ok && base.DialTLSContext == nil {
 			base.DialContext = tcpBindingDial(base.DialContext)
@@ -270,7 +286,12 @@ func newUQUICTransport(settings *HTTP3Settings, c *Client, builder *Builder) (*u
 		} else if lookup == nil {
 			lookup = httpsLookupForResolver(ut.dialer.Resolver)
 		}
-		ut.discovery = newAlternativeDiscovery(lookup, settings.alternativeServiceBackoff, settings.expireFailedAlternatives)
+
+		ut.discovery = newAlternativeDiscovery(
+			lookup,
+			settings.alternativeServiceBackoff,
+			settings.expireFailedAlternatives,
+		)
 	}
 
 	if settings.connectionRacing || ut.discovery != nil {
@@ -387,9 +408,12 @@ func (ut *uquicTransport) dial(
 			ut.racer.observeQUIC(addr, connection)
 		}
 	}()
+
 	target := addr
 	var route alternativeRoute
-	if candidate, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok && strings.EqualFold(candidate.origin, addr) {
+
+	if candidate, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok &&
+		strings.EqualFold(candidate.origin, addr) {
 		route = candidate
 		target = route.address
 		defer func() {
@@ -398,6 +422,7 @@ func (ut *uquicTransport) dial(
 			}
 		}()
 	}
+
 	host, _, _ := net.SplitHostPort(addr)
 	if tlsCfg.ServerName == "" && host != "" && net.ParseIP(host) == nil {
 		tlsCfg = tlsCfg.Clone()
@@ -417,6 +442,7 @@ func (ut *uquicTransport) dial(
 		}
 		return ut.dialAddresses(ctx, addresses, tlsCfg, cfg)
 	}
+
 	resolved, err := ut.resolve(ctx, target)
 	if err != nil {
 		return nil, fmt.Errorf("DNS resolution: %w", err)
@@ -427,53 +453,6 @@ func (ut *uquicTransport) dial(
 	}
 
 	return ut.dialDirect(ctx, resolved, tlsCfg, cfg)
-}
-
-// dialSOCKS5 establishes a QUIC connection through a SOCKS5 proxy using UDP ASSOCIATE.
-func (ut *uquicTransport) dialSOCKS5(
-	ctx context.Context,
-	resolved string,
-	tlsCfg *tls.Config,
-	cfg *quic.Config,
-) (*quic.Conn, error) {
-	dialer, err := socks5.NewDialer(ut.proxy)
-	if err != nil {
-		return nil, fmt.Errorf("create SOCKS5 dialer: %w", err)
-	}
-
-	conn, err := dialer.DialContext(ctx, "udp", resolved)
-	if err != nil {
-		return nil, fmt.Errorf("SOCKS5 UDP ASSOCIATE: %w", err)
-	}
-
-	success := false
-
-	defer func() {
-		if !success {
-			conn.Close()
-		}
-	}()
-
-	proxyUDP, err := net.ResolveUDPAddr("udp", conn.RemoteAddr().String())
-	if err != nil {
-		return nil, fmt.Errorf("resolve proxy UDP addr: %w", err)
-	}
-
-	targetUDP, err := net.ResolveUDPAddr("udp", resolved)
-	if err != nil {
-		return nil, fmt.Errorf("resolve target UDP addr: %w", err)
-	}
-
-	packetConn := quicconn.New(conn, proxyUDP, quicconn.EncapRaw)
-
-	quicConn, err := ut.dialOwnedPacketConn(ctx, packetConn, targetUDP, tlsCfg, cfg, ut.useEarlyData(ctx))
-	if err != nil {
-		return nil, fmt.Errorf("QUIC dial: %w", err)
-	}
-
-	success = true
-
-	return quicConn, nil
 }
 
 // dialDirect establishes a direct QUIC connection without proxy.
@@ -491,11 +470,13 @@ func (ut *uquicTransport) dialDirect(
 	if ut.dedicatedConn || udpAddr.IP.To4() == nil {
 		var packetConn net.PacketConn
 		var err error
+
 		if udpAddr.IP.To4() == nil {
 			packetConn, err = net.ListenUDP("udp6", nil)
 		} else {
 			packetConn, err = ut.createUDPPacketConn()
 		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -507,9 +488,11 @@ func (ut *uquicTransport) dialDirect(
 	if err != nil {
 		return nil, err
 	}
+
 	if ut.useEarlyData(ctx) {
 		return transport.DialEarly(ctx, udpAddr, tlsCfg, cfg)
 	}
+
 	return transport.Dial(ctx, udpAddr, tlsCfg, cfg)
 }
 
@@ -555,6 +538,24 @@ func (ut *uquicTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		}
 
 		return nil, errors.New("HTTP/3 requires a request URL and host")
+	}
+
+	// Environment or application-selected TCP proxies own this request's route.
+	// Do not bypass them through direct UDP or local HTTPS-record discovery.
+	if ut.proxy == "" && ut.requestProxy != nil {
+		proxy, err := ut.requestProxy(req)
+		if err != nil {
+			if req.Body != nil {
+				req.Body.Close()
+			}
+
+			return nil, err
+		}
+
+		req = withProxySelection(req, proxy)
+		if proxy != nil {
+			return ut.roundTripProxy(req)
+		}
 	}
 
 	if ut.proxy != "" && !isSOCKS5Proxy(ut.proxy) {
@@ -618,8 +619,10 @@ func (ut *uquicTransport) requestWithAltUsed(req *http.Request) *http.Request {
 		} else if route, ok := req.Context().Value(alternativeRouteKey{}).(alternativeRoute); ok {
 			authority = route.address
 		}
+
 		ut.discovery.mu.Unlock()
 	}
+
 	if _, port, err := net.SplitHostPort(authority); err == nil && port == "443" {
 		authority = strings.TrimSuffix(authority, ":443")
 	}
@@ -733,6 +736,10 @@ func isHTTP3UnsupportedError(err error) bool {
 
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return false
+	}
+
+	if _, ok := errors.AsType[*proxyUDPError](err); ok {
+		return true
 	}
 
 	if _, ok := errors.AsType[*quic.ApplicationError](err); ok {

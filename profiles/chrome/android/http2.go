@@ -9,9 +9,9 @@ import (
 )
 
 // ConfigureH2 applies Chrome Android HTTP/2 settings.
-// https://github.com/chromium/chromium/blob/156.0.8078.79/net/spdy/http2_priority_dependencies.cc
+// https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/http2_priority_dependencies.cc
 func ConfigureH2(h profiles.H2Config) {
-	// https://github.com/google/quiche/blob/a1628192cf32ba40d21e0dd80f485d68c24ff87a/quiche/http2/hpack/hpack_encoder.cc
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/http2/hpack/hpack_encoder.cc
 	h.MaxEncoderHeaderTableSize(math.MaxInt32).
 		ReceiveWindowUpdatePolicy(common.ReceiveWindowUpdate).
 		HpackPolicy(common.HpackPolicy).

@@ -15,7 +15,7 @@
 ## ✨ Key Features
 
 ### 🎭 **Browser Impersonation**
-- **Chrome & Firefox Support**: Accurately mimic Chrome v156 (desktop/Android), Chrome v157 (iOS), and Firefox v160 (desktop) browser fingerprints
+- **Chrome & Firefox Support**: Accurately mimic Chrome v157 (desktop/Android), Chrome v157 (iOS), and Firefox v160 (desktop) browser fingerprints
 - **Platform Diversity**: Impersonate Windows, macOS, Linux, Android, and iOS devices
 - **TLS Fingerprinting**: Full JA3/JA4 fingerprint customization for enhanced privacy
 - **Automatic Headers**: Proper header ordering and browser-specific values
@@ -145,17 +145,17 @@ if resp.IsOk() {
 client := surf.NewClient().
     Builder().
     Impersonate().
-    Chrome().        // Chrome v156
+    Chrome().        // Chrome v157
     Build().
     Unwrap()
 
 resp := client.Get("https://example.com").Do()
 ```
 
-`Impersonate().Chrome()` selects the current Chrome 156 profile for desktop and Android.
-Its TLS template uses uTLS's native Chrome 155 implementation, whose fields match the
-Chrome 156 wire reference. The former `JA().Chrome152()` helper is now `JA().Chrome156()`;
-`JA().Chrome131()`, `Chrome133()` and `Chrome155()` expose additional TLS-only presets.
+`Impersonate().Chrome()` selects the current Chrome 157 profile for desktop and Android.
+Its TLS and HTTP/2/HTTP/3 defaults are checked against Google Chrome 157.0.8103.51.
+`JA().Chrome()` and `JA().Chrome157()` select the current TLS template; older
+version-specific Chrome helpers have been removed.
 
 `Impersonate().IOS().Chrome()` selects the separate WebKit profile from the Chrome 157
 iOS capture, including its User-Agent, TLS, HTTP/2 settings and header order. It sends no
@@ -255,6 +255,19 @@ client := surf.NewClient().
 
 ```
 
+Chrome 157 transport defaults follow the selected protocol, including fallback:
+HTTP/1.1 sends Connection and lowercase Client Hints without a default Priority.
+HTTP/2 and HTTP/3 preserve their own ordered defaults. Custom values take precedence.
+`HTTP3Settings().CoalesceRequestHeaders(true)` stages initial priority, HEADERS
+and bodyless FIN together when stream credit permits. QPACK distinguishes an
+omitted peer capacity from an explicit zero through
+`QpackEncoderCapacityRequiresSetting` and `QpackEncoderZeroCapacity`.
+
+`ForceHTTP3()` attempts QUIC directly and registers the transport itself. UDP
+unavailability and TCP-only proxies retain HTTP/2/HTTP/1 fallback; a SOCKS5 proxy
+with UDP support can carry HTTP/3. Proxy routes keep separate TCP pools while
+retaining the selected TLS profile. [Chrome157 audit](tests/testdata/wire/chrome_157_audit.json).
+
 ### Request encoding and control frames
 
 HTTP/2 header encoding and HTTP/3 control frames can be configured through the
@@ -295,7 +308,7 @@ without receiving the request's HEADERS priority.
 GREASE and local QUIC `StreamPriority`. `QpackSplitCookies` and `QpackNeverIndex`
 control request fields. Browser presets select these independently:
 
-| Behavior | Chrome 156 desktop / Android | Firefox 160 desktop |
+| Behavior | Chrome 157 desktop / Android | Firefox 160 desktop |
 | --- | --- | --- |
 | HPACK varying `:path` | Literal without indexing | Literal without indexing, including static paths |
 | HPACK Authorization | Normal indexing | Never indexed |
@@ -315,7 +328,7 @@ control request fields. Browser presets select these independently:
 | Control GREASE payload | Length `n%4` | Independent draw, length 0–7 |
 | Initial HTTP/3 priority update | Explicit nondefault Priority | Disabled; Neqo uses updates for changed priority |
 
-Sources are pinned to [Chrome 156's Quiche revision](https://github.com/chromium/chromium/blob/156.0.8078.79/DEPS)
+Sources are pinned to [Chrome 157's Quiche revision](https://github.com/chromium/chromium/blob/157.0.8103.51/DEPS)
 and [Firefox 160.0](https://github.com/mozilla-firefox/firefox/tree/FIREFOX_160_0_RELEASE).
 The profile functions link directly to the corresponding browser source files.
 iOS profiles keep their WebKit behavior; these desktop engine policies are not

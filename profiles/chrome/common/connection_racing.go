@@ -9,7 +9,7 @@ import (
 // ConnectionRacing follows GetTimeDelayForWaitingJob's RTT component. Surf's
 // observations are per origin/client; persistent network state, experiment flags
 // and browser Alt-Svc brokenness/backoff are not reproduced by this callback.
-// https://github.com/chromium/chromium/blob/156.0.8078.79/net/quic/quic_session_pool.cc
+// https://github.com/chromium/chromium/blob/157.0.8103.51/net/quic/quic_session_pool.cc
 func ConnectionRacing(info profiles.ConnectionRacingInfo) time.Duration {
 	if !info.QUICWorked || info.LastQUICError != nil {
 		return 0
@@ -21,7 +21,7 @@ func ConnectionRacing(info profiles.ConnectionRacingInfo) time.Duration {
 }
 
 // ConnectionRacingAndroid includes the Android default additional main-job delay.
-// https://github.com/chromium/chromium/blob/156.0.8078.79/net/base/features.cc
+// https://github.com/chromium/chromium/blob/157.0.8103.51/net/base/features.cc
 func ConnectionRacingAndroid(info profiles.ConnectionRacingInfo) time.Duration {
 	if !info.QUICWorked || info.LastQUICError != nil {
 		return 0

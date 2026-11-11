@@ -68,11 +68,15 @@ func TestConnectionRaceOneCanceledWaiterPreservesOther(t *testing.T) {
 
 func TestConnectionRaceFailureKeepsBothCausesAndBoundsHistory(t *testing.T) {
 	qerr, terr := errors.New("quic failure"), errors.New("tcp failure")
-	r := &connectionRace{policy: func(ConnectionRacingInfo) time.Duration { return time.Hour }, quic: func(context.Context, string) error { return qerr }, tcp: func(*http.Request) error { return terr }}
+	r := &connectionRace{
+		policy: func(ConnectionRacingInfo) time.Duration { return time.Hour },
+		quic:   func(context.Context, string) error { return qerr },
+		tcp:    func(*http.Request) error { return terr },
+	}
 	_, err := r.selectProtocol(raceTestRequest(t, t.Context()), "example.invalid:443")
 	require.ErrorIs(t, err, qerr)
 	require.ErrorIs(t, err, terr)
-	for i := 0; i < maxConnectionRaceOrigins+16; i++ {
+	for i := range maxConnectionRaceOrigins + 16 {
 		_, err = r.selectProtocol(raceTestRequest(t, t.Context()), fmt.Sprintf("host-%d.invalid:443", i))
 		require.Error(t, err)
 	}
@@ -85,12 +89,16 @@ func TestConnectionRaceFailureKeepsBothCausesAndBoundsHistory(t *testing.T) {
 
 func TestConnectionRaceCloseStopsSelectedBackgroundHandshake(t *testing.T) {
 	started, stopped := make(chan struct{}), make(chan struct{})
-	r := &connectionRace{policy: func(ConnectionRacingInfo) time.Duration { return 0 }, quic: func(ctx context.Context, _ string) error {
-		close(started)
-		<-ctx.Done()
-		close(stopped)
-		return context.Cause(ctx)
-	}, tcp: func(*http.Request) error { return nil }}
+	r := &connectionRace{
+		policy: func(ConnectionRacingInfo) time.Duration { return 0 },
+		quic: func(ctx context.Context, _ string) error {
+			close(started)
+			<-ctx.Done()
+			close(stopped)
+			return context.Cause(ctx)
+		},
+		tcp: func(*http.Request) error { return nil },
+	}
 	f, err := r.selectProtocol(raceTestRequest(t, t.Context()), "example.invalid:443")
 	require.NoError(t, err)
 	require.Equal(t, 2, f.protocol)

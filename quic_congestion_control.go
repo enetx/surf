@@ -2,8 +2,10 @@ package surf
 
 import "github.com/enetx/quic-go"
 
-type CongestionControlAlgorithm = quic.CongestionControlAlgorithm
-type SlowStartAlgorithm = quic.SlowStartAlgorithm
+type (
+	CongestionControlAlgorithm = quic.CongestionControlAlgorithm
+	SlowStartAlgorithm         = quic.SlowStartAlgorithm
+)
 
 const (
 	CongestionControlNative     = quic.CongestionControlNative

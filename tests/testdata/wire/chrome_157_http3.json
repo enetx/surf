@@ -1,8 +1,10 @@
 {
   "source": {
-    "browser": "Chromium 156.0.8078.79",
-    "capture": "independent headless browser, fresh profile, forced HTTP/3",
-    "endpoint": "https://fp.impersonate.pro/api/http3"
+    "browser": "Google Chrome 157.0.8103.51",
+    "capture": "ordinary visible browser; isolated profile and observability controls; public certificate verification and standard Alt-Svc discovery; no protocol/resolver/UA/certificate override",
+    "endpoint": "https://fp.impersonate.pro/api/http3",
+    "response_sha256": "f0a298fb1099d908d088e8385d6d89b55c65722b3125ad083ce8e5302f245f2d",
+    "independent_connections": 9
   },
   "initial_packet_number": 1,
   "client_connection_id_length": 0,

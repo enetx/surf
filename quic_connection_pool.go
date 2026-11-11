@@ -12,17 +12,22 @@ import (
 func (ut *uquicTransport) sharedQUICTransport() (*quic.Transport, error) {
 	ut.sharedMu.Lock()
 	defer ut.sharedMu.Unlock()
+
 	if ut.sharedClosed {
 		return nil, net.ErrClosed
 	}
+
 	if ut.quictr != nil {
 		return ut.quictr, nil
 	}
+
 	socket, err := ut.createUDPPacketConn()
 	if err != nil {
 		return nil, err
 	}
+
 	ut.pconn = socket
 	ut.quictr = ut.newQUICTransport(socket)
+
 	return ut.quictr, nil
 }

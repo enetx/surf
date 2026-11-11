@@ -49,7 +49,7 @@ func wordsH3(t *testing.T, data []byte) []uint16 {
 }
 
 func TestChromeHTTP3MatchesIndependentBrowser(t *testing.T) {
-	data, err := os.ReadFile("testdata/wire/chrome_156_http3.json")
+	data, err := os.ReadFile("testdata/wire/chrome_157_http3.json")
 	require.NoError(t, err)
 	var reference browserH3Reference
 	require.NoError(t, json.Unmarshal(data, &reference))
