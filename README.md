@@ -719,6 +719,8 @@ or `QUICSettings().ECHClientHelloInner` before the terminal builder method.
 Real ECH with populated custom PSK resumption remains explicitly unsupported.
 The [ECH verification report](tests/testdata/wire/ech/README.md) distinguishes
 native Chrome captures, Firefox source checks and local integration tests.
+The [ECH example](examples/tls/ech/ech.go) prints the negotiated protocol and
+`ConnectionState.ECHAccepted`; run it with `go run ./examples/tls/ech`.
 
 QUIC profiles now include send scheduling as fluent configuration. Chromium
 uses scheduled pacing with PRR and a 2000 × 1460-byte window ceiling. Firefox
