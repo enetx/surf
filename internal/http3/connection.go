@@ -63,6 +63,9 @@ func (ut *Transport) dial(
 		tlsCfg.MinVersion = tls.VersionTLS13
 	}
 
+	if ut.sessionVersions != nil {
+		tlsCfg, cfg = ut.sessionVersions.prepare(addr, tlsCfg, cfg)
+	}
 	dial := ut.quicDialer.Dial
 	if ut.useEarlyData(ctx) {
 		dial = ut.quicDialer.DialEarly

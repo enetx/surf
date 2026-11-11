@@ -13,6 +13,7 @@ import (
 // Flow-control limits and empty SCIDs follow Chromium 157's quic_context.cc;
 // see tests/testdata/wire/README.md for sources and remaining limitations.
 func ConfigureQUIC(q profiles.QUICConfig) {
+	q.ResumeVersion(false)
 	// Cached SRTT is advertised only for direct connections; QUICHE clamps
 	// its local untrusted estimate, retaining the actual wire value.
 	// https://chromium.googlesource.com/chromium/src/+/157.0.8103.51/net/quic/quic_session_pool.cc#2621

@@ -25,7 +25,11 @@ func (ut *Transport) roundTripRacing(req *http.Request) (*http.Response, error) 
 		return nil, err
 	}
 
-	selection, err := ut.racer.SelectProtocol(req, address)
+	eligible := ut.eligibleEarlyData(req)
+	if eligible && ut.earlyDataBackup {
+		return ut.roundTripEarlyBackup(req, address)
+	}
+	selection, err := ut.racer.SelectProtocol(req, address, eligible)
 	if err != nil {
 		if req.Body != nil {
 			req.Body.Close()
@@ -43,6 +47,14 @@ func (ut *Transport) roundTripRacing(req *http.Request) (*http.Response, error) 
 	}
 
 	return ut.Fallback.RoundTrip(req)
+}
+
+func (ut *Transport) preconnectQUIC(ctx context.Context, address string, early bool) error {
+	if early {
+		_, err := ut.http3tr.PreconnectEarly(ctx, address)
+		return err
+	}
+	return ut.http3tr.Preconnect(ctx, address)
 }
 
 func (ut *Transport) preconnectTCP(req *http.Request) error {

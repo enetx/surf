@@ -342,10 +342,13 @@ export function quicEvidence(packets) {
     earlyControlPackets = 0,
     earlyRequestPackets = 0;
   walk(packets, (node) => {
-    if (node["quic.long.packet_type"] === undefined) return;
+    // Wireshark exposes RFC 9369's remapped type under a separate v2 field.
+    const packetType =
+      node["quic.long.packet_type_v2"] ?? node["quic.long.packet_type"];
+    if (packetType === undefined) return;
     const version = Number(BigInt(node["quic.version"]));
     assert(version === 1 || version === 0x6b3343cf, "unsupported QUIC version");
-    if (Number(node["quic.long.packet_type"]) !== (version === 1 ? 1 : 2))
+    if (Number(packetType) !== (version === 1 ? 1 : 2))
       return;
     assert(node["quic.frame"], "early packet was not independently decrypted");
     earlyPackets++;

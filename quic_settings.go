@@ -73,6 +73,15 @@ const (
 // Set applies the accumulated QUIC settings and returns the main Builder.
 func (q *QUICSettings) Set() *Builder { return q.http3.Set() }
 
+// ResumeVersion chooses the first QUIC version from an available session ticket
+// previously stored by this client for the origin. Expired, evicted, unmarked
+// and disabled-version tickets retain the configured first version. It does not
+// reorder the caller's configuration. The Firefox profile enables this policy.
+func (q *QUICSettings) ResumeVersion(enabled bool) *QUICSettings {
+	q.http3.options.ResumeVersion = enabled
+	return q
+}
+
 // InitialRTT sets the local recovery estimate before the first measurement.
 // Zero uses the native default. No transport parameter is advertised by it.
 func (q *QUICSettings) InitialRTT(estimate time.Duration) *QUICSettings {

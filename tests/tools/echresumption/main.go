@@ -23,12 +23,13 @@ func main() {
 	probeBrowser := flag.String("probe", "", "capture Surf: chrome or firefox")
 	protocol := flag.String("protocol", "h3", "probe protocol: h2 or h3")
 	early := flag.Bool("early", false, "explicitly enable HTTP/3 early data for the probe")
+	racing := flag.Bool("racing", false, "race prepared TCP against HTTP/3 in the probe")
 	reference := flag.String("reference", "", "sanitized browser reference for comparison")
 	record := flag.Int("record", 2, "one-based inner record to compare")
 	flag.Parse()
 	var err error
 	if *probeBrowser != "" {
-		err = probe(*probeBrowser, *protocol, *keylog, *early)
+		err = probe(*probeBrowser, *protocol, *keylog, *early, *racing)
 	} else if *keylog != "" {
 		err = compare(*keylog, *reference, *record)
 	} else {

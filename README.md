@@ -478,19 +478,27 @@ Alt-Svc, persistent network state, DNS HTTPS records or Happy Eyeballs scheduler
 `ConnectionRacingPolicy(func(ConnectionRacingInfo) time.Duration)` supplies a custom
 nonnegative delay; callbacks must return promptly and be concurrency safe.
 
-Only handshakes and connection-level setup race. The selected normal transport
-then owns the request body, including non-replayable `StreamingBody` readers.
-An application error does not trigger a cross-protocol resend in this mode.
-Ordinary transport retries for explicit rejection or connection reuse still apply.
-Requests to one origin share preparation; canceling one waiter preserves others.
+Requests requiring 1-RTT wait for connection selection before sending. The
+selected transport owns their body, including non-replayable `StreamingBody`
+readers. With `EarlyData(true)`, eligible bodyless GET/HEAD can use cached early
+keys during preparation. Chrome selects early-ready QUIC; Firefox retains its
+TCP backup until the QUIC handshake finishes. A ready backup can cancel that
+early GET/HEAD attempt and send it over TCP. `EarlyDataBackup(bool)` exposes
+the same policy through the public builder. Confirmed exchanges do not race
+application requests; ordinary explicit-rejection/reuse retries still apply.
+Compatible waiters share preparation; canceling one waiter preserves others.
 A QUIC handshake that loses to TCP can finish into the shared pool for later use.
 `Close` cancels preparation; `CloseIdleConnections` also stops selected background
 attempts. TCP dials and idle connections retain native transport cleanup rules.
 
-Connection racing requires keep-alives and cannot be combined with `EarlyData`.
+Connection racing requires keep-alives. Early data remains an explicit opt-in
+and requires a session cache; unsafe requests retain full-handshake selection.
 HTTP CONNECT proxies use the ordinary TCP path; SOCKS5 can prepare both protocols.
 Disabling connection racing retains sequential fallback. Browser policy history
 is local to the client, with inactive history bounded to 256 origins.
+
+See the [early-data racing example](examples/http/http3_early_racing/http3_early_racing.go)
+and [source/capture report](tests/testdata/wire/early_racing/README.md).
 
 `HTTP3Settings().Grease().Set()` generates a fresh reserved SETTINGS pair for each
 new connection. Chrome profiles use two independent uint32 draws, matching the
@@ -634,9 +642,10 @@ comma-space. No resource loading policy is added.
 standard TLS or browser ClientHello templates (including ECH) and a configured
 `tls.ClientSessionCache`. Enable it only for
 requests whose replay is acceptable. POST and requests with bodies wait for the
-handshake. Rejection and HTTP 425 permit one 1-RTT retry. It is disabled by default;
-use `ForceHTTP3()` when the selected profile normally enables discovery/racing.
-Connection racing and address racing still require a full handshake.
+handshake. Rejection and HTTP 425 permit one 1-RTT retry. It is disabled by default.
+It supports connection racing and address preparation; the profile controls when
+an early-ready connection wins and whether TCP preparation continues. See the
+[early-data racing report](tests/testdata/wire/early_racing/README.md).
 
 ```go
 client := surf.NewClient().Builder().ForceHTTP3().
@@ -656,6 +665,12 @@ version information. `QUICSettings().CompatibleVersionNegotiation(true)` enables
 the same client mechanism for custom configurations; `Versions` selects allowed
 versions and the first flight. Native clients keep it disabled. Version validation,
 Retry, key changes and version-scoped session/token caches are handled by the engine.
+`QUICSettings().ResumeVersion(true).Set()` starts a new connection with the version
+stored in an available, unexpired TLS ticket for that origin. Firefox enables it;
+Chrome retains its configured version. Without a usable ticket, the configured
+first version applies. This uses the client's existing TLS cache, respects allowed
+versions and keeps no separate disk history. See the
+[session-version source and capture report](tests/testdata/wire/session_version/README.md).
 All browser values and randomization policy live in Surf; the QUIC fork has no
 built-in browser presets or uTLS dependency.
 

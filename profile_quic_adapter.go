@@ -323,6 +323,11 @@ func (a quicadapter) InitialRTT(estimate time.Duration) profiles.QUICConfig {
 	return a
 }
 
+func (a quicadapter) ResumeVersion(enabled bool) profiles.QUICConfig {
+	a.s.ResumeVersion(enabled)
+	return a
+}
+
 func (a quicadapter) InitialPTOMultiplier(factor uint32) profiles.QUICConfig {
 	a.s.InitialPTOMultiplier(factor)
 	return a

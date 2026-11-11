@@ -72,10 +72,10 @@ browser-owned real-ECH inner layouts, private PSK binders and engine-controlled
 early-data offers. Ordinary and ECH session resumption are supported. Local peers
 verify matching early traffic secrets, HRR handling, ALPN changes, application
 vetoes and authenticated ECH retry; see the [ECH report](../ech/README.md).
-Connection racing and address racing still require a full handshake. Use
-`ForceHTTP3()` when the selected profile normally races TCP and QUIC.
-Native fresh-handshake references do not establish browser resumption or 0-RTT
-fingerprint parity.
+Connection and address preparation support early-ready connections. Unsafe
+requests still wait for a verified handshake; eligible GET/HEAD follow the
+profile's selection/backup policy. See the [early-data racing audit](../early_racing/README.md)
+and the separate [verified resumption references](../ech/resumption/README.md).
 
 ## Regression coverage
 

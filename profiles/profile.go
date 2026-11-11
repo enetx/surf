@@ -93,6 +93,7 @@ type H3Config interface {
 	CoalesceInitialSettings(bool) H3Config
 	CoalesceRequestHeaders(bool) H3Config
 	EarlyData(bool) H3Config
+	EarlyDataBackup(bool) H3Config
 	RequestBodyBufferSize(int) H3Config
 	RequestBodyBufferSizePolicy(func(int64) int) H3Config
 	RequestBodyFirstReadSizePolicy(func(http3.RequestBodyReadInfo) int) H3Config
@@ -135,6 +136,7 @@ type H3Config interface {
 // method delegates to surf.QUICSettings, so profiles are examples of the same
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
+	ResumeVersion(bool) QUICConfig
 	InitialRTT(time.Duration) QUICConfig
 	InitialPTOMultiplier(uint32) QUICConfig
 	CachedInitialRTT(uint64, time.Duration, time.Duration) QUICConfig

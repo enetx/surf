@@ -51,6 +51,8 @@ type h3CaptureConn struct {
 	mu          sync.Mutex
 	initials    []h3InitialCapture
 	rawInitials [][]byte
+	serverCIDs  map[string]bool
+	ignoredCIDs map[string]bool
 }
 
 func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
@@ -59,12 +61,48 @@ func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
 		sourcePos := 6 + int(b[5])
 		if sourcePos < n {
 			c.mu.Lock()
-			c.rawInitials = append(c.rawInitials, bytes.Clone(b[:n]))
-			c.initials = append(c.initials, h3InitialCapture{version: binary.BigEndian.Uint32(b[1:5]), size: n, sourceCIDLength: int(b[sourcePos])})
+			if !c.ignoredCIDs[string(b[6:sourcePos])] {
+				c.rawInitials = append(c.rawInitials, bytes.Clone(b[:n]))
+				c.initials = append(c.initials, h3InitialCapture{version: binary.BigEndian.Uint32(b[1:5]), size: n, sourceCIDLength: int(b[sourcePos])})
+			}
 			c.mu.Unlock()
 		}
 	}
 	return n, addr, err
+}
+
+func (c *h3CaptureConn) WriteTo(b []byte, addr net.Addr) (int, error) {
+	if isH3Initial(b) {
+		pos := 6 + int(b[5])
+		if pos < len(b) && pos+1+int(b[pos]) <= len(b) {
+			c.mu.Lock()
+			if c.serverCIDs == nil {
+				c.serverCIDs = make(map[string]bool)
+			}
+			c.serverCIDs[string(b[pos+1:pos+1+int(b[pos])])] = true
+			c.mu.Unlock()
+		}
+	}
+	return c.PacketConn.WriteTo(b, addr)
+}
+
+func (c *h3CaptureConn) resetInitials() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.ignoredCIDs == nil {
+		c.ignoredCIDs = make(map[string]bool)
+	}
+	// A failed handshake can send a late Initial CONNECTION_CLOSE after reset.
+	// Exclude that connection's IDs without weakening authentication of new data.
+	for cid := range c.serverCIDs {
+		c.ignoredCIDs[cid] = true
+	}
+	for _, packet := range c.rawInitials {
+		c.ignoredCIDs[string(packet[6:6+int(packet[5])])] = true
+	}
+	clear(c.serverCIDs)
+	c.rawInitials = nil
+	c.initials = nil
 }
 
 type h3Peer struct {

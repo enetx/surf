@@ -1,0 +1,275 @@
+{
+  "schema": 1,
+  "scope": "Source-confirmed early readiness and TCP backup policies; ordinary public captures do not prove complete browser scheduling or packet timing parity.",
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.51/net/quic/quic_session_attempt.cc",
+      "sha256": "f261db30c55481a15fab1f369c6d4ffab9a9ce07915d81f016bd178921f87ea3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.51/net/quic/quic_chromium_client_session.cc",
+      "sha256": "520c6608239b8710185fbf91022c18bfad7dc29e28a4af1152f98463f84e40d4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.51/net/quic/quic_http_stream.cc",
+      "sha256": "1389c99ae66a4d8fb4a1ff920c1df335fcdef091346663fbcbaa069833d30b29"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.51/net/http/http_stream_factory_job.cc",
+      "sha256": "01776e3de02a4fc31aa40f25ef87487289eb5bc3c331585902adc25e0c3b3702"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.51/net/http/http_stream_factory_job_controller.cc",
+      "sha256": "a00e228721d6ede6687b1b080914041a129cf1026657f0a832e34b1635b19b3c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.51/net/http/http_stream_pool_attempt_manager.cc",
+      "sha256": "b66916d84ad184d31ef387dc16e92794c5d384c9c172bbde32bb603f34cb86ee"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.51/net/quic/quic_session_pool_job.cc",
+      "sha256": "efd169c917aecbdb3d562f03fa990e9939e9d9193427f1eb75b83c1ea7f5c2a3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Session.cpp",
+      "sha256": "f2666130c3e3d9b25ce513fa8b246cc2badfcfa320028fbd6f387eb200c77781"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/FIREFOX_160_0_RELEASE/netwerk/protocol/http/HttpConnectionUDP.cpp",
+      "sha256": "2b04c86a64e98578a7b750f499f7963e0aa625f4ef610fc5165f1e6094f90c84"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp",
+      "sha256": "1982338b39ce282ba63f98d7dcdc9d4bc754540866a5cce73093957106e95ad6"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/FIREFOX_160_0_RELEASE/netwerk/protocol/http/DnsAndConnectSocket.cpp",
+      "sha256": "0d4e3e1a48131dc77a6b70525f56c04edfeb07cb95c19b9768dc89a0600de039"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/FIREFOX_160_0_RELEASE/netwerk/protocol/http/ConnectionEntry.cpp",
+      "sha256": "2438c7dc474eb406cfa8689876f86495d717c5fe33a2848102cd9f11f92e630a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/connection_client.rs",
+      "sha256": "3cb1f2ba1f2c491eaaadab3fbf1cb1739f1266000683fef6b16f7d9c0aca442c"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/ZeroRttHandle.cpp",
+      "sha256": "43d1a92b747549a28c83edd427fe7c91570d1e34c551c7098b361e644205fb9b"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/HappyEyeballsTransaction.cpp",
+      "sha256": "0e58a6afa404ef6aeba83a0f254db0999f56a5c35d954faa6f717f07906b5b4b"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/HappyEyeballsConnectionAttempt.cpp",
+      "sha256": "0181292776519ac1931a4060aae183191e89094433c6a178bdbdbf124b92a3e7"
+    }
+  ],
+  "surf": {
+    "config": [
+      "profile Chrome/Firefox",
+      "EarlyData(true)",
+      "ConnectionRacing(true)",
+      "shared TLS cache",
+      "normal certificate verification"
+    ],
+    "connections": 6,
+    "verified_ech": 6,
+    "resumed": 4,
+    "independent_confirmation_checks": 4,
+    "pcap_sha256": "79f3a4918830a4e7f9da6908b8dad1301f1a6db67770a86b726eb54fc873d1f9",
+    "captured_packets": 146,
+    "kernel_received_packets": 146,
+    "kernel_drops": 0,
+    "decrypted_early_packets": [
+      {
+        "family": "chrome",
+        "connection": "0",
+        "earlyPackets": 0,
+        "earlyControlPackets": 0,
+        "earlyRequestPackets": 0
+      },
+      {
+        "family": "chrome",
+        "connection": "1",
+        "earlyPackets": 2,
+        "earlyControlPackets": 2,
+        "earlyRequestPackets": 1
+      },
+      {
+        "family": "chrome",
+        "connection": "2",
+        "earlyPackets": 1,
+        "earlyControlPackets": 1,
+        "earlyRequestPackets": 1
+      },
+      {
+        "family": "firefox",
+        "connection": "3",
+        "earlyPackets": 0,
+        "earlyControlPackets": 0,
+        "earlyRequestPackets": 0
+      },
+      {
+        "family": "firefox",
+        "connection": "4",
+        "earlyPackets": 1,
+        "earlyControlPackets": 1,
+        "earlyRequestPackets": 1
+      },
+      {
+        "family": "firefox",
+        "connection": "5",
+        "earlyPackets": 1,
+        "earlyControlPackets": 1,
+        "earlyRequestPackets": 1
+      }
+    ]
+  },
+  "native": [
+    {
+      "browser": "Chrome",
+      "attempts": [
+        {
+          "phase": "warm",
+          "at": "2026-11-11T21:59:36.407Z",
+          "http": "http/3",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        },
+        {
+          "phase": "after-idle",
+          "at": "2026-11-11T22:00:26.824Z",
+          "http": "http/2",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        },
+        {
+          "phase": "after-idle",
+          "at": "2026-11-11T22:01:11.892Z",
+          "http": "http/3",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        }
+      ],
+      "normal_certificate_verification": true,
+      "protocol_overrides": false,
+      "netlog_sha256": "005252dbd9878499a2f4a691ea7e36b5ae91b0477c13becccd123f12be2ba3ab"
+    },
+    {
+      "browser": "Firefox",
+      "attempts": [
+        {
+          "phase": "warm",
+          "at": "2026-11-11T22:03:11.641Z",
+          "http": "http/2",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        },
+        {
+          "phase": "warm",
+          "at": "2026-11-11T22:03:13.724Z",
+          "http": "http/2",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        },
+        {
+          "phase": "warm",
+          "at": "2026-11-11T22:03:15.791Z",
+          "http": "http/3",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        },
+        {
+          "phase": "after-idle",
+          "at": "2026-11-11T22:04:00.952Z",
+          "http": "http/3",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        },
+        {
+          "phase": "after-idle",
+          "at": "2026-11-11T22:04:46.217Z",
+          "http": "http/2",
+          "tls": "TLSv1.3",
+          "sni": "encrypted",
+          "kex": "X25519MLKEM768"
+        }
+      ],
+      "normal_certificate_verification": true,
+      "protocol_overrides": false,
+      "udp_egress_delay_last_attempt_ms": 1000,
+      "raw_pcap_sha256": "b5e63428baca33067565bab3b7bb6381e75748dc3b99fe0d851bd29d972b3781",
+      "segmentation": {
+        "original_sha256": "b5e63428baca33067565bab3b7bb6381e75748dc3b99fe0d851bd29d972b3781",
+        "analysis_sha256": "d10842fbdd1be7ff11b6005b840a7481343c24e3ce43fc119ac13d77e4fefc51",
+        "splits": [
+          {
+            "frame": 568,
+            "payload": 2504,
+            "segments": [
+              1252,
+              1252
+            ]
+          },
+          {
+            "frame": 2363,
+            "payload": 2504,
+            "segments": [
+              1252,
+              1252
+            ]
+          },
+          {
+            "frame": 3970,
+            "payload": 2504,
+            "segments": [
+              1252,
+              1252
+            ]
+          },
+          {
+            "frame": 25764,
+            "payload": 2504,
+            "segments": [
+              1252,
+              1252
+            ]
+          },
+          {
+            "frame": 25931,
+            "payload": 2504,
+            "segments": [
+              1252,
+              1252
+            ]
+          }
+        ]
+      },
+      "early_evidence": [
+        {
+          "connection": "3",
+          "earlyPackets": 2,
+          "earlyControlPackets": 2,
+          "earlyRequestPackets": 0
+        },
+        {
+          "connection": "4",
+          "earlyPackets": 0,
+          "earlyControlPackets": 0,
+          "earlyRequestPackets": 0
+        }
+      ],
+      "limitation": "Resumed H3 used early control streams without an early request. The impaired H2 takeover attempt had no early offer. Five GSO aggregates were split only in an analysis copy; no NIC timing claim."
+    }
+  ]
+}

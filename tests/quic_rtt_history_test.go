@@ -83,10 +83,36 @@ func TestQUICCachedInitialRTTProxyIsolation(t *testing.T) {
 }
 
 func resetRTTWireCapture(peer *h3Peer) {
-	peer.packet.mu.Lock()
-	defer peer.packet.mu.Unlock()
-	peer.packet.rawInitials = nil
-	peer.packet.initials = nil
+	peer.packet.resetInitials()
+}
+
+func TestQUICCaptureResetExcludesLatePriorConnectionInitials(t *testing.T) {
+	server, err := net.ListenPacket("udp4", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer server.Close()
+	client, err := net.ListenPacket("udp4", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer client.Close()
+	require.NoError(t, server.SetDeadline(time.Now().Add(5*time.Second)))
+	require.NoError(t, client.SetDeadline(time.Now().Add(5*time.Second)))
+	capture := &h3CaptureConn{PacketConn: server}
+	buffer := make([]byte, 1500)
+	// Record the previous server's source CID before resetting the observation.
+	_, err = capture.WriteTo([]byte{0xc0, 0, 0, 0, 1, 1, 0xaa, 1, 0xbb}, client.LocalAddr())
+	require.NoError(t, err)
+	_, _, err = client.ReadFrom(buffer)
+	require.NoError(t, err)
+	capture.resetInitials()
+	for _, cid := range []byte{0xbb, 0xcc} {
+		packet := []byte{0xc0, 0, 0, 0, 1, 1, cid, 0}
+		_, err = client.WriteTo(packet, server.LocalAddr())
+		require.NoError(t, err)
+		n, _, err := capture.ReadFrom(buffer)
+		require.NoError(t, err)
+		require.Equal(t, packet, buffer[:n], "filter only the capture, never the server input")
+	}
+	require.Len(t, capture.rawInitials, 1)
+	require.Equal(t, byte(0xcc), capture.rawInitials[0][6])
 }
 
 func TestQUICCachedInitialRTTDoesNotLearnFailedHandshake(t *testing.T) {

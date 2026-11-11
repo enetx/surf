@@ -46,6 +46,8 @@ type Options struct {
 	TCPFallbackDelay                     *time.Duration
 	AltUsed                              bool
 	EarlyData                            bool
+	EarlyDataBackup                      bool
+	ResumeVersion                        bool
 	ClientHandshake                      *quic.ClientHandshake
 	ClientHelloFactory                   func() (utls.ClientHelloSpec, error)
 	ECHClientHelloInner                  utls.ECHClientHelloInnerFunc
@@ -90,10 +92,6 @@ func (h *Options) validateQUICConfig() error {
 		return fmt.Errorf("TCP fallback delay must be nonnegative")
 	}
 
-	if (h.ConnectionRacing || h.Discovery && !h.ForceHTTP3) && h.EarlyData {
-		return fmt.Errorf("HTTP/3 connection racing requires a full handshake; disable EarlyData")
-	}
-
 	if err := h.WireConfig.Validate(); err != nil {
 		return err
 	}
@@ -129,10 +127,6 @@ func (h *Options) validateQUICConfig() error {
 
 	if h.AddressFallbackDelay < 0 || h.AddressFallbackDelay > time.Minute {
 		return fmt.Errorf("invalid QUIC address fallback delay")
-	}
-
-	if h.AddressFallbackDelay > 0 && h.EarlyData {
-		return fmt.Errorf("QUIC address racing requires 1-RTT")
 	}
 
 	if h.MaxResponseHeaderBytes < 0 {

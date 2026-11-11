@@ -27,6 +27,7 @@ import (
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type Transport struct {
 	rttHistory             *rttHistory
+	sessionVersions        *sessionVersions
 	Fallback               http.RoundTripper
 	discovery              *alternativeDiscovery
 	racer                  *connrace.Racer
@@ -46,6 +47,7 @@ type Transport struct {
 	disableCompression     bool
 	altUsed                bool
 	earlyData              bool
+	earlyDataBackup        bool
 	forceHTTP3             bool
 	tcpVersion             int
 }
@@ -64,6 +66,7 @@ func New(settings Options) (*Transport, error) {
 		wireConfig:             settings.WireConfig.Clone(),
 		altUsed:                settings.AltUsed,
 		earlyData:              settings.EarlyData,
+		earlyDataBackup:        settings.EarlyDataBackup,
 		forceHTTP3:             settings.ForceHTTP3,
 		tcpVersion:             settings.TCPVersion,
 		tlsConfig:              settings.TLSConfig.Clone(),
@@ -94,6 +97,9 @@ func New(settings Options) (*Transport, error) {
 			minimum:   settings.MinimumInitialRTT,
 			maximum:   settings.MaximumInitialRTT,
 		}
+	}
+	if settings.ResumeVersion {
+		ut.sessionVersions = &sessionVersions{}
 	}
 
 	ut.quicDialer.DedicatedConn = ut.quicDialer.ConnectionIDGenerator != nil &&
@@ -220,7 +226,7 @@ func New(settings Options) (*Transport, error) {
 			tcp = ut.preconnectDiscoveredTCP
 		}
 
-		ut.racer = connrace.New(policy, ut.http3tr.Preconnect, func(req *http.Request) (bool, error) {
+		ut.racer = connrace.New(policy, ut.preconnectQUIC, func(req *http.Request) (bool, error) {
 			var http1 bool
 			req = req.WithContext(context.WithValue(req.Context(), preparedTCPHTTP1Key{}, &http1))
 			err := tcp(req)
@@ -450,6 +456,9 @@ func (ut *Transport) CloseIdleConnections() {
 
 // Close shuts down the transport and releases all resources.
 func (ut *Transport) Close() error {
+	if ut.sessionVersions != nil {
+		ut.sessionVersions.close()
+	}
 	if ut.rttHistory != nil {
 		ut.rttHistory.close()
 	}
@@ -551,8 +560,7 @@ type http3RequireHandshakeKey struct{}
 func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
 	attempt := ut.requestWithAltUsed(WithProtocolHeaders(req, ut.protocolHeaders, 3))
 
-	eligible := ut.earlyData && (req.Body == nil || req.Body == http.NoBody) &&
-		(req.Method == http.MethodGet || req.Method == http.MethodHead)
+	eligible := ut.eligibleEarlyData(req)
 	if !eligible {
 		if ut.earlyData {
 			attempt = attempt.WithContext(context.WithValue(attempt.Context(), http3RequireHandshakeKey{}, true))
@@ -596,4 +604,10 @@ func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
 func (ut *Transport) useEarlyData(ctx context.Context) bool {
 	required, _ := ctx.Value(http3RequireHandshakeKey{}).(bool)
 	return ut.earlyData && !required
+}
+
+func (ut *Transport) eligibleEarlyData(req *http.Request) bool {
+	required, _ := req.Context().Value(http3RequireHandshakeKey{}).(bool)
+	return ut.earlyData && !required && (req.Body == nil || req.Body == http.NoBody) &&
+		(req.Method == http.MethodGet || req.Method == http.MethodHead)
 }

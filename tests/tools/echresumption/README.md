@@ -12,6 +12,7 @@ before analysis. Keep the capture directory private (`umask 077`).
 ```sh
 go run ./tests/tools/echresumption -probe chrome -protocol h3 -early -keylog /private/capture/chrome-h3.keys
 go run ./tests/tools/echresumption -probe firefox -protocol h3 -early -keylog /private/capture/firefox-h3.keys
+go run ./tests/tools/echresumption -probe firefox -protocol h3 -early -racing -keylog /private/capture/firefox-racing.keys
 go run ./tests/tools/echresumption -probe chrome -protocol h2 -keylog /private/capture/chrome-h2.keys
 ```
 
@@ -21,6 +22,10 @@ The implementation in `probe.go` demonstrates ordinary `Impersonate`,
 cache makes three fresh connections. The probe fails on certificate/ECH failure
 or failure to resume its repeated handshakes. It never overwrites a key log.
 Early data is explicitly enabled only by `-early`; library defaults stay intact.
+`-racing` enables the profile's TCP/QUIC preparation policy instead of forcing
+HTTP/3. It requires `-protocol h3`. This probe still requires HTTP/3 on every
+attempt, so a legitimate TCP winner fails its strict capture requirements.
+The frame extractor distinguishes the v1 and v2 long-header packet-type fields.
 
 ## Capture an ordinary browser
 

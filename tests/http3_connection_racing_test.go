@@ -67,7 +67,7 @@ type racingPeer struct {
 	quic                *http3.Server
 }
 
-func newRacingPeer(t *testing.T, h2, udpEnabled, tcpBlocked bool) *racingPeer {
+func newRacingPeer(t *testing.T, h2, udpEnabled, tcpBlocked bool, configure ...func(*racingPeer)) *racingPeer {
 	t.Helper()
 	p := &racingPeer{tcpHello: make(chan struct{}, 64), tcpGate: make(chan struct{}), observed: make(chan racingObservation, 128)}
 	if !tcpBlocked {
@@ -118,6 +118,9 @@ func newRacingPeer(t *testing.T, h2, udpEnabled, tcpBlocked bool) *racingPeer {
 	// Only block the TCP handshake; QUIC must have an independent readiness path.
 	p.quic.TLSConfig.GetConfigForClient = nil
 	p.quic.TLSConfig.NextProtos = []string{"h3"}
+	for _, apply := range configure {
+		apply(p)
+	}
 	go p.quic.Serve(p.udp)
 	t.Cleanup(func() { p.quic.Close(); udp.Close(); p.tcp.Close() })
 	return p
@@ -358,7 +361,8 @@ func TestHTTP3ConnectionRacingValidationAndProfilePolicies(t *testing.T) {
 	for _, delay := range []time.Duration{-1, -time.Second} {
 		require.True(t, racingBuilder("native").HTTP3Settings().ConnectionRacing(true).TCPFallbackDelay(delay).Set().Build().IsErr())
 	}
-	require.True(t, racingBuilder("native").HTTP3Settings().ConnectionRacing(true).EarlyData(true).Set().Build().IsErr())
+	earlyClient := racingBuilder("native").HTTP3Settings().ConnectionRacing(true).EarlyData(true).Set().Build().Unwrap()
+	earlyClient.Close()
 	require.True(t, racingBuilder("native").DisableKeepAlive().HTTP3Settings().ConnectionRacing(true).Set().Build().IsErr())
 	require.Equal(t, 100*time.Millisecond, firefoxcommon.ConnectionRacing(surf.ConnectionRacingInfo{}))
 	require.Zero(t, chromecommon.ConnectionRacing(surf.ConnectionRacingInfo{}))

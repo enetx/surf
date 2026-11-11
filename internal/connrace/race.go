@@ -33,16 +33,16 @@ type Racer struct {
 	flights map[*flight]struct{}
 	wg      sync.WaitGroup
 	policy  profiles.ConnectionRacingPolicy
-	quic    func(context.Context, string) error
+	quic    func(context.Context, string, bool) error
 	tcp     func(*http.Request) (bool, error)
 }
 
 const maxOrigins = 256
 
 type originState struct {
-	flight *flight
-	info   profiles.ConnectionRacingInfo
-	conn   *quic.Conn
+	flights [2]*flight // Full-handshake and early-ready waiters select separately.
+	info    profiles.ConnectionRacingInfo
+	conn    *quic.Conn
 }
 
 type flight struct {
@@ -53,20 +53,21 @@ type flight struct {
 	protocol int
 	err      error
 	tcpHTTP1 bool
+	early    bool
 }
 
 // New retains the supplied policy and connection-only preparation callbacks.
 // The TCP callback reports whether preparation selected HTTP/1 instead of HTTP/2.
 func New(
 	policy profiles.ConnectionRacingPolicy,
-	quic func(context.Context, string) error,
+	quic func(context.Context, string, bool) error,
 	tcp func(*http.Request) (bool, error),
 ) *Racer {
 	return &Racer{policy: policy, quic: quic, tcp: tcp}
 }
 
 // SelectProtocol shares preparation among waiters, with independent cancellation.
-func (r *Racer) SelectProtocol(req *http.Request, address string) (Result, error) {
+func (r *Racer) SelectProtocol(req *http.Request, address string, early bool) (Result, error) {
 	if err := req.Context().Err(); err != nil {
 		return Result{}, context.Cause(req.Context())
 	}
@@ -88,12 +89,16 @@ func (r *Racer) SelectProtocol(req *http.Request, address string) (Result, error
 		r.origins[address] = origin
 	}
 
-	f := origin.flight
+	slot := 0
+	if early {
+		slot = 1
+	}
+	f := origin.flights[slot]
 	if f == nil {
 		ctx, cancel := context.WithCancel(context.WithoutCancel(req.Context()))
 
-		f = &flight{done: make(chan struct{}), cancel: cancel}
-		origin.flight = f
+		f = &flight{done: make(chan struct{}), cancel: cancel, early: early}
+		origin.flights[slot] = f
 		r.flights[f] = struct{}{}
 
 		// Freeze the preparation request: neither worker owns the application body.
@@ -102,8 +107,13 @@ func (r *Racer) SelectProtocol(req *http.Request, address string) (Result, error
 
 		info := origin.info
 
-		if origin.conn != nil {
-			info.SmoothedRTT = origin.conn.ConnectionStats().SmoothedRTT
+		if origin.conn != nil && origin.conn.ConnectionState().TLS.HandshakeComplete {
+			info.QUICWorked = true
+			// An older confirmed connection cannot clear a later failed attempt.
+			// Successful full-handshake preparation clears the failure in run.
+			if stats := origin.conn.ConnectionStats(); stats.RTTMeasured {
+				info.SmoothedRTT = stats.SmoothedRTT
+			}
 		}
 
 		r.wg.Add(1)
@@ -118,8 +128,8 @@ func (r *Racer) SelectProtocol(req *http.Request, address string) (Result, error
 		f.waiters--
 		if f.waiters == 0 && !f.chosen {
 			f.cancel()
-			if origin.flight == f {
-				origin.flight = nil
+			if origin.flights[slot] == f {
+				origin.flights[slot] = nil
 			}
 		}
 		r.mu.Unlock()
@@ -147,8 +157,10 @@ func (r *Racer) run(
 	defer f.cancel()
 	defer func() {
 		r.mu.Lock()
-		if origin.flight == f {
-			origin.flight = nil
+		for i := range origin.flights {
+			if origin.flights[i] == f {
+				origin.flights[i] = nil
+			}
 		}
 
 		delete(r.flights, f)
@@ -157,7 +169,7 @@ func (r *Racer) run(
 		for len(r.origins) > maxOrigins {
 			removed := false
 			for address, cached := range r.origins {
-				if cached.flight == nil {
+				if cached.flights[0] == nil && cached.flights[1] == nil {
 					delete(r.origins, address)
 					removed = true
 
@@ -203,7 +215,8 @@ func (r *Racer) run(
 	var workers sync.WaitGroup
 	defer workers.Wait()
 
-	workers.Go(func() { quicDone <- r.quic(qctx, address) })
+	early := f.early && info.LastQUICError == nil
+	workers.Go(func() { quicDone <- r.quic(qctx, address, early) })
 
 	timer := time.NewTimer(delay)
 	defer timer.Stop()
@@ -235,10 +248,10 @@ func (r *Racer) run(
 		case err := <-quicDone:
 			quicFinished, quicErr = true, err
 			r.mu.Lock()
-			if err == nil {
+			if err == nil && !early {
 				origin.info.QUICWorked = true
 				origin.info.LastQUICError = nil
-			} else if !errors.Is(err, context.Canceled) {
+			} else if err != nil && !errors.Is(err, context.Canceled) {
 				origin.info.LastQUICError = err
 			}
 			r.mu.Unlock()

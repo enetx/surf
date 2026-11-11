@@ -15,9 +15,9 @@ import (
 // All browser policy is selected through Surf's ordinary fluent API. A single
 // client owns the TLS cache; closing idle connections forces new handshakes
 // while retaining that cache. Certificate verification remains enabled.
-func probe(browser, protocol, keylog string, early bool) error {
-	if browser != "chrome" && browser != "firefox" || protocol != "h2" && protocol != "h3" || keylog == "" || early && protocol != "h3" {
-		return errors.New("use -probe chrome|firefox -protocol h2|h3 -keylog NEW_PRIVATE_FILE [-early]")
+func probe(browser, protocol, keylog string, early, racing bool) error {
+	if browser != "chrome" && browser != "firefox" || protocol != "h2" && protocol != "h3" || keylog == "" || (early || racing) && protocol != "h3" {
+		return errors.New("use -probe chrome|firefox -protocol h2|h3 -keylog NEW_PRIVATE_FILE [-early] [-racing]")
 	}
 	file, err := os.OpenFile(keylog, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
@@ -39,6 +39,9 @@ func probe(browser, protocol, keylog string, early bool) error {
 	}
 	if early {
 		builder.HTTP3Settings().EarlyData(true).Set()
+	}
+	if racing {
+		builder.HTTP3Settings().ConnectionRacing(true).Set()
 	}
 	built := builder.TLSConfig(&tls.Config{KeyLogWriter: file, ClientSessionCache: tls.NewLRUClientSessionCache(8)}).SecureTLS().Build()
 	if built.IsErr() {

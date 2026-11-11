@@ -183,6 +183,16 @@ func (h *HTTP3Settings) EarlyData(enabled bool) *HTTP3Settings {
 	return h
 }
 
+// EarlyDataBackup keeps TCP preparation active until the QUIC handshake finishes,
+// while eligible requests can already use 0-RTT. A ready TCP backup cancels the
+// early attempt and sends the bodyless GET/HEAD over TCP. The Firefox profile
+// enables this policy. False selects a QUIC connection as soon as early keys
+// are ready, following Chrome. Enable early data separately with EarlyData.
+func (h *HTTP3Settings) EarlyDataBackup(enabled bool) *HTTP3Settings {
+	h.options.EarlyDataBackup = enabled
+	return h
+}
+
 // AltUsed sends the current request's destination authority in the Alt-Used
 // header on HTTP/3 attempts. The Firefox desktop profile enables this to match
 // its captured alternative-service requests. Explicit headers take precedence.
@@ -386,9 +396,10 @@ func (h *HTTP3Settings) ClientHelloFactory(factory func() (utls.ClientHelloSpec,
 	return h
 }
 
-// ConnectionRacing enables connection-only competition between HTTP/3 and a TCP
-// backup. No request headers or body are sent until a connection wins. Disabled
-// by default, independently of the selected profile's delay policy.
+// ConnectionRacing prepares HTTP/3 and a TCP backup concurrently. Requests wait
+// for selection unless EarlyData enables an eligible bodyless GET/HEAD; then
+// EarlyDataBackup controls whether TCP can still win before QUIC confirms.
+// Disabled by default, independently of the selected profile's delay policy.
 func (h *HTTP3Settings) ConnectionRacing(enabled bool) *HTTP3Settings {
 	h.options.ConnectionRacing = enabled
 	return h

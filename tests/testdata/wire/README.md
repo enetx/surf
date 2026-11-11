@@ -579,17 +579,18 @@ loss recovery, persistent congestion, connection racing or browser experiments.
 ## RFC 9368 / RFC 9369 client verification
 
 Firefox's fluent profile enables compatible negotiation and supports both v1 and
-v2. Its first flight remains v1; `version_information` now lists GREASE, v2, v1.
+v2. Its cold first flight is v1; `version_information` lists GREASE, v2, v1.
 Native clients and server negotiation policy keep their previous defaults.
 The engine validates the selected version against authenticated server information
 and prevents induced downgrades. Retry uses the original version; Initial PN space
 and TLS transcript survive the switch; Handshake and 1-RTT use negotiated labels.
 Original-version 0-RTT retains its packet type and key labels. Session tickets and
-NEW_TOKEN caches are scoped to their versions. Browser-history selection of the
-next original version is separate work. Surf now supports custom-template early
-data, including ECH; see the [ECH report](ech/README.md). Native browser resumption
-and 0-RTT parity remain separate verification work. Generic version/0-RTT checks
-do not establish complete browser behavior.
+NEW_TOKEN caches are scoped to their versions. Firefox now restores its initial
+version from a usable TLS ticket, following Neqo's resumption token policy; see
+the [session-version report](session_version/README.md). Surf also supports
+custom-template early data, including ECH; see the [ECH report](ech/README.md)
+and [early-data racing report](early_racing/README.md). Generic version/0-RTT
+checks do not establish complete browser behavior.
 
 The fork's UDP integration tests exercise actual Dial and client Finished in both
 directions, Retry, original-version ACKs, reordered Handshake, lost server flight,

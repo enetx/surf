@@ -238,4 +238,12 @@ test("wire evidence handles coalescing, implicit STREAM lengths, control-only ea
   assert.throws(() =>
     quicEvidence([packet("1", "1", { "quic.stream.stream_id": "0" })]),
   );
+  const v2 = packet("0x6b3343cf", "2", control);
+  delete v2["quic.long.packet_type"];
+  v2["quic.long.packet_type_v2"] = "2";
+  assert.deepEqual(quicEvidence([v2]), {
+    earlyPackets: 1,
+    earlyControlPackets: 1,
+    earlyRequestPackets: 0,
+  });
 });
