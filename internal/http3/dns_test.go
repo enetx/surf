@@ -2,9 +2,12 @@ package h3transport
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/binary"
 	"io"
 	"net"
+	"net/http/httptest"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -90,6 +93,70 @@ func TestHTTPSDNSUsesConfiguredStreamTransportAndAliasTTL(t *testing.T) {
 	require.Equal(t, 10*time.Second, records[0].TTL)
 	require.Equal(t, "alt.example.", records[0].Target)
 	require.EqualValues(t, 2, calls.Load())
+}
+
+func TestHTTPSDNSUsesVerifiedTLSTransport(t *testing.T) {
+	certServer := httptest.NewTLSServer(nil)
+	defer certServer.Close()
+	listener, err := tls.Listen("tcp4", "127.0.0.1:0", &tls.Config{Certificates: certServer.TLS.Certificates})
+	require.NoError(t, err)
+	defer listener.Close()
+	var questions atomic.Int32
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			go func() {
+				defer conn.Close()
+				conn.SetDeadline(time.Now().Add(time.Second))
+				var prefix [2]byte
+				if _, err := io.ReadFull(conn, prefix[:]); err != nil {
+					return
+				}
+				data := make([]byte, binary.BigEndian.Uint16(prefix[:]))
+				if _, err := io.ReadFull(conn, data); err != nil {
+					return
+				}
+				var query dnsmessage.Message
+				if query.Unpack(data) != nil {
+					return
+				}
+				questions.Add(1)
+				answer := httpsDNSAnswer(query, []byte{0, 1, 0, 0, 1, 0, 3, 2, 'h', '3'})
+				data, err := answer.Pack()
+				if err != nil {
+					return
+				}
+				binary.BigEndian.PutUint16(prefix[:], uint16(len(data)))
+				conn.Write(append(prefix[:], data...))
+			}()
+		}
+	}()
+	roots := x509.NewCertPool()
+	roots.AddCert(certServer.Certificate())
+	for _, trusted := range []bool{true, false} {
+		pool := roots
+		if !trusted {
+			pool = x509.NewCertPool()
+		}
+		resolver := &net.Resolver{Dial: func(ctx context.Context, _, _ string) (net.Conn, error) {
+			dialer := tls.Dialer{Config: &tls.Config{RootCAs: pool, ServerName: "example.com"}}
+			return dialer.DialContext(ctx, "tcp", listener.Addr().String())
+		}}
+		ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+		records, err := queryHTTPS(ctx, "origin.example", "unused-system-address:53", resolver, 0)
+		cancel()
+		if trusted {
+			require.NoError(t, err)
+			require.Len(t, records, 1)
+		} else {
+			require.Error(t, err)
+			require.Empty(t, records)
+		}
+	}
+	require.EqualValues(t, 1, questions.Load(), "an untrusted TLS resolver must not receive DNS data or trigger plaintext fallback")
 }
 
 func TestHTTPSDNSRejectsSpoofedResponseAndAliasLoop(t *testing.T) {

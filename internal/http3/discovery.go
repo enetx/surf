@@ -377,10 +377,14 @@ func (d *alternativeDiscovery) resolveUnshared(ctx context.Context, origin strin
 		query = "_" + port + "._https." + host
 	}
 
-	lookupCtx, cancel := context.WithTimeout(ctx, 50*time.Millisecond)
-	defer cancel()
-
-	records, err := d.lookup(lookupCtx, query)
+	// Obtain the endpoint's TLS metadata before starting either handshake.
+	// Chromium's supplemental timer starts only after address queries finish;
+	// Firefox also waits for HTTPS RR when ECH is enabled.
+	// This standalone lookup uses its DNS transport deadlines and waiter context,
+	// rather than discarding ECH after an arbitrary 50 ms from query start.
+	// https://chromium.googlesource.com/chromium/src/+/157.0.8103.51/net/dns/host_resolver_dns_task.cc#1137
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpConnectionMgr.cpp#L1760
+	records, err := d.lookup(ctx, query)
 	if err != nil {
 		return alternativeRoute{}, false
 	}
@@ -538,7 +542,14 @@ func (ut *Transport) roundTripDiscovered(req *http.Request) (*http.Response, err
 	}
 
 	var response *http.Response
-	if available {
+	if ut.forceHTTP3 && ut.racer == nil {
+		// Forcing a protocol does not discard the endpoint's ECHConfig. An
+		// advertisement remains optional, as on the existing direct H3 path.
+		response, err = ut.roundTripHTTP3(attempt)
+		if err != nil {
+			response, err = ut.handleError(attempt, err)
+		}
+	} else if available || ut.forceHTTP3 {
 		response, err = ut.roundTripRacing(attempt)
 	} else if route.noTCP {
 		if req.Body != nil {

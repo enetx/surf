@@ -167,6 +167,7 @@ func (b *Builder) QUICSettings() *QUICSettings {
 
 // ForceHTTP3 attempts HTTP/3 directly, without requiring Alt-Svc or HTTPS DNS.
 // An unavailable UDP path or a TCP-only proxy can still select HTTP/2 or HTTP/1.
+// Enabled discovery still obtains HTTPS DNS metadata, including ECHConfig.
 func (b *Builder) ForceHTTP3() *Builder {
 	b.forceHTTP3 = true
 	return b.HTTP3Settings().Set()

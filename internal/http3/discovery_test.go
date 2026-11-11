@@ -198,6 +198,34 @@ func TestHTTPSDiscoveryCloseCancelsLookup(t *testing.T) {
 	}
 }
 
+func TestHTTPSDiscoveryLastCanceledWaiterAllowsFreshLookup(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		started, stopped := make(chan struct{}), make(chan struct{})
+		var calls atomic.Int32
+		d := newAlternativeDiscovery(func(ctx context.Context, _ string) ([]HTTPSRecord, error) {
+			if calls.Add(1) == 1 {
+				close(started)
+				<-ctx.Done()
+				close(stopped)
+				return nil, context.Cause(ctx)
+			}
+			return []HTTPSRecord{{Priority: 1, ALPN: []string{"h3"}, TTL: time.Minute, ECH: []byte{1, 2}}}, nil
+		}, nil, false)
+		defer d.close()
+		ctx, cancel := context.WithCancel(t.Context())
+		done := make(chan bool, 1)
+		go func() { _, ok := d.resolve(ctx, "origin.example:443"); done <- ok }()
+		<-started
+		cancel()
+		require.False(t, <-done)
+		<-stopped
+		route, ok := d.resolve(t.Context(), "origin.example:443")
+		require.True(t, ok)
+		require.Equal(t, []byte{1, 2}, route.ech)
+		require.EqualValues(t, 2, calls.Load(), "cancellation must not suppress the next lookup")
+	})
+}
+
 func TestHTTPSBindingLifetimeAndECHSurviveBackoff(t *testing.T) {
 	now := time.Now()
 	failLookup := false

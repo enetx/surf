@@ -721,6 +721,14 @@ The [ECH verification report](tests/testdata/wire/ech/README.md) distinguishes
 native Chrome captures, Firefox source checks and local integration tests.
 The [ECH example](examples/tls/ech/ech.go) prints the negotiated protocol and
 `ConnectionState.ECHAccepted`; run it with `go run ./examples/tls/ech`.
+It uses `www.cloudflare-quic.com`, which advertises both h3 and ECH at the time
+of verification. `www.cloudflare.com` currently advertises h3 without ECH.
+`ForceHTTP3()` retains enabled HTTPS DNS discovery for TLS metadata. Discovery
+waits for its DNS transport or request cancellation, without the former 50 ms
+cutoff that could start a plaintext-SNI handshake before an ECH record arrived.
+HTTPS queries use the same custom `.DNS("address:53")` or `.DNSOverTLS()`
+resolver as A/AAAA queries, regardless of its position relative to the profile
+selector. An explicitly supplied `HTTPSRecordsLookup` owns HTTPS queries instead.
 
 QUIC profiles now include send scheduling as fluent configuration. Chromium
 uses scheduled pacing with PRR and a 2000 × 1460-byte window ceiling. Firefox

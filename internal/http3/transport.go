@@ -44,6 +44,7 @@ type Transport struct {
 	disableCompression     bool
 	altUsed                bool
 	earlyData              bool
+	forceHTTP3             bool
 }
 
 // New snapshots settings and builds HTTP/3 with its existing TCP fallback.
@@ -58,6 +59,7 @@ func New(settings Options) (*Transport, error) {
 		wireConfig:             settings.WireConfig.Clone(),
 		altUsed:                settings.AltUsed,
 		earlyData:              settings.EarlyData,
+		forceHTTP3:             settings.ForceHTTP3,
 		tlsConfig:              settings.TLSConfig.Clone(),
 		settings:               settings.Settings.Clone(),
 		quicConfig:             quictransport.CloneConfig(settings.QUICConfig),
@@ -129,7 +131,7 @@ func New(settings Options) (*Transport, error) {
 		return nil, err
 	}
 
-	if settings.Discovery && !settings.ForceHTTP3 {
+	if settings.Discovery {
 		lookup := settings.HTTPSRecordsLookup
 		if ut.quicDialer.Proxy != "" {
 			lookup = nil
@@ -146,7 +148,7 @@ func New(settings Options) (*Transport, error) {
 
 	ut.quicDialer.ResolveAll = ut.discovery != nil
 
-	if settings.ConnectionRacing || ut.discovery != nil {
+	if settings.ConnectionRacing || ut.discovery != nil && !settings.ForceHTTP3 {
 		if base, ok := ut.Fallback.(*http.Transport); ok &&
 			(base.DisableKeepAlives || base.MaxIdleConnsPerHost < 0) {
 			ut.Close()

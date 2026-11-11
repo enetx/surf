@@ -18,16 +18,20 @@ func main() {
 	client := builder.SecureTLS().Build().Unwrap()
 	defer client.Close()
 
-	result := client.Get("https://www.cloudflare.com/cdn-cgi/trace").Do()
+	// This host advertises ECH and h3 in its HTTPS record at the time of writing.
+	// www.cloudflare.com currently advertises h3 but no ECHConfig.
+	result := client.Get("https://www.cloudflare-quic.com/cdn-cgi/trace").Do()
 	if result.IsErr() {
 		log.Fatal(result.Err())
 	}
+
 	response := result.Ok()
 
 	state := response.GetResponse().TLS
 	if state == nil {
 		log.Fatal("response has no TLS state")
 	}
+
 	fmt.Printf("Protocol: %s\nECH accepted: %t\n", response.Proto, state.ECHAccepted)
 	// False can mean that DNS supplied no usable ECHConfig, or that a configured
 	// proxy bypassed local HTTPS discovery. The browser profile alone is not
@@ -38,5 +42,6 @@ func main() {
 	if body.IsErr() {
 		log.Fatal(body.Err())
 	}
+
 	fmt.Println(body.Ok())
 }
