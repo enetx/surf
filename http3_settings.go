@@ -11,6 +11,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/quic-go"
 	"github.com/enetx/quic-go/http3"
+	"github.com/enetx/surf/internal/clientdialer"
 	h3transport "github.com/enetx/surf/internal/http3"
 	quictransport "github.com/enetx/surf/internal/quic"
 	"github.com/enetx/surf/internal/specclone"
@@ -508,9 +509,9 @@ func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) 
 
 	if base, ok := options.Fallback.(*roundtripper); ok {
 		options.RequestProxy = base.requestProxy
-		options.UseResolvedTCPAddresses = isClientDialer(base.http1tr.DialContext)
+		options.UseResolvedTCPAddresses = clientdialer.IsDefault(base.http1tr.DialContext)
 	} else if base, ok := options.Fallback.(*http.Transport); ok {
-		options.UseResolvedTCPAddresses = isClientDialer(base.DialContext)
+		options.UseResolvedTCPAddresses = clientdialer.IsDefault(base.DialContext)
 	}
 
 	return h3transport.New(options)

@@ -57,7 +57,11 @@ type flight struct {
 
 // New retains the supplied policy and connection-only preparation callbacks.
 // The TCP callback reports whether preparation selected HTTP/1 instead of HTTP/2.
-func New(policy profiles.ConnectionRacingPolicy, quic func(context.Context, string) error, tcp func(*http.Request) (bool, error)) *Racer {
+func New(
+	policy profiles.ConnectionRacingPolicy,
+	quic func(context.Context, string) error,
+	tcp func(*http.Request) (bool, error),
+) *Racer {
 	return &Racer{policy: policy, quic: quic, tcp: tcp}
 }
 
@@ -289,6 +293,7 @@ func (r *Racer) Close(idleOnly bool) {
 func (r *Racer) ObserveQUIC(address string, conn *quic.Conn) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
 	if origin := r.origins[address]; origin != nil {
 		origin.conn = conn
 	}

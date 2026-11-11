@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"maps"
 	"net"
-	"reflect"
 	"strconv"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/cookiejar"
 	"github.com/enetx/http/http2"
+	"github.com/enetx/surf/internal/clientdialer"
 	h3transport "github.com/enetx/surf/internal/http3"
 	"github.com/enetx/surf/pkg/connectproxy"
 	"golang.org/x/net/publicsuffix"
@@ -25,18 +25,6 @@ import (
 func defaultDialerMW(client *Client) error {
 	client.dialer = &net.Dialer{Timeout: _dialerTimeout, KeepAlive: _TCPKeepAlive}
 	return nil
-}
-
-// clientDialer identifies Surf's own DialContext adapter. DNS address reuse
-// must not replace resolution inside an application-supplied dial function.
-type clientDialer struct{ dialer *net.Dialer }
-
-func (d clientDialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
-	return d.dialer.DialContext(ctx, network, address)
-}
-
-func isClientDialer(dial func(context.Context, string, string) (net.Conn, error)) bool {
-	return dial != nil && reflect.ValueOf(dial).Pointer() == reflect.ValueOf(clientDialer{}.DialContext).Pointer()
 }
 
 // defaultTLSConfigMW initializes the default TLS configuration for the surf client.
@@ -51,7 +39,7 @@ func defaultTLSConfigMW(client *Client) error {
 // Configures connection pooling, timeouts, and enables HTTP/2 support by default.
 func defaultTransportMW(client *Client) error {
 	transport := &http.Transport{
-		DialContext:           (clientDialer{client.dialer}).DialContext,
+		DialContext:           clientdialer.Wrap(client.dialer),
 		DisableCompression:    true,
 		ExpectContinueTimeout: 1 * time.Second,
 		ForceAttemptHTTP2:     true,

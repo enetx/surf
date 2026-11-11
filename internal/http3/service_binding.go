@@ -42,6 +42,7 @@ func bindingTransports(r *HTTPSRecord) (h3, tcp bool) {
 	// RFC 9460 sections 7.1.2 and 9: default ALPN adds the TCP transport;
 	// once a transport is selected its full normal ALPN list is offered.
 	tcp = !r.NoDefaultALPN
+
 	for _, alpn := range r.ALPN {
 		switch alpn {
 		case "h3":
@@ -153,43 +154,55 @@ func tcpBindingDial(
 		if route.noTCP {
 			return nil, errHTTPSNoTCP
 		}
+
 		target := address
+
 		if route.tcpAddress != "" {
 			target = route.tcpAddress
 		}
+
 		host, port, _ := net.SplitHostPort(target)
+
 		if reuseResolved && route.resolved.matches(host) {
 			var addresses []string
 			for _, ip := range route.resolved.ips {
 				if ip.IP == nil || network == "tcp4" && ip.IP.To4() == nil || network == "tcp6" && ip.IP.To4() != nil {
 					continue
 				}
+
 				host := ip.IP.String()
 				if ip.Zone != "" {
 					host += "%" + ip.Zone
 				}
+
 				addresses = append(addresses, net.JoinHostPort(host, port))
 			}
+
 			for _, hint := range route.hints {
 				if !hint.IsValid() || hint.IsUnspecified() || hint.IsMulticast() ||
 					network == "tcp4" && !hint.Is4() || network == "tcp6" && hint.Is4() {
 					continue
 				}
+
 				candidate := net.JoinHostPort(hint.String(), port)
 				if !slices.Contains(addresses, candidate) {
 					addresses = append(addresses, candidate)
 				}
 			}
+
 			if len(addresses) == 0 {
 				if route.resolved.err != nil {
 					return nil, route.resolved.err
 				}
+
 				return nil, &net.DNSError{Name: host, Err: "no addresses for requested network", IsNotFound: true}
 			}
+
 			delay := 300 * time.Millisecond // net.Dialer's default fallback delay.
 			if fallbackDelay != 0 {
 				delay = fallbackDelay
 			}
+
 			return connrace.DialAddresses(ctx, network, addresses[:min(len(addresses), 16)], delay, original)
 		}
 
@@ -207,6 +220,7 @@ func tcpBindingDial(
 		}
 
 		_, port, _ = net.SplitHostPort(route.tcpAddress)
+
 		for _, hint := range route.hints {
 			if !hint.IsValid() || hint.IsUnspecified() || hint.IsMulticast() {
 				continue

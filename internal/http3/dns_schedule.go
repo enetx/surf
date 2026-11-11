@@ -21,29 +21,39 @@ func (r *resolvedAddresses) matches(host string) bool {
 // resolveDNS starts address and HTTPS queries together. Address results belong
 // to this discovery flight only: net.Resolver does not expose their TTL, so they
 // must not be cached for the HTTPS record's lifetime.
-func (d *alternativeDiscovery) resolveDNS(ctx context.Context, query, host string) ([]HTTPSRecord, *resolvedAddresses, error) {
+func (d *alternativeDiscovery) resolveDNS(
+	ctx context.Context,
+	query, host string,
+) ([]HTTPSRecord, *resolvedAddresses, error) {
 	if d.addressLookup == nil {
 		records, err := d.lookup(ctx, query)
 		return records, nil, err
 	}
+
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
 	type addressResult struct {
 		resolved *resolvedAddresses
 		elapsed  time.Duration
 	}
+
 	addressDone := make(chan addressResult, 1)
+
 	go func() {
 		start := time.Now()
 		ips, err := d.addressLookup(ctx, host)
 		addressDone <- addressResult{&resolvedAddresses{host: host, ips: ips, err: err}, time.Since(start)}
 	}()
+
 	type httpsResult struct {
 		records []HTTPSRecord
 		err     error
 	}
+
 	httpsCtx, cancelHTTPS := context.WithCancel(ctx)
 	defer cancelHTTPS()
+
 	httpsDone := make(chan httpsResult, 1)
 	go func() { records, err := d.lookup(httpsCtx, query); httpsDone <- httpsResult{records, err} }()
 
@@ -51,11 +61,13 @@ func (d *alternativeDiscovery) resolveDNS(ctx context.Context, query, host strin
 	var addresses *resolvedAddresses
 	var timer *time.Timer
 	var timeout <-chan time.Time
+
 	defer func() {
 		if timer != nil {
 			timer.Stop()
 		}
 	}()
+
 	for addressDone != nil || httpsDone != nil {
 		select {
 		case <-ctx.Done():
@@ -86,6 +98,7 @@ func (d *alternativeDiscovery) resolveDNS(ctx context.Context, query, host strin
 			return nil, addresses, errors.New("optional HTTPS lookup exceeded its supplemental wait")
 		}
 	}
+
 	return result.records, addresses, result.err
 }
 
@@ -93,8 +106,10 @@ func lookupResolvedAddresses(ctx context.Context, host string, resolver *net.Res
 	if route, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok && route.resolved.matches(host) {
 		return route.resolved.ips, route.resolved.err
 	}
+
 	if resolver == nil {
 		resolver = net.DefaultResolver
 	}
+
 	return resolver.LookupIPAddr(ctx, host)
 }

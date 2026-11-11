@@ -18,9 +18,11 @@ func Configs(err error) []byte {
 	if rejection, ok := errors.AsType[*tls.ECHRejectionError](err); ok {
 		return slices.Clone(rejection.RetryConfigList)
 	}
+
 	if rejection, ok := errors.AsType[*utls.ECHRejectionError](err); ok {
 		return slices.Clone(rejection.RetryConfigList)
 	}
+
 	return nil
 }
 

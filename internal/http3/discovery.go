@@ -472,6 +472,7 @@ func (d *alternativeDiscovery) result(route alternativeRoute, err error) {
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return
 	}
+
 	// Connection history needs the authority, not flight-scoped DNS addresses.
 	route.resolved = nil
 

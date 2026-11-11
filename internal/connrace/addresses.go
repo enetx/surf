@@ -15,6 +15,7 @@ func DialAddresses(ctx context.Context, network string, addresses []string, dela
 	if len(addresses) == 0 {
 		return nil, errors.New("no addresses to dial")
 	}
+
 	if delay < 0 || len(addresses) < 2 {
 		var errs []error
 		for _, address := range addresses {
@@ -22,21 +23,27 @@ func DialAddresses(ctx context.Context, network string, addresses []string, dela
 			if err == nil {
 				return conn, nil
 			}
+
 			errs = append(errs, err)
 			if ctx.Err() != nil {
 				break
 			}
 		}
+
 		return nil, errors.Join(errs...)
 	}
+
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
 	type result struct {
 		conn net.Conn
 		err  error
 	}
+
 	results := make(chan result, len(addresses))
 	started := 0
+
 	start := func() {
 		address := addresses[started]
 		started++
@@ -45,9 +52,11 @@ func DialAddresses(ctx context.Context, network string, addresses []string, dela
 			results <- result{conn, err}
 		}()
 	}
+
 	start()
 	timer := time.NewTimer(delay)
 	defer timer.Stop()
+
 	drain := func(remaining int) {
 		go func() {
 			for range remaining {
@@ -58,8 +67,10 @@ func DialAddresses(ctx context.Context, network string, addresses []string, dela
 			}
 		}()
 	}
+
 	var errs []error
 	received := 0
+
 	for received < started {
 		select {
 		case <-ctx.Done():
@@ -85,5 +96,6 @@ func DialAddresses(ctx context.Context, network string, addresses []string, dela
 			}
 		}
 	}
+
 	return nil, errors.Join(errs...)
 }

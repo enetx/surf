@@ -29,10 +29,13 @@ func (ut *Dialer) resolveAddresses(ctx context.Context, address string, hints []
 	}
 
 	lookup := resolver.LookupIPAddr
+
 	if ut.LookupIPAddr != nil {
 		lookup = ut.LookupIPAddr
 	}
+
 	ips, lookupErr := lookup(ctx, host)
+
 	var addresses []string
 	for _, ip := range ips {
 		host := ip.IP.String()
@@ -56,6 +59,7 @@ func (ut *Dialer) resolveAddresses(ctx context.Context, address string, hints []
 		if lookupErr != nil {
 			return nil, lookupErr
 		}
+
 		return nil, fmt.Errorf("no addresses for %s", host)
 	}
 
