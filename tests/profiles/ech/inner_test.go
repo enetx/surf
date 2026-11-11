@@ -10,6 +10,7 @@ import (
 
 	"github.com/enetx/surf/profiles/chrome/common"
 	"github.com/enetx/surf/profiles/firefox/desktop"
+	"github.com/enetx/surf/tests/internal/echcapture"
 	utls "github.com/enetx/utls"
 	"golang.org/x/crypto/cryptobyte"
 )
@@ -61,6 +62,13 @@ func TestFirefoxInnerMatchesNativeCapture(t *testing.T) {
 	testNativeInnerFixtures(t, "firefox-160-quic-*.json", 1, desktop.ClientHelloInner)
 }
 
+func TestResumedInnerMatchesNativeCapture(t *testing.T) {
+	testNativeInnerFixtures(t, "resumption/native/chrome-157-tcp-*.json", 2, common.ClientHelloInner)
+	testNativeInnerFixtures(t, "resumption/native/chrome-157-quic-*.json", 2, common.ClientHelloInner)
+	testNativeInnerFixtures(t, "resumption/native/firefox-160-tcp-*.json", 1, desktop.ClientHelloInner)
+	testNativeInnerFixtures(t, "resumption/native/firefox-160-quic-*.json", 1, desktop.ClientHelloInner)
+}
+
 func testNativeInnerFixtures(t *testing.T, pattern string, count int, policy utls.ECHClientHelloInnerFunc) {
 	t.Helper()
 	paths, err := filepath.Glob("../../testdata/wire/ech/" + pattern)
@@ -72,6 +80,9 @@ func testNativeInnerFixtures(t *testing.T, pattern string, count int, policy utl
 			var capture struct {
 				Outer, Inner []byte
 				Transport    string
+				PSK          struct {
+					Outer string `json:"outer_policy"`
+				}
 			}
 			raw, err := os.ReadFile(path)
 			if err != nil {
@@ -118,6 +129,27 @@ func testNativeInnerFixtures(t *testing.T, pattern string, count int, policy utl
 					}
 				}
 				got = append(got, extension{ext.ID, data})
+			}
+			if capture.PSK.Outer != "" {
+				for _, raw := range [][]byte{capture.Outer, capture.Inner} {
+					if err := echcapture.AssertRedacted(raw); err != nil {
+						t.Fatal(err)
+					}
+				}
+				// PSK framing and binders belong to the TLS engine. The
+				// callback supplies the preceding browser layout only.
+				for _, ext := range got {
+					if ext.ID == 41 {
+						t.Fatal("browser policy took ownership of engine PSK")
+					}
+				}
+				if len(want) == 0 || want[len(want)-1].ID != 41 {
+					t.Fatal("native resumed inner has no final PSK")
+				}
+				got = append(got, want[len(want)-1])
+				if (capture.PSK.Outer == "randomized") != (spec.OuterPSK == utls.ECHOuterPSKRandomized) {
+					t.Fatal("public PSK policy differs from native capture")
+				}
 			}
 			if !reflect.DeepEqual(spec.CipherSuites, wantCiphers) {
 				t.Fatalf("cipher order: %x != %x", spec.CipherSuites, wantCiphers)

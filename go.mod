@@ -7,7 +7,7 @@ require (
 	github.com/enetx/g v1.1.1
 	github.com/enetx/http v1.0.37
 	github.com/enetx/quic-go v1.0.16
-	github.com/enetx/utls v1.0.2
+	github.com/enetx/utls v1.0.3
 	github.com/klauspost/compress v1.20.3
 	github.com/quic-go/qpack v0.6.0
 	github.com/stretchr/testify v1.12.1

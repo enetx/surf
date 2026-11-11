@@ -5,6 +5,8 @@ import (
 	"crypto/ecdh"
 	"crypto/rand"
 	"crypto/tls"
+	"encoding/hex"
+	"strings"
 	"testing"
 
 	"github.com/enetx/surf/internal/quictls"
@@ -51,6 +53,8 @@ func TestECHQUICEarlySecretsAndResumption(t *testing.T) {
 		for _, mode := range []string{"accepted", "hrr", "alpn-changed", "application-rejected"} {
 			t.Run(browser.name+"/"+mode, func(t *testing.T) {
 				cc, sc := configs(t)
+				var keylog bytes.Buffer
+				cc.KeyLogWriter = &keylog
 				list, key := adapterECHConfig(t)
 				cc.EncryptedClientHelloConfigList = list
 				sc.EncryptedClientHelloKeys = []tls.EncryptedClientHelloKey{key}
@@ -60,6 +64,10 @@ func TestECHQUICEarlySecretsAndResumption(t *testing.T) {
 				if err != nil || first.resumed || len(first.earlyWrite) != 0 {
 					t.Fatalf("first handshake: resumed=%t early=%t error=%v", first.resumed, len(first.earlyWrite) > 0, err)
 				}
+				if strings.Contains(keylog.String(), "CLIENT_EARLY_TRAFFIC_SECRET") {
+					t.Fatal("fresh handshake logged an early traffic secret")
+				}
+				keylog.Reset()
 				if mode == "hrr" {
 					sc.CurvePreferences = []tls.CurveID{tls.CurveP384}
 				}
@@ -81,6 +89,28 @@ func TestECHQUICEarlySecretsAndResumption(t *testing.T) {
 					}
 				} else if len(resumed.earlyWrite) != 0 || len(resumed.earlyRead) != 0 {
 					t.Fatal("ineligible session enabled 0-RTT")
+				}
+				var logged [][]byte
+				for line := range strings.SplitSeq(keylog.String(), "\n") {
+					fields := strings.Fields(line)
+					if len(fields) == 0 || fields[0] != "CLIENT_EARLY_TRAFFIC_SECRET" {
+						continue
+					}
+					if len(fields) != 3 || len(fields[1]) != 64 {
+						t.Fatal("invalid early traffic key-log record")
+					}
+					secret, err := hex.DecodeString(fields[2])
+					if err != nil {
+						t.Fatal(err)
+					}
+					logged = append(logged, secret)
+				}
+				if len(resumed.earlyWrite) > 0 {
+					if len(logged) != 1 || !bytes.Equal(logged[0], resumed.earlyWrite) {
+						t.Fatal("early key log differs from QUIC write secret")
+					}
+				} else if len(logged) != 0 {
+					t.Fatal("ineligible handshake logged an early traffic secret")
 				}
 			})
 		}

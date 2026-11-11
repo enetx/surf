@@ -70,6 +70,9 @@ failures, authenticated retry limits and application bodies. An independent
 standard TLS QUIC server verifies equal client/server early traffic secrets;
 HRR, changed ALPN and application session veto prevent early-data acceptance.
 Native fresh fixtures do not prove full browser resumption or 0-RTT parity.
+Separate [native resumption and early-data references](resumption/README.md)
+now cover Chrome/Firefox TCP and QUIC, authenticate the original private
+transcripts before PSK redaction, and compare them with actual Surf captures.
 
 ## HTTPS DNS metadata verification
 
