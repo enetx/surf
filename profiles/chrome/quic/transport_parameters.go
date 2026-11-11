@@ -70,7 +70,7 @@ func NewTransportParameters(version quic.Version) (*transportparams.Layout, erro
 			{ID: 0x3128, Value: []byte("ORIG")},
 			{ID: greaseID, Value: payload},
 		},
-		Order: []uint64{1, 3, 4, 5, 6, 7, 8, 9, 15, 17, 32, 0x3128, greaseID},
+		Order: []uint64{1, 3, 4, 5, 6, 7, 8, 9, 15, 17, 32, 0x3127, 0x3128, greaseID},
 	}
 
 	for i := len(layout.Order) - 1; i > 0; i-- {

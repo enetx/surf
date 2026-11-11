@@ -14,7 +14,7 @@ func TestTransportFingerprintRetainsCapabilities(t *testing.T) {
 	rtt1 := []byte{0x71, 0x27, 4, 0x80, 0, 0xdc, 0x2b}
 	rtt2 := []byte{0x71, 0x27, 4, 0x80, 0, 0xce, 0x60}
 	base, err := transportFeature(append(bytes.Clone(legacy), rtt1...), "chrome")
-	if err != nil || !strings.Contains(base, "4278378010/") || !strings.Contains(base, "12583/2/1:rtt-us:4-bytes") {
+	if err != nil || !strings.Contains(base, "4278378010/") || !strings.Contains(base, "12583/2/1:rtt-us:minimal") {
 		t.Fatalf("real capabilities disappeared: %s, %v", base, err)
 	}
 	other, _ := transportFeature(append(bytes.Clone(legacy), rtt2...), "chrome")
@@ -24,6 +24,18 @@ func TestTransportFingerprintRetainsCapabilities(t *testing.T) {
 	missing, _ := transportFeature(legacy, "chrome")
 	if missing == base {
 		t.Fatal("missing RTT hint was hidden by normalization")
+	}
+	small, _ := transportFeature(append(bytes.Clone(legacy), []byte{0x71, 0x27, 2, 0x76, 0xb0}...), "chrome")
+	if small != base {
+		t.Fatal("a smaller real RTT changed the stable encoding policy")
+	}
+	nonminimal, _ := transportFeature(append(bytes.Clone(legacy), []byte{0x71, 0x27, 4, 0x80, 0, 0x36, 0xb0}...), "chrome")
+	if nonminimal == base {
+		t.Fatal("nonminimal RTT encoding disappeared during normalization")
+	}
+	zero, _ := transportFeature(append(bytes.Clone(legacy), []byte{0x71, 0x27, 1, 0}...), "chrome")
+	if zero == base {
+		t.Fatal("a zero RTT hint was mistaken for a positive measurement")
 	}
 	legacy[len(legacy)-1] ^= 1
 	changed, _ := transportFeature(append(legacy, rtt1...), "chrome")

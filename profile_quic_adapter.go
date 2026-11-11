@@ -126,8 +126,15 @@ func (a quicadapter) AckMissingPacketLimit(n uint64) profiles.QUICConfig {
 	return a
 }
 
-func (a quicadapter) AckECN(mode quic.AckECNMode) profiles.QUICConfig { a.s.AckECN(mode); return a }
-func (a quicadapter) ResetAckPolicy() profiles.QUICConfig             { a.s.ResetAckPolicy(); return a }
+func (a quicadapter) AckECN(mode quic.AckECNMode) profiles.QUICConfig {
+	a.s.AckECN(mode)
+	return a
+}
+
+func (a quicadapter) ResetAckPolicy() profiles.QUICConfig {
+	a.s.ResetAckPolicy()
+	return a
+}
 
 func (a quicadapter) Versions(versions ...quic.Version) profiles.QUICConfig {
 	a.s.Versions(versions...)
@@ -311,6 +318,21 @@ func (a quicadapter) TransportParameter(id uint64, value []byte) profiles.QUICCo
 	return a
 }
 
+func (a quicadapter) InitialRTT(estimate time.Duration) profiles.QUICConfig {
+	a.s.InitialRTT(estimate)
+	return a
+}
+
+func (a quicadapter) InitialPTOMultiplier(factor uint32) profiles.QUICConfig {
+	a.s.InitialPTOMultiplier(factor)
+	return a
+}
+
+func (a quicadapter) CachedInitialRTT(parameter uint64, minimum, maximum time.Duration) profiles.QUICConfig {
+	a.s.CachedInitialRTT(parameter, minimum, maximum)
+	return a
+}
+
 func (a quicadapter) DisableTransportParameterGrease(disabled bool) profiles.QUICConfig {
 	a.s.DisableTransportParameterGrease(disabled)
 	return a
@@ -372,30 +394,37 @@ func (a quicadapter) Pacing(algorithm quic.PacingAlgorithm) profiles.QUICConfig 
 	a.s.Pacing(algorithm)
 	return a
 }
+
 func (a quicadapter) PacingBurstPackets(packets uint32) profiles.QUICConfig {
 	a.s.PacingBurstPackets(packets)
 	return a
 }
+
 func (a quicadapter) PacingGains(slow, avoidance uint32) profiles.QUICConfig {
 	a.s.PacingGains(slow, avoidance)
 	return a
 }
+
 func (a quicadapter) PacingGranularity(granularity time.Duration) profiles.QUICConfig {
 	a.s.PacingGranularity(granularity)
 	return a
 }
+
 func (a quicadapter) PacingLumpyBurst(packets, fraction uint32, minBandwidth uint64) profiles.QUICConfig {
 	a.s.PacingLumpyBurst(packets, fraction, minBandwidth)
 	return a
 }
+
 func (a quicadapter) ProportionalRateReduction(enabled bool) profiles.QUICConfig {
 	a.s.ProportionalRateReduction(enabled)
 	return a
 }
+
 func (a quicadapter) RecoveryBurstPackets(packets uint32) profiles.QUICConfig {
 	a.s.RecoveryBurstPackets(packets)
 	return a
 }
+
 func (a quicadapter) PersistentCongestionThreshold(ptos uint32) profiles.QUICConfig {
 	a.s.PersistentCongestionThreshold(ptos)
 	return a

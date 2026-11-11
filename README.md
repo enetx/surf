@@ -762,6 +762,14 @@ random or PTO gaps; Chromium keeps a shared counter. `QUICSettings()` exposes `P
 QUIC address attempts; this custom override is not enabled indiscriminately in
 browser profiles. Native packet-history and integer safety limits still apply.
 
+Chrome also enables `CachedInitialRTT(0x3127, 10*time.Millisecond, time.Second)`
+and `InitialPTOMultiplier(3)`. A cold connection omits the RTT hint; replacing
+the connection on the same client advertises its measured per-origin SRTT.
+Proxy paths are excluded. The wire value stays measured while the local initial
+estimate is clamped. `InitialRTT` supplies an explicit local-only estimate.
+See the [two-connection example](examples/http/http3_rtt/http3_rtt.go) and
+[pinned source checks](tests/testdata/wire/ech/resumption/RTT.md).
+
 These controls reproduce the verified mechanisms and preset source values.
 Browser DNS integration, persisted network experiments, OS scheduling and NIC
 packet timing remain outside an exact browser identity claim.

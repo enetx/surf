@@ -1,8 +1,9 @@
 package quic
 
 import (
-	"github.com/enetx/surf/profiles/chrome/common"
 	"time"
+
+	"github.com/enetx/surf/profiles/chrome/common"
 
 	"github.com/enetx/quic-go"
 	"github.com/enetx/surf/profiles"
@@ -12,6 +13,15 @@ import (
 // Flow-control limits and empty SCIDs follow Chromium 157's quic_context.cc;
 // see tests/testdata/wire/README.md for sources and remaining limitations.
 func ConfigureQUIC(q profiles.QUICConfig) {
+	// Cached SRTT is advertised only for direct connections; QUICHE clamps
+	// its local untrusted estimate, retaining the actual wire value.
+	// https://chromium.googlesource.com/chromium/src/+/157.0.8103.51/net/quic/quic_session_pool.cc#2621
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_sent_packet_manager.cc#L134
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_constants.h#L102
+	q.CachedInitialRTT(0x3127, 10*time.Millisecond, time.Second)
+	// GetProbeTimeoutDelay uses three initial RTTs before any ACK sample.
+	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/quic_sent_packet_manager.cc#L58
+	q.InitialPTOMultiplier(3)
 	// QUICHE's external BBR defaults are false. TcpCubicSenderBytes uses
 	// kDefaultTCPMSS=1460 and kDefaultNumConnections=2, independently of UDP MTU.
 	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/common/quiche_feature_flags_list.h

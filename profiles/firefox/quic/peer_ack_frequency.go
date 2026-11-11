@@ -24,5 +24,6 @@ func PeerAckFrequency(info quic.PeerAckFrequencyInfo) (quic.PeerAckFrequency, bo
 	delta := targetUS / 4
 	update := info.Current.AckElicitingThreshold != packets || info.Current.IgnoreOrder ||
 		targetUS+delta < currentUS || targetUS > currentUS+delta
+
 	return target, update
 }

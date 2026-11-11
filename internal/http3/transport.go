@@ -26,6 +26,7 @@ import (
 // It provides SOCKS5 proxy compatibility and automatic fallback to HTTP/2
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type Transport struct {
+	rttHistory             *rttHistory
 	Fallback               http.RoundTripper
 	discovery              *alternativeDiscovery
 	racer                  *connrace.Racer
@@ -87,7 +88,17 @@ func New(settings Options) (*Transport, error) {
 		}
 	}
 
-	ut.quicDialer.DedicatedConn = ut.quicDialer.ConnectionIDGenerator != nil && ut.quicDialer.ConnectionIDGenerator.ConnectionIDLen() == 0
+	if settings.CachedRTTParameter != 0 && settings.Proxy == "" {
+		ut.rttHistory = &rttHistory{
+			parameter: settings.CachedRTTParameter,
+			minimum:   settings.MinimumInitialRTT,
+			maximum:   settings.MaximumInitialRTT,
+		}
+	}
+
+	ut.quicDialer.DedicatedConn = ut.quicDialer.ConnectionIDGenerator != nil &&
+		ut.quicDialer.ConnectionIDGenerator.ConnectionIDLen() == 0
+
 	if ut.quicDialer.NetDialer == nil {
 		ut.quicDialer.NetDialer = new(net.Dialer)
 	}
@@ -122,7 +133,11 @@ func New(settings Options) (*Transport, error) {
 
 	if settings.Discovery {
 		if base, ok := ut.Fallback.(*http.Transport); ok && base.DialTLSContext == nil {
-			base.DialContext = tcpBindingDial(base.DialContext, ut.quicDialer.NetDialer.FallbackDelay, settings.UseResolvedTCPAddresses)
+			base.DialContext = tcpBindingDial(
+				base.DialContext,
+				ut.quicDialer.NetDialer.FallbackDelay,
+				settings.UseResolvedTCPAddresses,
+			)
 			base.DialTLSContext = ut.dialTCPWithECH(base)
 		}
 	}
@@ -149,7 +164,8 @@ func New(settings Options) (*Transport, error) {
 			settings.ExpireFailedAlternatives,
 		)
 		ut.discovery.tcpVersion = settings.TCPVersion
-		if settings.HTTPSRecordsLookup == nil && ut.quicDialer.Proxy == "" && (settings.TCPVersion == 0 || settings.UseResolvedTCPAddresses) {
+		if settings.HTTPSRecordsLookup == nil && ut.quicDialer.Proxy == "" &&
+			(settings.TCPVersion == 0 || settings.UseResolvedTCPAddresses) {
 			ut.discovery.httpsWait = settings.HTTPSRecordsWait
 			ut.discovery.addressLookup = func(ctx context.Context, host string) ([]net.IPAddr, error) {
 				resolver := ut.quicDialer.NetDialer.Resolver
@@ -158,6 +174,7 @@ func New(settings Options) (*Transport, error) {
 				}
 				return resolver.LookupIPAddr(ctx, host)
 			}
+
 			ut.quicDialer.LookupIPAddr = func(ctx context.Context, host string) ([]net.IPAddr, error) {
 				return lookupResolvedAddresses(ctx, host, ut.quicDialer.NetDialer.Resolver)
 			}
@@ -169,6 +186,7 @@ func New(settings Options) (*Transport, error) {
 	if settings.TCPVersion != 0 {
 		return ut, nil
 	}
+
 	if err := ut.initTransport(); err != nil {
 		return nil, err
 	}
@@ -201,10 +219,12 @@ func New(settings Options) (*Transport, error) {
 		if ut.discovery != nil {
 			tcp = ut.preconnectDiscoveredTCP
 		}
+
 		ut.racer = connrace.New(policy, ut.http3tr.Preconnect, func(req *http.Request) (bool, error) {
 			var http1 bool
 			req = req.WithContext(context.WithValue(req.Context(), preparedTCPHTTP1Key{}, &http1))
 			err := tcp(req)
+
 			return http1, err
 		})
 	}
@@ -430,9 +450,14 @@ func (ut *Transport) CloseIdleConnections() {
 
 // Close shuts down the transport and releases all resources.
 func (ut *Transport) Close() error {
+	if ut.rttHistory != nil {
+		ut.rttHistory.close()
+	}
+
 	if ut.discovery != nil {
 		ut.discovery.close()
 	}
+
 	if ut.racer != nil {
 		ut.racer.Close(false)
 	}
@@ -552,6 +577,7 @@ func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
 		ctx = context.WithValue(ctx, http3RequireHandshakeKey{}, true)
 		return ut.http3tr.RoundTrip(attempt.WithContext(ctx))
 	}
+
 	if !errors.Is(err, quic.Err0RTTRejected) && (err != nil || response.StatusCode != http.StatusTooEarly) {
 		return response, err
 	}

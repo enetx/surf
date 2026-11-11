@@ -13,6 +13,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/quic-go"
 	"github.com/enetx/quic-go/http3"
+	"github.com/enetx/quic-go/transportparams"
 	"github.com/enetx/surf/internal/quictls"
 	"github.com/enetx/surf/profiles"
 	utls "github.com/enetx/utls"
@@ -31,21 +32,23 @@ const (
 
 // Options contains construction state; public fluent builders remain in surf.
 type Options struct {
-	UseResolvedTCPAddresses   bool
-	HTTPSRecordsWait          func(time.Duration) time.Duration
-	Discovery                 bool
-	ExpireFailedAlternatives  bool
-	HTTPSRecordsLookup        HTTPSRecordsLookup
-	AlternativeServiceBackoff AlternativeServiceBackoff
-	AddressFallbackDelay      time.Duration
-	ConnectionRacing          bool
-	ConnectionRacingPolicy    profiles.ConnectionRacingPolicy
-	TCPFallbackDelay          *time.Duration
-	AltUsed                   bool
-	EarlyData                 bool
-	ClientHandshake           *quic.ClientHandshake
-	ClientHelloFactory        func() (utls.ClientHelloSpec, error)
-	ECHClientHelloInner       utls.ECHClientHelloInnerFunc
+	CachedRTTParameter                   uint64
+	MinimumInitialRTT, MaximumInitialRTT time.Duration
+	UseResolvedTCPAddresses              bool
+	HTTPSRecordsWait                     func(time.Duration) time.Duration
+	Discovery                            bool
+	ExpireFailedAlternatives             bool
+	HTTPSRecordsLookup                   HTTPSRecordsLookup
+	AlternativeServiceBackoff            AlternativeServiceBackoff
+	AddressFallbackDelay                 time.Duration
+	ConnectionRacing                     bool
+	ConnectionRacingPolicy               profiles.ConnectionRacingPolicy
+	TCPFallbackDelay                     *time.Duration
+	AltUsed                              bool
+	EarlyData                            bool
+	ClientHandshake                      *quic.ClientHandshake
+	ClientHelloFactory                   func() (utls.ClientHelloSpec, error)
+	ECHClientHelloInner                  utls.ECHClientHelloInnerFunc
 
 	Settings               g.MapOrd[uint64, uint64]
 	QUICConfig             *quic.Config
@@ -73,6 +76,16 @@ const (
 )
 
 func (h *Options) validateQUICConfig() error {
+	if h.CachedRTTParameter != 0 {
+		if h.MinimumInitialRTT <= 0 || h.MaximumInitialRTT < h.MinimumInitialRTT || h.MaximumInitialRTT > (1<<63-1)/16 {
+			return errors.New("cached initial RTT requires positive, ordered timeout bounds")
+		}
+
+		if err := (&transportparams.Layout{DisableGrease: true, Additional: []transportparams.Parameter{{ID: h.CachedRTTParameter}}}).Validate(); err != nil {
+			return err
+		}
+	}
+
 	if h.TCPFallbackDelay != nil && *h.TCPFallbackDelay < 0 {
 		return fmt.Errorf("TCP fallback delay must be nonnegative")
 	}
@@ -117,9 +130,11 @@ func (h *Options) validateQUICConfig() error {
 	if h.AddressFallbackDelay < 0 || h.AddressFallbackDelay > time.Minute {
 		return fmt.Errorf("invalid QUIC address fallback delay")
 	}
+
 	if h.AddressFallbackDelay > 0 && h.EarlyData {
 		return fmt.Errorf("QUIC address racing requires 1-RTT")
 	}
+
 	if h.MaxResponseHeaderBytes < 0 {
 		return fmt.Errorf("HTTP/3 response header limit must not be negative")
 	}

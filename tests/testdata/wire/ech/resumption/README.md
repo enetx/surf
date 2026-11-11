@@ -12,9 +12,11 @@ No TLS, ECH, cipher, QUIC or certificate bypass flags were used.
 | Firefox TCP      |     1 | randomized framing | no offer                   | 0 / 0 / 0                                   |
 | Firefox QUIC     |     1 | randomized framing | yes                        | 2 / 2 / 0                                   |
 
-The `surf/` references come from a separate real tcpdump capture of the fluent
-probe in `tests/tools/echresumption`. All 12 connections used verified ECH;
-the eight repeated handshakes resumed. Four second-handshake pairs are retained.
+The `surf/` references come from real tcpdump captures of the fluent
+probe in `tests/tools/echresumption`. The original 12 connections used verified
+ECH and the eight repeated handshakes resumed. Chrome QUIC was subsequently
+recaptured with cached RTT: all three connections used verified ECH and both
+repeated handshakes resumed. Four second-handshake pairs are retained.
 Chrome QUIC sent 2 early packets (2 carrying control data, 1 carrying a request);
 Firefox QUIC sent 5 (3 carrying control data, 1 carrying a request). Counts refer
 to QUIC packets, may overlap, and include retransmissions. They are observations
@@ -85,18 +87,19 @@ The engine appends its own final PSK; callbacks cannot supply live binders.
 
 Independent comparisons of actual Surf/native inner messages preserve cipher
 and group order, extension presence, opaque fixed payloads, PSK lengths and QUIC
-parameter encodings. Only connection randoms, key bytes, ticket bytes, GREASE
-and source-confirmed permutations are normalized. Chrome permutes TLS/QUIC
+parameter encodings. Only connection randoms, key bytes, ticket bytes, GREASE,
+measured RTT with its resulting minimal integer width, and source-confirmed
+permutations are normalized. Chrome permutes TLS/QUIC
 parameter/version order; Firefox QUIC permutes TLS extensions, while Firefox
 TCP and Firefox QUIC parameter/version order remain ordered.
 
-Chrome TCP and Firefox TCP/QUIC stable inner features match. **Chrome QUIC has
-one measured gap:** native resumption advertises `initial_round_trip_time_us`
-(`0x3127`) from network history; Surf does not currently send that hint. Its
-varying estimate is normalized, but presence and integer width are retained.
-The conformance test accounts for this single difference explicitly and fails
-on any additional difference. Persistent network history remains a separate
-feature, outside this reference/capture phase.
+Chrome and Firefox TCP/QUIC stable inner features match the retained native
+references. Chrome QUIC now advertises measured `initial_round_trip_time_us`
+(`0x3127`) when this client has direct-connection history for the origin.
+The previous exception for a missing parameter has been removed: conformance
+compares all features. Presence and minimal encoding remain significant while
+the observed RTT and consequent integer width vary with the network.
+See [cached RTT source checks and tests](RTT.md). Disk persistence remains separate.
 
 These references establish ECH/PSK/early-data properties, not complete browser
 packet, scheduling, OS, fresh-handshake, HRR or rejection-path parity. Existing

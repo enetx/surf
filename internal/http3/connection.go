@@ -17,6 +17,12 @@ func (ut *Transport) dial(
 	tlsCfg *tls.Config,
 	cfg *quic.Config,
 ) (connection *quic.Conn, err error) {
+	if ut.rttHistory != nil {
+		var finish func(*quic.Conn, error)
+		cfg, finish = ut.rttHistory.prepare(addr, cfg)
+		defer func() { finish(connection, err) }()
+	}
+
 	defer func() {
 		if ut.racer != nil && connection != nil && err == nil {
 			ut.racer.ObserveQUIC(addr, connection)

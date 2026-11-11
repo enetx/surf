@@ -176,14 +176,27 @@ func transportFeature(raw []byte, browser string) (string, error) {
 		switch id {
 		case 0x3127:
 			// QUICHE's initial_round_trip_time_us depends on network history.
-			// Retain presence and integer width; normalize only its estimate.
+			// Retain presence and minimal-encoding policy. The integer width
+			// itself changes with measured RTT (e.g. 14ms vs 50ms).
 			// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/crypto/transport_parameters.cc#L90
 			integer := data
-			_, width, err := readVarint(&integer)
+			estimate, width, err := readVarint(&integer)
 			if err != nil || len(integer) != 0 {
 				return "", errors.New("invalid initial RTT parameter")
 			}
-			value = fmt.Sprintf("rtt-us:%d-bytes", width)
+			minimum := 1
+			for _, boundary := range []uint64{1 << 6, 1 << 14, 1 << 30} {
+				if estimate >= boundary {
+					minimum *= 2
+				}
+			}
+			value = "rtt-us:minimal"
+			if width != minimum {
+				value = fmt.Sprintf("rtt-us:nonminimal-%d-bytes", width)
+			}
+			if estimate == 0 {
+				value += ":zero"
+			}
 		case 15:
 			value = fmt.Sprintf("cid:%d", len(data))
 		case 17:

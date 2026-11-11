@@ -135,6 +135,9 @@ type H3Config interface {
 // method delegates to surf.QUICSettings, so profiles are examples of the same
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
+	InitialRTT(time.Duration) QUICConfig
+	InitialPTOMultiplier(uint32) QUICConfig
+	CachedInitialRTT(uint64, time.Duration, time.Duration) QUICConfig
 	ECHClientHelloInner(utls.ECHClientHelloInnerFunc) QUICConfig
 	AddressFallbackDelay(time.Duration) QUICConfig
 	CompatibleVersionNegotiation(bool) QUICConfig

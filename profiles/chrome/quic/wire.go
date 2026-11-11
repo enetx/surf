@@ -36,5 +36,6 @@ func NewSettingsGrease() (uint64, uint64, error) {
 	if _, err := rand.Read(draws[:]); err != nil {
 		return 0, 0, err
 	}
+
 	return 0x1f*uint64(binary.LittleEndian.Uint32(draws[:4])) + 0x21, uint64(binary.LittleEndian.Uint32(draws[4:])), nil
 }

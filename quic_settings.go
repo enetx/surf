@@ -73,6 +73,32 @@ const (
 // Set applies the accumulated QUIC settings and returns the main Builder.
 func (q *QUICSettings) Set() *Builder { return q.http3.Set() }
 
+// InitialRTT sets the local recovery estimate before the first measurement.
+// Zero uses the native default. No transport parameter is advertised by it.
+func (q *QUICSettings) InitialRTT(estimate time.Duration) *QUICSettings {
+	q.handshake().InitialRTT = estimate
+	return q
+}
+
+// InitialPTOMultiplier controls probe timing before the first RTT measurement.
+// Zero uses the native factor; supported explicit factors are 1..16.
+func (q *QUICSettings) InitialPTOMultiplier(factor uint32) *QUICSettings {
+	q.handshake().InitialPTOMultiplier = factor
+	return q
+}
+
+// CachedInitialRTT learns measured RTT from this client's preceding direct
+// connection to each origin. It owns parameter and encodes the measured RTT in
+// microseconds; an empty history omits it. Local recovery uses the same estimate
+// clamped to minimum..maximum. Proxy connections do not share this history.
+// Parameter zero disables it. Bounds must be positive and ordered when enabled.
+func (q *QUICSettings) CachedInitialRTT(parameter uint64, minimum, maximum time.Duration) *QUICSettings {
+	q.http3.options.CachedRTTParameter = parameter
+	q.http3.options.MinimumInitialRTT = minimum
+	q.http3.options.MaximumInitialRTT = maximum
+	return q
+}
+
 func (q *QUICSettings) config() *quic.Config {
 	if q.http3.options.QUICConfig == nil {
 		q.http3.options.QUICConfig = quictransport.DefaultConfig()
