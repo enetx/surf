@@ -35,10 +35,10 @@ func main() {
 	}
 
 	fmt.Printf("Protocol: %s\nECH accepted: %t\n", response.Proto, state.ECHAccepted)
-	// False can mean that DNS supplied no usable ECHConfig, or that a configured
-	// proxy bypassed local HTTPS discovery. The browser profile alone is not
-	// evidence of real ECH. Rejected real ECH returns an error instead of silently
-	// retrying with an unencrypted ClientHello.
+	// False can mean that DNS supplied no usable ECHConfig, Chrome's optional
+	// HTTPS wait expired, or a configured proxy bypassed local HTTPS discovery.
+	// The browser profile alone is not evidence of real ECH. Rejected real ECH
+	// returns an error instead of silently retrying with an unencrypted ClientHello.
 
 	body := response.Body.String()
 	if body.IsErr() {

@@ -737,9 +737,11 @@ routing control. Chrome's optional HTTPS timer starts after address
 queries finish (20% of their duration, bounded to 5–50 ms), matching its default
 opportunistic ECH mode. Firefox waits for the HTTPS result or resolver/request
 deadline. `HTTPSRecordsWait(nil)` removes the supplemental deadline, including
-when an application requires HTTPS metadata. Explicit lookup callbacks own their
-timing. Address results remain scoped to the lookup flight, since Go's resolver
-does not expose their TTL.
+when an application requires HTTPS metadata. With Chrome's default opportunistic
+policy, a late HTTPS answer can therefore leave ECH unused even on a capable
+endpoint. Waiting longer cannot supply ECH when DNS advertises no config.
+Explicit lookup callbacks own their timing. Address results remain scoped to
+the lookup flight, since Go's resolver does not expose their TTL.
 Authenticated ECH rejection can reconnect once with nonempty retry configs.
 Certificate failures, a second rejection or missing configs fail without a
 plaintext retry; DNS caches and the caller's TLS config remain unchanged.

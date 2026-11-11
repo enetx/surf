@@ -136,6 +136,16 @@ QUIC exposed only parameter IDs 11, 15 and 17. Early-data offers and encrypted
 0-RTT packets appeared only in the explicitly enabled scenarios. This is a dated
 manual observation, not a network-dependent CI requirement.
 
+A repeat using the published dependencies decoded another 18 outer ClientHellos.
+One Chrome H3 client's address replies arrived in about 3 ms, while its HTTPS
+reply arrived after 76 ms. The default 5 ms supplemental wait expired, so that
+client's three connections used plaintext SNI; the other 15 connections accepted
+ECH. This illustrates the pinned Chromium opportunistic timer, rather than a
+guarantee that an ECH-capable endpoint always negotiates ECH. Applications that
+require waiting for metadata can use `HTTPSRecordsWait(nil)`; this does not create
+ECHConfig when the resolver supplies none. Known, expired ECH bindings still fail
+closed on a refresh error, and authenticated rejection never retries plaintext.
+
 Authenticated ECH retry is bounded to one new connection. Invalid provider or
 private-name certificates, absent retry configs and a second rejection fail
 without sending HTTP application data. A retry preserves the original route,
