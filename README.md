@@ -631,11 +631,12 @@ This does not change `StreamPriority`, which schedules local uploads.
 comma-space. No resource loading policy is added.
 
 `HTTP3Settings().EarlyData(true).Set()` opts bodyless GET/HEAD into 0-RTT with
-standard TLS and a configured `tls.ClientSessionCache`. Enable it only for
+standard TLS or browser ClientHello templates (including ECH) and a configured
+`tls.ClientSessionCache`. Enable it only for
 requests whose replay is acceptable. POST and requests with bodies wait for the
 handshake. Rejection and HTTP 425 permit one 1-RTT retry. It is disabled by default;
-custom uTLS ClientHello templates currently reject this option at build time.
-Chrome/Firefox profiles retain ordinary TLS session resumption without 0-RTT.
+use `ForceHTTP3()` when the selected profile normally enables discovery/racing.
+Connection racing and address racing still require a full handshake.
 
 ```go
 client := surf.NewClient().Builder().ForceHTTP3().
@@ -716,16 +717,32 @@ their browser profile packages. The minimal `enetx/utls` fork preserves their
 cipher order and complete shared extension payloads, including fields unknown
 to Go. Custom templates can supply a policy through `JA().ECHClientHelloInner`
 or `QUICSettings().ECHClientHelloInner` before the terminal builder method.
-Real ECH with populated custom PSK resumption remains explicitly unsupported.
+Real ECH supports TLS 1.3 session resumption on TCP and QUIC. The engine binds
+the full private ClientHello and keeps real session identities out of the public
+hello. Chrome omits the outer PSK; Firefox randomizes its identity, age and binder.
+Opt-in `HTTP3Settings().EarlyData(true).Set()` also works with browser templates
+and ECH, for bodyless GET/HEAD only. It requires a TLS session cache; POST and
+requests with bodies wait for the full handshake.
 The [ECH verification report](tests/testdata/wire/ech/README.md) distinguishes
-native Chrome captures, Firefox source checks and local integration tests.
+native Chrome and independently decrypted Firefox TCP/QUIC captures, source
+checks and local integration tests.
 The [ECH example](examples/tls/ech/ech.go) prints the negotiated protocol and
 `ConnectionState.ECHAccepted`; run it with `go run ./examples/tls/ech`.
 It uses `www.cloudflare-quic.com`, which advertises both h3 and ECH at the time
 of verification. `www.cloudflare.com` currently advertises h3 without ECH.
-`ForceHTTP3()` retains enabled HTTPS DNS discovery for TLS metadata. Discovery
-waits for its DNS transport or request cancellation, without the former 50 ms
-cutoff that could start a plaintext-SNI handshake before an ECH record arrived.
+Forced HTTP/1, HTTP/2 and HTTP/3 retain enabled HTTPS DNS discovery for TLS
+metadata. Built-in A/AAAA and HTTPS queries start together; Surf's own dialers
+reuse those address results. Application-owned dialers retain resolution and
+routing control. Chrome's optional HTTPS timer starts after address
+queries finish (20% of their duration, bounded to 5–50 ms), matching its default
+opportunistic ECH mode. Firefox waits for the HTTPS result or resolver/request
+deadline. `HTTPSRecordsWait(nil)` removes the supplemental deadline, including
+when an application requires HTTPS metadata. Explicit lookup callbacks own their
+timing. Address results remain scoped to the lookup flight, since Go's resolver
+does not expose their TTL.
+Authenticated ECH rejection can reconnect once with nonempty retry configs.
+Certificate failures, a second rejection or missing configs fail without a
+plaintext retry; DNS caches and the caller's TLS config remain unchanged.
 HTTPS queries use the same custom `.DNS("address:53")` or `.DNSOverTLS()`
 resolver as A/AAAA queries, regardless of its position relative to the profile
 selector. An explicitly supplied `HTTPSRecordsLookup` owns HTTPS queries instead.

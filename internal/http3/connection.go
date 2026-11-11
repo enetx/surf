@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/enetx/quic-go"
+	"github.com/enetx/surf/internal/echretry"
 )
 
 // dial establishes a QUIC connection, routing through SOCKS5 proxy if configured.
@@ -26,9 +27,11 @@ func (ut *Transport) dial(
 	var route alternativeRoute
 
 	if candidate, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok &&
-		strings.EqualFold(candidate.origin, addr) {
+		candidate.address != "" && strings.EqualFold(candidate.origin, addr) {
+
 		route = candidate
 		target = route.address
+
 		defer func() {
 			if ut.discovery != nil {
 				ut.discovery.result(route, err)
@@ -48,9 +51,28 @@ func (ut *Transport) dial(
 		tlsCfg.MinVersion = tls.VersionTLS13
 	}
 
+	if retry := echretry.FromContext(ctx); len(retry) > 0 {
+		tlsCfg = tlsCfg.Clone()
+		tlsCfg.EncryptedClientHelloConfigList = retry
+		tlsCfg.MinVersion = tls.VersionTLS13
+	}
+
 	dial := ut.quicDialer.Dial
 	if ut.useEarlyData(ctx) {
 		dial = ut.quicDialer.DialEarly
 	}
-	return dial(ctx, target, tlsCfg, cfg, route.hints)
+
+	connection, err = dial(ctx, target, tlsCfg, cfg, route.hints)
+	// DialEarly can expose a resumable connection before TLS finishes.
+	// Its bodyless requests handle ECH rejection in roundTripHTTP3 instead.
+	if !ut.useEarlyData(ctx) && len(echretry.FromContext(ctx)) == 0 {
+		if retry := echretry.Configs(err); len(retry) > 0 && ctx.Err() == nil {
+			tlsCfg = tlsCfg.Clone()
+
+			tlsCfg.EncryptedClientHelloConfigList = retry
+			connection, err = dial(ctx, target, tlsCfg, cfg, route.hints)
+		}
+	}
+
+	return connection, err
 }

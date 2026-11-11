@@ -40,9 +40,7 @@ func Parse(raw []byte) ([]uint16, []Extension, error) {
 	var ciphers []uint16
 	for end := i + n; i < end; i += 2 {
 		id := binary.BigEndian.Uint16(raw[i:])
-		if Grease(id) || id >= 0x1301 && id <= 0x1305 {
-			ciphers = append(ciphers, id)
-		}
+		ciphers = append(ciphers, id)
 	}
 
 	i += 1 + int(raw[i])

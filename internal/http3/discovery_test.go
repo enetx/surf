@@ -239,7 +239,7 @@ func TestHTTPSBindingLifetimeAndECHSurviveBackoff(t *testing.T) {
 	}, func(uint32) time.Duration { return time.Second }, true)
 	d.now = func() time.Time { return now }
 	origin := "origin.example:443"
-	route, ok := d.resolveUnshared(t.Context(), origin)
+	route, ok, _ := d.resolveUnshared(t.Context(), origin)
 	require.True(t, ok)
 	d.result(route, errors.New("QUIC blocked"))
 	_, ok = d.get(origin)
@@ -251,12 +251,12 @@ func TestHTTPSBindingLifetimeAndECHSurviveBackoff(t *testing.T) {
 	now = now.Add(6 * time.Second)
 	require.True(t, d.needsDNSRefresh(origin), "positive DNS TTL is not extended by a one-minute miss throttle")
 	failLookup = true
-	_, ok = d.resolveUnshared(t.Context(), origin)
+	_, ok, _ = d.resolveUnshared(t.Context(), origin)
 	require.False(t, ok)
 	require.True(t, d.expiredECH(origin), "failed refresh must fail closed instead of forgetting ECH")
 	now = now.Add(time.Minute)
 	failLookup = false
-	_, ok = d.resolveUnshared(t.Context(), origin)
+	_, ok, _ = d.resolveUnshared(t.Context(), origin)
 	require.True(t, ok)
 	require.False(t, d.expiredECH(origin))
 }

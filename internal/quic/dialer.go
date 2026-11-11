@@ -21,6 +21,7 @@ type Dialer struct {
 	transport             *quic.Transport
 	socket                net.PacketConn
 	NetDialer             *net.Dialer
+	LookupIPAddr          func(context.Context, string) ([]net.IPAddr, error)
 	Proxy                 string
 	Lazy                  bool
 	ResolveAll            bool
@@ -39,36 +40,61 @@ func (ut *Dialer) Init() error {
 		if err != nil {
 			return fmt.Errorf("create packet conn: %w", err)
 		}
+
 		ut.transport = ut.newQUICTransport(ut.socket)
 	}
+
 	return nil
 }
 
 // Dial completes the handshake before exposing the connection.
-func (ut *Dialer) Dial(ctx context.Context, address string, tlsConfig *tls.Config, config *quic.Config, hints []netip.Addr) (*quic.Conn, error) {
+func (ut *Dialer) Dial(
+	ctx context.Context,
+	address string,
+	tlsConfig *tls.Config,
+	config *quic.Config,
+	hints []netip.Addr,
+) (*quic.Conn, error) {
 	return ut.dial(ctx, address, tlsConfig, config, hints, false)
 }
 
 // DialEarly allows resumable connections to carry eligible early application data.
-func (ut *Dialer) DialEarly(ctx context.Context, address string, tlsConfig *tls.Config, config *quic.Config, hints []netip.Addr) (*quic.Conn, error) {
+func (ut *Dialer) DialEarly(
+	ctx context.Context,
+	address string,
+	tlsConfig *tls.Config,
+	config *quic.Config,
+	hints []netip.Addr,
+) (*quic.Conn, error) {
 	return ut.dial(ctx, address, tlsConfig, config, hints, true)
 }
 
-func (ut *Dialer) dial(ctx context.Context, address string, tlsConfig *tls.Config, config *quic.Config, hints []netip.Addr, early bool) (*quic.Conn, error) {
-	if ut.ResolveAll || ut.AddressFallbackDelay > 0 {
+func (ut *Dialer) dial(
+	ctx context.Context,
+	address string,
+	tlsConfig *tls.Config,
+	config *quic.Config,
+	hints []netip.Addr,
+	early bool,
+) (*quic.Conn, error) {
+	if ut.ResolveAll || len(hints) > 0 || ut.AddressFallbackDelay > 0 {
 		addresses, err := ut.resolveAddresses(ctx, address, hints)
 		if err != nil {
 			return nil, err
 		}
+
 		return ut.dialAddresses(ctx, addresses, tlsConfig, config, early)
 	}
+
 	resolved, err := ut.resolve(ctx, address)
 	if err != nil {
 		return nil, fmt.Errorf("DNS resolution: %w", err)
 	}
+
 	if ut.Proxy != "" {
 		return ut.dialSOCKS5(ctx, resolved, tlsConfig, config, early)
 	}
+
 	return ut.dialDirect(ctx, resolved, tlsConfig, config, early)
 }
 
@@ -78,9 +104,11 @@ func (ut *Dialer) Close() {
 	ut.closed = true
 	transport, socket := ut.transport, ut.socket
 	ut.mu.Unlock()
+
 	if transport != nil {
 		transport.Close()
 	}
+
 	if socket != nil {
 		socket.Close()
 	}

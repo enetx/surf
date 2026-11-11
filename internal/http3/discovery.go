@@ -59,6 +59,7 @@ type alternativeRoute struct {
 	tcpAddress      string
 	noTCP           bool
 	ech             []byte
+	resolved        *resolvedAddresses
 }
 
 type (
@@ -70,9 +71,10 @@ type (
 )
 
 type httpsDiscoveryFlight struct {
-	done    chan struct{}
-	cancel  context.CancelFunc
-	waiters int
+	done     chan struct{}
+	cancel   context.CancelFunc
+	waiters  int
+	resolved *resolvedAddresses
 }
 
 func (d *alternativeDiscovery) resolve(ctx context.Context, origin string) (alternativeRoute, bool) {
@@ -103,7 +105,7 @@ func (d *alternativeDiscovery) resolve(ctx context.Context, origin string) (alte
 
 		go func() {
 			defer cancel()
-			d.resolveUnshared(workerCtx, origin)
+			_, _, f.resolved = d.resolveUnshared(workerCtx, origin)
 			d.mu.Lock()
 			if d.dnsFlights[origin] == f {
 				delete(d.dnsFlights, origin)
@@ -131,7 +133,12 @@ func (d *alternativeDiscovery) resolve(ctx context.Context, origin string) (alte
 	case <-ctx.Done():
 		return alternativeRoute{}, false
 	case <-f.done:
-		return d.get(origin)
+		route, available := d.get(origin)
+		route.resolved = f.resolved
+		if route.origin == "" {
+			route.origin = origin
+		}
+		return route, available
 	}
 }
 
@@ -146,12 +153,15 @@ func (d *alternativeDiscovery) close() {
 }
 
 type alternativeDiscovery struct {
+	tcpVersion    int
 	mu            sync.Mutex
 	entries       map[string]alternativeRoute
 	failures      map[string]alternativeFailure
 	dnsUntil      map[string]time.Time
 	actual        map[string]alternativeRoute
 	lookup        HTTPSRecordsLookup
+	addressLookup func(context.Context, string) ([]net.IPAddr, error)
+	httpsWait     func(time.Duration) time.Duration
 	backoff       AlternativeServiceBackoff
 	now           func() time.Time
 	discardBroken bool
@@ -346,20 +356,23 @@ func splitAltSvc(s string, delimiter byte) []string {
 	return append(result, s[start:])
 }
 
-func (d *alternativeDiscovery) resolveUnshared(ctx context.Context, origin string) (alternativeRoute, bool) {
+func (d *alternativeDiscovery) resolveUnshared(
+	ctx context.Context,
+	origin string,
+) (alternativeRoute, bool, *resolvedAddresses) {
 	if route, ok := d.get(origin); ok && !d.needsDNSRefresh(origin) {
-		return route, true
+		return route, true, nil
 	}
 
 	host, port, _ := net.SplitHostPort(origin)
 	if net.ParseIP(host) != nil || d.lookup == nil {
-		return alternativeRoute{}, false
+		return alternativeRoute{}, false, nil
 	}
 
 	d.mu.Lock()
 	if d.now().Before(d.dnsUntil[origin]) {
 		d.mu.Unlock()
-		return alternativeRoute{}, false
+		return alternativeRoute{}, false, nil
 	}
 
 	if len(d.dnsUntil) >= 256 {
@@ -380,13 +393,13 @@ func (d *alternativeDiscovery) resolveUnshared(ctx context.Context, origin strin
 	// Obtain the endpoint's TLS metadata before starting either handshake.
 	// Chromium's supplemental timer starts only after address queries finish;
 	// Firefox also waits for HTTPS RR when ECH is enabled.
-	// This standalone lookup uses its DNS transport deadlines and waiter context,
-	// rather than discarding ECH after an arbitrary 50 ms from query start.
+	// The built-in path starts address and HTTPS queries together. The profile
+	// chooses any supplemental wait; explicit lookup callbacks own their timing.
 	// https://chromium.googlesource.com/chromium/src/+/157.0.8103.51/net/dns/host_resolver_dns_task.cc#1137
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpConnectionMgr.cpp#L1760
-	records, err := d.lookup(ctx, query)
+	records, resolved, err := d.resolveDNS(ctx, query, host)
 	if err != nil {
-		return alternativeRoute{}, false
+		return alternativeRoute{}, false, resolved
 	}
 
 	var selected *HTTPSRecord
@@ -404,7 +417,7 @@ func (d *alternativeDiscovery) resolveUnshared(ctx context.Context, origin strin
 		}
 
 		h3, tcp := bindingTransports(r)
-		if !usable || !h3 && !tcp {
+		if !usable || !h3 && !tcp || d.tcpVersion != 0 && !bindingSupportsTCP(r, d.tcpVersion) {
 			continue
 		}
 
@@ -415,7 +428,8 @@ func (d *alternativeDiscovery) resolveUnshared(ctx context.Context, origin strin
 
 	if selected == nil {
 		d.clearBinding(origin)
-		return d.get(origin)
+		route, available := d.get(origin)
+		return route, available, resolved
 	}
 
 	target := selected.Target
@@ -424,7 +438,7 @@ func (d *alternativeDiscovery) resolveUnshared(ctx context.Context, origin strin
 	}
 
 	if strings.ContainsAny(target, "/\\?#@ \t\r\n\x00") {
-		return alternativeRoute{}, false
+		return alternativeRoute{}, false, resolved
 	}
 
 	if selected.Port != 0 {
@@ -440,23 +454,26 @@ func (d *alternativeDiscovery) resolveUnshared(ctx context.Context, origin strin
 	}
 
 	if ctx.Err() != nil {
-		return alternativeRoute{}, false
+		return alternativeRoute{}, false, nil
 	}
 
 	h3, tcp := bindingTransports(selected)
 	d.putBinding(httpsServiceBinding{alternativeRoute: route, tcp: tcp})
 	if h3 {
 		d.put(route)
-		return d.get(origin)
+		route, available := d.get(origin)
+		return route, available, resolved
 	}
 
-	return alternativeRoute{}, false
+	return alternativeRoute{}, false, resolved
 }
 
 func (d *alternativeDiscovery) result(route alternativeRoute, err error) {
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return
 	}
+	// Connection history needs the authority, not flight-scoped DNS addresses.
+	route.resolved = nil
 
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -523,6 +540,7 @@ func (ut *Transport) roundTripDiscovered(req *http.Request) (*http.Response, err
 	}
 
 	binding, bound := ut.discovery.binding(origin)
+	resolved := route.resolved
 	if bound {
 		if !available {
 			route = binding.alternativeRoute
@@ -535,14 +553,24 @@ func (ut *Transport) roundTripDiscovered(req *http.Request) (*http.Response, err
 			route.ech = binding.ech
 		}
 	}
+	route.resolved = resolved
 
 	attempt := req
-	if available || bound {
+	if available || bound || resolved != nil {
 		attempt = req.WithContext(context.WithValue(req.Context(), alternativeRouteKey{}, route))
 	}
 
 	var response *http.Response
-	if ut.forceHTTP3 && ut.racer == nil {
+
+	if ut.tcpVersion != 0 {
+		if route.noTCP {
+			if req.Body != nil {
+				req.Body.Close()
+			}
+			return nil, errHTTPSNoTCP
+		}
+		response, err = ut.Fallback.RoundTrip(attempt)
+	} else if ut.forceHTTP3 && ut.racer == nil {
 		// Forcing a protocol does not discard the endpoint's ECHConfig. An
 		// advertisement remains optional, as on the existing direct H3 path.
 		response, err = ut.roundTripHTTP3(attempt)

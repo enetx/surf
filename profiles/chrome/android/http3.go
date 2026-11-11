@@ -8,7 +8,8 @@ import (
 
 // ConfigureH3 applies Chrome Android HTTP/3 settings.
 func ConfigureH3(h profiles.H3Config) {
-	h.Discovery(true).AlternativeServiceBackoff(common.AlternativeServiceBackoff).ExpireFailedAlternatives(false)
+	h.Discovery(true).HTTPSRecordsWait(common.HTTPSRecordsWait).
+		AlternativeServiceBackoff(common.AlternativeServiceBackoff).ExpireFailedAlternatives(false)
 	h.QpackMaxTableCapacity(65536).
 		ConnectionRacingPolicy(common.ConnectionRacingAndroid).
 		MaxFieldSectionSize(262144).

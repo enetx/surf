@@ -86,6 +86,7 @@ type H2Config interface {
 // methods on surf.HTTP3Settings, the surf package provides an adapter that satisfies it.
 type H3Config interface {
 	Discovery(bool) H3Config
+	HTTPSRecordsWait(func(time.Duration) time.Duration) H3Config
 	AlternativeServiceBackoff(func(uint32) time.Duration) H3Config
 	ExpireFailedAlternatives(bool) H3Config
 	ConnectionRacingPolicy(ConnectionRacingPolicy) H3Config

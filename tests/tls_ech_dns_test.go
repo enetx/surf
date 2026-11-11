@@ -1,6 +1,7 @@
 package surf_test
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/binary"
 	"net"
@@ -77,6 +78,84 @@ func TestBrowserECHUsesBuilderDNSForHTTPSAndAddresses(t *testing.T) {
 				require.NotEmpty(t, response.GetResponse().TLS.VerifiedChains)
 				require.Positive(t, httpsQueries.Load())
 				require.Positive(t, addressQueries.Load(), "address resolution must also use the configured DNS server")
+			})
+		}
+	}
+}
+
+func TestECHDiscoverySharesParallelDNSResults(t *testing.T) {
+	for _, browser := range []string{"chrome", "firefox"} {
+		for _, protocol := range []string{"http/1.1", "h2", "quic"} {
+			t.Run(browser+"/"+protocol, func(t *testing.T) {
+				list, key := testECHConfig(t)
+				peer := newDiscoveryPeer(t, []tls.EncryptedClientHelloKey{key})
+				dns, err := net.ListenPacket("udp4", "127.0.0.1:0")
+				require.NoError(t, err)
+				t.Cleanup(func() { dns.Close() })
+				var a, aaaa, https atomic.Int32
+				type query struct {
+					message dnsmessage.Message
+					from    net.Addr
+				}
+				go func() {
+					var pending []query
+					buffer := make([]byte, 4096)
+					for {
+						n, from, err := dns.ReadFrom(buffer)
+						if err != nil {
+							return
+						}
+						var message dnsmessage.Message
+						if message.Unpack(buffer[:n]) != nil || len(message.Questions) != 1 {
+							continue
+						}
+						q := message.Questions[0]
+						switch q.Type {
+						case dnsmessage.TypeA:
+							a.Add(1)
+						case dnsmessage.TypeAAAA:
+							aaaa.Add(1)
+						case dnsmessage.TypeHTTPS:
+							https.Add(1)
+						}
+						pending = append(pending, query{message, from})
+						// No query receives an answer until both address types and
+						// HTTPS have arrived. A serial implementation cannot pass.
+						if a.Load() == 0 || aaaa.Load() == 0 || https.Load() == 0 {
+							continue
+						}
+						for _, item := range pending {
+							q := item.message.Questions[0]
+							response := dnsmessage.Message{Header: dnsmessage.Header{ID: item.message.ID, Response: true, RecursionAvailable: true}, Questions: item.message.Questions}
+							header := dnsmessage.ResourceHeader{Name: q.Name, Class: dnsmessage.ClassINET, Type: q.Type, TTL: 60}
+							if q.Type == dnsmessage.TypeA {
+								response.Answers = []dnsmessage.Resource{{Header: header, Body: &dnsmessage.AResource{A: [4]byte{127, 0, 0, 1}}}}
+							} else if q.Type == dnsmessage.TypeHTTPS {
+								data := []byte{0, 1, 6, 'o', 'r', 'i', 'g', 'i', 'n', 4, 't', 'e', 's', 't', 0, 0, 1, 0, 6, 2, 'h', '3', 2, 'h', '2', 0, 5}
+								data = binary.BigEndian.AppendUint16(data, uint16(len(list)))
+								data = append(data, list...)
+								response.Answers = []dnsmessage.Resource{{Header: header, Body: &dnsmessage.UnknownResource{Type: q.Type, Data: data}}}
+							}
+							data, err := response.Pack()
+							if err == nil {
+								dns.WriteTo(data, item.from)
+							}
+						}
+						pending = nil
+					}
+				}()
+				b := echSessionBuilder(browser, protocol).DNS(g.String(dns.LocalAddr().String()))
+				client := b.TLSConfig(&tls.Config{RootCAs: peer.roots, ServerName: "example.com"}).SecureTLS().Build().Unwrap()
+				t.Cleanup(func() { client.Close() })
+				ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
+				defer cancel()
+				response := client.Get(g.String("https://origin.test:" + peer.port)).WithContext(ctx).Do()
+				require.False(t, response.IsErr(), "%v", response.Err())
+				response.Ok().Body.String().Unwrap()
+				require.True(t, response.Ok().GetResponse().TLS.ECHAccepted)
+				require.EqualValues(t, 1, a.Load(), "do not repeat A after discovery")
+				require.EqualValues(t, 1, aaaa.Load(), "do not repeat AAAA after discovery")
+				require.EqualValues(t, 1, https.Load())
 			})
 		}
 	}

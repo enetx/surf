@@ -3,6 +3,7 @@ package surf_test
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	transportlog "github.com/enetx/quic-go/qlog"
 	"github.com/enetx/quic-go/qlogwriter"
@@ -26,11 +27,19 @@ import (
 type earlyTrace struct {
 	mu      sync.Mutex
 	streams map[quic.StreamID]bool
+	onEarly func()
 }
 
 func (r *earlyTrace) AddProducer() qlogwriter.Recorder { return r }
 func (r *earlyTrace) Close() error                     { return nil }
 func (r *earlyTrace) RecordEvent(event qlogwriter.Event) {
+	if sent, ok := event.(transportlog.PacketSent); ok && sent.Header.PacketType == transportlog.PacketType0RTT && r.onEarly != nil {
+		for _, frame := range sent.Frames {
+			if stream, ok := frame.Frame.(*transportlog.StreamFrame); ok && stream.StreamID == 0 {
+				r.onEarly()
+			}
+		}
+	}
 	packet, ok := event.(transportlog.PacketReceived)
 	if !ok || packet.Header.PacketType != transportlog.PacketType0RTT {
 		return
@@ -54,11 +63,29 @@ type earlyObservation struct {
 	method         string
 }
 
-func earlyDataServer(t *testing.T, reject *atomic.Bool, tooEarly bool) (string, <-chan earlyObservation) {
+func earlyDataServer(t *testing.T, reject *atomic.Bool, tooEarly bool, earlySent <-chan struct{}) (string, <-chan earlyObservation) {
 	t.Helper()
 	cert := httptest.NewTLSServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	tlsConfig := cert.TLS.Clone()
 	cert.Close()
+	// Synchronize with the client's emitted request packet. An arbitrary sleep
+	// does not establish a 0-RTT opportunity under scheduler/CI load.
+	var handshakes atomic.Int32
+	tlsConfig.GetConfigForClient = func(info *tls.ClientHelloInfo) (*tls.Config, error) {
+		if handshakes.Add(1) == 1 || earlySent == nil {
+			return nil, nil
+		}
+		timer := time.NewTimer(3 * time.Second)
+		defer timer.Stop()
+		select {
+		case <-earlySent:
+			return nil, nil
+		case <-timer.C:
+			return nil, errors.New("client did not emit the eligible 0-RTT request")
+		case <-info.Context().Done():
+			return nil, info.Context().Err()
+		}
+	}
 	tlsConfig.UnwrapSession = func(identity []byte, cs tls.ConnectionState) (*tls.SessionState, error) {
 		state, err := tlsConfig.DecryptTicket(identity, cs)
 		if state != nil && reject.Load() {
@@ -108,15 +135,16 @@ func TestHTTP3EarlyDataResumption(t *testing.T) {
 		{"get-body", true, false, false, "GET"}, {"post", true, false, false, "POST"}, {"rejected", true, true, false, "GET"}, {"425", true, false, true, "GET"},
 	} {
 		for _, hello := range []string{"native", "coalesced", "datagram-padding", "dedicated", "socks5", "chrome", "firefox"} {
-			if (hello == "chrome" || hello == "firefox") && tc.enabled {
-				continue
-			}
 			if hello == "socks5" && tc.name != "accepted" && tc.name != "rejected" && tc.name != "425" {
 				continue
 			}
 			t.Run(tc.name+"/"+hello, func(t *testing.T) {
 				var reject atomic.Bool
-				origin, observed := earlyDataServer(t, &reject, tc.tooEarly)
+				var earlySent chan struct{}
+				if tc.enabled && !tc.reject && tc.method != "POST" && tc.name != "get-body" {
+					earlySent = make(chan struct{})
+				}
+				origin, observed := earlyDataServer(t, &reject, tc.tooEarly, earlySent)
 				cache := &h3SessionCache{ClientSessionCache: tls.NewLRUClientSessionCache(4), stored: make(chan struct{}, 4)}
 				builder := surf.NewClient().Builder()
 				if hello == "socks5" {
@@ -146,6 +174,12 @@ func TestHTTP3EarlyDataResumption(t *testing.T) {
 				}
 				if hello == "firefox" {
 					builder = builder.Impersonate().Firefox()
+				}
+				if earlySent != nil {
+					var sent sync.Once
+					builder.QUICSettings().Tracer(func(context.Context, bool, quic.ConnectionID) qlogwriter.Trace {
+						return &earlyTrace{streams: make(map[quic.StreamID]bool), onEarly: func() { sent.Do(func() { close(earlySent) }) }}
+					}).Set()
 				}
 				client := builder.ForceHTTP3().HTTP3Settings().EarlyData(tc.enabled).Set().TLSConfig(&tls.Config{InsecureSkipVerify: true, ClientSessionCache: cache}).Timeout(5 * time.Second).Build().Unwrap()
 				t.Cleanup(func() { client.Close() })
@@ -195,7 +229,7 @@ func TestHTTP3EarlyDataResumption(t *testing.T) {
 	}
 }
 
-func TestHTTP3EarlyDataCustomHelloRejected(t *testing.T) {
+func TestHTTP3EarlyDataCustomHelloBuilds(t *testing.T) {
 	for _, browser := range []string{"chrome", "firefox", "custom"} {
 		t.Run(browser, func(t *testing.T) {
 			b := surf.NewClient().Builder()
@@ -209,8 +243,10 @@ func TestHTTP3EarlyDataCustomHelloRejected(t *testing.T) {
 				b.HTTP3Settings().ClientHelloSpec(&spec)
 			}
 			result := b.ForceHTTP3().HTTP3Settings().EarlyData(true).Set().Build()
-			require.True(t, result.IsErr())
-			require.ErrorContains(t, result.Err(), "official uTLS QUIC API")
+			require.False(t, result.IsErr(), "%v", result.Err())
+			if result.IsOk() {
+				result.Ok().Close()
+			}
 		})
 	}
 }
@@ -247,7 +283,7 @@ func TestHTTP3EarlyDataProtocolFallbackPreservesRequest(t *testing.T) {
 
 func TestHTTP3EarlyDataCanceledRequest(t *testing.T) {
 	var reject atomic.Bool
-	origin, observations := earlyDataServer(t, &reject, false)
+	origin, observations := earlyDataServer(t, &reject, false, nil)
 	client := surf.NewClient().Builder().ForceHTTP3().HTTP3Settings().EarlyData(true).Set().TLSConfig(&tls.Config{InsecureSkipVerify: true}).Timeout(time.Second).Build().Unwrap()
 	defer client.Close()
 	ctx, cancel := context.WithCancel(t.Context())

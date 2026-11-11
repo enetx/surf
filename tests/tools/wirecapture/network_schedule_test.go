@@ -37,11 +37,19 @@ func TestNetworkReordersBothDirectionsAndClosesPending(t *testing.T) {
 			require.Equal(t, want, b[0])
 		}
 	}
-	shaped.mu.Lock()
-	for _, flow := range shaped.flows {
-		require.EqualValues(t, 1, flow.Reordered)
-	}
-	shaped.mu.Unlock()
+	// A receiver can consume the last datagram before the scheduler updates
+	// its counters. Never call FailNow while holding the scheduler's mutex:
+	// cleanup also needs it and would deadlock on an assertion failure.
+	require.Eventually(t, func() bool {
+		shaped.mu.Lock()
+		defer shaped.mu.Unlock()
+		for _, flow := range shaped.flows {
+			if flow.Reordered != 1 {
+				return false
+			}
+		}
+		return true
+	}, time.Second, time.Millisecond)
 	// A future timer must not retain the scheduler during Close.
 	_, err = shaped.WriteTo([]byte{4}, peer.LocalAddr())
 	require.NoError(t, err)

@@ -151,7 +151,11 @@ func (ut *Dialer) resolve(ctx context.Context, addr string) (string, error) {
 		resolver = ut.NetDialer.Resolver
 	}
 
-	ips, err := resolver.LookupIPAddr(ctx, host)
+	lookup := resolver.LookupIPAddr
+	if ut.LookupIPAddr != nil {
+		lookup = ut.LookupIPAddr
+	}
+	ips, err := lookup(ctx, host)
 	if err != nil {
 		return "", fmt.Errorf("DNS lookup: %w", err)
 	}

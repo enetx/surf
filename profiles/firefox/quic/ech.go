@@ -16,6 +16,7 @@ type echPreSharedKey struct {
 	*utls.UtlsPreSharedKeyExtension
 	ech         *utls.GREASEEncryptedClientHelloExtension
 	innerLength int
+	early       *utls.EarlyDataExtension
 }
 
 func (e *echPreSharedKey) PrepareClientHello(spec *utls.ClientHelloSpec, config *tls.Config) {
@@ -25,6 +26,8 @@ func (e *echPreSharedKey) PrepareClientHello(spec *utls.ClientHelloSpec, config 
 			extension.ServerName = config.ServerName
 		case *utls.GREASEEncryptedClientHelloExtension:
 			e.ech = extension
+		case *utls.EarlyDataExtension:
+			e.early = extension
 		}
 	}
 
@@ -38,5 +41,9 @@ func (e *echPreSharedKey) InitializeByUtls(
 	identities []utls.PskIdentity,
 ) {
 	e.UtlsPreSharedKeyExtension.InitializeByUtls(session, secret, binderKey, identities)
-	ech.SetPayloadLength(e.ech, e.innerLength+e.UtlsPreSharedKeyExtension.Len())
+	length := e.innerLength + e.UtlsPreSharedKeyExtension.Len()
+	if e.early != nil && e.early.Len() > 0 {
+		length += 2 // The newly enabled inner early_data outer reference.
+	}
+	ech.SetPayloadLength(e.ech, length)
 }

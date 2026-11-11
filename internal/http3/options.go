@@ -31,6 +31,8 @@ const (
 
 // Options contains construction state; public fluent builders remain in surf.
 type Options struct {
+	UseResolvedTCPAddresses   bool
+	HTTPSRecordsWait          func(time.Duration) time.Duration
 	Discovery                 bool
 	ExpireFailedAlternatives  bool
 	HTTPSRecordsLookup        HTTPSRecordsLookup
@@ -56,6 +58,7 @@ type Options struct {
 	Datagrams              *bool
 
 	ForceHTTP3         bool
+	TCPVersion         int
 	Proxy              string
 	DisableCompression bool
 	ProtocolHeaders    func(*http.Request, int)
@@ -76,12 +79,6 @@ func (h *Options) validateQUICConfig() error {
 
 	if (h.ConnectionRacing || h.Discovery && !h.ForceHTTP3) && h.EarlyData {
 		return fmt.Errorf("HTTP/3 connection racing requires a full handshake; disable EarlyData")
-	}
-
-	if h.EarlyData && h.ClientHelloFactory != nil {
-		return fmt.Errorf(
-			"HTTP/3 early data with a custom ClientHello is not supported by the official uTLS QUIC API; disable EarlyData or use standard TLS",
-		)
 	}
 
 	if err := h.WireConfig.Validate(); err != nil {

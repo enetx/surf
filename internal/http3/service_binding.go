@@ -4,15 +4,31 @@ import (
 	"context"
 	"errors"
 	"net"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/enetx/http"
+	"github.com/enetx/surf/internal/connrace"
 )
 
 var (
 	errHTTPSNoTCP          = errors.New("surf: HTTPS service binding does not permit TCP")
 	errHTTPSBindingExpired = errors.New("surf: HTTPS ECH binding expired and DNS refresh failed")
 )
+
+func bindingSupportsTCP(r *HTTPSRecord, version int) bool {
+	if !r.NoDefaultALPN {
+		return true
+	}
+
+	protocol := "h2"
+	if version == 1 {
+		protocol = "http/1.1"
+	}
+
+	return slices.Contains(r.ALPN, protocol)
+}
 
 // DNS service bindings retain their original TTL independently of alternative
 // connection backoff. In particular, a broken QUIC address must not erase ECH
@@ -116,6 +132,14 @@ func (ut *Transport) preconnectDiscoveredTCP(req *http.Request) error {
 func TCPBindingDial(
 	original func(context.Context, string, string) (net.Conn, error),
 ) func(context.Context, string, string) (net.Conn, error) {
+	return tcpBindingDial(original, 0, false)
+}
+
+func tcpBindingDial(
+	original func(context.Context, string, string) (net.Conn, error),
+	fallbackDelay time.Duration,
+	reuseResolved bool,
+) func(context.Context, string, string) (net.Conn, error) {
 	if original == nil {
 		original = new(net.Dialer).DialContext
 	}
@@ -128,6 +152,45 @@ func TCPBindingDial(
 
 		if route.noTCP {
 			return nil, errHTTPSNoTCP
+		}
+		target := address
+		if route.tcpAddress != "" {
+			target = route.tcpAddress
+		}
+		host, port, _ := net.SplitHostPort(target)
+		if reuseResolved && route.resolved.matches(host) {
+			var addresses []string
+			for _, ip := range route.resolved.ips {
+				if ip.IP == nil || network == "tcp4" && ip.IP.To4() == nil || network == "tcp6" && ip.IP.To4() != nil {
+					continue
+				}
+				host := ip.IP.String()
+				if ip.Zone != "" {
+					host += "%" + ip.Zone
+				}
+				addresses = append(addresses, net.JoinHostPort(host, port))
+			}
+			for _, hint := range route.hints {
+				if !hint.IsValid() || hint.IsUnspecified() || hint.IsMulticast() ||
+					network == "tcp4" && !hint.Is4() || network == "tcp6" && hint.Is4() {
+					continue
+				}
+				candidate := net.JoinHostPort(hint.String(), port)
+				if !slices.Contains(addresses, candidate) {
+					addresses = append(addresses, candidate)
+				}
+			}
+			if len(addresses) == 0 {
+				if route.resolved.err != nil {
+					return nil, route.resolved.err
+				}
+				return nil, &net.DNSError{Name: host, Err: "no addresses for requested network", IsNotFound: true}
+			}
+			delay := 300 * time.Millisecond // net.Dialer's default fallback delay.
+			if fallbackDelay != 0 {
+				delay = fallbackDelay
+			}
+			return connrace.DialAddresses(ctx, network, addresses[:min(len(addresses), 16)], delay, original)
 		}
 
 		if route.tcpAddress == "" {
@@ -143,7 +206,7 @@ func TCPBindingDial(
 			return nil, err
 		}
 
-		_, port, _ := net.SplitHostPort(route.tcpAddress)
+		_, port, _ = net.SplitHostPort(route.tcpAddress)
 		for _, hint := range route.hints {
 			if !hint.IsValid() || hint.IsUnspecified() || hint.IsMulticast() {
 				continue
@@ -162,6 +225,7 @@ func TCPBindingDial(
 		return nil, err
 	}
 }
+
 func ECHConfig(ctx context.Context) []byte {
 	route, _ := ctx.Value(alternativeRouteKey{}).(alternativeRoute)
 	return route.ech

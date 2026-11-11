@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/enetx/http"
+	"github.com/enetx/surf/internal/echretry"
 )
 
 func (ut *Transport) dialTCPWithECH(base *http.Transport) func(context.Context, string, string) (net.Conn, error) {
@@ -31,7 +32,11 @@ func (ut *Transport) dialTCPWithECH(base *http.Transport) func(context.Context, 
 			config.MinVersion = tls.VersionTLS13
 		}
 
-		if len(config.NextProtos) == 0 {
+		if ut.tcpVersion == 1 {
+			config.NextProtos = []string{"http/1.1"}
+		} else if ut.tcpVersion == 2 {
+			config.NextProtos = []string{"h2"}
+		} else if len(config.NextProtos) == 0 {
 			config.NextProtos = []string{"h2", "http/1.1"}
 		}
 
@@ -40,17 +45,21 @@ func (ut *Transport) dialTCPWithECH(base *http.Transport) func(context.Context, 
 			dial = new(net.Dialer).DialContext
 		}
 
-		conn, err := dial(ctx, network, address)
-		if err != nil {
-			return nil, err
-		}
-
-		secure := tls.Client(conn, config)
-		if err = secure.HandshakeContext(ctx); err != nil {
+		for attempt := 0; ; attempt++ {
+			conn, err := dial(ctx, network, address)
+			if err != nil {
+				return nil, err
+			}
+			secure := tls.Client(conn, config)
+			if err = secure.HandshakeContext(ctx); err == nil {
+				return secure, nil
+			}
 			conn.Close()
-			return nil, err
+			retry := echretry.Configs(err)
+			if attempt > 0 || len(retry) == 0 || ctx.Err() != nil {
+				return nil, err
+			}
+			config.EncryptedClientHelloConfigList = retry
 		}
-
-		return secure, nil
 	}
 }

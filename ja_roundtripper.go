@@ -19,6 +19,7 @@ import (
 	"github.com/enetx/http"
 	"github.com/enetx/http/http2"
 	"github.com/enetx/http/httptrace"
+	"github.com/enetx/surf/internal/echretry"
 	h3transport "github.com/enetx/surf/internal/http3"
 	"github.com/enetx/surf/internal/tlsstate"
 	utls "github.com/enetx/utls"
@@ -394,6 +395,20 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 		defer cancel()
 	}
 
+	uconn, err := rt.tlsHandshakeOnce(ctx, network, addr, forceHTTP1)
+
+	if retry := echretry.Configs(err); len(retry) > 0 && ctx.Err() == nil {
+		return rt.tlsHandshakeOnce(echretry.WithConfig(ctx, retry), network, addr, forceHTTP1)
+	}
+
+	return uconn, err
+}
+
+func (rt *roundtripper) tlsHandshakeOnce(
+	ctx context.Context,
+	network, addr string,
+	forceHTTP1 bool,
+) (*utls.UConn, error) {
 	rawConn, err := rt.http1tr.DialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
@@ -448,6 +463,10 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 		config.EncryptedClientHelloConfigList = slices.Clone(ech)
 	}
 
+	if retry := echretry.FromContext(ctx); len(retry) > 0 {
+		config.EncryptedClientHelloConfigList = retry
+	}
+
 	if len(config.EncryptedClientHelloConfigList) > 0 {
 		config.MinVersion = utls.VersionTLS13
 		// With real ECH, uTLS takes inner ALPN from Config rather than the
@@ -480,7 +499,7 @@ func (rt *roundtripper) tlsHandshake(ctx context.Context, network, addr string, 
 
 	if err = uconn.HandshakeContext(ctx); err != nil {
 		uconn.Close()
-		return nil, fmt.Errorf("uTLS.HandshakeContext() error: %+v", err)
+		return nil, fmt.Errorf("uTLS.HandshakeContext() error: %w", err)
 	}
 
 	return uconn, nil

@@ -68,7 +68,12 @@ func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 	}
 
 	// Extension order is independently randomized for each connection.
-	extensions = append(extensions, &utls.QUICTransportParametersExtension{}, &utls.UtlsPreSharedKeyExtension{})
+	extensions = append(
+		extensions,
+		&utls.QUICTransportParametersExtension{},
+		&utls.EarlyDataExtension{},
+		&utls.UtlsPreSharedKeyExtension{},
+	)
 
 	spec.Extensions = utls.ShuffleChromeTLSExtensions(extensions)
 

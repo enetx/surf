@@ -23,6 +23,10 @@ func InnerLength(ciphers []uint16, compression []uint8, extensions []utls.TLSExt
 			// TLS 1.2-only extensions are absent from the inner hello.
 		case utls.PreSharedKeyExtension, *utls.GREASEEncryptedClientHelloExtension:
 			// PSK is added after the session loads; inner ECH is counted above.
+		case *utls.EarlyDataExtension:
+			if extension.Len() > 0 {
+				compressed++
+			}
 		default:
 			compressed++
 		}

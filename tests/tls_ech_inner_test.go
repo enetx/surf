@@ -148,6 +148,11 @@ func TestBrowserECHInnerHandshakeAndKeySelection(t *testing.T) {
 						wantCiphers := []uint16{0x1301, 0x1302, 0x1303}
 						if browser == "firefox" {
 							wantCiphers = []uint16{0x1301, 0x1303, 0x1302}
+							if protocol == "tcp" {
+								// Native Firefox 160 capture, including legacy cipher
+								// identifiers; supported_versions still offers only 1.3.
+								wantCiphers = append(wantCiphers, 0xc02b, 0xc02f, 0xcca9, 0xcca8, 0xc02c, 0xc030, 0xc013, 0xc014, 0x009c, 0x009d, 0x002f, 0x0035)
+							}
 						}
 						if !slices.Equal(ciphers, wantCiphers) {
 							t.Fatalf("inner cipher order=%x, want %x", ciphers, wantCiphers)

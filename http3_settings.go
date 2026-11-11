@@ -141,20 +141,21 @@ func (h *HTTP3Settings) Set() *Builder {
 	h.registered = true
 
 	return h.builder.addCliMW(func(c *Client) error {
-		if h.builder.forceHTTP1 || h.builder.forceHTTP2 || (!h.builder.forceHTTP3 && !h.options.Discovery) {
+		forcedTCP := h.builder.forceHTTP1 || h.builder.forceHTTP2
+		if !h.options.Discovery && (forcedTCP || !h.builder.forceHTTP3) {
 			return nil
 		}
 
 		// An application-owned transport or TLS dialer keeps ownership of its
 		// connection policy. Automatic discovery also needs reusable TCP pools.
-		if h.options.Discovery && !h.builder.forceHTTP3 {
+		if h.options.Discovery && (forcedTCP || !h.builder.forceHTTP3) {
 			base := c.GetTransport()
 			if _, ok := base.(h3transport.Preconnector); !ok {
 				return nil
 			}
 
 			if tcp, ok := base.(*http.Transport); ok &&
-				(tcp.DisableKeepAlives || tcp.MaxIdleConnsPerHost < 0 || tcp.DialTLSContext != nil) {
+				(tcp.DialTLSContext != nil || !forcedTCP && (tcp.DisableKeepAlives || tcp.MaxIdleConnsPerHost < 0)) {
 				return nil
 			}
 		}
@@ -174,8 +175,8 @@ func (h *HTTP3Settings) Set() *Builder {
 // EarlyData opts bodyless GET and HEAD requests into TLS 0-RTT on resumed
 // HTTP/3 connections. Disabled by default. Enable only when replay of these
 // requests is acceptable; POST and requests with bodies always wait for 1-RTT.
-// A TLS ClientSessionCache is needed to resume a connection. Custom uTLS
-// ClientHello templates currently do not support this option.
+// A TLS ClientSessionCache is needed to resume a connection. Standard TLS and
+// custom browser ClientHello templates support this, including accepted ECH.
 func (h *HTTP3Settings) EarlyData(enabled bool) *HTTP3Settings {
 	h.options.EarlyData = enabled
 	return h
@@ -416,6 +417,14 @@ func (h *HTTP3Settings) Discovery(enabled bool) *HTTP3Settings {
 	return h
 }
 
+// HTTPSRecordsWait chooses the extra wait for an optional built-in HTTPS DNS
+// query after address queries finish. Zero means no supplemental deadline.
+// Explicit HTTPSRecordsLookup callbacks retain their own deadlines.
+func (h *HTTP3Settings) HTTPSRecordsWait(policy func(time.Duration) time.Duration) *HTTP3Settings {
+	h.options.HTTPSRecordsWait = policy
+	return h
+}
+
 // HTTPSRecordsLookup supplies HTTPS records from an application resolver. Nil
 // uses the client's configured DNS transport and system resolver addresses.
 // No public DNS provider is substituted. Proxies bypass local HTTPS discovery.
@@ -483,6 +492,13 @@ func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) 
 	builder := h.builder
 
 	options.ForceHTTP3 = builder.forceHTTP3
+
+	if builder.forceHTTP1 {
+		options.TCPVersion = 1
+	} else if builder.forceHTTP2 {
+		options.TCPVersion = 2
+	}
+
 	options.Proxy = builder.proxy.Std()
 	options.DisableCompression = builder.disableCompression
 	options.ProtocolHeaders = builder.protocolHeaders
@@ -492,6 +508,9 @@ func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) 
 
 	if base, ok := options.Fallback.(*roundtripper); ok {
 		options.RequestProxy = base.requestProxy
+		options.UseResolvedTCPAddresses = isClientDialer(base.http1tr.DialContext)
+	} else if base, ok := options.Fallback.(*http.Transport); ok {
+		options.UseResolvedTCPAddresses = isClientDialer(base.DialContext)
 	}
 
 	return h3transport.New(options)

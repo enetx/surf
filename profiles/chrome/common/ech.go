@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"slices"
 
 	"github.com/enetx/surf/profiles/internal/ech"
 	utls "github.com/enetx/utls"
@@ -16,8 +17,15 @@ func ClientHelloInner(info utls.ECHClientHelloInfo) (*utls.ECHClientHelloSpec, e
 	if err != nil {
 		return nil, err
 	}
+
+	ciphers = slices.DeleteFunc(ciphers, func(id uint16) bool {
+		return !ech.Grease(id) && (id < 0x1301 || id > 0x1305)
+	})
+
 	spec := &utls.ECHClientHelloSpec{CipherSuites: ciphers}
+
 	var compressed []utls.ECHClientHelloExtension
+
 	for _, ext := range outer {
 		inner := utls.ECHClientHelloExtension{ID: ext.ID}
 		switch ext.ID {
@@ -30,6 +38,13 @@ func ClientHelloInner(info utls.ECHClientHelloInfo) (*utls.ECHClientHelloSpec, e
 			inner.Data = []byte{1}
 		case 43:
 			inner.Data, err = ech.Versions(ext.Data, true)
+			// BoringSSL compresses versions when the outer already requires
+			// TLS 1.3, including QUIC. Otherwise it removes the legacy versions.
+			// https://github.com/google/boringssl/blob/5b83e5d1abf0ae0033ae52ab579d906b67633b2c/ssl/extensions.cc#L2664
+			if err == nil && bytes.Equal(inner.Data, ext.Data) {
+				compressed = append(compressed, utls.ECHClientHelloExtension{ID: ext.ID, Outer: true})
+				continue
+			}
 		case 11, 21, 23, 35, 41, 13172, 65281:
 			continue
 		default:
@@ -38,19 +53,25 @@ func ClientHelloInner(info utls.ECHClientHelloInfo) (*utls.ECHClientHelloSpec, e
 				if err != nil {
 					return nil, err
 				}
-				if err == nil && !bytes.Equal(inner.Data, ext.Data) {
+
+				if !bytes.Equal(inner.Data, ext.Data) {
 					spec.Extensions = append(spec.Extensions, inner)
 					continue
 				}
 			}
+
 			compressed = append(compressed, utls.ECHClientHelloExtension{ID: ext.ID, Outer: true})
 			continue
 		}
+
 		if err != nil {
 			return nil, err
 		}
+
 		spec.Extensions = append(spec.Extensions, inner)
 	}
+
 	spec.Extensions = append(spec.Extensions, compressed...)
+
 	return spec, nil
 }

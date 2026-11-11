@@ -17,6 +17,9 @@ jobs:
           cache: true
       - name: Check formatting
         run: test -z "$(gofmt -l .)"
+      - name: Configure UDP socket buffers
+        # https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes
+        run: sudo sysctl -w net.core.rmem_max=7500000 net.core.wmem_max=7500000
       - name: Test capture analyzer
         run: |
           for source in tests/tools/wirecapture/*.mjs; do node --check "$source"; done

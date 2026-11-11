@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/binary"
+	"errors"
 	"io"
 	"net"
 	"net/http/httptest"
@@ -33,6 +34,23 @@ func httpsDNSAnswer(query dnsmessage.Message, data []byte) dnsmessage.Message {
 			},
 		},
 	}
+}
+
+func TestHTTPSDNSLocalhostDoesNotQueryExternalResolver(t *testing.T) {
+	var calls atomic.Int32
+	resolver := &net.Resolver{Dial: func(context.Context, string, string) (net.Conn, error) {
+		calls.Add(1)
+		return nil, errors.New("external DNS must not be used for localhost")
+	}}
+	lookup := httpsLookupForResolver(resolver)
+	for _, host := range []string{"localhost", "LOCALHOST.", "service.localhost", "_8443._https.localhost"} {
+		records, err := lookup(t.Context(), host)
+		require.NoError(t, err, host)
+		require.Empty(t, records, host)
+	}
+	_, err := lookup(t.Context(), "localhost.example")
+	require.Error(t, err)
+	require.Positive(t, calls.Load(), "ordinary names must still use the configured resolver")
 }
 
 func streamDNSResolver(t *testing.T, reply func(dnsmessage.Message) dnsmessage.Message) *net.Resolver {

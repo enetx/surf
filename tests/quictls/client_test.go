@@ -85,9 +85,11 @@ type observed struct {
 	clientParams, serverParams, hello []byte
 	resumed                           bool
 	extra                             bool
+	earlyWrite, earlyRead             []byte
+	rejectedEarly, hrr                bool
 }
 
-func drive(t *testing.T, factory tlsquic.NewClient, cc, sc *tls.Config) (observed, error) {
+func drive(t *testing.T, factory tlsquic.NewClient, cc, sc *tls.Config, permitEarly ...bool) (observed, error) {
 	t.Helper()
 	cli, err := factory(cc)
 	if err != nil {
@@ -160,11 +162,24 @@ func drive(t *testing.T, factory tlsquic.NewClient, cc, sc *tls.Config) (observe
 				case tls.QUICResumeSession:
 					if side {
 						out.extra = len(e.SessionState.Extra) > 0 && bytes.Equal(e.SessionState.Extra[len(e.SessionState.Extra)-1], []byte("quic-state"))
-						e.SessionState.EarlyData = false
+						if len(permitEarly) == 0 || !permitEarly[0] {
+							e.SessionState.EarlyData = false
+						}
 					}
 				case tls.QUICSetWriteSecret:
 					if side && e.Level == tls.QUICEncryptionLevelEarly {
-						return out, errors.New("EarlyData edit lost between events")
+						if len(permitEarly) == 0 || !permitEarly[0] {
+							return out, errors.New("EarlyData edit lost between events")
+						}
+						out.earlyWrite = bytes.Clone(e.Data)
+					}
+				case tls.QUICSetReadSecret:
+					if !side && e.Level == tls.QUICEncryptionLevelEarly {
+						out.earlyRead = bytes.Clone(e.Data)
+					}
+				case tls.QUICRejectedEarlyData:
+					if side {
+						out.rejectedEarly = true
 					}
 				case tls.QUICErrorEvent:
 					return out, e.Err
@@ -176,6 +191,7 @@ func drive(t *testing.T, factory tlsquic.NewClient, cc, sc *tls.Config) (observe
 				return out, fmt.Errorf("incomplete handshake")
 			}
 			out.resumed = cli.ConnectionState().DidResume
+			out.hrr = cli.ConnectionState().HelloRetryRequest
 			return out, nil
 		}
 	}

@@ -152,6 +152,11 @@ func (a h3adapter) GreaseFactory(factory func() (uint64, uint64, error)) profile
 
 func (a h3adapter) Discovery(enabled bool) profiles.H3Config { a.s.Discovery(enabled); return a }
 
+func (a h3adapter) HTTPSRecordsWait(policy func(time.Duration) time.Duration) profiles.H3Config {
+	a.s.HTTPSRecordsWait(policy)
+	return a
+}
+
 func (a h3adapter) AlternativeServiceBackoff(policy func(uint32) time.Duration) profiles.H3Config {
 	a.s.AlternativeServiceBackoff(policy)
 	return a

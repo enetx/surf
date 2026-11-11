@@ -24,6 +24,13 @@ const dnsTypeHTTPS = dnsmessage.TypeHTTPS
 // supply HTTPSRecordsLookup. Never silently substitute a third-party resolver.
 func httpsLookupForResolver(resolver *net.Resolver) HTTPSRecordsLookup {
 	return func(ctx context.Context, host string) ([]HTTPSRecord, error) {
+		// RFC 6761 section 6.3: localhost names are resolved locally. Do not
+		// wait on an external DNS server for HTTPS records for loopback services.
+		name := strings.ToLower(strings.TrimSuffix(host, "."))
+		if name == "localhost" || strings.HasSuffix(name, ".localhost") {
+			return nil, nil
+		}
+
 		servers := systemDNSServers()
 		if len(servers) == 0 && resolver != nil && resolver.Dial != nil {
 			servers = []string{"127.0.0.1:53"}

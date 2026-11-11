@@ -7,10 +7,11 @@ fresh isolated profile and the browser's ordinary Secure DNS preference pointing
 to Cloudflare. Certificate verification stayed enabled. There were no TLS,
 ECH, QUIC, cipher, certificate or address-override flags.
 
-Only the two ClientHello handshake messages are retained. They contain public
+Each fixture retains only its two ClientHello handshake messages. They contain public
 key shares, connection randoms, ECH ciphertext and public endpoint names; no
 private keys, session tickets, cookies, account data or NetLog secrets are stored.
-These are fresh TCP handshakes, not resumption or decrypted QUIC captures.
+The two original Chrome TCP pairs are fresh handshakes. Additional native QUIC
+and Firefox pairs are described below. None contain resumption identities.
 
 `tests/profiles/ech/inner_test.go` applies Surf's policy to the actual captured
 outer and compares every expanded extension's bytes/order and the cipher order
@@ -36,12 +37,39 @@ Source checks:
   [key selection](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/tls13con.c#L3847)
   retains each private key and looks it up by the server-selected group.
 
-Firefox policy assertions are **source-derived**. Existing Firefox outer wire
-fixtures do not establish a decrypted Firefox inner reference. Local verified
-TCP/QUIC handshakes test ECH acceptance, payload delivery, extension sets,
-cipher preference, selected groups and HRR for both profiles. These checks do
-not establish complete browser parity for resumption or 0-RTT. The inherited
-custom-PSK + real-ECH rejection remains explicit.
+The Firefox 160 TCP and QUIC pairs come from an unmodified official Linux
+aarch64 release. Its SHA-512 was checked against Mozilla's release SHA512SUMS.
+The full browser ran on Xvfb with a fresh profile, ordinary Secure DNS settings,
+and certificate verification enabled. tcpdump recorded real traffic. Wireshark
+4.6.9 independently decrypted ECH using stock NSS `ECH_SECRET` / `ECH_CONFIG`
+key-log records. Expanded inner fixtures restore the outer legacy session ID
+and replace RFC 9849 outer references using decoder raw fields. No secret keys or
+resumption tickets are retained in the repository.
+
+Two UDP GSO aggregates required splitting at 1252-byte segment boundaries in an
+**analysis copy** with reconstructed IP/UDP envelopes. Wireshark then verified
+Initial packet authentication and CRYPTO reassembly. The original pcap's SHA-256
+is recorded in each fixture. These fixtures establish TLS bytes and order;
+they do not establish wire datagram boundaries, pacing or IP-header parity.
+
+The Chrome QUIC pair uses native `SSL_ENCRYPTED_CLIENT_HELLO` on QUIC_SESSION
+234 and the actual UDP payloads on its bound UDP_SOCKET 233. Wireshark independently
+reassembled the outer from those payloads. Synthetic envelopes were used solely
+for decoding. Its NetLog SHA-256 and extraction details are recorded in the file.
+
+All five fresh pairs compare the complete inner cipher list and every expanded
+extension's bytes/order. QUIC tests also compare Firefox's restricted public
+parameters with the native outer. These references caught three distinctions:
+Firefox TCP keeps its full cipher list; Chrome compresses supported_versions
+when the outer already requires TLS 1.3; Neqo retains full transport parameters
+only inside ECH. The matching pinned source explains each observed behavior.
+
+Verified local tests separately cover fresh and resumed TCP/QUIC, engine-owned
+PSK binders, randomized/omitted outer PSK, HRR, key-group selection, certificate
+failures, authenticated retry limits and application bodies. An independent
+standard TLS QUIC server verifies equal client/server early traffic secrets;
+HRR, changed ALPN and application session veto prevent early-data acceptance.
+Native fresh fixtures do not prove full browser resumption or 0-RTT parity.
 
 ## HTTPS DNS metadata verification
 
@@ -53,9 +81,25 @@ starts a supplemental HTTPS timer only after address transactions finish and
 omits that timer when the HTTPS response is required.
 [Firefox 160](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpConnectionMgr.cpp#L1760)
 does not dispatch transactions that are waiting for HTTPS RR when ECH is enabled.
-Surf's standalone HTTPS lookup uses DNS transport deadlines and cancellation of
-its request waiters. This is not a reproduction of Chromium's combined A/AAAA/
-HTTPS task timing. It removes the previous fixed 50 ms deadline from query start.
+Surf's built-in path starts A/AAAA and HTTPS together and shares completed address
+results with Surf's first TCP/QUIC connection. A private default-dialer adapter
+identifies ownership; application-supplied DialContext functions keep control of
+name resolution and receive their original endpoint. Chromium's opportunistic profile uses
+20% of address lookup duration with 5–50 ms bounds, starting after addresses
+complete; both secure/insecure defaults are pinned in
+[features.cc](https://chromium.googlesource.com/chromium/src/+/157.0.8103.51/net/base/features.cc#90).
+Firefox uses no supplemental deadline. Explicit HTTPS callbacks retain their own
+timing. DNS transport deadlines, request cancellation and shared-flight cleanup
+still apply. Addresses are not cached under the unrelated HTTPS TTL.
+
+Native Chrome NetLog starts A and HTTPS for the target in the same millisecond.
+Firefox's independently decoded DoH responses include HTTPS/A/AAAA within one
+millisecond. The latter observation does not establish exact query-start times.
+A controlled UDP DNS peer withholds all responses until all three query types
+arrive, then requires exactly one of each for both browser profiles across H1,
+H2 and H3. Separate tests gate address completion, supplemental timer start,
+HTTPS completion and cancellation. Native OS resolver internals, DNS caches,
+Happy Eyeballs scheduling and wire timing are not claimed to match every platform.
 
 Regression tests delay a valid HTTPS ECH response by 100 ms and require verified
 ECH on the first TCP/H3 connection and on subsequent requests. They cover both
@@ -79,3 +123,27 @@ local certificate and reject an untrusted DNS certificate without sending a
 plaintext query. Existing stream framing, alias handling and cancellation tests
 cover the resolver adapter. An explicit `HTTPSRecordsLookup` callback replaces
 the built-in HTTPS query path while retaining the configured address resolver.
+
+## Public traffic verification after the resumption changes
+
+On 2026-11-11, 18 Surf connections to the public Cloudflare QUIC trace endpoint
+used normal system DNS and certificate verification: Chrome/Firefox, forced H2,
+forced H3 and opt-in H3 early data, three fresh connections per client. All
+reported verified ECH and `sni=encrypted`; connections two and three resumed.
+A real tcpdump capture independently decoded all 18 outer ClientHellos.
+Chrome omitted public PSK, Firefox used public PSK on resumption, and Firefox
+QUIC exposed only parameter IDs 11, 15 and 17. Early-data offers and encrypted
+0-RTT packets appeared only in the explicitly enabled scenarios. This is a dated
+manual observation, not a network-dependent CI requirement.
+
+Authenticated ECH retry is bounded to one new connection. Invalid provider or
+private-name certificates, absent retry configs and a second rejection fail
+without sending HTTP application data. A retry preserves the original route,
+resolver, proxy and request deadline and does not mutate DNS or caller TLS config.
+
+The expanded Linux race run also reproduced an upstream QUIC parameter-pointer
+race during 0-RTT stream creation. The existing QUIC fork carries the proposed
+upstream correction plus synchronization of application state/datagram snapshots;
+its maintenance notes pin the open PR and record its unmerged status. Regression
+tests fail under `-race` before the fix and pass afterward. New streams retain
+remembered send limits until transport parameters are applied after the handshake.

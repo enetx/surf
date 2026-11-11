@@ -584,9 +584,10 @@ and prevents induced downgrades. Retry uses the original version; Initial PN spa
 and TLS transcript survive the switch; Handshake and 1-RTT use negotiated labels.
 Original-version 0-RTT retains its packet type and key labels. Session tickets and
 NEW_TOKEN caches are scoped to their versions. Browser-history selection of the
-next original version is separate work. The existing official-uTLS restriction on
-Surf early data with custom ClientHello templates remains; generic 0-RTT checks
-use standard TLS and do not imply new Firefox-template 0-RTT support.
+next original version is separate work. Surf now supports custom-template early
+data, including ECH; see the [ECH report](ech/README.md). Native browser resumption
+and 0-RTT parity remain separate verification work. Generic version/0-RTT checks
+do not establish complete browser behavior.
 
 The fork's UDP integration tests exercise actual Dial and client Finished in both
 directions, Retry, original-version ACKs, reordered Handshake, lost server flight,

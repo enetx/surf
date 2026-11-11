@@ -77,7 +77,7 @@ func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 		extensions = append(extensions, extension)
 	}
 
-	extensions = append(extensions, &utls.QUICTransportParametersExtension{})
+	extensions = append(extensions, &utls.QUICTransportParametersExtension{}, &utls.EarlyDataExtension{})
 	if psk != nil {
 		extensions = append(extensions, &echPreSharedKey{UtlsPreSharedKeyExtension: psk})
 	}

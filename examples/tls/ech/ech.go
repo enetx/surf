@@ -11,6 +11,8 @@ func main() {
 	builder := surf.NewClient().Builder().Impersonate().Chrome()
 	// builder := surf.NewClient().Builder().Impersonate().Firefox()
 	// builder.ForceHTTP3() // Require QUIC instead of automatic protocol selection.
+	// builder.Session() // Reuse TLS sessions, including accepted real ECH.
+	// builder.HTTP3Settings().HTTPSRecordsWait(nil).Set() // Wait for HTTPS metadata without a supplemental deadline.
 
 	// The profile supplies the browser's inner ClientHello policy. Discovery
 	// obtains ECHConfig from HTTPS DNS records using the client's DNS settings.

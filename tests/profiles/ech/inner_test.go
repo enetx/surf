@@ -52,13 +52,27 @@ func hello(t *testing.T, raw []byte) ([]uint16, []extension) {
 }
 
 func TestChromeInnerMatchesNativeCapture(t *testing.T) {
-	paths, err := filepath.Glob("../../testdata/wire/ech/chrome-157-tcp-*.json")
-	if err != nil || len(paths) != 2 {
+	testNativeInnerFixtures(t, "chrome-157-tcp-*.json", 2, common.ClientHelloInner)
+	testNativeInnerFixtures(t, "chrome-157-quic-*.json", 1, common.ClientHelloInner)
+}
+
+func TestFirefoxInnerMatchesNativeCapture(t *testing.T) {
+	testNativeInnerFixtures(t, "firefox-160-tcp-*.json", 1, desktop.ClientHelloInner)
+	testNativeInnerFixtures(t, "firefox-160-quic-*.json", 1, desktop.ClientHelloInner)
+}
+
+func testNativeInnerFixtures(t *testing.T, pattern string, count int, policy utls.ECHClientHelloInnerFunc) {
+	t.Helper()
+	paths, err := filepath.Glob("../../testdata/wire/ech/" + pattern)
+	if err != nil || len(paths) != count {
 		t.Fatalf("capture fixtures: %v, %v", paths, err)
 	}
 	for _, path := range paths {
 		t.Run(filepath.Base(path), func(t *testing.T) {
-			var capture struct{ Outer, Inner []byte }
+			var capture struct {
+				Outer, Inner []byte
+				Transport    string
+			}
 			raw, err := os.ReadFile(path)
 			if err != nil {
 				t.Fatal(err)
@@ -74,7 +88,17 @@ func TestChromeInnerMatchesNativeCapture(t *testing.T) {
 					name = string(ext.Data[5:])
 				}
 			}
-			spec, err := common.ClientHelloInner(utls.ECHClientHelloInfo{ClientHello: capture.Outer, ServerName: name, NextProtos: []string{"h2", "http/1.1"}})
+			protocols := []string{"h2", "http/1.1"}
+			if capture.Transport == "quic" {
+				protocols = []string{"h3"}
+			}
+			info := utls.ECHClientHelloInfo{ClientHello: capture.Outer, ServerName: name, NextProtos: protocols, QUIC: capture.Transport == "quic"}
+			for _, ext := range want {
+				if ext.ID == 57 {
+					info.QUICTransportParameters = ext.Data
+				}
+			}
+			spec, err := policy(info)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -98,8 +122,20 @@ func TestChromeInnerMatchesNativeCapture(t *testing.T) {
 			if !reflect.DeepEqual(spec.CipherSuites, wantCiphers) {
 				t.Fatalf("cipher order: %x != %x", spec.CipherSuites, wantCiphers)
 			}
+			if spec.OuterQUICTransportParameters != nil {
+				for _, ext := range outer {
+					if ext.ID == 57 && !bytes.Equal(ext.Data, spec.OuterQUICTransportParameters) {
+						t.Fatal("public QUIC transport parameters differ from native capture")
+					}
+				}
+			}
 			if !reflect.DeepEqual(got, want) {
-				t.Fatal("expanded inner extension order or payload differs from native Chrome")
+				for i := range min(len(got), len(want)) {
+					if !reflect.DeepEqual(got[i], want[i]) {
+						t.Errorf("extension %d: got id=%d length=%d, want id=%d length=%d", i, got[i].ID, len(got[i].Data), want[i].ID, len(want[i].Data))
+					}
+				}
+				t.Fatalf("expanded inner differs: extension counts got=%d want=%d", len(got), len(want))
 			}
 		})
 	}
@@ -157,7 +193,11 @@ func TestBrowserInnerPolicyDifferences(t *testing.T) {
 			if tc.name == "firefox" && spec.Extensions[0].ID != 0xfe0d {
 				t.Fatal("NSS inner marker must be first")
 			}
-			if len(spec.CipherSuites) != 3 || spec.CipherSuites[1] != 0x1301 || spec.CipherSuites[2] != 0x1303 {
+			wantCiphers := 3
+			if tc.name == "firefox" {
+				wantCiphers = 4
+			}
+			if len(spec.CipherSuites) != wantCiphers || spec.CipherSuites[1] != 0x1301 || spec.CipherSuites[2] != 0x1303 || tc.name == "firefox" && spec.CipherSuites[3] != 0xc02f {
 				t.Fatal("inner cipher preference changed")
 			}
 		})

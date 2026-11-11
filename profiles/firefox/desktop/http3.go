@@ -7,7 +7,11 @@ import (
 
 // ConfigureH3 applies Firefox desktop HTTP/3 settings.
 func ConfigureH3(h profiles.H3Config) {
-	h.Discovery(true).AlternativeServiceBackoff(common.AlternativeServiceBackoff).ExpireFailedAlternatives(true)
+	// Firefox waits for HTTPS RR when ECH is enabled, without Chromium's
+	// supplemental timer after address resolution.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpConnectionMgr.cpp#L1760
+	h.Discovery(true).HTTPSRecordsWait(nil).
+		AlternativeServiceBackoff(common.AlternativeServiceBackoff).ExpireFailedAlternatives(true)
 	h.AltUsed(true).
 		ConnectionRacingPolicy(common.ConnectionRacing).
 		QpackMaxTableCapacity(65536).

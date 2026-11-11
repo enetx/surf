@@ -141,7 +141,24 @@ func TestChromeQPACKOmittedAndExplicitZeroCapacity(t *testing.T) {
 			peer.request(t, client)
 			peer.request(t, client)
 			if explicit {
-				stream := nextSurfQPACKStream(t, peer)
+				// SETTINGS and responses travel on independent QUIC streams.
+				// Two completed requests do not prove SETTINGS has been processed.
+				// Drive a later header block to trigger Chrome's deferred flush.
+				var stream h3QPACKCapture
+				for attempts := 0; ; attempts++ {
+					select {
+					case stream = <-peer.qpackStreams:
+					case err := <-peer.errors:
+						t.Fatal(err)
+					case <-time.After(10 * time.Millisecond):
+						if attempts == 15 {
+							t.Fatal("QPACK capacity did not flush on later headers")
+						}
+						peer.request(t, client)
+						continue
+					}
+					break
+				}
 				require.EqualValues(t, 2, stream.typ)
 				require.Zero(t, readSurfQPACKCapacity(t, stream))
 			} else {

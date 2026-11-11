@@ -17,6 +17,7 @@ import (
 	"github.com/enetx/quic-go/http3"
 	"github.com/enetx/surf/header"
 	"github.com/enetx/surf/internal/connrace"
+	"github.com/enetx/surf/internal/echretry"
 	quictransport "github.com/enetx/surf/internal/quic"
 	"github.com/enetx/surf/profiles"
 )
@@ -45,12 +46,15 @@ type Transport struct {
 	altUsed                bool
 	earlyData              bool
 	forceHTTP3             bool
+	tcpVersion             int
 }
 
 // New snapshots settings and builds HTTP/3 with its existing TCP fallback.
 func New(settings Options) (*Transport, error) {
-	if err := settings.validateQUICConfig(); err != nil {
-		return nil, err
+	if settings.TCPVersion == 0 {
+		if err := settings.validateQUICConfig(); err != nil {
+			return nil, err
+		}
 	}
 
 	ut := &Transport{
@@ -60,6 +64,7 @@ func New(settings Options) (*Transport, error) {
 		altUsed:                settings.AltUsed,
 		earlyData:              settings.EarlyData,
 		forceHTTP3:             settings.ForceHTTP3,
+		tcpVersion:             settings.TCPVersion,
 		tlsConfig:              settings.TLSConfig.Clone(),
 		settings:               settings.Settings.Clone(),
 		quicConfig:             quictransport.CloneConfig(settings.QUICConfig),
@@ -83,6 +88,9 @@ func New(settings Options) (*Transport, error) {
 	}
 
 	ut.quicDialer.DedicatedConn = ut.quicDialer.ConnectionIDGenerator != nil && ut.quicDialer.ConnectionIDGenerator.ConnectionIDLen() == 0
+	if ut.quicDialer.NetDialer == nil {
+		ut.quicDialer.NetDialer = new(net.Dialer)
+	}
 
 	if settings.Datagrams != nil {
 		datagrams := *settings.Datagrams
@@ -114,7 +122,7 @@ func New(settings Options) (*Transport, error) {
 
 	if settings.Discovery {
 		if base, ok := ut.Fallback.(*http.Transport); ok && base.DialTLSContext == nil {
-			base.DialContext = TCPBindingDial(base.DialContext)
+			base.DialContext = tcpBindingDial(base.DialContext, ut.quicDialer.NetDialer.FallbackDelay, settings.UseResolvedTCPAddresses)
 			base.DialTLSContext = ut.dialTCPWithECH(base)
 		}
 	}
@@ -125,10 +133,6 @@ func New(settings Options) (*Transport, error) {
 		}
 
 		return ut, nil
-	}
-
-	if err := ut.initTransport(); err != nil {
-		return nil, err
 	}
 
 	if settings.Discovery {
@@ -144,9 +148,34 @@ func New(settings Options) (*Transport, error) {
 			settings.AlternativeServiceBackoff,
 			settings.ExpireFailedAlternatives,
 		)
+		ut.discovery.tcpVersion = settings.TCPVersion
+		if settings.HTTPSRecordsLookup == nil && ut.quicDialer.Proxy == "" && (settings.TCPVersion == 0 || settings.UseResolvedTCPAddresses) {
+			ut.discovery.httpsWait = settings.HTTPSRecordsWait
+			ut.discovery.addressLookup = func(ctx context.Context, host string) ([]net.IPAddr, error) {
+				resolver := ut.quicDialer.NetDialer.Resolver
+				if resolver == nil {
+					resolver = net.DefaultResolver
+				}
+				return resolver.LookupIPAddr(ctx, host)
+			}
+			ut.quicDialer.LookupIPAddr = func(ctx context.Context, host string) ([]net.IPAddr, error) {
+				return lookupResolvedAddresses(ctx, host, ut.quicDialer.NetDialer.Resolver)
+			}
+		}
 	}
 
-	ut.quicDialer.ResolveAll = ut.discovery != nil
+	// Forced TCP keeps its HTTP transports and DNS/TLS metadata, without
+	// validating unused QUIC settings, opening UDP or starting an H3 race.
+	if settings.TCPVersion != 0 {
+		return ut, nil
+	}
+	if err := ut.initTransport(); err != nil {
+		return nil, err
+	}
+
+	// Keep the direct forced-H3 address policy. Discovery routes still pass
+	// their hints to Dial; explicit address racing uses AddressFallbackDelay.
+	ut.quicDialer.ResolveAll = ut.discovery != nil && !settings.ForceHTTP3
 
 	if settings.ConnectionRacing || ut.discovery != nil && !settings.ForceHTTP3 {
 		if base, ok := ut.Fallback.(*http.Transport); ok &&
@@ -276,6 +305,10 @@ func (ut *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, errors.New("non-SOCKS5 proxy requires HTTP/2 fallback")
 	}
 
+	if ut.tcpVersion != 0 && ut.discovery != nil && req.URL.Scheme == "https" && !requiresTCPHTTP(req) {
+		return ut.roundTripDiscovered(req)
+	}
+
 	if ut.http3tr == nil {
 		if ut.Fallback != nil {
 			return ut.Fallback.RoundTrip(req)
@@ -326,7 +359,7 @@ func (ut *Transport) requestWithAltUsed(req *http.Request) *http.Request {
 		ut.discovery.mu.Lock()
 		if actual, ok := ut.discovery.actual[origin]; ok {
 			authority = actual.address
-		} else if route, ok := req.Context().Value(alternativeRouteKey{}).(alternativeRoute); ok {
+		} else if route, ok := req.Context().Value(alternativeRouteKey{}).(alternativeRoute); ok && route.address != "" {
 			authority = route.address
 		}
 
@@ -512,6 +545,13 @@ func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
 	}
 
 	response, err := ut.http3tr.RoundTrip(&clone)
+	if config := echretry.Configs(err); len(config) > 0 && req.Context().Err() == nil {
+		// Only bodyless GET/HEAD can reach this branch. Reconnect once with
+		// authenticated retry_configs and wait for the complete handshake.
+		ctx := echretry.WithConfig(attempt.Context(), config)
+		ctx = context.WithValue(ctx, http3RequireHandshakeKey{}, true)
+		return ut.http3tr.RoundTrip(attempt.WithContext(ctx))
+	}
 	if !errors.Is(err, quic.Err0RTTRejected) && (err != nil || response.StatusCode != http.StatusTooEarly) {
 		return response, err
 	}

@@ -13,13 +13,16 @@ import (
 )
 
 func TestBrowserECHDiscoveryWaitsForDNSAndSupportsForcedHTTP3(t *testing.T) {
-	for _, browser := range []string{"chrome", "firefox"} {
-		for _, mode := range []string{"automatic-http2", "automatic-http3", "forced-http3"} {
+	for _, browser := range []string{"native", "chrome", "firefox"} {
+		for _, mode := range []string{"automatic-http2", "automatic-http3", "forced-http1", "forced-http2", "forced-http3"} {
 			t.Run(browser+"/"+mode, func(t *testing.T) {
 				list, key := testECHConfig(t)
 				p := newDiscoveryPeer(t, []tls.EncryptedClientHelloKey{key})
 				var queries atomic.Int32
 				b := discoveryBuilder(browser).Proxy("").Timeout(3 * time.Second)
+				// The peer listens on IPv4. localhost can resolve to ::1 first
+				// on Linux; explicitly exercise address fallback on promotion.
+				b.QUICSettings().AddressFallbackDelay(10 * time.Millisecond).Set()
 				b.HTTP3Settings().TCPFallbackDelay(time.Hour).
 					HTTPSRecordsLookup(func(ctx context.Context, name string) ([]surf.HTTPSRecord, error) {
 						queries.Add(1)
@@ -41,6 +44,10 @@ func TestBrowserECHDiscoveryWaitsForDNSAndSupportsForcedHTTP3(t *testing.T) {
 					}).Set()
 				if mode == "forced-http3" {
 					b.ForceHTTP3()
+				} else if mode == "forced-http1" {
+					b.ForceHTTP1()
+				} else if mode == "forced-http2" {
+					b.ForceHTTP2()
 				}
 				client := b.TLSConfig(&tls.Config{RootCAs: p.roots, ServerName: "example.com"}).SecureTLS().Build().Unwrap()
 				t.Cleanup(func() { client.Close() })
@@ -55,6 +62,10 @@ func TestBrowserECHDiscoveryWaitsForDNSAndSupportsForcedHTTP3(t *testing.T) {
 					// its H3 successor must retain the same DNS ECH policy.
 					if mode == "automatic-http2" && request == 0 {
 						want = 2
+					} else if mode == "forced-http1" {
+						want = 1
+					} else if mode == "forced-http2" {
+						want = 2
 					}
 					require.Equal(t, want, r.ProtoMajor)
 					require.True(t, r.TLS.ECHAccepted)
@@ -62,6 +73,9 @@ func TestBrowserECHDiscoveryWaitsForDNSAndSupportsForcedHTTP3(t *testing.T) {
 					require.NotEmpty(t, response.GetResponse().TLS.VerifiedChains)
 				}
 				require.EqualValues(t, 1, queries.Load(), "reuse the positive DNS TTL")
+				if mode == "forced-http1" || mode == "forced-http2" {
+					require.Zero(t, p.h3Count.Load(), "forced TCP must not start an H3 request")
+				}
 			})
 		}
 	}
