@@ -1,0 +1,475 @@
+{
+  "schema": 1,
+  "captured_on": "2026-11-12",
+  "scope": "TLS ticket queues, accepted ECH/resumption, independent QUIC version and RTT restoration; excludes complete browser timing parity",
+  "sources": [
+    {
+      "url": "https://github.com/chromium/chromium/blob/157.0.8103.51/net/ssl/ssl_client_session_cache.cc",
+      "sha256": "13b8ae7cde7103b54d5c8dfe5e36bd664b887dd46cf42f2b7f295ddc907b7b92"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/crypto/quic_client_session_cache.cc",
+      "sha256": "60c118b7f8f0493467014ee355458da3bcd6e1dca83d700cbfb4af47d91a2515"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/base/SSLTokensCache.cpp",
+      "sha256": "6783fb42f3808bc88f70870d16381d4ce7b59679f4ee8ece53e9787902d74cd0"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/modules/libpref/init/StaticPrefList.yaml",
+      "sha256": "2295fb21596aa7e290e43144734c230c4d9b50f569a752cbb45f5eae19ab65f8"
+    }
+  ],
+  "surf": {
+    "pcap_sha256": "fdcfd6e8a2bf4ad9ae2e13f3461727b0079f9308bab31a23799fedee95ac2820",
+    "packets_captured": 339,
+    "packets_received_by_filter": 339,
+    "kernel_drops": 0,
+    "probes": [
+      {
+        "profile": "chrome",
+        "protocol": "h2",
+        "attempts": [
+          {
+            "attempt": 1,
+            "protocol": "HTTP/2.0",
+            "ech_accepted": true,
+            "resumed": false,
+            "verified": true
+          },
+          {
+            "attempt": 2,
+            "protocol": "HTTP/2.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          },
+          {
+            "attempt": 3,
+            "protocol": "HTTP/2.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "profile": "chrome",
+        "protocol": "h3",
+        "attempts": [
+          {
+            "attempt": 1,
+            "protocol": "HTTP/3.0",
+            "ech_accepted": true,
+            "resumed": false,
+            "verified": true
+          },
+          {
+            "attempt": 2,
+            "protocol": "HTTP/3.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          },
+          {
+            "attempt": 3,
+            "protocol": "HTTP/3.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "profile": "firefox",
+        "protocol": "h2",
+        "attempts": [
+          {
+            "attempt": 1,
+            "protocol": "HTTP/2.0",
+            "ech_accepted": true,
+            "resumed": false,
+            "verified": true
+          },
+          {
+            "attempt": 2,
+            "protocol": "HTTP/2.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          },
+          {
+            "attempt": 3,
+            "protocol": "HTTP/2.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "profile": "firefox",
+        "protocol": "h3",
+        "attempts": [
+          {
+            "attempt": 1,
+            "protocol": "HTTP/3.0",
+            "ech_accepted": true,
+            "resumed": false,
+            "verified": true
+          },
+          {
+            "attempt": 2,
+            "protocol": "HTTP/3.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          },
+          {
+            "attempt": 3,
+            "protocol": "HTTP/3.0",
+            "ech_accepted": true,
+            "resumed": true,
+            "verified": true
+          }
+        ]
+      }
+    ],
+    "verified_resumed_pairs": [
+      {
+        "browser": "Chrome/157.0.8103.51",
+        "transport": "quic",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "omitted"
+        },
+        "early_data": {
+          "offered": true,
+          "accepted": true,
+          "request_packets": 1,
+          "packets": 1,
+          "control_packets": 1
+        }
+      },
+      {
+        "browser": "Chrome/157.0.8103.51",
+        "transport": "quic",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "omitted"
+        },
+        "early_data": {
+          "offered": true,
+          "accepted": true,
+          "request_packets": 1,
+          "packets": 2,
+          "control_packets": 2
+        }
+      },
+      {
+        "browser": "Chrome/157.0.8103.51",
+        "transport": "tcp",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "omitted"
+        },
+        "early_data": {
+          "offered": false,
+          "accepted": false,
+          "request_packets": 0,
+          "packets": 0,
+          "control_packets": 0
+        }
+      },
+      {
+        "browser": "Chrome/157.0.8103.51",
+        "transport": "tcp",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "omitted"
+        },
+        "early_data": {
+          "offered": false,
+          "accepted": false,
+          "request_packets": 0,
+          "packets": 0,
+          "control_packets": 0
+        }
+      },
+      {
+        "browser": "Firefox/160.0",
+        "transport": "quic",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "randomized"
+        },
+        "early_data": {
+          "offered": true,
+          "accepted": true,
+          "request_packets": 1,
+          "packets": 1,
+          "control_packets": 1
+        }
+      },
+      {
+        "browser": "Firefox/160.0",
+        "transport": "quic",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "randomized"
+        },
+        "early_data": {
+          "offered": true,
+          "accepted": true,
+          "request_packets": 1,
+          "packets": 1,
+          "control_packets": 1
+        }
+      },
+      {
+        "browser": "Firefox/160.0",
+        "transport": "tcp",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "randomized"
+        },
+        "early_data": {
+          "offered": false,
+          "accepted": false,
+          "request_packets": 0,
+          "packets": 0,
+          "control_packets": 0
+        }
+      },
+      {
+        "browser": "Firefox/160.0",
+        "transport": "tcp",
+        "implementation": "surf",
+        "psk": {
+          "identity_lengths": [
+            192
+          ],
+          "binder_lengths": [
+            32
+          ],
+          "selected_identity": 0,
+          "outer_policy": "randomized"
+        },
+        "early_data": {
+          "offered": false,
+          "accepted": false,
+          "request_packets": 0,
+          "packets": 0,
+          "control_packets": 0
+        }
+      }
+    ],
+    "verified_resumed_stable_inner_matches": 8
+  },
+  "independent_peer": {
+    "implementation": "official aioquic 1.3.0",
+    "profile": "Firefox 160",
+    "method": "Fresh client, public fluent profile and owned queue; read-only Group observer; private CA explicitly trusted; 20 ms UDP egress delay; qlog initial recovery RTT plus actual UDP capture",
+    "pcap_sha256": "974d2835f662b96ba89c29e28438adfb3c1e5c4113dc4f42a346bfbe7e23c9ce",
+    "packets_captured": 44,
+    "packets_received_by_filter": 44,
+    "kernel_drops": 0,
+    "observations": [
+      {
+        "application_ready_rtt_ns": 24240000,
+        "attempt": 1,
+        "early_packets": 0,
+        "initial_rtt_ns": 100000000,
+        "initial_version": 1,
+        "peer": {
+          "early_data": false,
+          "resumed": false,
+          "version": 1798521807
+        },
+        "restored_rtt_ns": 0,
+        "resumed": false,
+        "ticket_cid_length": 9,
+        "ticket_rtt_ns": 24240000,
+        "verified": true,
+        "application_ready_rtt_measured": true
+      },
+      {
+        "application_ready_rtt_ns": 20953000,
+        "attempt": 2,
+        "early_packets": 5,
+        "initial_rtt_ns": 24000000,
+        "initial_version": 1798521807,
+        "peer": {
+          "early_data": true,
+          "resumed": true,
+          "version": 1798521807
+        },
+        "restored_rtt_ns": 24000000,
+        "resumed": true,
+        "ticket_cid_length": 8,
+        "ticket_rtt_ns": 20953000,
+        "verified": true,
+        "application_ready_rtt_measured": true
+      },
+      {
+        "application_ready_rtt_ns": 21117000,
+        "attempt": 3,
+        "early_packets": 5,
+        "initial_rtt_ns": 20000000,
+        "initial_version": 1798521807,
+        "peer": {
+          "early_data": true,
+          "resumed": true,
+          "version": 1798521807
+        },
+        "restored_rtt_ns": 20000000,
+        "resumed": true,
+        "ticket_cid_length": 13,
+        "ticket_rtt_ns": 21117000,
+        "verified": true,
+        "application_ready_rtt_measured": true
+      }
+    ]
+  },
+  "native_chrome": {
+    "version": "157.0.8103.51",
+    "method": "Fresh ordinary profile; public HTTPS navigation with certificate checks, Secure DNS preferences and natural idle expiry. Passive NetLog reconstructed into synthetic analysis envelopes.",
+    "netlog_sha256": "c7d992a9e04ee16325f7bafef552f9151f6e3e145501220088c02be5fa7f25ba",
+    "analysis_pcap_sha256": "d81af64c0e70366a70fb0df9d168de5287f1ae127f7280a3b16fae4fd1ac58b0",
+    "verified_resumed_pair": {
+      "browser": "Chrome/157.0.8103.51",
+      "transport": "quic",
+      "implementation": "native",
+      "psk": {
+        "identity_lengths": [
+          192
+        ],
+        "binder_lengths": [
+          32
+        ],
+        "selected_identity": 0,
+        "outer_policy": "omitted"
+      },
+      "early_data": {
+        "offered": true,
+        "accepted": true,
+        "request_packets": 1,
+        "packets": 2,
+        "control_packets": 2
+      }
+    }
+  },
+  "native_firefox": {
+    "version": "160.0",
+    "method": "Fresh ordinary profile; public HTTPS navigation with certificate checks, Secure DNS preferences and natural idle expiry.",
+    "pcap_sha256": "6b3e0c07016049a198167af93b34b5c1e75c1692edee618c0e3add53c3c57cfc",
+    "packets_captured": 8860,
+    "packets_received_by_filter": 8898,
+    "kernel_drops": 38,
+    "gso_aggregates_split_for_analysis": 4,
+    "segmentation": {
+      "original_sha256": "6b3e0c07016049a198167af93b34b5c1e75c1692edee618c0e3add53c3c57cfc",
+      "analysis_sha256": "b73fd817673f2fdbfc7bd1d276903197028c3e9b3e08e57cd943a036c5259ce9",
+      "segments": [
+        {
+          "original_frame": 613,
+          "payload_length": 2504,
+          "analysis_segments": [
+            1252,
+            1252
+          ]
+        },
+        {
+          "original_frame": 1387,
+          "payload_length": 2504,
+          "analysis_segments": [
+            1252,
+            1252
+          ]
+        },
+        {
+          "original_frame": 7110,
+          "payload_length": 2504,
+          "analysis_segments": [
+            1252,
+            1252
+          ]
+        },
+        {
+          "original_frame": 8820,
+          "payload_length": 2504,
+          "analysis_segments": [
+            1252,
+            1252
+          ]
+        }
+      ]
+    },
+    "resumed_server_psk_selection_observed": true,
+    "new_complete_resumed_ech_transcript_verified": false,
+    "limitation": "Kernel drops and GSO analysis limit this new capture. Retained authenticated Firefox 160 references remain the stable-inner oracle."
+  },
+  "validation": {
+    "surf_macos": "go test -race -count=1 ./...; go vet ./...: passed",
+    "surf_linux": "Full race suite with all production packages instrumented; go vet: passed",
+    "surf_linux_production_coverage_percent": 87.6,
+    "quic_macos": "go test -race -count=1 ./...; go vet ./...: passed",
+    "capture_analyzer_node_tests": 23
+  },
+  "remaining_limits": [
+    "Complete HTTP/3 application-state/SETTINGS validation across 0-RTT needs a separate audit.",
+    "Firefox compressed-byte memory eviction differs from the bounded-key cache.",
+    "Exact legacy TLS 1.2 expiry hints are unverified.",
+    "No new native Android or iOS captures.",
+    "No disk persistence or full native timing/loss/resource scheduling parity claim."
+  ]
+}

@@ -516,6 +516,13 @@ func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) 
 	options.ProtocolHeaders = builder.protocolHeaders
 	options.Fallback = c.GetTransport()
 	options.TLSConfig = c.GetTLSConfig()
+	if settings := builder.sessionCacheSettings; settings != nil && settings.applied {
+		options.TLSConfig = options.TLSConfig.Clone()
+		options.TLSConfig.ClientSessionCache = settings.quic.cache
+	} else if owned, ok := options.TLSConfig.ClientSessionCache.(*defaultSessionCache); ok {
+		options.TLSConfig = options.TLSConfig.Clone()
+		options.TLSConfig.ClientSessionCache = owned.ClientSessionCache
+	}
 	options.Dialer = c.GetDialer()
 
 	if base, ok := options.Fallback.(*roundtripper); ok {

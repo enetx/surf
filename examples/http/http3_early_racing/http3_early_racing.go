@@ -18,6 +18,7 @@ func main() {
 		EarlyDataBackup(true).Set().
 		// Firefox also restores the initial QUIC version from its live ticket.
 		QUICSettings().ResumeVersion(true).Set().Build().Unwrap()
+
 	defer client.Close()
 
 	for attempt := 1; attempt <= 3; attempt++ {
@@ -25,13 +26,23 @@ func main() {
 		if result.IsErr() {
 			log.Fatal(result.Err())
 		}
+
 		response := result.Ok()
 		body := response.Body.String()
 		if body.IsErr() {
 			log.Fatal(body.Err())
 		}
+
 		state := response.GetResponse().TLS
-		fmt.Printf("Attempt %d: %s, resumed=%t, ECH=%t\n%s\n", attempt, response.Proto, state.DidResume, state.ECHAccepted, body.Ok())
+		fmt.Printf(
+			"Attempt %d: %s, resumed=%t, ECH=%t\n%s\n",
+			attempt,
+			response.Proto,
+			state.DidResume,
+			state.ECHAccepted,
+			body.Ok(),
+		)
+
 		// The same client retains tickets and observations for a new connection.
 		// The selected protocol and early-data acceptance depend on the peer.
 		client.CloseIdleConnections()

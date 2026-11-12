@@ -82,6 +82,23 @@ func (q *QUICSettings) ResumeVersion(enabled bool) *QUICSettings {
 	return q
 }
 
+// ResumeRTT restores a measured RTT from the selected live TLS ticket, rounded
+// down to the supplied precision. Zero disables restoration. Firefox uses whole
+// milliseconds; this local recovery estimate does not advertise a parameter.
+// The supported range is zero through one minute; Build rejects other values.
+func (q *QUICSettings) ResumeRTT(precision time.Duration) *QUICSettings {
+	q.http3.options.ResumeRTTGranularity = precision
+	return q
+}
+
+// OnEarlyDataRejected observes a TLS rejection of QUIC 0-RTT. It runs on the
+// connection loop and must return promptly without reentering the connection.
+// Nil removes the application observer; owned-cache rejection handling remains.
+func (q *QUICSettings) OnEarlyDataRejected(callback func(*quic.Conn)) *QUICSettings {
+	q.handshake().OnEarlyDataRejected = callback
+	return q
+}
+
 // InitialRTT sets the local recovery estimate before the first measurement.
 // Zero uses the native default. No transport parameter is advertised by it.
 func (q *QUICSettings) InitialRTT(estimate time.Duration) *QUICSettings {

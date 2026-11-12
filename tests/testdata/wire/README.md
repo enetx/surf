@@ -721,3 +721,12 @@ NO_PROXY, one selector evaluation per attempt, pool separation across routes,
 immutable HTTP/2 settings and retained ECH. IPv6 is tested using verified TLS with
 both native TLS and Chrome. ForceHTTP3 also registers its transport without a
 separate settings call; it retains fallback when UDP is unavailable.
+
+
+## Browser ticket queues and resumed RTT
+
+[Session cache verification](session_cache/README.md) records the fluent cache
+builder, source-selected Chrome/Firefox ticket consumption, independent QUIC
+version/RTT restoration and fresh public ECH connections. The maintained
+[browser behavior inventory](../../../BROWSER_PARITY.md) separates implemented
+policy from open application-state, platform and capture gaps.

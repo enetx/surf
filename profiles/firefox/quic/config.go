@@ -14,7 +14,7 @@ import (
 func ConfigureQUIC(q profiles.QUICConfig) {
 	// Neqo restores the initial version from its available resumption token.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs#L774
-	q.ResumeVersion(true)
+	q.ResumeVersion(true).ResumeRTT(time.Millisecond)
 	// Neqo's 10*MTU initial window applies to this profile's sub-1472-byte MTU.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/cc/classic_cc.rs
 	// Firefox selects CUBIC and classic slow start by default (cc_algorithm=1,

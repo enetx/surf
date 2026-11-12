@@ -98,8 +98,8 @@ func New(settings Options) (*Transport, error) {
 			maximum:   settings.MaximumInitialRTT,
 		}
 	}
-	if settings.ResumeVersion {
-		ut.sessionVersions = &sessionVersions{}
+	if settings.ResumeVersion || settings.ResumeRTTGranularity > 0 {
+		ut.sessionVersions = &sessionVersions{restoreVersion: settings.ResumeVersion, rttPrecision: settings.ResumeRTTGranularity}
 	}
 
 	ut.quicDialer.DedicatedConn = ut.quicDialer.ConnectionIDGenerator != nil &&

@@ -24,8 +24,9 @@ does not change a future connection's initial version without a usable ticket.
 ## Implementation and lifecycle
 
 The QUIC fork exposes `quic.SessionVersion` to read its existing local TLS
-session metadata. That block now uses revision 6 and includes the negotiated
-version; revision 5 remains readable for resumption. The change preserves
+session metadata. The current revision 7 includes the negotiated version,
+measured RTT and Initial key-context CID; revisions 5 and 6 remain readable for
+resumption. Revision 6 supplies a version but no RTT or CID. The change preserves
 application-owned `SessionState.Extra` entries and does not change the server's
 ticket bytes. The uTLS fork adds a read-only `ClientSessionState.UseBy` accessor
 so Surf can check ticket expiry through its existing public serialization bridge.

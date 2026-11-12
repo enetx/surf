@@ -76,7 +76,7 @@ func realVersionTicket(t *testing.T) *tls.ClientSessionState {
 
 func TestSessionVersionSelectsLiveTicketAndPreservesConfiguration(t *testing.T) {
 	state := realVersionTicket(t)
-	h := &sessionVersions{}
+	h := &sessionVersions{restoreVersion: true}
 	cache := &versionCaptureCache{ClientSessionCache: tls.NewLRUClientSessionCache(8), consume: true}
 	baseTLS := &tls.Config{ClientSessionCache: cache}
 	baseQUIC := &quic.Config{Versions: []quic.Version{quic.Version1, quic.Version2}}
@@ -102,7 +102,7 @@ func TestSessionVersionValidationIsolationAndLifetime(t *testing.T) {
 	require.True(t, ok)
 	for _, mode := range []string{"other-origin", "other-port", "expired", "not-yet-valid", "disabled-version", "ticket-disabled", "overwritten", "closed"} {
 		t.Run(mode, func(t *testing.T) {
-			h := &sessionVersions{}
+			h := &sessionVersions{restoreVersion: true}
 			cache := tls.NewLRUClientSessionCache(8)
 			baseTLS := &tls.Config{ClientSessionCache: cache}
 			baseQUIC := &quic.Config{Versions: []quic.Version{quic.Version1, quic.Version2}}
@@ -140,7 +140,7 @@ func TestSessionVersionValidationIsolationAndLifetime(t *testing.T) {
 
 func TestSessionVersionConcurrentBoundedHistoryAndShutdown(t *testing.T) {
 	state := realVersionTicket(t)
-	h := &sessionVersions{}
+	h := &sessionVersions{restoreVersion: true}
 	base := &tls.Config{ClientSessionCache: tls.NewLRUClientSessionCache(512)}
 	var group sync.WaitGroup
 	for i := range 300 {

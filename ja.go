@@ -148,6 +148,7 @@ func (j *JA) Chrome() *Builder { return j.Chrome157() }
 
 // Chrome157 applies the current Chrome TLS template with per-connection shuffling.
 func (j *JA) Chrome157() *Builder {
+	j.builder.configureTCPSessionCache = chrome.Desktop.ConfigureTCPSessionCache
 	return j.ECHClientHelloInner(chrome.Desktop.ECHClientHelloInner).
 		ShuffleExtensions().
 		SetHelloSpec(chrome.HelloChrome_157)
@@ -194,6 +195,7 @@ func (j *JA) Firefox148() *Builder { return j.SetHelloID(utls.HelloFirefox_148) 
 
 // Firefox160 sets the current Firefox 160 desktop TLS fingerprint.
 func (j *JA) Firefox160() *Builder {
+	j.builder.configureTCPSessionCache = firefox.Desktop.ConfigureTCPSessionCache
 	return j.ECHClientHelloInner(firefox.Desktop.ECHClientHelloInner).SetHelloSpec(firefox.HelloFirefox_160)
 }
 

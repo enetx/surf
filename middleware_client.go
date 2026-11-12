@@ -95,7 +95,10 @@ func forceHTTP2MW(client *Client) error {
 // to manage client sessions efficiently.
 func sessionMW(client *Client) error {
 	client.GetClient().Jar, _ = cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-	client.GetTLSConfig().ClientSessionCache = tls.NewLRUClientSessionCache(0)
+	cache := client.GetTLSConfig().ClientSessionCache
+	if _, owned := cache.(*defaultSessionCache); cache == nil || owned {
+		client.GetTLSConfig().ClientSessionCache = &defaultSessionCache{tls.NewLRUClientSessionCache(0)}
+	}
 	return nil
 }
 

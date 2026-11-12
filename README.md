@@ -1057,6 +1057,49 @@ client.Post("https://example.com/login").Body(credentials).Do()
 resp := client.Get("https://example.com/dashboard").Do()
 ```
 
+### TLS Ticket Cache
+
+`Session()` enables independent browser-owned TCP and QUIC ticket queues alongside
+cookies. Chrome 157 keeps two tickets per server and consumes TLS 1.3 tickets
+once; its legacy TCP TLS 1.2 tickets remain reusable. Firefox 160 keeps ten tokens
+in expiration order and consumes each selected token.
+
+Override the policy with Surf's nested builder. Browser defaults are applied
+first, then these explicit settings, regardless of where `Impersonate()` appears
+in the chain:
+
+```go
+client := surf.NewClient().Builder().
+    Impersonate().Chrome().
+    Session().
+    SessionCache().
+        Capacity(256).
+        TCP().TicketsPerKey(2).ReuseTLS12(true).
+        QUIC().TicketsPerKey(2).ClearEarlyDataOnReject(true).
+        Set().
+    Build().Unwrap()
+```
+
+Settings target both protocols initially. `TCP()`, `QUIC()` and `Both()` select
+which caches subsequent calls configure. Reopening `SessionCache()` starts with
+both selected. `Set()` returns the client builder; validation errors come from
+`Build()`. This builder also enables ticket caching without enabling cookies.
+
+`Custom(cache)` accepts a standard `tls.ClientSessionCache` whose own policy takes
+precedence; `Custom(nil)` disables caching for the selected protocols.
+`TLSConfig.SessionTicketsDisabled` still takes precedence over every cache.
+TCP uses a `tcp:` key namespace to keep its state separate from QUIC even when
+both protocols share an application cache. The supplied cache is also used by
+browser TCP fingerprints through Surf's public TLS serialization bridge.
+
+Firefox's QUIC profile restores a usable ticket's negotiated version and its
+measured RTT in whole milliseconds. `QUICSettings().ResumeRTT(0).Set()` disables
+that estimate independently of session resumption. Chrome keeps its configured
+version policy and separate per-origin RTT history. See the
+[working browser behavior inventory](BROWSER_PARITY.md) for implementation scopes,
+source references and evidence still needed, and the
+[ticket-cache example](examples/session/ticket_cache/ticket_cache.go).
+
 ### Manual Cookie Management
 
 ```go

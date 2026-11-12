@@ -328,6 +328,18 @@ func (a quicadapter) ResumeVersion(enabled bool) profiles.QUICConfig {
 	return a
 }
 
+// ResumeRTT applies the profile through the public QUIC settings builder.
+func (a quicadapter) ResumeRTT(precision time.Duration) profiles.QUICConfig {
+	a.s.ResumeRTT(precision)
+	return a
+}
+
+// OnEarlyDataRejected forwards the profile observer to the public builder.
+func (a quicadapter) OnEarlyDataRejected(callback func(*quic.Conn)) profiles.QUICConfig {
+	a.s.OnEarlyDataRejected(callback)
+	return a
+}
+
 func (a quicadapter) InitialPTOMultiplier(factor uint32) profiles.QUICConfig {
 	a.s.InitialPTOMultiplier(factor)
 	return a

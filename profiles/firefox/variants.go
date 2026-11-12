@@ -10,17 +10,19 @@ import (
 
 // Desktop is the current Firefox 160 desktop variant.
 var Desktop = profiles.Variant{
-	ECHClientHelloInner:  desktop.ClientHelloInner,
-	ConfigureQUIC:        quic.ConfigureQUIC,
-	HelloSpec:            &HelloFirefox_160,
-	Boundary:             Boundary,
-	ConfigureH2:          desktop.ConfigureH2,
-	ConfigureH3:          desktop.ConfigureH3,
-	ConfigureQPACK:       quic.ConfigureQPACK,
-	ConfigureRequestBody: quic.ConfigureRequestBody,
-	BuildHeaders:         desktop.BuildHeaders,
-	Headers:              DesktopApplier,
-	ProtocolHeaders:      desktop.ProtocolHeaders,
+	ConfigureTCPSessionCache:  desktop.ConfigureSessionCache,
+	ConfigureQUICSessionCache: desktop.ConfigureSessionCache,
+	ECHClientHelloInner:       desktop.ClientHelloInner,
+	ConfigureQUIC:             quic.ConfigureQUIC,
+	HelloSpec:                 &HelloFirefox_160,
+	Boundary:                  Boundary,
+	ConfigureH2:               desktop.ConfigureH2,
+	ConfigureH3:               desktop.ConfigureH3,
+	ConfigureQPACK:            quic.ConfigureQPACK,
+	ConfigureRequestBody:      quic.ConfigureRequestBody,
+	BuildHeaders:              desktop.BuildHeaders,
+	Headers:                   DesktopApplier,
+	ProtocolHeaders:           desktop.ProtocolHeaders,
 }
 
 // Mobile is the current Firefox 148 Android variant.

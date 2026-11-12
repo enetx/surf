@@ -27,12 +27,17 @@ import (
 	"github.com/enetx/quic-go/qlogwriter"
 	"github.com/enetx/quic-go/tlsquic"
 	"github.com/enetx/quic-go/transportparams"
+	"github.com/enetx/surf/pkg/tlscache"
 	utls "github.com/enetx/utls"
 )
 
 // OSKey identifies the impersonated operating system. Surf's Impersonate stores it directly
 // (no separate ImpersonateOS enum). Profile packages use it as a lookup key for UA / Platform.
 type OSKey int
+
+// SessionCacheConfig is the concrete fluent configuration used by session
+// profiles. Surf creates independent cache state after applying overrides.
+type SessionCacheConfig = tlscache.Builder
 
 const (
 	Windows OSKey = iota
@@ -137,6 +142,10 @@ type H3Config interface {
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
 	ResumeVersion(bool) QUICConfig
+	// ResumeRTT restores measured ticket RTT with the specified precision; zero disables it.
+	ResumeRTT(time.Duration) QUICConfig
+	// OnEarlyDataRejected observes TLS 0-RTT rejection on the connection loop.
+	OnEarlyDataRejected(func(*quic.Conn)) QUICConfig
 	InitialRTT(time.Duration) QUICConfig
 	InitialPTOMultiplier(uint32) QUICConfig
 	CachedInitialRTT(uint64, time.Duration, time.Duration) QUICConfig
@@ -227,6 +236,13 @@ type QUICConfig interface {
 
 // Variant is a self-contained description of one browser and form-factor combination.
 type Variant struct {
+	// ConfigureTCPSessionCache sets defaults for owned HTTP/1 and HTTP/2 TLS
+	// caches enabled by Session or SessionCache. Explicit application caches
+	// retain their own policy. Nil retains the generic policy.
+	ConfigureTCPSessionCache func(*SessionCacheConfig)
+	// ConfigureQUICSessionCache sets defaults for owned HTTP/3 TLS caches.
+	// User overrides apply last; explicit application caches retain their policy.
+	ConfigureQUICSessionCache func(*SessionCacheConfig)
 	// ECHClientHelloInner supplies the TCP policy. QUIC uses its fluent profile setter.
 	ECHClientHelloInner utls.ECHClientHelloInnerFunc
 	// HelloSpec takes precedence over HelloID when non-nil.

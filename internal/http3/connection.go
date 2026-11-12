@@ -63,6 +63,7 @@ func (ut *Transport) dial(
 		tlsCfg.MinVersion = tls.VersionTLS13
 	}
 
+	tlsCfg, cfg = trackTicketRejection(tlsCfg, cfg)
 	if ut.sessionVersions != nil {
 		tlsCfg, cfg = ut.sessionVersions.prepare(addr, tlsCfg, cfg)
 	}

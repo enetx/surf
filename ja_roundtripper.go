@@ -21,6 +21,7 @@ import (
 	"github.com/enetx/http/httptrace"
 	"github.com/enetx/surf/internal/echretry"
 	h3transport "github.com/enetx/surf/internal/http3"
+	"github.com/enetx/surf/internal/quictls"
 	"github.com/enetx/surf/internal/tlsstate"
 	utls "github.com/enetx/utls"
 )
@@ -57,8 +58,15 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 
 	rt.configureProxy()
 
-	if ja.builder.cli.tlsConfig.ClientSessionCache != nil {
-		rt.clientSessionCache = utls.NewLRUClientSessionCache(0)
+	source := ja.builder.cli.tlsConfig
+	if !source.SessionTicketsDisabled {
+		cache := source.ClientSessionCache
+		if owned, ok := cache.(*defaultSessionCache); ok {
+			cache = owned.ClientSessionCache
+		}
+		if cache != nil {
+			rt.clientSessionCache = quictls.TCPSessionCache(cache)
+		}
 	}
 
 	if h := ja.builder.http2settings; h != nil {
@@ -478,7 +486,7 @@ func (rt *roundtripper) tlsHandshakeOnce(
 		}
 	}
 
-	if supportsResumption(spec) && rt.clientSessionCache != nil {
+	if supportsResumption(spec) && rt.clientSessionCache != nil && !source.SessionTicketsDisabled {
 		config.ClientSessionCache = rt.clientSessionCache
 		config.PreferSkipResumptionOnNilExtension = true
 		config.SessionTicketsDisabled = false

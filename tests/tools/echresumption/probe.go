@@ -24,7 +24,7 @@ func probe(browser, protocol, keylog string, early, racing bool) error {
 		return err
 	}
 	defer file.Close()
-	builder := surf.NewClient().Builder().Proxy("").Timeout(20 * time.Second).Session()
+	builder := surf.NewClient().Builder().Proxy("").Timeout(20 * time.Second)
 	if browser == "chrome" {
 		builder.Impersonate().Chrome()
 	} else {
@@ -43,7 +43,7 @@ func probe(browser, protocol, keylog string, early, racing bool) error {
 	if racing {
 		builder.HTTP3Settings().ConnectionRacing(true).Set()
 	}
-	built := builder.TLSConfig(&tls.Config{KeyLogWriter: file, ClientSessionCache: tls.NewLRUClientSessionCache(8)}).SecureTLS().Build()
+	built := builder.TLSConfig(&tls.Config{KeyLogWriter: file}).Session().SecureTLS().Build()
 	if built.IsErr() {
 		return built.Err()
 	}

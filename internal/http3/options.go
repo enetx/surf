@@ -48,9 +48,12 @@ type Options struct {
 	EarlyData                            bool
 	EarlyDataBackup                      bool
 	ResumeVersion                        bool
-	ClientHandshake                      *quic.ClientHandshake
-	ClientHelloFactory                   func() (utls.ClientHelloSpec, error)
-	ECHClientHelloInner                  utls.ECHClientHelloInnerFunc
+	// ResumeRTTGranularity truncates a live ticket RTT to this precision.
+	// Zero disables restoration; supported values are zero through one minute.
+	ResumeRTTGranularity time.Duration
+	ClientHandshake      *quic.ClientHandshake
+	ClientHelloFactory   func() (utls.ClientHelloSpec, error)
+	ECHClientHelloInner  utls.ECHClientHelloInnerFunc
 
 	Settings               g.MapOrd[uint64, uint64]
 	QUICConfig             *quic.Config
@@ -78,6 +81,9 @@ const (
 )
 
 func (h *Options) validateQUICConfig() error {
+	if h.ResumeRTTGranularity < 0 || h.ResumeRTTGranularity > time.Minute {
+		return errors.New("session RTT precision must be between zero and one minute")
+	}
 	if h.CachedRTTParameter != 0 {
 		if h.MinimumInitialRTT <= 0 || h.MaximumInitialRTT < h.MinimumInitialRTT || h.MaximumInitialRTT > (1<<63-1)/16 {
 			return errors.New("cached initial RTT requires positive, ordered timeout bounds")
