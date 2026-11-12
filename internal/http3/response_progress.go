@@ -39,15 +39,20 @@ func responseWireConfig(config *http3.WireConfig) *http3.WireConfig {
 	if config == nil {
 		config = &http3.WireConfig{}
 	}
+
 	callback := config.OnResponseHeaders
+
 	config.OnResponseHeaders = func(req *http.Request, response *http.Response) error {
 		if !requestProgress(req).observe() {
 			return context.Canceled
 		}
+
 		if callback != nil {
 			return callback(req, response)
 		}
+
 		return nil
 	}
+
 	return config
 }

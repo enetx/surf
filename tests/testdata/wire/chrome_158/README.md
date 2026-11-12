@@ -1,11 +1,32 @@
 # Chromium 158 reference
 
 Surf's Chrome profile uses **native Chromium as its protocol reference** and
-Chrome's User-Agent for the OS selected by the application. The default desktop
-OS remains Windows. Google-branded builds can have different field trials;
+Chrome's User-Agent and Client Hints branding for the OS selected by the
+application. The default desktop OS remains Windows. Google-branded builds can have different field trials;
 they are not substituted for the selected Chromium reference.
 
-## Independent observations
+## Current Chrome identity
+
+Since Surf v1.0.234, desktop and Android use the Chrome product brand list
+from the pinned release source:
+`"Chromium";v="158", "Not.A/Brand";v="24", "Google Chrome";v="158"`.
+iOS sends no Client Hints. This identity choice leaves the Chromium TLS/H2/H3
+and QUIC protocol reference intact.
+
+[Current H2/H3 observations](chrome_identity_comparison.json) confirm that only
+this explicitly selected brand list differs from the retained native Chromium
+headers; all other observed header values/order, TLS and transport fields match.
+The original v1.0.233 comparison JSON remains historical evidence with its
+actual two-brand values.
+
+The unmodified native 448-byte HEADERS oracle is retained in
+[`chromium-158-macos.golden`](../chromium-158-macos.golden). The current Chrome-branded 469-byte fixture is
+[derived by replacing only the single Huffman literal](hpack_branding_overlay.json)
+in that native block, preserving all other bytes and indexing decisions. Both
+fixtures run independently in the local HTTP/2 peer test. The branded fixture
+is a source-derived identity overlay, not a new native Google Chrome capture.
+
+## Independent observations recorded for v1.0.233
 
 The reference is Google's unmodified macOS arm64 Chromium snapshot **1727489**,
 version **158.0.8127.0**. It ran as an ordinary visible browser with a fresh
@@ -37,9 +58,10 @@ The observed Google connection options transport parameter **12584 (`0x3128`)**
 contains **`ORIGNOIP`**. It is emitted by default. Advertising NOIP does not
 implement Chromium's complete cross-origin connection-pool/coalescing policy.
 
-Client Hints use the observed unbranded list
-`"Not.A/Brand";v="24", "Chromium";v="158"`. The chosen OS headers and User-Agent
-remain configurable through Surf's existing builders.
+The historical Chromium capture uses the unbranded list
+`"Not.A/Brand";v="24", "Chromium";v="158"`. The current Chrome product identity
+is described above. OS headers, branding and User-Agent remain configurable
+through Surf's existing builders.
 
 ## Primary source audit
 
@@ -79,7 +101,8 @@ limits. Surf does not claim to expose a complete WebTransport API.
 
 ## Fixture provenance and remaining evidence
 
-The new MacOS golden includes the fresh native 158 HPACK bytes. The other
+The independent Chromium MacOS golden retains the native 158 HPACK bytes.
+The Chrome-branded MacOS golden applies the literal-only derivation above. The other
 `chrome-158-*.golden` files combine independently captured desktop TLS
 fields with source-derived OS identities and existing platform H2 settings.
 The desktop server-padding field is independently observed above. Windows and

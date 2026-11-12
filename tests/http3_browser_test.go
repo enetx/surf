@@ -72,6 +72,9 @@ func TestChromeHTTP3MatchesIndependentBrowser(t *testing.T) {
 		var names []string
 		for _, h := range capture.headers {
 			names = append(names, h.Name)
+			if h.Name == "sec-ch-ua" {
+				require.Equal(t, `"Chromium";v="158", "Not.A/Brand";v="24", "Google Chrome";v="158"`, h.Value)
+			}
 		}
 		require.Equal(t, reference.HeaderOrder, names)
 		ext := checkBrowserH3TLS(t, hello, reference)

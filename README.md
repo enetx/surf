@@ -157,7 +157,7 @@ resp := client.Get("https://example.com").Do()
 Chrome version-specific API exposes 158 only.
 The [Chrome 158 audit](tests/testdata/wire/chrome_158/README.md) records the release
 source comparison and ordinary Chromium captures, including server_padding,
-ORIGNOIP and unbranded Client Hints. Chromium is the protocol reference;
+ORIGNOIP and Chrome-branded Client Hints. Chromium is the protocol reference;
 the selected OS supplies Chrome's User-Agent. The report identifies source-derived
 platform fixtures and retained independent historical HPACK references.
 

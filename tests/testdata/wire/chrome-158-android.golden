@@ -34,7 +34,7 @@ HEADERS stream=1 flags=0x25 exclusive=true dep=0 weight=256
 :authority: 127.0.0.1:PORT
 :scheme: https
 :path: /a
-sec-ch-ua: "Not.A/Brand";v="24", "Chromium";v="158"
+sec-ch-ua: "Chromium";v="158", "Not.A/Brand";v="24", "Google Chrome";v="158"
 sec-ch-ua-mobile: ?1
 sec-ch-ua-platform: "Android"
 upgrade-insecure-requests: 1

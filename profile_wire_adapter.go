@@ -67,7 +67,10 @@ func (a h2adapter) ChainStreamDependencies(v bool) profiles.H2Config {
 	return a
 }
 
-func (a h3adapter) QpackSplitCookies(v bool) profiles.H3Config { a.s.QpackSplitCookies(v); return a }
+func (a h3adapter) QpackSplitCookies(v bool) profiles.H3Config {
+	a.s.QpackSplitCookies(v)
+	return a
+}
 
 func (a h3adapter) QpackNeverIndex(v ...string) profiles.H3Config {
 	a.s.QpackNeverIndex(v...)
@@ -129,7 +132,10 @@ func (a h3adapter) QpackEncoderCapacityRequiresSetting(v bool) profiles.H3Config
 	return a
 }
 
-func (a h3adapter) PriorityUpdates(v bool) profiles.H3Config { a.s.PriorityUpdates(v); return a }
+func (a h3adapter) PriorityUpdates(v bool) profiles.H3Config {
+	a.s.PriorityUpdates(v)
+	return a
+}
 
 func (a h3adapter) ControlGreaseFramesFactory(v func() ([]http3.GreaseFrame, error)) profiles.H3Config {
 	a.s.ControlGreaseFramesFactory(v)
@@ -151,7 +157,11 @@ func (a h3adapter) RequestBodyBufferSizePolicy(v func(int64) int) profiles.H3Con
 	return a
 }
 
-func (a h3adapter) MaxDataFrameSize(v int) profiles.H3Config { a.s.MaxDataFrameSize(v); return a }
+func (a h3adapter) MaxDataFrameSize(v int) profiles.H3Config {
+	a.s.MaxDataFrameSize(v)
+	return a
+}
+
 func (a h3adapter) OnResponseHeaders(callback func(*http.Request, *http.Response) error) profiles.H3Config {
 	a.s.OnResponseHeaders(callback)
 	return a
@@ -162,7 +172,10 @@ func (a h3adapter) CompactPriorityUpdates(v bool) profiles.H3Config {
 	return a
 }
 
-func (a h3adapter) EarlyData(v bool) profiles.H3Config { a.s.EarlyData(v); return a }
+func (a h3adapter) EarlyData(v bool) profiles.H3Config {
+	a.s.EarlyData(v)
+	return a
+}
 
 func (a h3adapter) RequestBodyFirstReadSizePolicy(v func(http3.RequestBodyReadInfo) int) profiles.H3Config {
 	a.s.RequestBodyFirstReadSizePolicy(v)

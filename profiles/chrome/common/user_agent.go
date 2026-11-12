@@ -5,10 +5,11 @@ import (
 	"github.com/enetx/surf/profiles"
 )
 
-// SecCHUA is the native Chromium 158 Client Hints brand list used by desktop and
-// Android header builders. iOS does not send Chromium Client Hints.
+// SecCHUA is Chrome 158's Client Hints brand list for desktop and Android.
+// Chromium supplies the protocol reference; the advertised browser identity
+// includes the Google Chrome brand. iOS does not send these Client Hints.
 // https://github.com/chromium/chromium/blob/158.0.8127.18/components/embedder_support/user_agent_utils.cc
-const SecCHUA = `"Not.A/Brand";v="24", "Chromium";v="158"`
+const SecCHUA = `"Chromium";v="158", "Not.A/Brand";v="24", "Google Chrome";v="158"`
 
 // UserAgent contains Chrome 158 desktop/Android and iOS navigation identities.
 // The iOS app build follows the official release; OS fields retain the verified

@@ -1,0 +1,214 @@
+{
+  "profile": "Chrome 158 product identity over the Chromium 158 protocol reference",
+  "sec_ch_ua": "\"Chromium\";v=\"158\", \"Not.A/Brand\";v=\"24\", \"Google Chrome\";v=\"158\"",
+  "source": "https://github.com/chromium/chromium/blob/158.0.8127.18/components/embedder_support/user_agent_utils.cc",
+  "native_capture": "Retained ordinary Chromium 158.0.8127.0 macOS capture from v1.0.233. No relabeling as a Google Chrome or Windows capture.",
+  "current_surf": "macOS Chrome 158 identity; verified public TLS; only sec-ch-ua differs from the unbranded native header list.",
+  "h2": {
+    "endpoint": "https://tls.peet.ws/api/all",
+    "native_sha256": "1f741ff06e63dd2366a4fb35bf5d0f079cef0767e2a1bd88f961ccd2bd08257e",
+    "surf_sha256": "3d01b01093527587a063abd15ec00fb345349bf87834a3f96c3b5950e0fdaa98",
+    "ja4": "t13d1518h2_8daaf6152771_4980c97edce0",
+    "settings_window_pseudo_headers": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
+    "headers_match_after_explicit_product_brand_overlay": true,
+    "headers": [
+      ":method: GET",
+      ":authority: tls.peet.ws",
+      ":scheme: https",
+      ":path: /api/all",
+      "sec-ch-ua: \"Chromium\";v=\"158\", \"Not.A/Brand\";v=\"24\", \"Google Chrome\";v=\"158\"",
+      "sec-ch-ua-mobile: ?0",
+      "sec-ch-ua-platform: \"macOS\"",
+      "upgrade-insecure-requests: 1",
+      "user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+      "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "sec-fetch-site: none",
+      "sec-fetch-mode: navigate",
+      "sec-fetch-user: ?1",
+      "sec-fetch-dest: document",
+      "accept-encoding: gzip, deflate, br, zstd",
+      "accept-language: en-US,en;q=0.9",
+      "priority: u=0, i"
+    ],
+    "headers_frame_length": 469
+  },
+  "h3": {
+    "endpoint": "https://fp.impersonate.pro/api/http3",
+    "native_sha256": "caa367fea24910f5fa6c88f9403d02b928f957edd24991bcdd3249e22ff4639f",
+    "surf_sha256": "89a4727233948284c4cc2df3d553c8333b138b96e1bea322f2ffb7ff40f44f5b",
+    "headers_match_after_explicit_product_brand_overlay": true,
+    "headers": [
+      {
+        "name": ":method",
+        "value": "GET"
+      },
+      {
+        "name": ":authority",
+        "value": "fp.impersonate.pro"
+      },
+      {
+        "name": ":scheme",
+        "value": "https"
+      },
+      {
+        "name": ":path",
+        "value": "/api/http3"
+      },
+      {
+        "name": "sec-ch-ua",
+        "value": "\"Chromium\";v=\"158\", \"Not.A/Brand\";v=\"24\", \"Google Chrome\";v=\"158\""
+      },
+      {
+        "name": "sec-ch-ua-mobile",
+        "value": "?0"
+      },
+      {
+        "name": "sec-ch-ua-platform",
+        "value": "\"macOS\""
+      },
+      {
+        "name": "upgrade-insecure-requests",
+        "value": "1"
+      },
+      {
+        "name": "user-agent",
+        "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+      },
+      {
+        "name": "accept",
+        "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+      },
+      {
+        "name": "sec-fetch-site",
+        "value": "none"
+      },
+      {
+        "name": "sec-fetch-mode",
+        "value": "navigate"
+      },
+      {
+        "name": "sec-fetch-user",
+        "value": "?1"
+      },
+      {
+        "name": "sec-fetch-dest",
+        "value": "document"
+      },
+      {
+        "name": "accept-encoding",
+        "value": "gzip, deflate, br, zstd"
+      },
+      {
+        "name": "accept-language",
+        "value": "en-US,en;q=0.9"
+      },
+      {
+        "name": "priority",
+        "value": "u=0, i"
+      }
+    ],
+    "matched_fields": {
+      "ja3n": {
+        "text": "771,4865-4866-4867,0-10-13-16-27-43-45-51-57-4832-17613-51764-65037,4588-29-23-24,",
+        "hash": "c8d32017f0ec4f77e4e4a567eb6bf94c"
+      },
+      "client_connection_id_length": 0,
+      "settings": [
+        [
+          1,
+          65536
+        ],
+        [
+          6,
+          262144
+        ],
+        [
+          7,
+          100
+        ],
+        [
+          51,
+          1
+        ]
+      ],
+      "generated_settings_grease": true,
+      "header_order": [
+        ":method",
+        ":authority",
+        ":scheme",
+        ":path",
+        "sec-ch-ua",
+        "sec-ch-ua-mobile",
+        "sec-ch-ua-platform",
+        "upgrade-insecure-requests",
+        "user-agent",
+        "accept",
+        "sec-fetch-site",
+        "sec-fetch-mode",
+        "sec-fetch-user",
+        "sec-fetch-dest",
+        "accept-encoding",
+        "accept-language",
+        "priority"
+      ],
+      "transport_parameters": [
+        [
+          1,
+          30000
+        ],
+        [
+          3,
+          1472
+        ],
+        [
+          4,
+          15728640
+        ],
+        [
+          5,
+          6291456
+        ],
+        [
+          6,
+          6291456
+        ],
+        [
+          7,
+          6291456
+        ],
+        [
+          8,
+          100
+        ],
+        [
+          9,
+          103
+        ],
+        [
+          15,
+          "AUTO"
+        ],
+        [
+          17,
+          {
+            "chosen_version": 1,
+            "available_versions": [
+              1,
+              "GREASE"
+            ]
+          }
+        ],
+        [
+          32,
+          65536
+        ],
+        [
+          12584,
+          "0x4f5249474e4f4950"
+        ]
+      ]
+    },
+    "transport_parameter_order": "Independently randomized; not required to have identical permutations."
+  },
+  "hpack": "Original 448-byte native Chromium HEADERS fixture retained. Current Chrome product identity has a source-derived 469-byte fixture: replace only one RFC 7541 Huffman literal in the native block. All remaining native HPACK bytes and encoder decisions are preserved."
+}

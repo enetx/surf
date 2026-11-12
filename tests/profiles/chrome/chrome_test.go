@@ -247,8 +247,9 @@ func TestChrome158SecCHUAFormat(t *testing.T) {
 	t.Parallel()
 
 	// Release-tag GenerateBrandVersionList uses major 158 as the permutation
-	// and GREASE seed. The wire reference is the unbranded Chromium build.
-	const want = `"Not.A/Brand";v="24", "Chromium";v="158"`
+	// and GREASE seed. Chrome adds its product brand before permutation.
+	// https://github.com/chromium/chromium/blob/158.0.8127.18/components/embedder_support/user_agent_utils.cc
+	const want = `"Chromium";v="158", "Not.A/Brand";v="24", "Google Chrome";v="158"`
 	if chrome.SecCHUA != want {
 		t.Errorf("SecCHUA = %q, want %q", chrome.SecCHUA, want)
 	}

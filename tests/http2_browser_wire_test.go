@@ -28,7 +28,7 @@ import (
 func TestBrowserHTTP2Wire(t *testing.T) {
 	t.Parallel()
 
-	for _, name := range []string{"chrome-158-windows", "chrome-158-android", "chrome-158-macos", "chrome-157-macos", "chrome-158-ios", "chrome-157-ios", "firefox-160-windows"} {
+	for _, name := range []string{"chrome-158-windows", "chrome-158-android", "chrome-158-macos", "chromium-158-macos", "chrome-157-macos", "chrome-158-ios", "chrome-157-ios", "firefox-160-windows"} {
 		t.Run(name, func(t *testing.T) {
 			type capture struct {
 				settings []http2.Setting
@@ -105,7 +105,7 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 			switch name {
 			case "chrome-158-android":
 				im.Android()
-			case "chrome-158-macos", "chrome-157-macos":
+			case "chrome-158-macos", "chrome-157-macos", "chromium-158-macos":
 				im.MacOS()
 			case "chrome-158-ios", "chrome-157-ios":
 				im.IOS()
@@ -117,6 +117,11 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 				builder = im.Chrome()
 			}
 			builder.Proxy("")
+			if name == "chromium-158-macos" {
+				// Preserve the original native unbranded HPACK bytes separately
+				// from Chrome's source-derived product identity overlay.
+				builder.SetHeaders("sec-ch-ua", `"Not.A/Brand";v="24", "Chromium";v="158"`)
+			}
 			if name == "chrome-157-macos" {
 				// Preserve the original independent 157 HPACK byte oracle.
 				// Current 158 semantic cases exercise the new default headers.
@@ -141,7 +146,7 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 				})
 				url = "https://tls.peet.ws/api/all"
 			}
-			if name == "firefox-160-windows" || name == "chrome-157-macos" || name == "chrome-158-macos" {
+			if name == "firefox-160-windows" || name == "chrome-157-macos" || name == "chrome-158-macos" || name == "chromium-158-macos" {
 				// Replay the new independent tls.peet.ws navigation entirely
 				// against the local peer, retaining its authority and path.
 				builder.With(func(c *surf.Client) error {
@@ -184,14 +189,14 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 			}
 			fmt.Fprintf(&normalized, "\nWINDOW_UPDATE stream=0 increment=%d\n", got.window)
 			fmt.Fprintf(&normalized, "HEADERS stream=%d flags=0x%x", got.streamID, got.flags)
-			if name == "chrome-157-ios" || name == "chrome-157-macos" || name == "chrome-158-macos" {
+			if name == "chrome-157-ios" || name == "chrome-157-macos" || name == "chrome-158-macos" || name == "chromium-158-macos" {
 				fmt.Fprintf(&normalized, " length=%d", got.length)
 			}
 			if got.flags.Has(http2.FlagHeadersPriority) {
 				fmt.Fprintf(&normalized, " exclusive=%t dep=%d weight=%d", got.priority.Exclusive, got.priority.StreamDep, int(got.priority.Weight)+1)
 			}
 			normalized.WriteByte('\n')
-			if name == "chrome-157-macos" || name == "chrome-158-macos" {
+			if name == "chrome-157-macos" || name == "chrome-158-macos" || name == "chromium-158-macos" {
 				fmt.Fprintf(&normalized, "HPACK %x\n", got.block)
 			}
 			for _, field := range got.headers {

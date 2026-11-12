@@ -98,8 +98,12 @@ func New(settings Options) (*Transport, error) {
 			maximum:   settings.MaximumInitialRTT,
 		}
 	}
+
 	if settings.ResumeVersion || settings.ResumeRTTGranularity > 0 {
-		ut.sessionVersions = &sessionVersions{restoreVersion: settings.ResumeVersion, rttPrecision: settings.ResumeRTTGranularity}
+		ut.sessionVersions = &sessionVersions{
+			restoreVersion: settings.ResumeVersion,
+			rttPrecision:   settings.ResumeRTTGranularity,
+		}
 	}
 
 	ut.quicDialer.DedicatedConn = ut.quicDialer.ConnectionIDGenerator != nil &&
@@ -158,6 +162,7 @@ func New(settings Options) (*Transport, error) {
 
 	if settings.Discovery {
 		lookup := settings.HTTPSRecordsLookup
+
 		if ut.quicDialer.Proxy != "" {
 			lookup = nil
 		} else if lookup == nil {
@@ -169,7 +174,9 @@ func New(settings Options) (*Transport, error) {
 			settings.AlternativeServiceBackoff,
 			settings.ExpireFailedAlternatives,
 		)
+
 		ut.discovery.tcpVersion = settings.TCPVersion
+
 		if settings.HTTPSRecordsLookup == nil && ut.quicDialer.Proxy == "" &&
 			(settings.TCPVersion == 0 || settings.UseResolvedTCPAddresses) {
 			ut.discovery.httpsWait = settings.HTTPSRecordsWait
@@ -304,6 +311,7 @@ func (ut *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 		return nil, errors.New("HTTP/3 requires a request URL and host")
 	}
+
 	req = req.WithContext(context.WithValue(req.Context(), responseProgressKey{}, &responseProgress{}))
 
 	// Environment or application-selected TCP proxies own this request's route.
@@ -383,13 +391,13 @@ func (ut *Transport) requestWithAltUsed(req *http.Request) *http.Request {
 	authority := req.URL.Host
 	if ut.discovery != nil {
 		origin, _ := raceAddress(req)
+
 		ut.discovery.mu.Lock()
 		if actual, ok := ut.discovery.actual[origin]; ok {
 			authority = actual.address
 		} else if route, ok := req.Context().Value(alternativeRouteKey{}).(alternativeRoute); ok && route.address != "" {
 			authority = route.address
 		}
-
 		ut.discovery.mu.Unlock()
 	}
 
@@ -421,6 +429,7 @@ func (ut *Transport) handleError(req *http.Request, err error) (*http.Response, 
 	if !isHTTP3UnsupportedError(err) || ut.Fallback == nil {
 		return nil, err
 	}
+
 	if !requestProgress(req).allowFallback() {
 		return nil, err
 	}

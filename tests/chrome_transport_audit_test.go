@@ -87,6 +87,10 @@ func chromeH1Peer(t *testing.T) (string, <-chan chromeH1Observation, <-chan bool
 func assertChromeH1(t *testing.T, got chromeH1Observation, explicit bool) {
 	t.Helper()
 	lines := strings.Split(got.raw, "\r\n")
+	const clientHints = `sec-ch-ua: "Chromium";v="158", "Not.A/Brand";v="24", "Google Chrome";v="158"`
+	if !strings.Contains(got.raw, "\r\n"+clientHints+"\r\n") {
+		t.Errorf("Chrome 158 Client Hints missing from HTTP/1 request: %s", got.raw)
+	}
 	if len(lines) < 4 || !strings.HasPrefix(lines[1], "Host: ") || lines[2] != "Connection: keep-alive" {
 		t.Fatalf("Chrome HTTP/1 field prefix: %q", lines[:min(4, len(lines))])
 	}
