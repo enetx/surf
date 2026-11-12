@@ -2,8 +2,10 @@
 // (profiles/chrome, profiles/firefox, ...) and consumed by the top-level surf package.
 //
 // Each browser's variants.go assembles its desktop, Android and iOS profiles.
-// Platform subpackages own tls.go, headers.go, http2.go and http3.go. Shared
-// User-Agent values live in common/; boundary.go supplies browser form boundaries.
+// Each browser's common/headers.go owns its request-header defaults, identity,
+// scenarios and wire order. Platform compatibility.go files retain public
+// adapters; platform packages also own TLS, HTTP/2 and HTTP/3 settings.
+// boundary.go supplies browser form boundaries.
 // Each browser's quic/ directory owns config.go, client_hello.go and
 // transport_parameters.go for its verified QUIC engine; variants select its use.
 //
@@ -176,6 +178,8 @@ type QUICConfig interface {
 	InitialCryptoFrameSplits(int, int) QUICConfig
 	InitialPingFrames(int, int) QUICConfig
 	InitialCryptoFirstFrameSize(int, int) QUICConfig
+	// InitialCryptoLayout selects ordered first-ClientHello ranges and packet groups.
+	InitialCryptoLayout(func(quic.InitialCryptoLayoutInfo) [][]quic.CryptoRange) QUICConfig
 	InitialDestinationConnectionIDLengthFactory(func() (int, error)) QUICConfig
 	ReceiveWindowUpdateDivisor(uint32) QUICConfig
 	AckOnlyPingThreshold(int) QUICConfig
@@ -238,6 +242,22 @@ type QUICConfig interface {
 
 // Variant is a self-contained description of one browser and form-factor combination.
 type Variant struct {
+	// BuildRequestHeaders describes logical defaults and their ordered positions.
+	// Protocol zero prepares values before middleware; actual 1/2/3 prepares the
+	// final private attempt after routing and Client Hints. Empty values reserve
+	// slots without creating fields. Existing user values and metadata win.
+	// Nil selects the legacy BuildHeaders/Headers compatibility path.
+	BuildRequestHeaders func(HeaderContext) g.MapOrd[g.String, g.String]
+	// HeaderCase supplies exact HTTP/1 field spellings for the final attempt.
+	// Nil keeps canonical HTTP/1 names. Explicit HeaderCaseKey always wins.
+	HeaderCase func(HeaderContext) []string
+
+	// ClientHints provides available serialized hint values for the selected OS.
+	// Nil leaves automatic negotiation disabled. Values are copied at Build.
+	ClientHints func(OSKey) g.MapOrd[string, string]
+	// ClientHintsOrder retains the earlier hint-order callback for variants
+	// without BuildRequestHeaders. New factories receive CriticalCH directly.
+	ClientHintsOrder func(*http.Request, bool)
 	// ConfigureTCPSessionCache sets defaults for owned HTTP/1 and HTTP/2 TLS
 	// caches enabled by Session or SessionCache. Explicit application caches
 	// retain their own policy. Nil retains the generic policy.
@@ -272,23 +292,21 @@ type Variant struct {
 	// Nil retains Surf's defaults. Each application creates fresh private state.
 	ConfigureQUIC func(QUICConfig)
 
-	// BuildHeaders constructs the full ordered header map for one request — pseudo-headers,
-	// Accept-Encoding, Accept-Language, authorization/cookie/origin/referer placeholders,
-	// sec-ch-ua-* (Chromium only), User-Agent. Profile packages provide one BuildHeaders per
-	// Variant so each browser and form-factor has its own single point of substitution for the
-	// entire header set (set, values, and order are all browser-specific).
+	// BuildHeaders supplies the optional static identity fragment. It remains
+	// available to callers and variants using the previous callback contract.
+	// BuildRequestHeaders is the complete context-aware declaration.
 	BuildHeaders func(OSKey) *g.MapOrd[g.String, g.String]
 
-	// Headers inserts per-request defaults and orders fields for this platform.
-	// Each variant supplies its own pipeline; the request path uses this callback
-	// without importing a concrete browser package.
+	// Headers applies the standalone plain-method preset adapter. Runtime
+	// preparation uses this callback only when BuildRequestHeaders is nil.
 	Headers HeadersApplier
 
-	// ProtocolHeaders supplies protocol-specific defaults after routing. It
-	// operates on a private attempt, so fallback does not inherit those defaults.
+	// ProtocolHeaders is the previous private-attempt callback contract for
+	// variants without BuildRequestHeaders. Built-in factories declare their
+	// protocol values and positions directly.
 	ProtocolHeaders ProtocolHeaders
 
-	// RequestHeaders adjusts protocol defaults using the request method. Only
-	// Header may be changed; the request and header map are private to the attempt.
+	// RequestHeaders is the previous request-aware protocol callback for
+	// variants without BuildRequestHeaders. Only Header may be changed.
 	RequestHeaders func(*http.Request, int)
 }

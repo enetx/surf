@@ -15,7 +15,7 @@ import (
 // Only sets the header if no User-Agent is already present in the request.
 // Uses the predefined _userAgent constant as the default value.
 func defaultUserAgentMW(req *Request) error {
-	if headers := req.GetRequest().Header; headers.Get(header.USER_AGENT) == "" {
+	if headers := req.GetRequest().Header; !hasProfileHeader(headers, header.USER_AGENT) {
 		// Set the default user-agent header.
 		headers.Set(header.USER_AGENT, _userAgent)
 	}

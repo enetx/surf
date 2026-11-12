@@ -1,0 +1,53 @@
+{
+  "go": "1.27.3",
+  "workspace": "off",
+  "local_replacements": false,
+  "dependencies": {
+    "github.com/enetx/http": "v1.0.38",
+    "github.com/enetx/quic-go": "v1.0.21",
+    "github.com/enetx/utls": "v1.0.6"
+  },
+  "module_checksums_verified": true,
+  "standalone": {
+    "macos": {
+      "complete_race_suite": "pass",
+      "vet": "pass",
+      "production_coverage_percent": 88.6
+    },
+    "linux": {
+      "complete_race_suite": "pass",
+      "vet": "pass",
+      "production_coverage_percent": 88.6
+    }
+  },
+  "http_engine": {
+    "complete_standalone_race": "pass",
+    "vet": "pass",
+    "aliases_regeneration": "reproducible",
+    "upstream_helper_tests": 3,
+    "default_http1_framing_cases_against_go_1273": 100,
+    "window_policy_race_repetitions": 100
+  },
+  "quic_engine": {
+    "complete_standalone_race_with_published_http": "pass",
+    "vet": "pass"
+  },
+  "analyzer": {
+    "javascript_tests": 23,
+    "failures": 0,
+    "syntax": "pass"
+  },
+  "native_header_reference_requests": 86,
+  "firefox_initial_crypto_vectors": 4,
+  "final_public_endpoint_controls": {
+    "requests": 8,
+    "stable_checks": 48,
+    "failures": 0
+  },
+  "http2_flow_wire_repetitions": {
+    "macos": 20,
+    "linux": 20
+  },
+  "tested_go_sources_unchanged": true,
+  "scope": "Passing tests establish the recorded scenarios. Native ECH/0RTT158, mobile, complete resource scheduling and every loss/pacing scenario retain the documented limits."
+}

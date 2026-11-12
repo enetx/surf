@@ -1,0 +1,1406 @@
+{
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.0",
+    "revision": "@0000000000000000000000000000000000000000",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62"
+  },
+  "method": "Ordinary visible Chromium; fresh profiles, normal HTTP loopback navigation and JS fetch; no network/security/UA overrides.",
+  "cases": [
+    {
+      "name": "all",
+      "accept_ch": "sec-ch-ua-full-version,sec-ch-ua-arch,sec-ch-ua-platform-version,sec-ch-ua-model,sec-ch-ua-bitness,sec-ch-ua-wow64,sec-ch-ua-full-version-list,sec-ch-ua-form-factors",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/case",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/case",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-full-version",
+              "\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "sec-ch-ua-model",
+              "\"\""
+            ],
+            [
+              "sec-ch-ua-bitness",
+              "\"64\""
+            ],
+            [
+              "sec-ch-ua-wow64",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-form-factors",
+              "\"Desktop\""
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/post",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "Content-Length",
+              "5"
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-bitness",
+              "\"64\""
+            ],
+            [
+              "sec-ch-ua-model",
+              "\"\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-form-factors",
+              "\"Desktop\""
+            ],
+            [
+              "sec-ch-ua-wow64",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-full-version",
+              "\"158.0.8127.0\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Content-Type",
+              "text/plain;charset=UTF-8"
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Origin",
+              "<ORIGIN>"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/fetch",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-bitness",
+              "\"64\""
+            ],
+            [
+              "sec-ch-ua-model",
+              "\"\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-form-factors",
+              "\"Desktop\""
+            ],
+            [
+              "sec-ch-ua-wow64",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-full-version",
+              "\"158.0.8127.0\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/warm",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-full-version",
+              "\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "sec-ch-ua-model",
+              "\"\""
+            ],
+            [
+              "sec-ch-ua-bitness",
+              "\"64\""
+            ],
+            [
+              "sec-ch-ua-wow64",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-form-factors",
+              "\"Desktop\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "arch",
+      "accept_ch": "sec-ch-ua-arch",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/case",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/case",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/post",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "Content-Length",
+              "5"
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "Content-Type",
+              "text/plain;charset=UTF-8"
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Origin",
+              "<ORIGIN>"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/fetch",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/warm",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-arch",
+              "\"arm\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "version",
+      "accept_ch": "sec-ch-ua-full-version-list,sec-ch-ua-platform-version",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/case",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/case",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/post",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "Content-Length",
+              "5"
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "Content-Type",
+              "text/plain;charset=UTF-8"
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Origin",
+              "<ORIGIN>"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/fetch",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/warm",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "sec-ch-ua-platform-version",
+              "\"27.0.1\""
+            ],
+            [
+              "sec-ch-ua-full-version-list",
+              "\"Not.A/Brand\";v=\"24.0.0.0\", \"Chromium\";v=\"158.0.8127.0\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "accept_ch": "",
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/case",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/post",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "Content-Length",
+              "5"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "Content-Type",
+              "text/plain;charset=UTF-8"
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Origin",
+              "<ORIGIN>"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/fetch",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "Accept",
+              "*/*"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "same-origin"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "cors"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "empty"
+            ],
+            [
+              "Referer",
+              "<ORIGIN>/case"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/warm",
+          "headers": [
+            [
+              "Host",
+              "<AUTHORITY>"
+            ],
+            [
+              "Connection",
+              "keep-alive"
+            ],
+            [
+              "sec-ch-ua",
+              "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\""
+            ],
+            [
+              "sec-ch-ua-mobile",
+              "?0"
+            ],
+            [
+              "sec-ch-ua-platform",
+              "\"macOS\""
+            ],
+            [
+              "Upgrade-Insecure-Requests",
+              "1"
+            ],
+            [
+              "User-Agent",
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+            ],
+            [
+              "Accept",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ],
+            [
+              "Sec-Fetch-Site",
+              "none"
+            ],
+            [
+              "Sec-Fetch-Mode",
+              "navigate"
+            ],
+            [
+              "Sec-Fetch-User",
+              "?1"
+            ],
+            [
+              "Sec-Fetch-Dest",
+              "document"
+            ],
+            [
+              "Accept-Encoding",
+              "gzip, deflate, br, zstd"
+            ],
+            [
+              "Accept-Language",
+              "en-US,en;q=0.9"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

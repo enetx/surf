@@ -1,0 +1,137 @@
+{
+  "browser": "Chromium 158.0.8127.0",
+  "platform": "macOS arm64",
+  "scope": "Independent ordinary visible browser, actual non-loopback LAN HTTP origin; fresh profile with no UA/protocol/TLS/DNS/security/proxy overrides. Native field names, order, casing, values and bodies retained. Only ephemeral authority/origin replaced.",
+  "secure_context": false,
+  "ua_data_available": false,
+  "response_policy": {
+    "Accept-CH": "sec-ch-ua-arch,sec-ch-ua-full-version-list,sec-ch-device-memory",
+    "Critical-CH": "sec-ch-ua-arch,sec-ch-ua-full-version-list,sec-ch-device-memory"
+  },
+  "observations": "Navigation GET, fetch GET and fetch POST omit Client Hints and Fetch Metadata, advertise gzip/deflate, and do not restart despite Accept-CH/Critical-CH. A separate fresh loopback profile against the same peer sent baseline and opted-in hints and performed the critical restart.",
+  "sources": [
+    "https://github.com/chromium/chromium/blob/158.0.8127.18/content/browser/client_hints/client_hints.cc",
+    "https://github.com/chromium/chromium/blob/158.0.8127.18/third_party/blink/renderer/platform/loader/fetch/client_hints_preferences.cc",
+    "https://github.com/chromium/chromium/blob/158.0.8127.18/services/network/sec_header_helpers.cc",
+    "https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_request_headers.cc"
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/case?scope=lan",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "GET",
+      "path": "/fetch",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/case?scope=lan"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/post",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/case?scope=lan"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    }
+  ]
+}

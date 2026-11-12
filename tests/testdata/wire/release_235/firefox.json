@@ -1,0 +1,144 @@
+{
+  "reference": "ordinary Firefox 160.0 on macOS; independent ordinary Linux Firefox 160 SNI slicing captures",
+  "matrix": [
+    {
+      "area": "Fresh TCP TLS + HTTP/2",
+      "result": "pass",
+      "detail": "Ordinary native macOS Firefox160 vs same-identity Surf. Normalized complete ClientHello, exact full HTTP2 report and header ordering/values; HPACK HEADERS length288 on both."
+    },
+    {
+      "area": "Fresh QUIC TLS + HTTP/3 endpoint",
+      "result": "pass after fixes",
+      "detail": "All8 stable endpoint fields agree. Native ordinary Alt-Svc; Surf SecureTLS HTTP3. Semantic TLS extension fields compare separately from ordering constraints."
+    },
+    {
+      "area": "NSS fixed TLS extension tail",
+      "result": "confirmed bug corrected by root",
+      "detail": "Native built-in senders are permuted, custom57 then GREASEECH65037 appended. Pre-fix Surf shuffled both. Fresh corrected Surf packet now ends57,65037."
+    },
+    {
+      "area": "Firefox SNI CRYPTO slicing",
+      "result": "confirmed bug corrected",
+      "detail": "New source-derived per-packet policy sends selected right range before left, uses live plaintext/frame budgets and unsent ranges. Four independent native vectors retained, including raw Linux ClientHello and passive macOS qlog. Fresh Surf raw Initial matches Neqo formula exactly."
+    },
+    {
+      "area": "ECH fresh/resumed inner, ticket lifecycle",
+      "result": "retained native references/tests pass",
+      "detail": "Exact expanded inner comparisons use retained native Firefox160 Linux records. Fresh public audit endpoints exercise GREASE; no fresh accepted-ECH/resumption transcript claimed."
+    },
+    {
+      "area": "Headers methods/context/stream/redirect/ownership",
+      "result": "regression pass",
+      "detail": "Retained native H1 full-field references plus actual local H1/H2/H3 matrix. Native H2/H3 full-method fetch/form captures not newly established."
+    },
+    {
+      "area": "QUIC parameters/ACK/recovery",
+      "result": "selected vectors/regressions pass",
+      "detail": "Source constants and stable endpoint parameters match; controlled bidirectional loss regressions pass. Full native packet timing/scheduling is not proven."
+    },
+    {
+      "area": "HTTP2 HEADERS priority for ordinary GET/POST fetch",
+      "result": "confirmed bug corrected and tested",
+      "detail": "Existing per-request priority callback now selects ordinaryfetch21/documentnavigation41 encoded weights from shared scenario context. Fresh public GET/POST full HEADERS frames match native, including priority22 and encodedlength241/288. Pure race\u00d73 method/context/ownership matrix passes."
+    }
+  ],
+  "source_audit": {
+    "downloaded_inventory": 58,
+    "retained_hash_pins": 30,
+    "all_retained_pins_match": true
+  },
+  "packet_proof": {
+    "method": "Current Surf Firefox preset, SecureTLS verification, public HTTP/3 endpoint. Captured inside Linux container by tcpdump immediate mode; independently decrypted/reassembled by Wireshark. Surf advertises macOS Firefox identity for comparison to ordinary macOS native endpoint. No native Linux identity equality claim.",
+    "wire_verified": true,
+    "crypto_layout_matches_neqo_source": true,
+    "pcap_sha256": "f156fc285d5d1ae01efc169f3c461d1404fd0a817a7ed31c4cd2f895b6902847",
+    "client_hello_sha256": "033e5ac90bc6bb498ae1b2e39c3c281fef35edad785030000340ddda09d92940",
+    "client_hello_length": 1900,
+    "sni": {
+      "offset": 1506,
+      "length": 18,
+      "midpoint": 1515,
+      "hostname": "fp.impersonate.pro"
+    },
+    "plaintext_packet_limit": 1236,
+    "balanced_crypto_budget": 950,
+    "first_initial_packet_number": 16,
+    "first_initial_crypto": [
+      {
+        "offset": 1515,
+        "length": 385
+      },
+      {
+        "offset": 0,
+        "length": 565
+      }
+    ],
+    "fixed_tail_matches_native": true,
+    "actual_extension_order": [
+      16,
+      23,
+      43,
+      45,
+      65281,
+      13,
+      34,
+      51,
+      10,
+      5,
+      27,
+      28,
+      0,
+      57,
+      65037
+    ],
+    "endpoint_semantics_equal": true,
+    "packet_capture_count": 55,
+    "packet_capture_drops": 0,
+    "scope_limit": "Initial first transmission observed directly. Partial-prefix retransmission also observed. Entire-flight-loss re-slicing and native accepted-ECH packet transcript are not established by this capture."
+  },
+  "fetch_priority_after": [
+    {
+      "method": "GET",
+      "full_headers_frame_equal": true,
+      "headers_equal": true,
+      "native_priority": {
+        "weight": 22,
+        "depends_on": 0,
+        "exclusive": 0
+      },
+      "surf_priority": {
+        "weight": 22,
+        "depends_on": 0,
+        "exclusive": 0
+      },
+      "native_length": 241,
+      "surf_length": 241
+    },
+    {
+      "method": "POST",
+      "full_headers_frame_equal": true,
+      "headers_equal": true,
+      "native_priority": {
+        "weight": 22,
+        "depends_on": 0,
+        "exclusive": 0
+      },
+      "surf_priority": {
+        "weight": 22,
+        "depends_on": 0,
+        "exclusive": 0
+      },
+      "native_length": 288,
+      "surf_length": 288
+    }
+  ],
+  "limits": [
+    "Whole-flight-loss retransmission can revisit offset0 with a complete hostname in Neqo. Current first-ClientHello layout contract retains native recovery; this audit establishes first transmission and an observed partial-prefix retransmission, not full loss-case slicing parity.",
+    "Fresh accepted-ECH/PSK packet transcript was not captured here; retained native160 cryptographic references and current network regressions remain the evidence.",
+    "Native Windows kernel fingerprint is not established by macOS or Linux capture with Windows identity.",
+    "Firefox Android/iOS148 remain explicitly labeled placeholders; desktop160 audit does not validate their current native behavior.",
+    "Native macOS Peet TCP SYN structural fields matched; observed TTL differed43 vs42. Treat as a path-hop observation, not a demonstrated profile bug.",
+    "Compressed-byte ticket eviction, disk persistence, TLS1.2 lifetime metadata and complete rememberedH3 application-state validation remain separately documented parity scopes."
+  ],
+  "local_artifact_directory": "/tmp/surf-final-audit/firefox"
+}

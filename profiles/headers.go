@@ -1,6 +1,9 @@
 package profiles
 
 import (
+	"math"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/enetx/g"
@@ -15,18 +18,17 @@ import (
 // BuildHeaders' pseudo-header placeholders are deferred until this stage.
 type ProtocolHeaders func(http.Header, int)
 
-// HeadersApplier applies the browser-specific request-header pipeline (insert defaults +
-// reorder by header-order map) to a request header map. Form-factor (desktop/mobile) is baked
-// into each applier instance — Variant.Desktop and Variant.Mobile carry different appliers.
+// HeadersApplier applies a browser preset to an ordered map for a plain HTTP
+// method. Built-in adapters use a fresh request factory. BuildRequestHeaders
+// accepts explicit protocol, scenario and body context for actual requests.
 type HeadersApplier func(headers any, method string)
 
 // HeadersFn is the type of a generic headers function instantiated for a concrete T ~string.
 type HeadersFn[T ~string] func(*g.MapOrd[T, T], string)
 
-// NewApplier wraps a browser-specific header-insert pair with the standard "insert, then
-// reorder by per-method enum" pipeline shared by every profile. The form factor (desktop/mobile)
-// is baked in via cache.Enums(mobile); the lookup runs on each call so HeaderCache lazy-init is
-// preserved.
+// NewApplier retains the generic insert-and-sort adapter for callers supplying
+// their own method tables. Built-in browser presets use NewRequestHeadersApplier
+// and BuildRequestHeaders. Cache initialization remains lazy.
 //
 // The constructor takes the two concrete HeadersFn instantiations as separate parameters so
 // callers can pass the same generic function twice and let Go infer T at each site.
@@ -75,6 +77,7 @@ func (c *HeaderCache) Enums(mobile bool) g.Map[string, g.MapOrd[string, g.Int]] 
 	}
 
 	c.onceDesktop.Do(func() { c.desktopEnums = buildHeaderEnums(c.desktopOrder) })
+
 	return c.desktopEnums
 }
 
@@ -94,15 +97,92 @@ func buildHeaderEnums(order g.Map[string, g.Slice[string]]) g.Map[string, g.MapO
 	return enums
 }
 
-// SortByOrder reorders headers in-place according to the per-method enum positions returned
-// by HeaderCache.Enums. Profile packages call it from headersDesktop / headersMobile after the
-// browser-specific Insert step. Falls back to the GET enum when method is not present.
+// SortByOrder reorders headers in-place according to HeaderCache.Enums.
+// Names match without regard to case; unknown fields follow known fields in
+// alphabetical order. An unknown method uses the GET enum when available.
 func SortByOrder[T ~string](h *g.MapOrd[T, T], method string, enums g.Map[string, g.MapOrd[string, g.Int]]) {
 	enum := enums.Get(method).UnwrapOr(enums["GET"])
+	positions := g.NewMap[string, g.Int]()
+	enum.Iter().ForEach(func(name string, position g.Int) { positions[strings.ToLower(name)] = position })
 
 	h.SortByKey(func(a, b T) cmp.Ordering {
-		ida := enum.Get(string(a))
-		idb := enum.Get(string(b))
-		return ida.UnwrapOrDefault().Cmp(idb.UnwrapOrDefault())
+		ida := positions.Get(strings.ToLower(string(a))).UnwrapOr(g.Int(math.MaxInt))
+		idb := positions.Get(strings.ToLower(string(b))).UnwrapOr(g.Int(math.MaxInt))
+		order := ida.Cmp(idb)
+		if ida == g.Int(math.MaxInt) && idb == g.Int(math.MaxInt) {
+			return g.String(strings.ToLower(string(a))).Cmp(g.String(strings.ToLower(string(b))))
+		}
+		return order
+	})
+}
+
+// NewRequestHeadersApplier adapts an ordered request-header factory to the
+// existing HeadersApplier signature. It applies a complete HTTP/2 preset for a
+// plain HTTP method; use HeaderContext for explicit protocol/body/scenario data.
+// Nonempty caller values win, empty slots can receive defaults, and fields are
+// ordered from the same declaration without method caches or encoded keys.
+func NewRequestHeadersApplier(factory func(HeaderContext) g.MapOrd[g.String, g.String]) HeadersApplier {
+	return func(headers any, method string) {
+		switch fields := headers.(type) {
+		case *g.MapOrd[string, string]:
+			applyRequestHeaderPreset(fields, method, factory)
+		case *g.MapOrd[g.String, g.String]:
+			applyRequestHeaderPreset(fields, method, factory)
+		}
+	}
+}
+
+func applyRequestHeaderPreset[T ~string](fields *g.MapOrd[T, T], method string, factory func(HeaderContext) g.MapOrd[g.String, g.String]) {
+	if fields == nil || factory == nil {
+		return
+	}
+	req := &http.Request{Method: method, Header: make(http.Header)}
+	fields.Iter().ForEach(func(name, value T) {
+		if value != "" && !strings.HasPrefix(string(name), ":") {
+			req.Header.Set(string(name), string(value))
+		}
+	})
+	// This is only a header-facade layout hint. Wire serializers always use the
+	// actual request body length and never trust this supplied numeric value.
+	if length, err := strconv.ParseInt(req.Header.Get("Content-Length"), 10, 64); err == nil && length > 0 {
+		req.ContentLength = length
+	}
+	preset := factory(HeaderContext{Request: req, Protocol: 2})
+	positions := make(map[string]int, preset.Len())
+	position := 0
+	preset.Iter().ForEach(func(name, value g.String) {
+		positions[strings.ToLower(name.Std())] = position
+		position++
+		var matched T
+		present := false
+		nonempty := false
+		fields.Iter().ForEach(func(key, actual T) {
+			if strings.EqualFold(string(key), name.Std()) {
+				if !present {
+					matched = key
+					present = true
+				}
+				nonempty = nonempty || actual != ""
+			}
+		})
+		if !present {
+			fields.Insert(T(name), T(value))
+		} else if !nonempty && value != "" {
+			fields.Insert(matched, T(value))
+		}
+	})
+	fields.SortByKey(func(a, b T) cmp.Ordering {
+		first, ok := positions[strings.ToLower(string(a))]
+		if !ok {
+			first = math.MaxInt
+		}
+		second, ok := positions[strings.ToLower(string(b))]
+		if !ok {
+			second = math.MaxInt
+		}
+		if first != second {
+			return g.Int(first).Cmp(g.Int(second))
+		}
+		return g.String(strings.ToLower(string(a))).Cmp(g.String(strings.ToLower(string(b)))).Then(g.String(a).Cmp(g.String(b)))
 	})
 }

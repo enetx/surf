@@ -6,7 +6,13 @@ import (
 )
 
 // NewClientHelloSpec follows the independently captured Firefox 160 QUIC
-// handshake. NSS permutes these extensions, unlike this profile's TCP handshake.
+// handshake. NSS permutes built-in senders, then appends Neqo's custom QUIC
+// parameters and ECH. PSK remains last when its binder is written. early_data
+// belongs to the permuted built-ins, including when enabled on resumption.
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/ssl3ext.c
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/ssl3con.c
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/tls13ech.c
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/tls13con.c
 func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 	spec := desktop.NewClientHelloSpec()
 
@@ -22,6 +28,7 @@ func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 	extensions := make([]utls.TLSExtension, 0, 16)
 
 	var psk *utls.UtlsPreSharedKeyExtension
+	var ech *utls.GREASEEncryptedClientHelloExtension
 
 	for _, extension := range spec.Extensions {
 		switch e := extension.(type) {
@@ -30,8 +37,10 @@ func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 			*utls.KeyShareExtension,
 			*utls.ExtendedMasterSecretExtension,
 			*utls.RenegotiationInfoExtension,
-			*utls.StatusRequestExtension,
-			*utls.GREASEEncryptedClientHelloExtension:
+			*utls.StatusRequestExtension:
+		case *utls.GREASEEncryptedClientHelloExtension:
+			ech = e
+			continue
 		case *utls.UtlsPreSharedKeyExtension:
 			psk = e
 			continue
@@ -77,12 +86,17 @@ func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 		extensions = append(extensions, extension)
 	}
 
-	extensions = append(extensions, &utls.QUICTransportParametersExtension{}, &utls.EarlyDataExtension{})
+	extensions = append(extensions, &utls.EarlyDataExtension{})
+	extensions = utls.ShuffleChromeTLSExtensions(extensions)
+	extensions = append(extensions, &utls.QUICTransportParametersExtension{})
+	if ech != nil {
+		extensions = append(extensions, ech)
+	}
 	if psk != nil {
 		extensions = append(extensions, &echPreSharedKey{UtlsPreSharedKeyExtension: psk})
 	}
 
-	spec.Extensions = utls.ShuffleChromeTLSExtensions(extensions)
+	spec.Extensions = extensions
 
 	return spec, nil
 }

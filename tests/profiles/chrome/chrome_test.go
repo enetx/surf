@@ -25,20 +25,20 @@ func TestHeaders_POST(t *testing.T) {
 			t.Errorf("Expected Accept header to be '*/*', got %s", v.Unwrap())
 		}
 
-		if headers.Contains(header.CACHE_CONTROL) {
+		if headers.Get(header.CACHE_CONTROL).UnwrapOrDefault() != "" {
 			t.Error("POST must not force Cache-Control: no-cache")
 		}
 
-		if v := headers.Get(header.CONTENT_TYPE); v.Unwrap() != "" {
+		if v := headers.Get(header.CONTENT_TYPE); v.UnwrapOrDefault() != "" {
 			t.Errorf("Expected Content-Type header to be empty, got %s", v.Unwrap())
 		}
 
-		if headers.Contains(header.PRAGMA) {
+		if headers.Get(header.PRAGMA).UnwrapOrDefault() != "" {
 			t.Error("POST must not force Pragma: no-cache")
 		}
 
-		if v := headers.Get(header.PRIORITY); v.Unwrap() != "" {
-			t.Errorf("Priority default must wait for protocol selection, got %s", v.Unwrap())
+		if v := headers.Get(header.PRIORITY); v.UnwrapOrDefault() != "u=1, i" {
+			t.Errorf("standalone HTTP/2 fetch Priority = %q, want u=1, i", v.UnwrapOrDefault())
 		}
 
 		if v := headers.Get(header.SEC_FETCH_DEST); v.Unwrap() != "empty" {
@@ -62,6 +62,7 @@ func TestHeaders_POST(t *testing.T) {
 		headers.Insert(":scheme", "https")
 		headers.Insert(":path", "/api")
 		headers.Insert(header.CONTENT_LENGTH, "100")
+		headers.Insert(header.CONTENT_TYPE, "text/plain;charset=UTF-8")
 		headers.Insert(header.USER_AGENT, "Mozilla/5.0")
 		headers.Insert(header.REFERER, "https://127.0.0.1")
 		headers.Insert(header.COOKIE, "session=abc")
@@ -71,28 +72,24 @@ func TestHeaders_POST(t *testing.T) {
 
 		chrome.DesktopApplier(&headers, http.MethodPost)
 
+		// The browser's low-entropy fetch block includes Content-Type only
+		// when supplied. Assert its independently captured relative order.
 		expectedOrder := []string{
-			":method",
-			":authority",
-			":scheme",
-			":path",
-			header.CONTENT_LENGTH,
-			header.USER_AGENT,
-			header.CONTENT_TYPE,
-			header.ACCEPT,
-			header.ORIGIN,
-			header.SEC_FETCH_SITE,
-			header.SEC_FETCH_MODE,
-			header.SEC_FETCH_DEST,
-			header.REFERER,
-			header.ACCEPT_ENCODING,
-			header.ACCEPT_LANGUAGE,
-			header.COOKIE,
-			header.PRIORITY,
+			":method", ":authority", ":scheme", ":path",
+			header.CONTENT_LENGTH, header.SEC_CH_UA_PLATFORM,
+			header.USER_AGENT, header.SEC_CH_UA, header.CONTENT_TYPE,
+			header.SEC_CH_UA_MOBILE, header.ACCEPT, header.ORIGIN,
+			header.SEC_FETCH_SITE, header.SEC_FETCH_MODE, header.SEC_FETCH_DEST,
+			header.REFERER, header.ACCEPT_ENCODING, header.ACCEPT_LANGUAGE,
+			header.COOKIE, header.PRIORITY,
 		}
-
-		if got := headers.Keys(); !slices.Equal(got, expectedOrder) {
-			t.Errorf("POST header order\n got: %v\nwant: %v", got, expectedOrder)
+		previous := -1
+		for _, name := range expectedOrder {
+			position := slices.Index(headers.Keys(), name)
+			if position <= previous {
+				t.Fatalf("%s out of order: %v", name, headers.Keys())
+			}
+			previous = position
 		}
 	})
 
@@ -158,10 +155,10 @@ func TestHeaders_GET(t *testing.T) {
 		headers := g.NewMapOrd[string, string]()
 		chrome.DesktopApplier(&headers, http.MethodGet)
 
-		if headers.Contains(header.CACHE_CONTROL) {
+		if headers.Get(header.CACHE_CONTROL).UnwrapOrDefault() != "" {
 			t.Error("Cache-Control should not be set for GET")
 		}
-		if headers.Contains(header.PRAGMA) {
+		if headers.Get(header.PRAGMA).UnwrapOrDefault() != "" {
 			t.Error("Pragma should not be set for GET")
 		}
 	})
@@ -533,7 +530,7 @@ func TestApplierAppliesStringPath(t *testing.T) {
 	if got := headers.Get(header.ACCEPT).Unwrap(); got != "*/*" {
 		t.Errorf("Accept after Apply (string path) = %q, want */*", got)
 	}
-	if headers.Contains(header.CACHE_CONTROL) {
+	if headers.Get(header.CACHE_CONTROL).UnwrapOrDefault() != "" {
 		t.Error("Cache-Control should be absent unless explicitly set")
 	}
 }

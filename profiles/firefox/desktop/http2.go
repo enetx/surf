@@ -30,9 +30,6 @@ func ConfigureH2(h profiles.H2Config) {
 		InitialWindowSize(131072).
 		MaxFrameSize(16384).
 		ConnectionFlow(12517377).
-		PriorityParam(http2.PriorityParam{
-			StreamDep: 0,
-			Exclusive: false,
-			Weight:    41,
-		})
+		PriorityParam(common.HeaderPriority(http2.PriorityRequest{})).
+		HeaderPriority(common.HeaderPriority)
 }

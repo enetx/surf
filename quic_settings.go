@@ -22,6 +22,13 @@ type QUICSettings struct {
 	http3 *HTTP3Settings
 }
 
+// InitialCryptoLayoutInfo supplies the ClientHello boundaries and live Initial
+// packet budgets to an InitialCryptoLayout policy.
+type InitialCryptoLayoutInfo = quic.InitialCryptoLayoutInfo
+
+// CryptoRange selects a byte range in the first ClientHello's CRYPTO stream.
+type CryptoRange = quic.CryptoRange
+
 const (
 	InitialPaddingPacket   = quic.InitialPaddingPacket
 	InitialPaddingDatagram = quic.InitialPaddingDatagram
@@ -570,8 +577,21 @@ func (q *QUICSettings) InitialCryptoFirstFrameSize(min, max int) *QUICSettings {
 	return q
 }
 
-// ResetInitialPacketProtection restores native packet framing and scrambling.
-// DisableClientHelloScrambling retains its independently configured value.
+// InitialCryptoLayout chooses ordered ranges of the first ClientHello for each
+// Initial packet from its SNI/ECH positions, unsent ranges and live packet budget.
+// Each result must cover Remaining exactly once; invalid layouts fail before
+// sending. The engine sends the first group and reconsiders the remaining bytes
+// with the next packet's actual budget. Nil retains native preparation.
+// The policy must support concurrent calls and return promptly. Later Initial
+// data, including a HelloRetryRequest response, keeps normal stream ordering.
+func (q *QUICSettings) InitialCryptoLayout(policy func(InitialCryptoLayoutInfo) [][]CryptoRange) *QUICSettings {
+	q.handshake().InitialCryptoLayout = policy
+	return q
+}
+
+// ResetInitialPacketProtection clears random Initial splits, PINGs and prefix
+// sizing. Explicit InitialCryptoLayout and DisableClientHelloScrambling retain
+// their independently configured values.
 func (q *QUICSettings) ResetInitialPacketProtection() *QUICSettings {
 	q.handshake().InitialPacketProtection = nil
 	return q

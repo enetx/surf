@@ -1,0 +1,106 @@
+[
+  {
+    "browser": "chrome",
+    "os": "macos",
+    "protocol": "h2",
+    "checks": {
+      "ja4": true,
+      "peetprint": true,
+      "peetprint_hash": true,
+      "complete_http2_report": true
+    }
+  },
+  {
+    "browser": "chrome",
+    "os": "macos",
+    "protocol": "h3",
+    "checks": {
+      "ja3n": true,
+      "client_connection_id_length": true,
+      "settings": true,
+      "generated_settings_grease": true,
+      "header_order": true,
+      "headers": true,
+      "transport_parameters": true
+    }
+  },
+  {
+    "browser": "chrome",
+    "os": "windows",
+    "protocol": "h2",
+    "checks": {
+      "ja4": true,
+      "peetprint": true,
+      "peetprint_hash": true,
+      "complete_http2_report": true
+    }
+  },
+  {
+    "browser": "chrome",
+    "os": "windows",
+    "protocol": "h3",
+    "checks": {
+      "ja3n": true,
+      "client_connection_id_length": true,
+      "settings": true,
+      "generated_settings_grease": true,
+      "header_order": true,
+      "headers": true,
+      "transport_parameters": true
+    }
+  },
+  {
+    "browser": "firefox",
+    "os": "macos",
+    "protocol": "h2",
+    "checks": {
+      "ja4": true,
+      "peetprint": true,
+      "peetprint_hash": true,
+      "complete_http2_report": true
+    }
+  },
+  {
+    "browser": "firefox",
+    "os": "macos",
+    "protocol": "h3",
+    "checks": {
+      "ja3n": true,
+      "client_connection_id_length": true,
+      "settings": true,
+      "generated_settings_grease": true,
+      "header_order": true,
+      "headers": true,
+      "transport_parameter_order": true,
+      "transport_parameters": true,
+      "fixed_extension_tail": true
+    }
+  },
+  {
+    "browser": "firefox",
+    "os": "windows",
+    "protocol": "h2",
+    "checks": {
+      "ja4": true,
+      "peetprint": true,
+      "peetprint_hash": true,
+      "complete_http2_report": true
+    }
+  },
+  {
+    "browser": "firefox",
+    "os": "windows",
+    "protocol": "h3",
+    "checks": {
+      "ja3n": true,
+      "client_connection_id_length": true,
+      "settings": true,
+      "generated_settings_grease": true,
+      "header_order": true,
+      "headers": true,
+      "transport_parameter_order": true,
+      "transport_parameters": true,
+      "fixed_extension_tail": true
+    }
+  }
+]

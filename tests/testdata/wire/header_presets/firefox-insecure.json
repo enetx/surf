@@ -1,0 +1,988 @@
+{
+  "browser": "Firefox 160.0",
+  "platform": "macOS arm64",
+  "scope": "Independent ordinary visible Firefox over nontrustworthy LAN HTTP; no UA, protocol, TLS, DNS, proxy or security overrides. Native isSecureContext was false. Original ordered fields, casing, values and body retained; only ephemeral authority/origin replaced.",
+  "target": "HTTP RFC1918 LAN address, not loopback/localhost",
+  "source_sha256": "ea78bf884157abc454bc7df8f7fb810488de0c35c5159cc5731f4e0539b51fb5",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/start",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "GET",
+      "path": "/fetch/GET/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "HEAD",
+      "path": "/fetch/HEAD/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ],
+        [
+          "Content-Length",
+          "0"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "PUT",
+      "path": "/fetch/PUT/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ],
+        [
+          "Content-Length",
+          "0"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "PUT",
+      "path": "/fetch/PUT/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "PATCH",
+      "path": "/fetch/PATCH/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "PATCH",
+      "path": "/fetch/PATCH/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "DELETE",
+      "path": "/fetch/DELETE/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "DELETE",
+      "path": "/fetch/DELETE/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/fetch/OPTIONS/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/fetch/OPTIONS/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/urlencoded",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "application/x-www-form-urlencoded;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "15"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "YT1oZWxsbyZiPXdvcmxk"
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/multipart",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "multipart/form-data; boundary=----geckoformboundary973b1b80f4434ba1848916cb775fdf2f"
+        ],
+        [
+          "Content-Length",
+          "167"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "LS0tLS0tZ2Vja29mb3JtYm91bmRhcnk5NzNiMWI4MGY0NDM0YmExODQ4OTE2Y2I3NzVmZGYyZg0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJhIg0KDQpoZWxsbw0KLS0tLS0tZ2Vja29mb3JtYm91bmRhcnk5NzNiMWI4MGY0NDM0YmExODQ4OTE2Y2I3NzVmZGYyZi0tDQo="
+    },
+    {
+      "method": "GET",
+      "path": "/form-page/x-www-form-urlencoded",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/navigation/POST/x-www-form-urlencoded",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        ],
+        [
+          "Content-Length",
+          "15"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/form-page/x-www-form-urlencoded"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": "YT1oZWxsbyZiPXdvcmxk"
+    },
+    {
+      "method": "GET",
+      "path": "/form-page/form-data",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/navigation/POST/form-data",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Content-Type",
+          "multipart/form-data; boundary=----geckoformboundaryccdca6cecac15acfc2f4def35d1e14c9"
+        ],
+        [
+          "Content-Length",
+          "275"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/form-page/form-data"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": "LS0tLS0tZ2Vja29mb3JtYm91bmRhcnljY2RjYTZjZWNhYzE1YWNmYzJmNGRlZjM1ZDFlMTRjOQ0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJhIg0KDQpoZWxsbw0KLS0tLS0tZ2Vja29mb3JtYm91bmRhcnljY2RjYTZjZWNhYzE1YWNmYzJmNGRlZjM1ZDFlMTRjOQ0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJiIg0KDQp3b3JsZA0KLS0tLS0tZ2Vja29mb3JtYm91bmRhcnljY2RjYTZjZWNhYzE1YWNmYzJmNGRlZjM1ZDFlMTRjOS0tDQo="
+    },
+    {
+      "method": "GET",
+      "path": "/form-page/plain",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/navigation/POST/plain",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate"
+        ],
+        [
+          "Content-Type",
+          "text/plain"
+        ],
+        [
+          "Content-Length",
+          "18"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/form-page/plain"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": "YT1oZWxsbw0KYj13b3JsZA0K"
+    }
+  ]
+}

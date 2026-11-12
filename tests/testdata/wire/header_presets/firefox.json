@@ -1,0 +1,1549 @@
+{
+  "browser": "Firefox 160.0",
+  "platform": "macOS arm64",
+  "scope": "Independent ordinary visible browser, trustworthy HTTP loopback; no UA/protocol/TLS overrides. Native header casing/order/values and original form boundaries retained. Only ephemeral authority/origin replaced.",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/start",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "none"
+        ],
+        [
+          "Sec-Fetch-User",
+          "?1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "GET",
+      "path": "/fetch/GET/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "HEAD",
+      "path": "/fetch/HEAD/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ],
+        [
+          "Content-Length",
+          "0"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "PUT",
+      "path": "/fetch/PUT/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ],
+        [
+          "Content-Length",
+          "0"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "PUT",
+      "path": "/fetch/PUT/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "PATCH",
+      "path": "/fetch/PATCH/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "PATCH",
+      "path": "/fetch/PATCH/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "DELETE",
+      "path": "/fetch/DELETE/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "DELETE",
+      "path": "/fetch/DELETE/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/fetch/OPTIONS/no-body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/fetch/OPTIONS/body",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/urlencoded",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "application/x-www-form-urlencoded;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "15"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "YT1oZWxsbyZiPXdvcmxk"
+    },
+    {
+      "method": "POST",
+      "path": "/fetch/POST/multipart",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/start"
+        ],
+        [
+          "Content-Type",
+          "multipart/form-data; boundary=----geckoformboundary9bbc38e989c2f113a14fbd9792b24478"
+        ],
+        [
+          "Content-Length",
+          "167"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=4"
+        ]
+      ],
+      "body_base64": "LS0tLS0tZ2Vja29mb3JtYm91bmRhcnk5YmJjMzhlOTg5YzJmMTEzYTE0ZmJkOTc5MmIyNDQ3OA0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJhIg0KDQpoZWxsbw0KLS0tLS0tZ2Vja29mb3JtYm91bmRhcnk5YmJjMzhlOTg5YzJmMTEzYTE0ZmJkOTc5MmIyNDQ3OC0tDQo="
+    },
+    {
+      "method": "GET",
+      "path": "/form-page/x-www-form-urlencoded",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "none"
+        ],
+        [
+          "Sec-Fetch-User",
+          "?1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/navigation/POST/x-www-form-urlencoded",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        ],
+        [
+          "Content-Length",
+          "15"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/form-page/x-www-form-urlencoded"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": "YT1oZWxsbyZiPXdvcmxk"
+    },
+    {
+      "method": "GET",
+      "path": "/form-page/form-data",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "none"
+        ],
+        [
+          "Sec-Fetch-User",
+          "?1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/navigation/POST/form-data",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Content-Type",
+          "multipart/form-data; boundary=----geckoformboundary214f9b90a748d430a95d5ddde15cb79b"
+        ],
+        [
+          "Content-Length",
+          "275"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/form-page/form-data"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": "LS0tLS0tZ2Vja29mb3JtYm91bmRhcnkyMTRmOWI5MGE3NDhkNDMwYTk1ZDVkZGRlMTVjYjc5Yg0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJhIg0KDQpoZWxsbw0KLS0tLS0tZ2Vja29mb3JtYm91bmRhcnkyMTRmOWI5MGE3NDhkNDMwYTk1ZDVkZGRlMTVjYjc5Yg0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJiIg0KDQp3b3JsZA0KLS0tLS0tZ2Vja29mb3JtYm91bmRhcnkyMTRmOWI5MGE3NDhkNDMwYTk1ZDVkZGRlMTVjYjc5Yi0tDQo="
+    },
+    {
+      "method": "GET",
+      "path": "/form-page/plain",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "none"
+        ],
+        [
+          "Sec-Fetch-User",
+          "?1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/navigation/POST/plain",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Content-Type",
+          "text/plain"
+        ],
+        [
+          "Content-Length",
+          "18"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/form-page/plain"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": "YT1oZWxsbw0KYj13b3JsZA0K"
+    },
+    {
+      "method": "GET",
+      "path": "/activation-form-start",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "none"
+        ],
+        [
+          "Sec-Fetch-User",
+          "?1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/navigation/POST/ui-click",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        ],
+        [
+          "Content-Length",
+          "7"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/activation-form-start"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Sec-Fetch-User",
+          "?1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": "YT1oZWxsbw=="
+    },
+    {
+      "method": "GET",
+      "path": "/activation-fetch-start",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Upgrade-Insecure-Requests",
+          "1"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "document"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "navigate"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "none"
+        ],
+        [
+          "Sec-Fetch-User",
+          "?1"
+        ],
+        [
+          "Priority",
+          "u=0, i"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "GET",
+      "path": "/fetch-click/GET",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/activation-fetch-start"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=0"
+        ]
+      ],
+      "body_base64": ""
+    },
+    {
+      "method": "POST",
+      "path": "/fetch-click/POST",
+      "headers": [
+        [
+          "Host",
+          "<AUTHORITY>"
+        ],
+        [
+          "User-Agent",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "Referer",
+          "<ORIGIN>/activation-fetch-start"
+        ],
+        [
+          "Content-Type",
+          "text/plain;charset=UTF-8"
+        ],
+        [
+          "Content-Length",
+          "5"
+        ],
+        [
+          "Origin",
+          "<ORIGIN>"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Sec-Fetch-Dest",
+          "empty"
+        ],
+        [
+          "Sec-Fetch-Mode",
+          "cors"
+        ],
+        [
+          "Sec-Fetch-Site",
+          "same-origin"
+        ],
+        [
+          "Priority",
+          "u=0"
+        ]
+      ],
+      "body_base64": "aGVsbG8="
+    }
+  ]
+}

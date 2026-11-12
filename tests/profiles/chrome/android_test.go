@@ -9,12 +9,11 @@ import (
 	"github.com/enetx/surf/profiles/chrome"
 )
 
-// HTTP/3's method suffix must not turn a mobile fetch into a navigation.
+// HTTP/3 uses the same typed fetch scenario as the other transports.
 func TestAndroidHTTP3PostHeaders(t *testing.T) {
 	t.Parallel()
 
-	h := chrome.Mobile.BuildHeaders(profiles.Android)
-	chrome.Mobile.Headers(h, http.MethodPost+"http3")
+	h := chrome.Mobile.BuildRequestHeaders(profiles.HeaderContext{Request: &http.Request{Method: http.MethodPost}, OS: profiles.Android, Protocol: 3})
 	if got := h.Get(header.ACCEPT).Unwrap(); got != "*/*" {
 		t.Errorf("fetch Accept = %q, want */*", got)
 	}

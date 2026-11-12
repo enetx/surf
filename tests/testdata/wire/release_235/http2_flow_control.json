@@ -1,0 +1,48 @@
+{
+  "discovery": {
+    "platform": "Linux full Surf race suite",
+    "test": "TestHTTP2ReceiveWindowProfilesOnWire/chrome",
+    "observed_update": 2129920,
+    "window": 6291456,
+    "strict_half_threshold": 3145728
+  },
+  "cause": "A generic avail<=0 override emitted credit after the explicit callback deferred it. Available is peer-visible credit; unread accepted DATA remains buffered.",
+  "sources": [
+    "https://github.com/chromium/chromium/blob/158.0.8127.18/net/spdy/spdy_stream.cc",
+    "https://github.com/chromium/chromium/blob/158.0.8127.18/net/spdy/spdy_session.cc"
+  ],
+  "mapping": {
+    "peer_credit": "Available",
+    "logical_browser_receive_window": "Available + Pending",
+    "unacked_browser_credit": "Pending"
+  },
+  "correction": "An installed callback owns the update decision. Nil retains native Go batching. Firefox retains its explicit emergency condition. Custom callbacks must eventually release pending credit.",
+  "wire_regression": {
+    "method": "6MiB DATA then PING/ACK before reading; PING/ACK after each application-read checkpoint",
+    "read_checkpoints": [
+      32768,
+      3145728,
+      3145729
+    ],
+    "expected_stream_updates": [
+      [],
+      [],
+      [
+        3145729
+      ]
+    ],
+    "old_engine_overlay_first_premature_update": 8192,
+    "corrected_transfer_completed": true,
+    "macos_race_count": 20,
+    "linux_race_count": 20
+  },
+  "engine_validation": {
+    "gowork": "off",
+    "complete_race_suite": "pass",
+    "vet": "pass",
+    "generator_reproducible": true,
+    "update_helper_tests": "pass",
+    "targeted_race_count": 100
+  },
+  "evidence_limit": "The exhausted-buffer interleaving is a controlled Surf wire test and source-confirmed mapping, not a newly captured native browser interleaving."
+}

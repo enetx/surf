@@ -1,0 +1,48 @@
+{
+  "capture": "Ethernet TCP packets from Docker eth0; browser/Surf connect through trustworthy host loopback forwarding. No synthetic packet envelopes. Header and body comparison only, not network timing.",
+  "packets": {
+    "native": 267,
+    "surf": 123
+  },
+  "sha256": {
+    "client-hints.pcap": "8871a08b182dbe7d134f436f6732b42bd6d59c5b21d8b596db0b1ded03d06424",
+    "client-hints-surf.pcap": "666d91382d6d8ab12e7d664cfce6973f93faba9f490311f67b4dff4ef7b7e454"
+  },
+  "cases": [
+    {
+      "name": "all",
+      "requests": 5,
+      "match": true,
+      "differences": [],
+      "critical_restart_reused_connection": true,
+      "surf_critical_restart_reused_connection": true
+    },
+    {
+      "name": "arch",
+      "requests": 5,
+      "match": true,
+      "differences": [],
+      "critical_restart_reused_connection": true,
+      "surf_critical_restart_reused_connection": true
+    },
+    {
+      "name": "version",
+      "requests": 5,
+      "match": true,
+      "differences": [],
+      "critical_restart_reused_connection": true,
+      "surf_critical_restart_reused_connection": true
+    },
+    {
+      "name": "empty",
+      "requests": 4,
+      "match": true,
+      "differences": [],
+      "critical_restart_reused_connection": null,
+      "surf_critical_restart_reused_connection": null
+    }
+  ],
+  "surf_configuration": "Like-for-like MacOS Chromium reference: Chrome MacOS profile, Architecture arm, FullVersion 158.0.8127.0, unbranded two-product lists through public ClientHints/SetHeaders overrides. Ordinary production defaults remain Windows Google Chrome.",
+  "scope": "Request method, path, full ordered headers including case and values, and body. Same origin used for both clients; Referer reduced to pathname because case query labels identify native/Surf runs. Raw requests still retain original URLs.",
+  "surf_capture_dropped_packets": 0
+}

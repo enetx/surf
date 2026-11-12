@@ -238,7 +238,7 @@ func (req *Request) SetHeaders(headers ...any) *Request {
 		return req
 	}
 
-	req.applyHeaders(headers, func(h http.Header, k, v string) { h.Set(k, v) })
+	req.applyHeaders(headers, func(h http.Header, k, v string) { req.explicitProfileHeader(k); h.Set(k, v) })
 
 	return req
 }
@@ -252,7 +252,7 @@ func (req *Request) AddHeaders(headers ...any) *Request {
 		return req
 	}
 
-	req.applyHeaders(headers, func(h http.Header, k, v string) { h.Add(k, v) })
+	req.applyHeaders(headers, func(h http.Header, k, v string) { req.explicitProfileHeader(k); h.Add(k, v) })
 
 	return req
 }
@@ -343,19 +343,9 @@ func (req *Request) applyHeaders(
 func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[T, T] {
 	h = h.Clone()
 
-	if r.cli.builder != nil {
-		method := r.request.Method
-		if r.cli.builder.forceHTTP3 {
-			method += "http3"
-		}
-
-		if r.cli.builder.headersApplier != nil {
-			r.cli.builder.headersApplier(&h, method)
-		}
-	}
-
 	headers, pheaders := h.Iter().
 		Keys().
+		Filter(func(s T) bool { return s != "" }).
 		Map(func(s T) string { return string(g.String(s).Lower()) }).
 		Partition(func(v string) bool { return v[0] != ':' })
 
@@ -368,6 +358,6 @@ func updateRequestHeaderOrder[T ~string](r *Request, h g.MapOrd[T, T]) g.MapOrd[
 	}
 
 	return h.Iter().
-		Filter(func(header, data T) bool { return header[0] != ':' && len(data) != 0 }).
+		Filter(func(header, data T) bool { return len(header) != 0 && header[0] != ':' && len(data) != 0 }).
 		Collect().MapOrd[T, T]()
 }

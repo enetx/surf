@@ -32,6 +32,7 @@ type (
 		headers      []qpack.HeaderField
 		greaseFrames []h3WireFrame
 		headerBlock  []byte
+		body         string
 	}
 )
 type h3WireFrame struct {
@@ -106,19 +107,21 @@ func (c *h3CaptureConn) resetInitials() {
 }
 
 type h3Peer struct {
-	controlFrames chan h3WireFrame
-	responseGate  <-chan struct{}
-	qpackCapacity *uint64
-	qpackStreams  chan h3QPACKCapture
-	packet        *h3CaptureConn
-	mu            sync.Mutex
-	parameters    []qlog.ParametersSet
-	priorities    []qlog.StreamPriorityUpdated
-	versions      []quic.Version
-	resumed       []bool
-	requests      chan h3RequestCapture
-	errors        chan error
-	url           string
+	responseHeaders http.Header
+	captureBody     bool
+	controlFrames   chan h3WireFrame
+	responseGate    <-chan struct{}
+	qpackCapacity   *uint64
+	qpackStreams    chan h3QPACKCapture
+	packet          *h3CaptureConn
+	mu              sync.Mutex
+	parameters      []qlog.ParametersSet
+	priorities      []qlog.StreamPriorityUpdated
+	versions        []quic.Version
+	resumed         []bool
+	requests        chan h3RequestCapture
+	errors          chan error
+	url             string
 }
 
 func (p *h3Peer) AddProducer() qlogwriter.Recorder { return p }
@@ -145,17 +148,31 @@ func newH3PeerWithQPACK(t *testing.T, capacity *uint64, configure ...func(*quic.
 }
 
 func startH3Peer(t *testing.T, capacity *uint64, responseGate <-chan struct{}, configure ...func(*quic.Config)) *h3Peer {
+	return startH3PeerWithHeaders(t, capacity, responseGate, nil, configure...)
+}
+
+func startH3PeerWithHeaders(t *testing.T, capacity *uint64, responseGate <-chan struct{}, headers http.Header, configure ...func(*quic.Config)) *h3Peer {
+	return startH3PeerConfigured(t, capacity, responseGate, headers, false, configure...)
+}
+
+func startH3PeerWithBody(t *testing.T, capacity *uint64, responseGate <-chan struct{}, headers http.Header) *h3Peer {
+	return startH3PeerConfigured(t, capacity, responseGate, headers, true)
+}
+
+func startH3PeerConfigured(t *testing.T, capacity *uint64, responseGate <-chan struct{}, headers http.Header, captureBody bool, configure ...func(*quic.Config)) *h3Peer {
 	t.Helper()
 	s, udp, _, err := createHTTP3TestServer(func(w http.ResponseWriter, r *http.Request) {})
 	if err != nil {
 		t.Fatal(err)
 	}
 	p := &h3Peer{
-		controlFrames: make(chan h3WireFrame, 128),
-		responseGate:  responseGate,
-		packet:        &h3CaptureConn{PacketConn: udp},
-		requests:      make(chan h3RequestCapture, 16),
-		errors:        make(chan error, 16),
+		responseHeaders: headers.Clone(),
+		captureBody:     captureBody,
+		controlFrames:   make(chan h3WireFrame, 128),
+		responseGate:    responseGate,
+		packet:          &h3CaptureConn{PacketConn: udp},
+		requests:        make(chan h3RequestCapture, 16),
+		errors:          make(chan error, 16),
 	}
 	if capacity != nil {
 		p.qpackCapacity = new(*capacity)
@@ -353,7 +370,33 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 			case <-conn.Context().Done():
 				return
 			}
-			p.requests <- h3RequestCapture{settings: slices.Clone(settings), headers: headers, greaseFrames: grease, headerBlock: buf}
+			var body []byte
+			if p.captureBody {
+				for {
+					kind, err := quicvarint.Read(r)
+					if err == io.EOF {
+						break
+					}
+					if err != nil {
+						p.fail(err)
+						return
+					}
+					length, err := quicvarint.Read(r)
+					if err != nil || length > 1<<20 {
+						p.fail(fmt.Errorf("invalid body frame size: %v", err))
+						return
+					}
+					payload := make([]byte, length)
+					if _, err := io.ReadFull(stream, payload); err != nil {
+						p.fail(err)
+						return
+					}
+					if kind == 0 {
+						body = append(body, payload...)
+					}
+				}
+			}
+			p.requests <- h3RequestCapture{settings: slices.Clone(settings), headers: headers, greaseFrames: grease, headerBlock: buf, body: string(body)}
 			if p.responseGate != nil {
 				select {
 				case <-p.responseGate:
@@ -369,11 +412,22 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 				p.fail(err)
 				return
 			}
+			for name, values := range p.responseHeaders {
+				for _, value := range values {
+					if err := enc.WriteField(qpack.HeaderField{Name: strings.ToLower(name), Value: value}); err != nil {
+						p.fail(err)
+						return
+					}
+				}
+			}
 			enc.Close()
 			response := quicvarint.Append(nil, 1)
 			response = quicvarint.Append(response, uint64(block.Len()))
 			response = append(response, block.Bytes()...)
-			response = append(response, 0, 2, 'o', 'k')
+			head := slices.ContainsFunc(headers, func(field qpack.HeaderField) bool { return field.Name == ":method" && field.Value == "HEAD" })
+			if !head {
+				response = append(response, 0, 2, 'o', 'k')
+			}
 			if _, err := stream.Write(response); err != nil {
 				p.fail(err)
 			}

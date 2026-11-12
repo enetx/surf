@@ -27,6 +27,7 @@ import (
 type earlyTrace struct {
 	mu      sync.Mutex
 	streams map[quic.StreamID]bool
+	waiters map[quic.StreamID]chan struct{}
 	onEarly func()
 }
 
@@ -41,17 +42,48 @@ func (r *earlyTrace) RecordEvent(event qlogwriter.Event) {
 		}
 	}
 	packet, ok := event.(transportlog.PacketReceived)
-	if !ok || packet.Header.PacketType != transportlog.PacketType0RTT {
+	if !ok {
 		return
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, frame := range packet.Frames {
 		if f, ok := frame.Frame.(*transportlog.StreamFrame); ok {
-			r.streams[f.StreamID] = true
+			r.streams[f.StreamID] = r.streams[f.StreamID] || packet.Header.PacketType == transportlog.PacketType0RTT
+			if ready, waiting := r.waiters[f.StreamID]; waiting {
+				close(ready)
+				delete(r.waiters, f.StreamID)
+			}
 		}
 	}
 }
+
+// Stream handling wakes the HTTP/3 handler before the connection records its
+// PacketReceived event. Wait for that event instead of treating "not recorded
+// yet" as a packet classified as 1-RTT. Map presence records either outcome.
+func (r *earlyTrace) waitUsed(ctx context.Context, id quic.StreamID) (bool, error) {
+	r.mu.Lock()
+	if early, observed := r.streams[id]; observed {
+		r.mu.Unlock()
+		return early, nil
+	}
+	if r.waiters == nil {
+		r.waiters = make(map[quic.StreamID]chan struct{})
+	}
+	ready, waiting := r.waiters[id]
+	if !waiting {
+		ready = make(chan struct{})
+		r.waiters[id] = ready
+	}
+	r.mu.Unlock()
+	select {
+	case <-ready:
+		return r.used(id), nil
+	case <-ctx.Done():
+		return false, ctx.Err()
+	}
+}
+
 func (r *earlyTrace) used(id quic.StreamID) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -112,7 +144,11 @@ func earlyDataServer(t *testing.T, reject *atomic.Bool, tooEarly bool, earlySent
 				return
 			}
 			streamID := r.Body.(interface{ StreamID() quic.StreamID }).StreamID()
-			sentEarly := conn.QlogTrace().(*earlyTrace).used(streamID)
+			sentEarly, err := conn.QlogTrace().(*earlyTrace).waitUsed(r.Context(), streamID)
+			if err != nil {
+				t.Errorf("request packet classification: %v", err)
+				return
+			}
 			observations <- earlyObservation{sentEarly, r.TLS.DidResume, r.Method}
 			if tooEarly && calls.Add(1) > 1 {
 				w.WriteHeader(425)

@@ -25,14 +25,15 @@ import (
 // advanced transport options (HTTP/1.1, HTTP/2, HTTP/3), proxy handling,
 // TLS fingerprinting, and comprehensive request/response processing capabilities.
 type Client struct {
-	cli       *http.Client           // Standard HTTP client for actual requests
-	dialer    *net.Dialer            // Network dialer with optional custom DNS resolver
-	builder   *Builder               // Associated builder for configuration
-	transport http.RoundTripper      // HTTP transport (can be HTTP/1.1, HTTP/2, or HTTP/3)
-	tlsConfig *tls.Config            // TLS configuration for secure connections
-	reqMWs    *middleware[*Request]  // Priority-ordered request middlewares
-	respMWs   *middleware[*Response] // Priority-ordered response middlewares
-	boundary  func() g.String        // Custom boundary generator for multipart requests
+	headerProfile *requestHeaderProfile  // Profile snapshot used independently of later builder changes.
+	cli           *http.Client           // Standard HTTP client for actual requests
+	dialer        *net.Dialer            // Network dialer with optional custom DNS resolver
+	builder       *Builder               // Associated builder for configuration
+	transport     http.RoundTripper      // HTTP transport (can be HTTP/1.1, HTTP/2, or HTTP/3)
+	tlsConfig     *tls.Config            // TLS configuration for secure connections
+	reqMWs        *middleware[*Request]  // Priority-ordered request middlewares
+	respMWs       *middleware[*Response] // Priority-ordered response middlewares
+	boundary      func() g.String        // Custom boundary generator for multipart requests
 }
 
 // NewClient creates a new Client with sensible default settings including
@@ -59,7 +60,16 @@ func NewClient() *Client {
 // applyReqMW applies all registered request middlewares to the given request in priority order.
 // Middlewares are sorted by priority before execution, and processing stops on first error.
 func (c *Client) applyReqMW(req *Request) error {
-	return c.reqMWs.run(req)
+	if c.headerProfile != nil {
+		req.request = c.headerProfile.logical(req.request)
+	}
+	if err := c.reqMWs.run(req); err != nil {
+		return err
+	}
+	if c.headerProfile != nil {
+		req.request = c.headerProfile.logical(req.request)
+	}
+	return nil
 }
 
 // applyRespMW applies all registered response middlewares to the given response in priority order.
@@ -98,7 +108,12 @@ func (c *Client) GetTLSConfig() *tls.Config { return c.tlsConfig }
 // Builder returns a new Builder instance associated with this client.
 // The builder allows for method chaining to configure various client options.
 func (c *Client) Builder() *Builder {
-	c.builder = &Builder{cli: c, cliMWs: newMiddleware[*Client]()}
+	c.builder = &Builder{cli: c, cliMWs: newMiddleware[*Client](), headerProfile: c.headerProfile}
+	if c.headerProfile != nil {
+		c.builder.protocolHeaders = c.headerProfile.apply
+		c.builder.clientHintValues = c.headerProfile.variant.ClientHints
+		c.builder.clientHintOS = c.headerProfile.os
+	}
 	return c.builder
 }
 

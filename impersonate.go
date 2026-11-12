@@ -3,7 +3,6 @@ package surf
 import (
 	"github.com/enetx/g"
 	"github.com/enetx/g/rand"
-	"github.com/enetx/http"
 	"github.com/enetx/surf/profiles"
 	"github.com/enetx/surf/profiles/chrome"
 	"github.com/enetx/surf/profiles/firefox"
@@ -51,7 +50,7 @@ func (im *Impersonate) IOS() *Impersonate {
 	return im
 }
 
-// Chrome impersonates Chrome 157 on desktop/Android and the captured Chrome 157 on iOS.
+// Chrome impersonates Chrome 158 on desktop/Android and its separate iOS profile.
 func (im *Impersonate) Chrome() *Builder {
 	v := chrome.Desktop
 	switch im.os {
@@ -80,22 +79,13 @@ func (im *Impersonate) Firefox() *Builder {
 // applyVariant materialises a browser and form-factor profile onto the Builder. Profile packages
 // own all data (TLS spec, boundary, H2/H3 SETTINGS, header set), this method owns sequencing.
 func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
+	im.builder.clientHintValues = v.ClientHints
+	im.builder.clientHintOS = im.os
 	im.builder.configureTCPSessionCache = v.ConfigureTCPSessionCache
 	im.builder.configureQUICSessionCache = v.ConfigureQUICSessionCache
-	im.builder.headersApplier = v.Headers
-	im.builder.protocolHeaders = nil
-
-	if v.ProtocolHeaders != nil || v.RequestHeaders != nil {
-		im.builder.protocolHeaders = func(req *http.Request, major int) {
-			if v.ProtocolHeaders != nil {
-				v.ProtocolHeaders(req.Header, major)
-			}
-
-			if v.RequestHeaders != nil {
-				v.RequestHeaders(req, major)
-			}
-		}
-	}
+	profile := &requestHeaderProfile{variant: v, os: im.os}
+	im.builder.headerProfile = profile
+	im.builder.protocolHeaders = profile.apply
 
 	im.builder.Boundary(v.Boundary)
 
@@ -136,15 +126,5 @@ func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
 
 	h3.Set()
 
-	headers := v.BuildHeaders(im.os)
-	if im.builder.protocolHeaders != nil {
-		// Protocol-aware profiles choose default pseudo-header order after
-		// routing. Defer these placeholders so explicit request metadata stays
-		// distinguishable from defaults when HTTP/3 falls back to HTTP/2.
-		for _, name := range []g.String{":method", ":path", ":authority", ":scheme"} {
-			headers.Remove(name)
-		}
-	}
-
-	return im.builder.SetHeaders(*headers)
+	return im.builder
 }

@@ -97,9 +97,12 @@ func (h *HTTP2Settings) ConnectionFlow(size uint32) *HTTP2Settings {
 	return h
 }
 
-// PriorityParam sets the priority parameter for HTTP/2.
+// PriorityParam sets a fixed HTTP/2 HEADERS priority and replaces HeaderPriority.
+// Stream dependency chaining remains independently controlled by
+// ChainStreamDependencies.
 func (h *HTTP2Settings) PriorityParam(priorityParam http2.PriorityParam) *HTTP2Settings {
 	h.priorityParam = priorityParam
+	h.headerPriority = nil
 	return h
 }
 
@@ -290,7 +293,8 @@ func (h *HTTP2Settings) StreamReceiveWindow(size uint32) *HTTP2Settings {
 // ReceiveWindowUpdatePolicy controls batching of returned HTTP/2 receive credit.
 // Nil restores native behavior. The callback runs under the connection lock;
 // it must return promptly, be concurrency safe and never reenter the transport.
-// Credit is always refreshed when the peer's available window is exhausted.
+// An installed policy owns batching even when the peer's advertised credit is
+// exhausted. It must eventually return consumed credit to permit more data.
 func (h *HTTP2Settings) ReceiveWindowUpdatePolicy(policy func(HTTP2ReceiveWindowUpdateInfo) bool) *HTTP2Settings {
 	h.receiveWindowUpdatePolicy = policy
 	return h

@@ -71,6 +71,11 @@ func (a quicadapter) InitialCryptoFirstFrameSize(min, max int) profiles.QUICConf
 	return a
 }
 
+func (a quicadapter) InitialCryptoLayout(policy func(quic.InitialCryptoLayoutInfo) [][]quic.CryptoRange) profiles.QUICConfig {
+	a.s.InitialCryptoLayout(policy)
+	return a
+}
+
 func (a quicadapter) InitialDestinationConnectionIDLengthFactory(factory func() (int, error)) profiles.QUICConfig {
 	a.s.InitialDestinationConnectionIDLengthFactory(factory)
 	return a

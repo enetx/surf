@@ -30,5 +30,6 @@ func ConfigureH2(h profiles.H2Config) {
 			StreamDep: 0,
 			Exclusive: true,
 			Weight:    255,
-		})
+		}).
+		HeaderPriority(common.HeaderPriority)
 }

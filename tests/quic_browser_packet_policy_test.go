@@ -28,6 +28,36 @@ func TestBrowserPacketNumberLengths(t *testing.T) {
 	}
 }
 
+func TestChromeCoalescedPacketNumberLengths(t *testing.T) {
+	for _, tc := range []struct {
+		name                  string
+		pn, least, full, soft uint64
+		want                  uint8
+	}{
+		{"first Initial", 1, 1, 37, 0, 1},
+		{"second Initial after soft limit", 2, 1, 37, 178, 2},
+		{"full datagram restored", 3, 1, 37, 0, 1},
+		{"soft limit below full estimate", 3, 1, 64, 37, 2},
+		{"one-byte boundary", 2, 1, 37, 63, 1},
+		{"two-byte boundary", 2, 1, 37, 64, 2},
+		{"three-byte boundary", 2, 1, 37, 16384, 3},
+		{"outstanding range still wins", 64, 0, 1, 1, 2},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			info := quic.PacketNumberLengthInfo{
+				PacketNumber: tc.pn, LeastUnacknowledged: tc.least,
+				LargestAcknowledged: -1, MaxPacketsInFlight: tc.full,
+				CoalescedMaxPacketsInFlight: tc.soft,
+			}
+			require.Equal(t, tc.want, chrome.PacketNumberLength(info))
+			withoutSoftLimit := info
+			withoutSoftLimit.CoalescedMaxPacketsInFlight = 0
+			require.Equal(t, firefox.PacketNumberLength(withoutSoftLimit), firefox.PacketNumberLength(info),
+				"Firefox does not use Chromium's coalescing estimate")
+		})
+	}
+}
+
 func TestFirefoxAckProbeBoundaries(t *testing.T) {
 	for _, count := range []uint64{0, 15, 16, 199, 200, 201} {
 		deadline := 200 * time.Millisecond

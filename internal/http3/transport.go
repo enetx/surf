@@ -571,7 +571,7 @@ func isSOCKS5Proxy(proxyURL string) bool {
 type http3RequireHandshakeKey struct{}
 
 func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
-	attempt := ut.requestWithAltUsed(WithProtocolHeaders(req, ut.protocolHeaders, 3))
+	attempt := WithProtocolHeaders(ut.requestWithAltUsed(req), ut.protocolHeaders, 3)
 
 	eligible := ut.eligibleEarlyData(req)
 	if !eligible {

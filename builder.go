@@ -15,36 +15,45 @@ import (
 // including proxy settings, TLS fingerprinting, HTTP/2 and HTTP/3 support, retry logic,
 // redirect handling, and browser impersonation capabilities.
 type Builder struct {
-	configureTCPSessionCache  func(*profiles.SessionCacheConfig)         // Browser defaults for owned TCP caches.
-	configureQUICSessionCache func(*profiles.SessionCacheConfig)         // Browser defaults for owned HTTP/3 caches.
-	sessionCacheSettings      *SessionCache                              // Nested cache settings and resolved per-transport backends.
-	sessionEnabled            bool                                       // Retain session caching across TLSConfig/Session call order.
-	retryCodes                g.Slice[int]                               // HTTP status codes that trigger retries
-	proxy                     g.String                                   // Proxy URL for client connections
-	cli                       *Client                                    // The client being configured
-	checkRedirect             func(*http.Request, []*http.Request) error // Custom redirect policy function
-	http2settings             *HTTP2Settings                             // HTTP/2 specific settings
-	http3settings             *HTTP3Settings                             // HTTP/3 specific settings
-	cliMWs                    *middleware[*Client]                       // Priority-ordered client middlewares
-	headersApplier            profiles.HeadersApplier                    // Profile-specific request header pipeline (set by Impersonate)
-	protocolHeaders           requestHeadersPolicy                       // Profile defaults for the selected transport protocol
-	retryWait                 time.Duration                              // Wait duration between retry attempts
-	retryMax                  int                                        // Maximum number of retry attempts
-	maxRedirects              int                                        // Maximum number of redirects to follow
-	forceHTTP1                bool                                       // Force HTTP/1.1 protocol usage
-	forceHTTP2                bool                                       // Force HTTP/2 protocol usage
-	forceHTTP3                bool                                       // Force HTTP/3 protocol usage
-	cacheBody                 bool                                       // Enable response body caching
-	followOnlyHostRedirects   bool                                       // Only follow redirects within same host
-	forwardHeadersOnRedirect  bool                                       // Preserve headers during redirects
-	ja                        bool                                       // Enable JA3 TLS fingerprinting
-	disableCompression        bool                                       // Disable automatic response body decompression
+	headerProfile             *requestHeaderProfile                         // Snapshot source for profile values and final attempt layout.
+	clientHints               *ClientHints                                  // Explicit Client Hints overrides.
+	clientHintValues          func(profiles.OSKey) g.MapOrd[string, string] // Profile-owned available hints.
+	clientHintOS              profiles.OSKey                                // Target identity, independent of the Go host.
+	configureTCPSessionCache  func(*profiles.SessionCacheConfig)            // Browser defaults for owned TCP caches.
+	configureQUICSessionCache func(*profiles.SessionCacheConfig)            // Browser defaults for owned HTTP/3 caches.
+	sessionCacheSettings      *SessionCache                                 // Nested cache settings and resolved per-transport backends.
+	sessionEnabled            bool                                          // Retain session caching across TLSConfig/Session call order.
+	retryCodes                g.Slice[int]                                  // HTTP status codes that trigger retries
+	proxy                     g.String                                      // Proxy URL for client connections
+	cli                       *Client                                       // The client being configured
+	checkRedirect             func(*http.Request, []*http.Request) error    // Custom redirect policy function
+	http2settings             *HTTP2Settings                                // HTTP/2 specific settings
+	http3settings             *HTTP3Settings                                // HTTP/3 specific settings
+	cliMWs                    *middleware[*Client]                          // Priority-ordered client middlewares
+	protocolHeaders           requestHeadersPolicy                          // Profile defaults for the selected transport protocol
+	retryWait                 time.Duration                                 // Wait duration between retry attempts
+	retryMax                  int                                           // Maximum number of retry attempts
+	maxRedirects              int                                           // Maximum number of redirects to follow
+	forceHTTP1                bool                                          // Force HTTP/1.1 protocol usage
+	forceHTTP2                bool                                          // Force HTTP/2 protocol usage
+	forceHTTP3                bool                                          // Force HTTP/3 protocol usage
+	cacheBody                 bool                                          // Enable response body caching
+	followOnlyHostRedirects   bool                                          // Only follow redirects within same host
+	forwardHeadersOnRedirect  bool                                          // Preserve headers during redirects
+	ja                        bool                                          // Enable JA3 TLS fingerprinting
+	disableCompression        bool                                          // Disable automatic response body decompression
 }
 
 // Build applies all configured settings and returns the client.
 // Returns g.Result with error if any middleware fails.
 func (b *Builder) Build() g.Result[*Client] {
+	b.cli.headerProfile = b.headerProfile
+
 	if err := b.cliMWs.run(b.cli); err != nil {
+		return g.Err[*Client](err)
+	}
+
+	if err := b.applyClientHints(); err != nil {
 		return g.Err[*Client](err)
 	}
 

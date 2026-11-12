@@ -66,7 +66,11 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		PeerAckFrequencyPolicy(PeerAckFrequency).
 		ActiveConnectionIDLimit(8).
 		OmitLegacyResetStreamAt(true).
-		DisableClientHelloScrambling(true)
+		DisableClientHelloScrambling(true).
+		// Neqo swaps and balances SNI ranges with each Initial packet's live
+		// budget. The engine's upstream SNI/ECH fragmentation is independent.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/crypto.rs
+		InitialCryptoLayout(InitialCryptoLayout)
 	// Neqo keeps the active path's ID until Retire Prior To or migration.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/path.rs
 	// Neqo output_dgram_on_path retires Initial keys on the first Handshake

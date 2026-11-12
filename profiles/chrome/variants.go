@@ -11,6 +11,10 @@ import (
 
 // Desktop is the current Chrome 158 desktop variant.
 var Desktop = profiles.Variant{
+	BuildRequestHeaders:       desktop.BuildRequestHeaders,
+	HeaderCase:                common.HeaderCase,
+	ClientHints:               common.ClientHints,
+	ClientHintsOrder:          common.ClientHintsOrder,
 	ConfigureTCPSessionCache:  common.ConfigureTCPSessionCache,
 	ConfigureQUICSessionCache: quic.ConfigureSessionCache,
 	ECHClientHelloInner:       common.ClientHelloInner,
@@ -29,6 +33,10 @@ var Desktop = profiles.Variant{
 
 // Mobile is the current Chrome 158 Android variant.
 var Mobile = profiles.Variant{
+	BuildRequestHeaders:       android.BuildRequestHeaders,
+	HeaderCase:                common.HeaderCase,
+	ClientHints:               common.ClientHints,
+	ClientHintsOrder:          common.ClientHintsOrder,
 	ConfigureTCPSessionCache:  common.ConfigureTCPSessionCache,
 	ConfigureQUICSessionCache: quic.ConfigureSessionCache,
 	ECHClientHelloInner:       common.ClientHelloInner,
@@ -48,11 +56,12 @@ var Mobile = profiles.Variant{
 // IOS selects Chrome 158 branding over the independently captured WebKit
 // shape. A new iOS device capture is still required to verify app-level changes.
 var IOS = profiles.Variant{
-	HelloSpec:    &HelloChrome_158_IOS,
-	HelloID:      ios.HelloID,
-	Boundary:     Boundary,
-	ConfigureH2:  ios.ConfigureH2,
-	ConfigureH3:  ios.ConfigureH3,
-	BuildHeaders: ios.BuildHeaders,
-	Headers:      IOSApplier,
+	BuildRequestHeaders: ios.BuildRequestHeaders,
+	HelloSpec:           &HelloChrome_158_IOS,
+	HelloID:             ios.HelloID,
+	Boundary:            Boundary,
+	ConfigureH2:         ios.ConfigureH2,
+	ConfigureH3:         ios.ConfigureH3,
+	BuildHeaders:        ios.BuildHeaders,
+	Headers:             IOSApplier,
 }

@@ -99,7 +99,7 @@ resp, err := stdClient.Get("https://api.example.com")
 ### Basic GET Request
 
 Requires Go 1.27 or newer. Surf uses the released `github.com/enetx/http` module
-for HTTP/1, HTTP/2 and HTTP/3.
+for HTTP/1 and HTTP/2, and `github.com/enetx/quic-go` for HTTP/3 and QUIC.
 
 ```go
 package main
@@ -166,6 +166,31 @@ captured WebKit TLS/HTTP2 shape. Its OS identity remains the verified iPhone
 identity; the new app-level UA is source-derived until a fresh device capture. It sends no
 Chromium Client Hints. Each platform keeps one current profile and its own golden reference.
 
+Chrome desktop/Android automatically negotiate HTTP Client Hints on document
+navigations: `Accept-CH` is remembered per origin, and `Critical-CH` can restart a
+request once per origin in that navigation. Subsequent requests include available
+opted-in values. Firefox and iOS retain their own behavior.
+
+```go
+client := surf.NewClient().Builder().Impersonate().Chrome().
+    ClientHints().
+    Architecture("x86").
+    Bitness("64").
+    PlatformVersion("19.0.0").
+    Set().Build().Unwrap()
+```
+
+The nested builder also exposes `FullVersion`, `FullVersionList`, `Model`, `WoW64`,
+`FormFactors`, serialized `Value`, and origin-cache `Capacity`, `Lifetime`, `Clock`
+and `Enabled`. Defaults describe the selected profile, independent of the Go host
+OS. Automatic negotiation fills only absent hint fields; unavailable viewport/device
+metrics are not invented. `ClearClientHints()` resets learned opt-ins and
+`ClientHintNames(url)` returns a copy. See the runnable
+[Client Hints example](examples/headers/client_hints/client_hints.go) and
+[independent Chromium reference](tests/testdata/wire/client_hints/README.md).
+Negotiation observes HTTP headers on document navigations; DOM meta directives,
+frame permissions, disk persistence and ALPS hint frames are separate scopes.
+
 `Session()` preserves cookies and enables TLS resumption where the profile supports it.
 Chrome desktop and Android add PSK on a new TLS 1.3 connection with a cached ticket;
 reusing an existing connection does not create another ClientHello. The verified iOS
@@ -180,6 +205,75 @@ Firefox desktop uses the current 160 TLS template and headers. `JA().Firefox()` 
 `JA().Firefox160()` select that TLS fingerprint; `JA().Firefox148()` retains the native
 uTLS preset. Android and iOS keep their existing 148 placeholders until verified
 mobile captures are available.
+
+### Request header presets
+
+Each browser has one authoritative header declaration:
+[Chrome](profiles/chrome/common/headers.go) and
+[Firefox](profiles/firefox/common/headers.go). These files contain identity values,
+navigation/fetch defaults, ordered fields, pseudo-header order and protocol
+settings. Platform `compatibility.go` files preserve the public package entry
+points and delegate to these declarations.
+
+Preset factories return a fresh `g.MapOrd` for a public
+[`profiles.HeaderContext`](profiles/header_context.go). An explicit
+`Sec-Fetch-Mode` selects navigation or fetch; otherwise `HeaderContext.Kind` can
+select the scenario, followed by method defaults: GET/HEAD are navigation and
+other methods are fetch. Fluent request selectors work without requiring emitted
+Fetch Metadata:
+
+```go
+client.Get(url).Fetch().Do()
+client.Post(url).Navigation().Body("name=surf").Do()
+```
+
+Use `Fetch()` for a GET/HEAD to an API: those methods otherwise receive document
+navigation defaults. Use `Navigation()` for a POST representing form navigation:
+POST otherwise receives ordinary fetch defaults. The selection changes browser
+header defaults such as Accept, Fetch Metadata, Priority and cache directives.
+`Get`/`Post` and `Body`/`Multipart` still define the method and payload. Explicit
+headers and ordered maps retain precedence. GET/HEAD document requests and ordinary
+POST API requests already have the appropriate default and need no selector.
+
+The context also carries the target OS, body/framing
+metadata, redirects, Critical-CH restart state and the actual HTTP protocol.
+Protocol `0` prepares logical defaults; `1`, `2` or `3` selects the final layout
+on a private transport attempt, including fallback. Factories do not read the
+body. Buffered and streamed bodies use the same scenario declarations, with
+framing and replay determined by their actual body metadata.
+
+Public `SetHeaders` and `AddHeaders` retain their existing `g.MapOrd` API.
+An explicitly supplied ordered map owns its listed field order, including after
+Client Hints negotiation or a redirect. Explicit values win over profile defaults;
+regular order, pseudo-header order and HTTP/1 casing metadata remain independent.
+The request path does not re-sort application-ordered maps through a preset.
+Explicit empty/nil entries in the underlying `http.Header` can suppress a
+default; empty `MapOrd` values reserve positions. Public profile `.Headers`
+functions remain factory adapters using an HTTP/2 layout and a plain HTTP method; use `BuildRequestHeaders`
+with `HeaderContext` for explicit protocol/body context.
+
+See the runnable [preset scenarios example](examples/headers/presets/presets.go)
+for navigation, fetch, form POST and an explicit ordered map.
+
+Document facts such as Origin, Referer and user activation belong to the
+application. For example, Firefox's ordinary fetch has `Priority: u=4`, while a
+native UI-triggered fetch can use a different priority. The transport does not
+infer a DOM interaction from the HTTP method.
+
+Desktop HTTP origin policy also applies: on ordinary insecure HTTP, generated
+Client Hints and Fetch Metadata are omitted and Chrome/Firefox advertise
+`gzip, deflate`. HTTPS and trustworthy loopback origins retain their normal
+metadata and advanced encodings. Explicit application fields still win. A
+request's navigation/fetch scenario survives redirects independently of whether
+those metadata fields can be sent.
+
+The [header references](tests/testdata/wire/header_presets/README.md) retain actual
+HTTP/1 fields from ordinary Chromium 158 and Firefox 160. HTTP/2 and HTTP/3 tests
+apply documented protocol deltas to those references; they are local wire
+regressions, not native multiplexed-browser captures. Desktop observations do not
+establish Android or iOS parity: Firefox mobile retains its labeled 148
+placeholders, and Chrome iOS retains a separate WebKit shape awaiting a fresh
+native device capture. Client Hints negotiation keeps the scope described above.
 
 ### Firefox with Random OS
 

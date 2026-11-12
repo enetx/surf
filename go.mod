@@ -5,8 +5,8 @@ go 1.27
 require (
 	github.com/andybalholm/brotli v1.2.8
 	github.com/enetx/g v1.1.1
-	github.com/enetx/http v1.0.37
-	github.com/enetx/quic-go v1.0.20
+	github.com/enetx/http v1.0.38
+	github.com/enetx/quic-go v1.0.21
 	github.com/enetx/utls v1.0.6
 	github.com/klauspost/compress v1.20.3
 	github.com/quic-go/qpack v0.6.0

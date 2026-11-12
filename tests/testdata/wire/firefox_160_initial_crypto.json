@@ -1,0 +1,217 @@
+{
+  "browser": "Firefox 160.0",
+  "release": "FIREFOX_160_0_RELEASE",
+  "provenance": {
+    "method": "Ordinary visible Firefox with a fresh isolated profile, public certificate validation and standard Alt-Svc discovery. Only automation/UI controls and passive enable_qlog observation; no protocol, certificate, DNS, proxy or User-Agent override. Linux Xvfb packet capture decoded independently by Wireshark. macOS qlog ranges and Linux raw packet evidence have distinct OS labels.",
+    "pcap_sha256": "e565a02661bab2416a18617c6ad69de8e169f51506b4096e5c064b946c67ae20",
+    "linux_initial_datagram_size": 1252,
+    "capture_limit": "Linux UDP segmentation offload can combine datagrams in the capture. Packet lengths and CRYPTO ranges come from QUIC decoding, not the offloaded UDP envelope. qlog may end with an incomplete final record after browser shutdown; all retained Initial records are complete."
+  },
+  "sources": [
+    "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/crypto.rs#L1650-L1773",
+    "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/sni.rs#L13-L71",
+    "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs#L2783-L2818"
+  ],
+  "captures": [
+    {
+      "name": "firefox-160-linux-native-15",
+      "os": "Linux aarch64, visible Xvfb",
+      "source_frames": [
+        15,
+        17
+      ],
+      "initial_packet_number": 12,
+      "initial_packet_length": 1002,
+      "length": 1900,
+      "sni_offset": 1470,
+      "sni_length": 18,
+      "hostname": "fp.impersonate.pro",
+      "packet_size_limit": 1236,
+      "frame_budget": 1209,
+      "packets": [
+        [
+          {
+            "offset": 1479,
+            "length": 421
+          },
+          {
+            "offset": 0,
+            "length": 529
+          }
+        ],
+        [
+          {
+            "offset": 529,
+            "length": 950
+          }
+        ]
+      ],
+      "extension_order": [
+        13,
+        27,
+        51,
+        43,
+        5,
+        23,
+        28,
+        16,
+        65281,
+        0,
+        34,
+        45,
+        10,
+        57,
+        65037
+      ],
+      "client_hello_hex": "0100076803036c3fe818c4a4cbcca52dd8b8fe7066fc3a1440a8e7acc26154004cb1485bd3aa00000613011303130201000739000d0018001604030503060302030804080508060401050106010201001b0007060001000300020033052f052d11ec04c0b6619ac6e78c7b67020af5b5c6b692dc8b4d489434ac2ab014678c82c8c7f8dcbf0894c244b87a159436a3307195c3bda92a1703a3c2cd94c422aaa1961a1aa1061ee33041a8cab22c12821372a9ad49ab5552a96534724b898d339c6ba46c7822a473f5bca556f680a5e03b29b39b6a87491951cc7263ba4fa1ba75098777018f58c49ff2f48f3f01bd298b4cc899b25dd54fc51cb763857a5e8a348fc4951204b75f598a8f9c589d978ceb35be8577bb45e139e98cac699a84558bc06a8abfae66b95cbb018636004c0c549f04a5bd6b648fa438d5b92e14d404568098b0ea6d93f707c6d5aa1d875d23401ce49875353514ec6151dcf88661407ad8595ab58b24e49562e002c175e71396cc4c70399cddd282329b31e9e34b78eb272fc44c8dc47530235814f496df5564174924cafb0ee3f9594016aa4510a2134287c9eaab5a5aba50d43ee49844188a616e662be77433ce657077c9874d396f3f8340da371ee03617588aae75b56069672ca69c852ba01dbe0acf253b4ad5d2bb34597aed55c3989212dd31024f8576cac90ebe2609e7c70285f93b28470a483b72a838c0fb42ce38456ddaa98756e7b18d0450650b334299517a1677e6e6ab5e2ab014723d05049d4a462bae87363b715d9a1c9fb8667c2b892c7da55b81f1612999852ef8107d4244fee2501f89074dd7a42897972139cc560872769b03645ba0352b9103f4ceb7e3a0a36c0b64805f944532c9514685462a386550f1200f21d342c468cce53c82f226ac35b91527e3c1a21437e80aabd9421c25ac33914b375d7502bf843b5634926a56040b83c15c915bc6f46cd033c7fa138b76fa8e356142a9f690917c3bf57c580c8369c67081b3307f00ec88e503110b68b4e5188b570012aca1761ba83452e0a627823beda127bd0597bc8a6563bc5b5c6c5f1625c9c81605add48abfcb4328bc44da0225e1a85473e357fb967b5677c8ab59b5d82c98490aa259a26a653a27f4762a4125932c08958ac095c930cf4c056b8911010bc38f12718e0e604088a898ea5661e8361b38a92cfc34b47349cb62f977839399969a6857b35d9469240845439d682fd7a154a9ec1d4597b3fcc6ab3835454d7cac32310f668517a264915aaa9bfb184fd62045a9010226110b72f869f0077a57767636e897cfc6534bca727c7416e594b03210be64b2b5f0a3c69003949ca204902a62d63aa6ca1c7204cbbbfd4799f1e644dd021312783fcb9c7f606748eb8c654892a4cf253bc518557ee7a9a6208cf3a94a21875ed481a77dda72a75b4aca6536b2306c01313ea56b2b445b3268745d3abc5921eac8bc0a937014623d9797904c1132174b138c887372a8a0a0048b33c39ff6208f2101860569e4e61925b4ba0f79353ac8a28848b61d705971c168e2c548b4714a53683db3833f1134a51c4194c759b13ff78f9bb460dc141090a7973fd22ebeb84b1a8a41e4db081f0b3f50a3938b7c8e18736fe1b2c875bc7d82cb69c7acb91ee35443ebc5464615e1a3a2b2f27e4ca13a3c365a2c4a7982801707d8b1374a4e02ec30a0545022890a9201226e1b011c0394a55cbd936264d6784e5296175a57b43a298b20b2ae5c9c920f0525b591139d175a103c34a2b757e6396f399f684afaf13300c1ede79fc5da605ea8b67b7cf4cbf1e5dfce1ac94e456c68a3ee1986df5169001d6f4ae7a32754dd6d001d0020b67b7cf4cbf1e5dfce1ac94e456c68a3ee1986df5169001d6f4ae7a32754dd6d00170041048d5542c9156e74c4eca2f95ad76bfdaa359dc290f636e72fbf52ddd25eff26f3bf193cf7536fb8fe17ae99fd5def9f92318d8b8eaefb8f29a5ef9978ffba4b48002b000302030400050005010000000000170000001c00024001001000050003026833ff0100010000000017001500001266702e696d706572736f6e6174652e70726f0022000a00080403050306030203002d00020101000a000c000a11ec001d00170018001900390056010480007530040481800000050480c0000006048010000007048010000008024064090240640b01140e01080f03e03d941110000000015aea2a8a6b3343cf000000011d00c0000000ff02de1a0243e820048000fffffe0d011a000001000327002010ecd52c6849f8d45025a3e7c5d03b2aab8def9393ba7382fb87e14a7bf476ca00f0cf4d2fc10730de48d6c714334fa7bed8078a679ce6dd2669e274127bce1d036ac9736ba8bf0081b8905fb9ecd4947922439faf0214e51736912066a4bd3c6bf0815a81d8778747c152392332bdb899326282b37d7f8847eee4b70ea1bb4ae6c54c38e3cacd1911e9ded24a28ba0aee38f9e615eb04f6e99d4710fe1702a1fe3ccba4d1902a81f4aca7dddefa0a0614efcc9b00f198f55b175239bae9a2426e275eee519caa543d0c39424ea1480db900a361f2345cf2cf8d57d95716659bd3b658c10ff7203f2daad7c7d764840abe20ba9a29be0c995535d840b49ad60cb68421b59b4a742e6cef1ed250fe9de7788f",
+      "client_hello_sha256": "cdbeb3ed0bce9e11063c416f3bb0519bd66bb3e3f22489f8fa236a1fd1253473"
+    },
+    {
+      "name": "firefox-160-linux-native-36",
+      "os": "Linux aarch64, visible Xvfb",
+      "source_frames": [
+        36,
+        43
+      ],
+      "initial_packet_number": 32,
+      "initial_packet_length": 999,
+      "length": 1900,
+      "sni_offset": 1458,
+      "sni_length": 18,
+      "hostname": "fp.impersonate.pro",
+      "packet_size_limit": 1236,
+      "frame_budget": 1212,
+      "packets": [
+        [
+          {
+            "offset": 1467,
+            "length": 433
+          },
+          {
+            "offset": 0,
+            "length": 517
+          }
+        ],
+        [
+          {
+            "offset": 517,
+            "length": 950
+          }
+        ]
+      ],
+      "extension_order": [
+        65281,
+        23,
+        45,
+        51,
+        43,
+        13,
+        28,
+        27,
+        0,
+        16,
+        5,
+        10,
+        34,
+        57,
+        65037
+      ],
+      "client_hello_hex": "010007680303cfbb010e38b63fa5f7befb828d571dc1779e1b9a597f9e836d1fe5ac2010ae9400000613011303130201000739ff0100010000170000002d000201010033052f052d11ec04c0c6e1c358a4183dd41d4a530733473477e6bfcf1037ccd6238a2c82e2d62dd55262a790705176792e445df82bb36fd411229938fe413d9f48ac7e310d72c218ced59f6258b15c61a1c5c178c6947c6b96975d4911dcf6c72500b9694431148b78aa7c48442a5bca21be69d3bd2b685b942979eabc48d847950bb7628d167dd761c54004171b42c2edacc6fb807466e276c352a737281144113c00e2697a96233d96cc8bbc419ec6be2370c60b9c16c7e5868010233a6411601a907271cfd7f60abe7c2105c28e7c28c33b791f3040a81982cef3eb595734514f459272d0ce30e661c317118d054f1a669e723990ecab66ee9c6a2945cabca2906ba247020b1724b2be3c65981ff81828275c3fc7c8e0f3c5311610447c92683ba7caf303c6ebb9fcc1a9175624f367c08db459c5da0adc23779ce7c828c24e5a620fc4a1ab39ba41e704c36af38b9e2cc527aa4865f44b65843b579a875049444a3514c8da041fa3c8e90428c6838359c662eaa58e70425d7b52b7d0c97fff8271d973272bbb2ba162c08fe708eddcc742486221b000a1a6760af7cb350a51414a0086ab9f14ba950db3b83e60ad3b59c33d988a6f988c6a71ce612248ee832b3adb49648abda577839a81c57bc5ae51453e67dc8bb5862173b304091a7a611817663a0e409665f2c1063c644d3a3b87c2045b6721ba65bb420c0c2a98474c2ae29aaacbb30b7914cea89d98d57be592a1e6d65a8663486d2064b1b39bc30903949c813c18374e223d33b2ccc3a1039f9a8f7662c6cc72993bcc1b84c2cffa828d141a331399954df2b37f14255d8a8b5c4268b7984fc7c9056819ac4c4a51fa3154c8e57df25abfc6193640e40183b496d7c0253c947a57d68f7806bcac19583e997eb8c067362c2f9c74939a66358da36c3056795383963e6a7d37b487137415b760ae94a31a5953490fe3500a98a5655a951d3788f27b018630b263c48158c4ad2188a756c554cf41c1a19ab2cb872603e4ca29d9ae7fcc8783cc4e67825d1e39891a4a187e60720f0549179146f75a7549337a880129d3c27c52246d451408b92063aa870518115ba37c20847b8e3fe168339714aab0832967717ca3a887691a43403855aa98bd3181edb66d44b98984c07c00258779cba994760d170926fa714696f5a855f57e3feba5c95a64122b1ada95c488b57dd560a2ed0b87693569a9575e3b440de1404d5fb40ae59b32c5d0ba58a1b77b914a5af7b493c167e459a656d5b8bb23a43ad923f8a164f1f8694767427924b7cbc50307a0a25935c2d417ab928a32347cbfc815b5dd17076ac07ce4135b52703c9d6853a691067964812a692b3e34bb47066566660e373a164b2486f9017a383175606450e007bb2abc1781c168c402690488a78c0ac76d5b37b738624e89754f686be1086e296736dfcc50cdf33f58b557aae88f028730d03582d4c23d1660b5adecc7000c80e4667a7c82859de029acc9a19b0921f00c7e9cc86c7b30ad2675cfc94958ec27be1a11326ca5c4284ac2993301b01bb375236853c256b9e024a2d248da8ac618d488c02b37a3a80c84ea985ba452fdb91ae1252051f52a0a3ca90a242cfee92315896e2b89416665848ff770700e06bfc87fe8d333f4f2f7054b2436178c79dae264b1e72fd82501e374c4412f77389c1c254d4076f0352708f0617551164b7987c12f29a7e35e9734001d002074c4412f77389c1c254d4076f0352708f0617551164b7987c12f29a7e35e973400170041042d229e9e75a0c7866bb3890b76afcf2bce37c910936bc373050348f9ff3b8ec703c6b7d7cb0c45b3e26d56d1183c1051dac76f73b97da60811e872ce459cc136002b0003020304000d0018001604030503060302030804080508060401050106010201001c00024001001b00070600010003000200000017001500001266702e696d706572736f6e6174652e70726f001000050003026833000500050100000000000a000c000a11ec001d0017001800190022000a0008040305030603020300390056010480007530040481800000050480c0000006048010000007048010000008024064090240640b01140e01080f03ce1b78111000000001da1a2ada6b3343cf000000011d00c0000000ff02de1a0243e820048000fffffe0d011a0000010001d800208cea5267009167157e47572bcde06637001fab28daafab583091fa9fc25f3ec600f08ded677f788dcdc2ddf1839c3cf02e4d9f97ab6ef72f55701468e41b3a4c79208bdc50bcdf6c52721d3ce1f2966f8394327b133f9e0f34a69d290513fd1274d90b3f75b676e911eb05b427f2f5d12effc93ed001d3fefdefcd855f03435c7611276da5e0bfb949791d05fdf5a8f8e2ee12e6f7b9e0153db51d582fdc5f81eefb217a61df82681424a4986943b3c410abe215cfd5466edad4bceec891f89046a18ce2609098a9a236149c091cf43cb16b15ff66a42e5a3d001312c8a49d78edb41b10b3c940c45c47db59d6a21f742553e83225975dd1adbb478db6fbdc8d5dabc35dcbbe8146566f2c0efb1f81f4edc2",
+      "client_hello_sha256": "a25fcd7cb70bcc977b05dc3e9f2316e5cc66ad880d438bda953259ea30ca5c37"
+    },
+    {
+      "name": "firefox-160-macos-native-1",
+      "os": "macOS, visible ordinary Firefox",
+      "sni_basis": "Hostname location reconstructed from endpoint TLS extension fields; packet ranges independently observed in passive native qlog",
+      "length": 1900,
+      "sni_offset": 162,
+      "sni_length": 18,
+      "hostname": "fp.impersonate.pro",
+      "packet_size_limit": 1236,
+      "frame_budget": 1214,
+      "packets": [
+        [
+          {
+            "offset": 1121,
+            "length": 779
+          },
+          {
+            "offset": 0,
+            "length": 171
+          }
+        ],
+        [
+          {
+            "offset": 171,
+            "length": 950
+          }
+        ]
+      ],
+      "extension_order": [
+        16,
+        23,
+        10,
+        27,
+        13,
+        28,
+        5,
+        34,
+        65281,
+        0,
+        51,
+        43,
+        45,
+        57,
+        65037
+      ],
+      "native_qlog_sha256": "f145cd7d08c4a5827168577ec26b28ce4d2a90bb3c49e2435fa8bbd00098c12a"
+    },
+    {
+      "name": "firefox-160-macos-native-2",
+      "os": "macOS, visible ordinary Firefox",
+      "sni_basis": "Hostname location reconstructed from endpoint TLS extension fields; packet ranges independently observed in passive native qlog",
+      "length": 1900,
+      "sni_offset": 76,
+      "sni_length": 18,
+      "hostname": "fp.impersonate.pro",
+      "packet_size_limit": 1236,
+      "frame_budget": 1214,
+      "packets": [
+        [
+          {
+            "offset": 1035,
+            "length": 865
+          },
+          {
+            "offset": 0,
+            "length": 85
+          }
+        ],
+        [
+          {
+            "offset": 85,
+            "length": 950
+          }
+        ]
+      ],
+      "extension_order": [
+        65281,
+        27,
+        0,
+        28,
+        13,
+        45,
+        51,
+        34,
+        43,
+        23,
+        16,
+        5,
+        10,
+        57,
+        65037
+      ],
+      "native_qlog_sha256": "38edf4794e8dfcfaddfe9b65e53f0fe110812a5c91934ca7bbe4f0f218e4c944"
+    }
+  ]
+}

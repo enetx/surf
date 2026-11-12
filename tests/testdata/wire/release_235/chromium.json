@@ -1,0 +1,161 @@
+{
+  "reference": "ordinary visible Chromium 158.0.8127.0 on macOS arm64; no protocol, certificate, UA or DNS overrides",
+  "h2": {
+    "tls_equal": {
+      "ciphers": {
+        "equal": true
+      },
+      "extensions": {
+        "equal": true
+      },
+      "grease_extension_count": {
+        "equal": true
+      },
+      "record_version": {
+        "equal": true
+      },
+      "negotiated_version": {
+        "equal": true
+      },
+      "session_id_length": {
+        "equal": true
+      },
+      "ja4": {
+        "equal": true
+      },
+      "peetprint": {
+        "equal": true
+      },
+      "peetprint_hash": {
+        "equal": true
+      }
+    },
+    "headers_equal_except_selected_product_brand": true,
+    "product_brand_difference": {
+      "sec-ch-ua": {
+        "native": "\"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\"",
+        "surf": "\"Chromium\";v=\"158\", \"Not.A/Brand\";v=\"24\", \"Google Chrome\";v=\"158\""
+      }
+    },
+    "akamai_fingerprint": {
+      "native": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
+      "surf": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
+      "equal": true
+    },
+    "raw_hpack": {
+      "priority_hex": "80000000ff",
+      "fresh_hpack_length": 443,
+      "retained_hpack_length": 443,
+      "equal": true
+    }
+  },
+  "h3": {
+    "source": "http3-after-comparison.json",
+    "checks": {
+      "ja3n": true,
+      "client_connection_id_length": true,
+      "settings": true,
+      "generated_settings_grease": true,
+      "header_order": true,
+      "transport_parameters": true,
+      "headers_except_product_brand": true
+    },
+    "verified_tls": true,
+    "protocol": "HTTP/3.0",
+    "status": 200,
+    "surf_response_sha256": "f6be9b7274c222e70b8d47195ca10b816bfad0dc41916b71bfd9674c346dea78"
+  },
+  "source_manifest": {
+    "verified_files": 53,
+    "matching_sha256": 53,
+    "report": "source-verification.json"
+  },
+  "resumption": {
+    "tcp_resumptions_accepted": 2,
+    "quic_resumptions_accepted": 2,
+    "two_ticket_lifo_single_use_verified": true,
+    "quic_transcript": "native-ech-h3/session-transcript.json",
+    "ech_accepted": false,
+    "early_data_capable_tickets": false,
+    "early_data_attempted": false
+  },
+  "initial_packet_number_correction": {
+    "id": "QUIC-PN-SOFT-MAX",
+    "native": "PN1 encoded in1byte, PN2 encoded in2bytes in4fresh native flights",
+    "surf_before": "PN1 andPN2 each1byte, independent local-peer UDP decode",
+    "cause": "QUICHE updates number length while temporary coalescing soft packet limit is installed, then retains that selected width for following Initial; Surf used only the full datagram estimate.",
+    "status": "Fixed and independently verified in3fresh Surf UDP captures: Initial PN1 one encoded byte, PN2 two encoded bytes, both1250bytes; Handshake/1RTT reset toone byte.8new policy boundarycases plus existing Chrome/Firefox regressiontests pass.",
+    "source": "https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/quic_connection.cc",
+    "native_artifact": "native-ech-h3/packet-summary.json",
+    "surf_before_artifact": "surf-initial-before/initial-pn.tsv",
+    "surf_before_pcap_sha256": "b4fbfd412abb87ffd37f788f87c42e0938198f92cdaa1925eb566309562a4f55",
+    "native_netlog_sha256": "1666a7a8dc6f00f09b134163d63069d19b749e09cff39119e0775ad8bb03ea8f",
+    "native_decoder_report": "native-ech-h3/packet-summary.json",
+    "source_detail": "OnSerializedPacket installs a remaining coalesced soft max before UpdatePacketNumberLength; MultiPacketChaosProtect FlushCurrentPacket then RemoveSoftMax retain selected length for subsequent Initial. Tiny budgets are rejected; encryption-level transition recomputes.",
+    "surf_after_artifact": "surf-initial-after/initial-pn.tsv",
+    "surf_after_all_spaces": "surf-initial-after/all-pn.tsv",
+    "surf_after_pcap_sha256": "ee9e8518ffd201964514d8dc141d4d6241f3e64e8709c984a0d444968ceb7fdf"
+  },
+  "limits": [
+    "This native reference is macOS arm64 Chromium158.0.8127.0; Windows/Android/iOS runtime parity is not established by it.",
+    "ECH resumption/expanded inner158 still lacks fresh native accepted-ECH transcript: default resolver produced plaintext SNI. Retained157 reference and source audit are not a fresh158 capture.",
+    "Cloudflare issued no early_data-capable tickets in this run, so this run cannot prove accepted0RTT behavior.",
+    "Raw UDP payloads were recorded by NetLog and independently decrypted; PCAP IP/UDP envelopes are synthetic, not NIC observations. OS/IP/TCP/ECN/offload/pacing parity not asserted.",
+    "Public endpoint snapshot does not prove arbitrary loss, ACK/timing/congestion/cross-origin pooling/resource-scheduling behavior.",
+    "Exact Google Chrome branding is a deliberate source-derived identity overlay on the selected unbranded Chromium protocol reference."
+  ],
+  "fetch_priority": {
+    "scope": "Ordinary same-origin fetch GET/POST in visible Chromium158.0.8127.0 macOS, isolated profile and passive NetLog/keylog only. Current SurfMacOS Chrome profile with Fetch selector; only Referer/Origin/Content-Type app facts supplied. No resource concurrency model tested.",
+    "native_get": {
+      "weight": 220,
+      "encoded_weight": 219,
+      "exclusive": true,
+      "priority_header": "u=1, i"
+    },
+    "native_post": {
+      "weight": 220,
+      "encoded_weight": 219,
+      "exclusive": true,
+      "priority_header": "u=1, i"
+    },
+    "surf_after": [
+      {
+        "method": "GET",
+        "status": 200,
+        "priority": {
+          "depends_on": 0,
+          "exclusive": 1,
+          "weight": 220
+        }
+      },
+      {
+        "method": "POST",
+        "status": 200,
+        "priority": {
+          "depends_on": 0,
+          "exclusive": 1,
+          "weight": 220
+        }
+      }
+    ],
+    "h3": {
+      "native_get_priority_update": "u=1, i",
+      "native_post_priority_update": "u=1, i",
+      "surf_get_priority_update": "u=1, i",
+      "surf_post_priority_update": "u=1, i",
+      "priority_header": "u=1, i",
+      "equal": true,
+      "native_navigation_control": "u=0, i",
+      "native_proof": "retry/priority-observations.json",
+      "surf_proof": "surf-fetch-h3.json"
+    },
+    "sources": [
+      "https://github.com/chromium/chromium/blob/158.0.8127.18/net/spdy/spdy_session.cc",
+      "https://github.com/chromium/chromium/blob/158.0.8127.18/net/spdy/http2_priority_dependencies.cc",
+      "https://github.com/chromium/chromium/blob/158.0.8127.18/net/spdy/spdy_http_utils.cc",
+      "https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/http2/core/spdy_protocol.cc",
+      "https://github.com/chromium/chromium/blob/158.0.8127.18/net/quic/quic_http_utils.cc"
+    ]
+  },
+  "local_artifact_directory": "/tmp/surf-final-audit/chrome"
+}

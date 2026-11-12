@@ -1,6 +1,8 @@
 package surf
 
 import (
+	"context"
+	"io"
 	_http "net/http"
 	"net/url"
 
@@ -149,14 +151,42 @@ func request(_req *_http.Request) *http.Request {
 		Pattern:          _req.Pattern,
 		Cancel:           _req.Cancel, // deprecated but kept for compatibility
 	}
+	if _req.Body == _http.NoBody {
+		req.Body = http.NoBody
+	}
+	if _req.GetBody != nil {
+		getBody := _req.GetBody
+		req.GetBody = func() (io.ReadCloser, error) {
+			body, err := getBody()
+			if body == _http.NoBody {
+				body = http.NoBody
+			}
+			return body, err
+		}
+	}
+	if _req.Response != nil && _req.Response.Request != nil {
+		ctx := requestNavigationContext(req.Context(), _req.Response.Request.Context())
+		ctx = context.WithValue(ctx, profileRedirectKey{}, _req.Response)
+		if _req.Method != _req.Response.Request.Method && (_req.Method == http.MethodGet || _req.Method == http.MethodHead) && (_req.Body == nil || _req.Body == _http.NoBody) {
+			ctx = context.WithValue(ctx, profileBodyDroppedKey{}, true)
+		}
+		req = req.WithContext(ctx)
+	}
 
-	return req.WithContext(_req.Context())
+	return req.WithContext(requestNavigationContext(_req.Context(), req.Context()))
 }
 
 // response converts github.com/enetx/http.Response to net/http.Response.
 // It preserves all response fields including status, headers, and body
 // while adapting back to standard net/http types.
 func response(resp *http.Response, _req *_http.Request) *_http.Response {
+	body := resp.Body
+	if body == http.NoBody {
+		body = _http.NoBody
+	}
+	if resp.Request != nil {
+		_req = _req.WithContext(requestNavigationContext(_req.Context(), resp.Request.Context()))
+	}
 	return &_http.Response{
 		Status:           resp.Status,
 		StatusCode:       resp.StatusCode,
@@ -164,7 +194,7 @@ func response(resp *http.Response, _req *_http.Request) *_http.Response {
 		ProtoMajor:       resp.ProtoMajor,
 		ProtoMinor:       resp.ProtoMinor,
 		Header:           _http.Header(resp.Header),
-		Body:             resp.Body,
+		Body:             body,
 		ContentLength:    resp.ContentLength,
 		TransferEncoding: resp.TransferEncoding,
 		Close:            resp.Close,
