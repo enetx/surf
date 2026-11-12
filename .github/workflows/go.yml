@@ -6,6 +6,38 @@ permissions:
   contents: read
 
 jobs:
+  build-32-bit:
+    name: Build linux/${{ matrix.goarch }}${{ matrix.goarm }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goarch: '386'
+            goarm: ''
+          - goarch: arm
+            goarm: '6'
+          - goarch: arm
+            goarm: '7'
+    env:
+      GOOS: linux
+      GOARCH: ${{ matrix.goarch }}
+      GOARM: ${{ matrix.goarm }}
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.x'
+          check-latest: true
+          cache: true
+      - name: Build production packages
+        run: go build . ./header ./internal/... ./pkg/... ./profiles/...
+      - name: Compile tests
+        # Cross-compiled binaries cannot run on the host; true skips execution.
+        run: go test -exec=true -run='^$' ./tests/...
+
   test:
     runs-on: ubuntu-latest
     steps:

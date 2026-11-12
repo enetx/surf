@@ -37,7 +37,7 @@ func TestQUICLegacyAckFrequencyAdvertisementOverrides(t *testing.T) {
 			firstID, _, err := quicvarint.Parse(data)
 			require.NoError(t, err)
 			if delay > 0 {
-				require.EqualValues(t, 0xff02de1a, firstID)
+				require.EqualValues(t, uint64(0xff02de1a), firstID)
 			}
 			found := false
 			for len(data) > 0 {
