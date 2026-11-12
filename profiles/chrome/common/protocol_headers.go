@@ -11,9 +11,9 @@ import (
 // RequestHeaders applies Chrome's defaults for the transport actually selected.
 // HTTP/1.1 has Connection and lowercase Client Hints, while Priority belongs to
 // multiplexed transports. Explicit request values and pseudo-header order win.
-// https://github.com/chromium/chromium/blob/157.0.8103.51/net/http/http_network_transaction.cc
-// https://github.com/chromium/chromium/blob/157.0.8103.51/net/http/http_request_headers.cc
-// https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/spdy_http_utils.cc
+// https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_network_transaction.cc
+// https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_request_headers.cc
+// https://github.com/chromium/chromium/blob/158.0.8127.18/net/spdy/spdy_http_utils.cc
 func RequestHeaders(req *http.Request, major int) {
 	h := req.Header
 

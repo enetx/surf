@@ -9,9 +9,9 @@ import (
 
 // NewControlGreaseFrames follows Quiche HttpEncoder::SerializeGreasingFrame:
 // one uint32 determines both the reserved frame type and the payload length.
-// Chrome 157.0.8103.51 DEPS pins this Quiche revision:
-// https://github.com/chromium/chromium/blob/157.0.8103.51/DEPS
-// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/http_encoder.cc
+// Chrome 158.0.8127.18 DEPS pins this Quiche revision:
+// https://github.com/chromium/chromium/blob/158.0.8127.18/DEPS
+// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/http/http_encoder.cc
 func NewControlGreaseFrames() ([]http3.GreaseFrame, error) {
 	var draw [4]byte
 	if _, err := rand.Read(draw[:]); err != nil {
@@ -30,7 +30,7 @@ func NewControlGreaseFrames() ([]http3.GreaseFrame, error) {
 
 // NewSettingsGrease follows QuicSendControlStream::MaybeSendSettingsFrame:
 // two independent uint32 draws select the reserved identifier and its value.
-// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/http/quic_send_control_stream.cc
+// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/http/quic_send_control_stream.cc
 func NewSettingsGrease() (uint64, uint64, error) {
 	var draws [8]byte
 	if _, err := rand.Read(draws[:]); err != nil {

@@ -313,17 +313,17 @@ Older capture metadata can explicitly supply `--peer-min-us=1000`; current runs
 record the server minimum directly. Chromium is a negative sender control.
 
 
-For the current Chrome reference, select an ordinary Chrome157 executable rather
-than relying on an older system Chromium installation:
+For the current Chrome profile, select the pinned ordinary Chromium 158 executable.
+Chromium is the protocol reference; Surf supplies Chrome's selected OS User-Agent:
 
 ```sh
 node tests/tools/wirecapture/native-endpoint.mjs --browser=chrome \
-  --executable="/path/to/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --netlog=true --out=/private/new-chrome157-capture
+  --executable="/path/to/Chromium.app/Contents/MacOS/Chromium" \
+  --netlog=true --out=/private/new-chromium158-capture
 ```
 
 The optional NetLog is passive observation stored inside the private capture
 directory. No protocol, certificate, resolver, proxy or User-Agent override is
 introduced. The active offline fixture/audit is
-`tests/testdata/wire/chrome_157_audit.json`; historical codec/recovery corpora
+`tests/testdata/wire/chrome_158/README.md`; historical codec/recovery corpora
 retain the versions actually captured.

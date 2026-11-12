@@ -272,8 +272,8 @@ func TestChromeProxyEnvironmentFingerprint(t *testing.T) {
 	}
 }
 
-func TestChrome157TCPClientHelloMatchesNative(t *testing.T) {
-	data, err := os.ReadFile("testdata/wire/chrome-157-windows.golden")
+func TestChrome158TCPClientHelloMatchesRetainedNativeShape(t *testing.T) {
+	data, err := os.ReadFile("testdata/wire/chrome-158-windows.golden")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -306,7 +306,7 @@ func TestChrome157TCPClientHelloMatchesNative(t *testing.T) {
 	case hello := <-hellos:
 		got, _ := wiretest.ClientHello(t, hello.raw, true)
 		if got != want {
-			t.Fatalf("Chrome 157 native TLS mismatch\n%s\nwant:\n%s", got, want)
+			t.Fatalf("Chrome 158 retained native TLS shape mismatch\n%s\nwant:\n%s", got, want)
 		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("no ClientHello")

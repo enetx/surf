@@ -16,7 +16,7 @@ import (
 func TestIOSProfile(t *testing.T) {
 	t.Parallel()
 
-	if chrome.IOS.HelloID != utls.HelloSafari_26_3 || chrome.IOS.HelloSpec != &chrome.HelloChrome_157_IOS || chrome.IOS.ShuffleExtensions {
+	if chrome.IOS.HelloID != utls.HelloSafari_26_3 || chrome.IOS.HelloSpec != &chrome.HelloChrome_158_IOS || chrome.IOS.ShuffleExtensions {
 		t.Fatal("iOS must use the native WebKit ClientHello with fixed extension order")
 	}
 	for _, extension := range chrome.IOS.HelloSpec.Extensions {
@@ -33,8 +33,8 @@ func TestIOSProfile(t *testing.T) {
 					t.Errorf("iOS must not add %s", key)
 				}
 			}
-			if ua := h.Get(header.USER_AGENT).Unwrap(); !ua.Contains("CriOS/157.0.8103.37") || !ua.Contains("iPhone OS 27_0_1") {
-				t.Errorf("iOS UA does not match the captured build: %s", ua)
+			if ua := h.Get(header.USER_AGENT).Unwrap(); !ua.Contains("CriOS/158.0.8127.32") || !ua.Contains("iPhone OS 27_0_1") {
+				t.Errorf("iOS UA does not match the release build and retained device OS: %s", ua)
 			}
 			keys := h.Keys()
 			if !slices.Equal(keys[:4], []g.String{":method", ":scheme", ":authority", ":path"}) {

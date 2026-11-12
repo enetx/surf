@@ -1,0 +1,135 @@
+{
+  "source": {
+    "browser": "Chromium 158.0.8127.0",
+    "snapshot_revision": 1727489,
+    "capture": "Ordinary visible Chromium on macOS; fresh profile, standard Alt-Svc, verified public TLS; no protocol, resolver, certificate, UA or field-trial override. Surf retains its selected OS User-Agent.",
+    "endpoint": "https://fp.impersonate.pro/api/http3",
+    "response_sha256": "caa367fea24910f5fa6c88f9403d02b928f957edd24991bcdd3249e22ff4639f",
+    "independent_connections": 1
+  },
+  "initial_packet_number": 1,
+  "client_connection_id_length": 0,
+  "settings": [
+    [
+      1,
+      65536
+    ],
+    [
+      6,
+      262144
+    ],
+    [
+      7,
+      100
+    ],
+    [
+      51,
+      1
+    ],
+    [
+      "GREASE",
+      null
+    ]
+  ],
+  "header_order": [
+    ":method",
+    ":authority",
+    ":scheme",
+    ":path",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "upgrade-insecure-requests",
+    "user-agent",
+    "accept",
+    "sec-fetch-site",
+    "sec-fetch-mode",
+    "sec-fetch-user",
+    "sec-fetch-dest",
+    "accept-encoding",
+    "accept-language",
+    "priority"
+  ],
+  "transport_parameters": {
+    "8": 100,
+    "17": {
+      "chosen_version": 1,
+      "available_versions": [
+        1,
+        "GREASE"
+      ]
+    },
+    "4": 15728640,
+    "3": 1472,
+    "5": 6291456,
+    "7": 6291456,
+    "1": 30000,
+    "15": "AUTO",
+    "9": 103,
+    "6": 6291456,
+    "12584": "0x4f5249474e4f4950",
+    "32": 65536
+  },
+  "tls": {
+    "cipher_suites": [
+      4865,
+      4866,
+      4867
+    ],
+    "extensions": [
+      0,
+      10,
+      13,
+      16,
+      27,
+      43,
+      45,
+      51,
+      57,
+      4832,
+      17613,
+      51764,
+      65037
+    ],
+    "groups": [
+      4588,
+      29,
+      23,
+      24
+    ],
+    "signature_algorithms": [
+      1027,
+      2052,
+      1025,
+      1283,
+      2053,
+      1281,
+      2054,
+      1537,
+      513
+    ],
+    "versions": [
+      772
+    ],
+    "alps": "0003026833",
+    "trust_anchors": "00b80582df1302010582df1302060582df13020d0582df13020e0582df13020f0582df1302120582df1302130582df13021408839a648c9b2d010708839a648c9b2d010808839a648c9b2d010908839a648c9b2d010a08839a648c9b2d010b08839a648c9b2d010c08839a648c9b2d010d08839a648c9b2d011208839a648c9b2d011304d679090104d679090404d679090504d679090604d679090704d679090804d679090a04d679090b04d679090c04d679090d04d679090f",
+    "key_shares": [
+      [
+        4588,
+        1216
+      ],
+      [
+        29,
+        32
+      ]
+    ],
+    "ech_cipher_suite": [
+      1,
+      1
+    ],
+    "extension_bytes": {
+      "27": "020002",
+      "4832": "0000"
+    }
+  }
+}

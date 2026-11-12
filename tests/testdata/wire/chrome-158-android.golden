@@ -1,0 +1,49 @@
+# chrome-158-android
+
+## tcp client hello (h2)
+extensions (permuted) 10,11,13,16,17613,18,23,27,35,43,45,4832,5,51,51764,65037,65281,GREASE,GREASE
+legacy_version 0x0303
+session_id 32 bytes
+cipher_suites GREASE,4865,4866,4867,49195,49199,49196,49200,52393,52392,49171,49172,156,157,47,53
+compression 00
+ext 10: GREASE 4588 29 23 24
+ext 11: 0100
+ext 13: GREASE 2308 2309 2310 1027 2052 1025 1283 2053 1281 2054 1537
+ext 16: 000c02683208687474702f312e31
+ext 17613: 0003026832
+ext 18:
+ext 23:
+ext 27: 2
+ext 35:
+ext 43: GREASE 772 771
+ext 45: 0101
+ext 4832: 0000
+ext 5: 0100000000
+ext 51: GREASE:1 4588:1216 29:32
+ext 51764: 00b80582df1302010582df1302060582df13020d0582df13020e0582df13020f0582df1302120582df1302130582df13021408839a648c9b2d010708839a648c9b2d010808839a648c9b2d010908839a648c9b2d010a08839a648c9b2d010b08839a648c9b2d010c08839a648c9b2d010d08839a648c9b2d011208839a648c9b2d011304d679090104d679090404d679090504d679090604d679090704d679090804d679090a04d679090b04d679090c04d679090d04d679090f
+ext 65037: type=0 kdf=1 enc=32 payload%16=0
+ext 65281: 00
+ext GREASE:
+ext GREASE: 00
+
+## http/2 navigation
+SETTINGS 1=65536 2=0 4=6291456 6=262144
+WINDOW_UPDATE stream=0 increment=15663105
+HEADERS stream=1 flags=0x25 exclusive=true dep=0 weight=256
+:method: GET
+:authority: 127.0.0.1:PORT
+:scheme: https
+:path: /a
+sec-ch-ua: "Not.A/Brand";v="24", "Chromium";v="158"
+sec-ch-ua-mobile: ?1
+sec-ch-ua-platform: "Android"
+upgrade-insecure-requests: 1
+user-agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Mobile Safari/537.36
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+sec-fetch-site: none
+sec-fetch-mode: navigate
+sec-fetch-user: ?1
+sec-fetch-dest: document
+accept-encoding: gzip, deflate, br, zstd
+accept-language: en-US,en;q=0.9
+priority: u=0, i

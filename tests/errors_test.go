@@ -170,7 +170,7 @@ func TestRoundTripperHTTP2FallbackErrorPreservesHTTP2Error(t *testing.T) {
 			c.GetTransport().(*http.Transport).ResponseHeaderTimeout = 50 * time.Millisecond
 			return nil
 		}).
-		JA().Chrome157().
+		JA().Chrome158().
 		Timeout(2 * time.Second).
 		Build()
 	if result.IsErr() {

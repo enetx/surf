@@ -152,6 +152,10 @@ func (a h3adapter) RequestBodyBufferSizePolicy(v func(int64) int) profiles.H3Con
 }
 
 func (a h3adapter) MaxDataFrameSize(v int) profiles.H3Config { a.s.MaxDataFrameSize(v); return a }
+func (a h3adapter) OnResponseHeaders(callback func(*http.Request, *http.Response) error) profiles.H3Config {
+	a.s.OnResponseHeaders(callback)
+	return a
+}
 
 func (a h3adapter) CompactPriorityUpdates(v bool) profiles.H3Config {
 	a.s.CompactPriorityUpdates(v)

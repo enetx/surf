@@ -278,6 +278,15 @@ func (h *HTTP3Settings) wire() *http3.WireConfig {
 	return h.options.WireConfig
 }
 
+// OnResponseHeaders observes every valid HTTP/3 response header block, including
+// 1xx, before tracing or delivery. Returning an error aborts the request. The
+// callback must return promptly, must not mutate either argument or read the
+// body, and must be safe for concurrent requests. Nil removes the callback.
+func (h *HTTP3Settings) OnResponseHeaders(callback func(*http.Request, *http.Response) error) *HTTP3Settings {
+	h.wire().OnResponseHeaders = callback
+	return h
+}
+
 // ControlGreaseFrames adds reserved frames after SETTINGS on every connection.
 // Types must be 0x1f*N+0x21. Frames and payloads are copied.
 func (h *HTTP3Settings) ControlGreaseFrames(frames ...HTTP3GreaseFrame) *HTTP3Settings {

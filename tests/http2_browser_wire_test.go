@@ -28,7 +28,7 @@ import (
 func TestBrowserHTTP2Wire(t *testing.T) {
 	t.Parallel()
 
-	for _, name := range []string{"chrome-157-windows", "chrome-157-android", "chrome-157-macos", "chrome-157-ios", "firefox-160-windows"} {
+	for _, name := range []string{"chrome-158-windows", "chrome-158-android", "chrome-158-macos", "chrome-157-macos", "chrome-158-ios", "chrome-157-ios", "firefox-160-windows"} {
 		t.Run(name, func(t *testing.T) {
 			type capture struct {
 				settings []http2.Setting
@@ -103,11 +103,11 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 
 			im := surf.NewClient().Builder().Impersonate().Windows()
 			switch name {
-			case "chrome-157-android":
+			case "chrome-158-android":
 				im.Android()
-			case "chrome-157-macos":
+			case "chrome-158-macos", "chrome-157-macos":
 				im.MacOS()
-			case "chrome-157-ios":
+			case "chrome-158-ios", "chrome-157-ios":
 				im.IOS()
 			}
 			var builder *surf.Builder
@@ -117,8 +117,18 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 				builder = im.Chrome()
 			}
 			builder.Proxy("")
-			url := g.String(ts.URL + "/a")
+			if name == "chrome-157-macos" {
+				// Preserve the original independent 157 HPACK byte oracle.
+				// Current 158 semantic cases exercise the new default headers.
+				builder.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36").
+					SetHeaders("sec-ch-ua", `"Not-A.Brand";v="99", "Google Chrome";v="157", "Chromium";v="157"`)
+			}
 			if name == "chrome-157-ios" {
+				// Retain the original captured iPhone HEADERS-length oracle.
+				builder.UserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 27_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/157.0.8103.37 Mobile/15E148 Safari/604.1")
+			}
+			url := g.String(ts.URL + "/a")
+			if name == "chrome-157-ios" || name == "chrome-158-ios" {
 				// Reproduce the supplied iPhone navigation, including the encoded
 				// header length, while keeping the connection entirely local.
 				builder.SetHeaders("accept-language", "ru").With(func(c *surf.Client) error {
@@ -131,7 +141,7 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 				})
 				url = "https://tls.peet.ws/api/all"
 			}
-			if name == "firefox-160-windows" || name == "chrome-157-macos" {
+			if name == "firefox-160-windows" || name == "chrome-157-macos" || name == "chrome-158-macos" {
 				// Replay the new independent tls.peet.ws navigation entirely
 				// against the local peer, retaining its authority and path.
 				builder.With(func(c *surf.Client) error {
@@ -174,14 +184,14 @@ func TestBrowserHTTP2Wire(t *testing.T) {
 			}
 			fmt.Fprintf(&normalized, "\nWINDOW_UPDATE stream=0 increment=%d\n", got.window)
 			fmt.Fprintf(&normalized, "HEADERS stream=%d flags=0x%x", got.streamID, got.flags)
-			if name == "chrome-157-ios" || name == "chrome-157-macos" {
+			if name == "chrome-157-ios" || name == "chrome-157-macos" || name == "chrome-158-macos" {
 				fmt.Fprintf(&normalized, " length=%d", got.length)
 			}
 			if got.flags.Has(http2.FlagHeadersPriority) {
 				fmt.Fprintf(&normalized, " exclusive=%t dep=%d weight=%d", got.priority.Exclusive, got.priority.StreamDep, int(got.priority.Weight)+1)
 			}
 			normalized.WriteByte('\n')
-			if name == "chrome-157-macos" {
+			if name == "chrome-157-macos" || name == "chrome-158-macos" {
 				fmt.Fprintf(&normalized, "HPACK %x\n", got.block)
 			}
 			for _, field := range got.headers {

@@ -9,9 +9,9 @@ import (
 )
 
 // ClientHelloInner follows the ECH extension permutation and contiguous outer
-// references in Chrome 157's pinned BoringSSL. TLS 1.2-only fields are omitted.
-// https://github.com/google/boringssl/blob/5b83e5d1abf0ae0033ae52ab579d906b67633b2c/ssl/extensions.cc#L4379
-// https://github.com/google/boringssl/blob/5b83e5d1abf0ae0033ae52ab579d906b67633b2c/ssl/handshake_client.cc#L86
+// references in Chrome 158's pinned BoringSSL. TLS 1.2-only fields are omitted.
+// https://github.com/google/boringssl/blob/ea9f3a34c3977144c45d272be81842fd891a0bdb/ssl/extensions.cc
+// https://github.com/google/boringssl/blob/ea9f3a34c3977144c45d272be81842fd891a0bdb/ssl/handshake_client.cc
 func ClientHelloInner(info utls.ECHClientHelloInfo) (*utls.ECHClientHelloSpec, error) {
 	ciphers, outer, err := ech.Parse(info.ClientHello)
 	if err != nil {
@@ -40,7 +40,7 @@ func ClientHelloInner(info utls.ECHClientHelloInfo) (*utls.ECHClientHelloSpec, e
 			inner.Data, err = ech.Versions(ext.Data, true)
 			// BoringSSL compresses versions when the outer already requires
 			// TLS 1.3, including QUIC. Otherwise it removes the legacy versions.
-			// https://github.com/google/boringssl/blob/5b83e5d1abf0ae0033ae52ab579d906b67633b2c/ssl/extensions.cc#L2664
+			// https://github.com/google/boringssl/blob/ea9f3a34c3977144c45d272be81842fd891a0bdb/ssl/extensions.cc
 			if err == nil && bytes.Equal(inner.Data, ext.Data) {
 				compressed = append(compressed, utls.ECHClientHelloExtension{ID: ext.ID, Outer: true})
 				continue

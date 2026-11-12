@@ -122,7 +122,7 @@ func TestBrowserECHInnerHandshakeAndKeySelection(t *testing.T) {
 						}
 						want := []uint16{0, 0xfe0d, 43, 10, 13, 16, 27, 45, 51}
 						if browser == "chrome" {
-							want = append(want, 17613, 51764)
+							want = append(want, 4832, 17613, 51764)
 							if protocol == "tcp" {
 								want = append(want, 5, 18)
 							}

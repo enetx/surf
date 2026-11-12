@@ -6,7 +6,7 @@ import (
 	utls "github.com/enetx/utls"
 )
 
-// NewClientHelloSpec follows the independently captured Chromium 157 QUIC
+// NewClientHelloSpec follows the independently captured Chromium 158 QUIC
 // handshake. It is separate from the browser's TCP template. uTLS generates the
 // key material, GREASE ECH payload and PSK binders; Surf owns the advertised fields.
 func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
@@ -70,6 +70,7 @@ func NewClientHelloSpec() (utls.ClientHelloSpec, error) {
 	// Extension order is independently randomized for each connection.
 	extensions = append(
 		extensions,
+		&utls.GenericExtension{Id: 0x12e0, Data: []byte{0, 0}},
 		&utls.QUICTransportParametersExtension{},
 		&utls.EarlyDataExtension{},
 		&utls.UtlsPreSharedKeyExtension{},

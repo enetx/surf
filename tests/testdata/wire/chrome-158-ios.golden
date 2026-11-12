@@ -1,0 +1,40 @@
+# chrome-158-ios
+
+## tcp client hello (h2)
+extensions GREASE,0,23,65281,10,11,16,5,13,18,51,45,43,27,GREASE
+legacy_version 0x0303
+session_id 32 bytes
+cipher_suites GREASE,4866,4867,4865,49196,49195,52393,49200,49199,52392,49162,49161,49172,49171,157,156,53,47,49160,49170,10
+compression 00
+ext 0: 000e00000b746c732e706565742e7773
+ext 10: GREASE 4588 29 23 24 25
+ext 11: 0100
+ext 13: 1027 2052 1025 1283 2053 2053 1281 2054 1537 513
+ext 16: 000c02683208687474702f312e31
+ext 18:
+ext 23:
+ext 27: 1
+ext 43: GREASE 772 771
+ext 45: 0101
+ext 5: 0100000000
+ext 51: GREASE:1 4588:1216 29:32
+ext 65281: 00
+ext GREASE:
+ext GREASE: 00
+
+## http/2 navigation
+SETTINGS 2=0 3=100 4=2097152 9=1
+WINDOW_UPDATE stream=0 increment=10420225
+HEADERS stream=1 flags=0x5
+:method: GET
+:scheme: https
+:authority: tls.peet.ws
+:path: /api/all
+sec-fetch-dest: document
+user-agent: Mozilla/5.0 (iPhone; CPU iPhone OS 27_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/158.0.8127.32 Mobile/15E148 Safari/604.1
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+sec-fetch-site: none
+sec-fetch-mode: navigate
+accept-language: ru
+priority: u=0, i
+accept-encoding: gzip, deflate, br, zstd

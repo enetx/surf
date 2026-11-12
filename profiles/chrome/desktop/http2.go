@@ -10,11 +10,11 @@ import (
 
 // ConfigureH2 applies Chrome desktop HTTP/2 settings.
 // Open-stream dependencies follow Chromium's HTTP/2 priority model.
-// https://github.com/chromium/chromium/blob/157.0.8103.51/net/spdy/http2_priority_dependencies.cc
+// https://github.com/chromium/chromium/blob/158.0.8127.18/net/spdy/http2_priority_dependencies.cc
 func ConfigureH2(h profiles.H2Config) {
 	// Quiche accepts the peer's table size. Use the native engine's largest
 	// supported bound instead of its 4096-byte default encoder limit.
-	// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/http2/hpack/hpack_encoder.cc
+	// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/http2/hpack/hpack_encoder.cc
 	h.MaxEncoderHeaderTableSize(math.MaxInt32).
 		ReceiveWindowUpdatePolicy(common.ReceiveWindowUpdate).
 		HpackPolicy(common.HpackPolicy).

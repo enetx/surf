@@ -1,0 +1,191 @@
+{
+  "method": "Surf Windows Chrome 158 profile in Linux arm64; verified public TLS and Secure DNS ECH discovery. Fresh connections retain the same session cache. Linux cooked packet capture with offloads disabled; private traffic keys and pcap retained outside repository.",
+  "packet_capture_sha256": "7b950f7b3b0ba05bab6f07d8abf459e4c23a2c776a2ac5f2bf497530506834c3",
+  "packets_captured": 134,
+  "packets_received_by_filter": 134,
+  "packets_dropped_by_kernel": 0,
+  "connections": {
+    "h2": {
+      "connections": [
+        {
+          "attempt": 1,
+          "protocol": "HTTP/2.0",
+          "ech_accepted": true,
+          "resumed": false,
+          "verified": true
+        },
+        {
+          "attempt": 2,
+          "protocol": "HTTP/2.0",
+          "ech_accepted": true,
+          "resumed": true,
+          "verified": true
+        },
+        {
+          "attempt": 3,
+          "protocol": "HTTP/2.0",
+          "ech_accepted": true,
+          "resumed": true,
+          "verified": true
+        }
+      ],
+      "inner_shape": [
+        {
+          "server_padding_request": "0000",
+          "psk_present": false,
+          "extensions": [
+            0,
+            5,
+            10,
+            13,
+            16,
+            18,
+            27,
+            43,
+            45,
+            51,
+            4832,
+            6682,
+            17613,
+            39578,
+            51764,
+            65037
+          ]
+        },
+        {
+          "server_padding_request": "0000",
+          "psk_present": true,
+          "extensions": [
+            0,
+            5,
+            10,
+            13,
+            16,
+            18,
+            27,
+            41,
+            43,
+            45,
+            51,
+            4832,
+            17613,
+            23130,
+            27242,
+            51764,
+            65037
+          ]
+        },
+        {
+          "server_padding_request": "0000",
+          "psk_present": true,
+          "extensions": [
+            0,
+            5,
+            10,
+            13,
+            16,
+            18,
+            27,
+            41,
+            43,
+            45,
+            51,
+            4832,
+            17613,
+            23130,
+            43690,
+            51764,
+            65037
+          ]
+        }
+      ]
+    },
+    "h3": {
+      "connections": [
+        {
+          "attempt": 1,
+          "protocol": "HTTP/3.0",
+          "ech_accepted": true,
+          "resumed": false,
+          "verified": true
+        },
+        {
+          "attempt": 2,
+          "protocol": "HTTP/3.0",
+          "ech_accepted": true,
+          "resumed": true,
+          "verified": true
+        },
+        {
+          "attempt": 3,
+          "protocol": "HTTP/3.0",
+          "ech_accepted": true,
+          "resumed": true,
+          "verified": true
+        }
+      ],
+      "inner_shape": [
+        {
+          "server_padding_request": "0000",
+          "psk_present": false,
+          "extensions": [
+            0,
+            10,
+            13,
+            16,
+            27,
+            43,
+            45,
+            51,
+            57,
+            4832,
+            17613,
+            51764,
+            65037
+          ]
+        },
+        {
+          "server_padding_request": "0000",
+          "psk_present": true,
+          "extensions": [
+            0,
+            10,
+            13,
+            16,
+            27,
+            41,
+            43,
+            45,
+            51,
+            57,
+            4832,
+            17613,
+            51764,
+            65037
+          ]
+        },
+        {
+          "server_padding_request": "0000",
+          "psk_present": true,
+          "extensions": [
+            0,
+            10,
+            13,
+            16,
+            27,
+            41,
+            43,
+            45,
+            51,
+            57,
+            4832,
+            17613,
+            51764,
+            65037
+          ]
+        }
+      ]
+    }
+  },
+  "scope": "Confirms current Surf ECH acceptance, resumption and 0x12e0 in outer and expanded inner. It does not establish a new native Chromium ECH parity oracle."
+}

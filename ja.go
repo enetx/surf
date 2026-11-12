@@ -143,15 +143,16 @@ func (j *JA) getSpec() g.Result[utls.ClientHelloSpec] {
 // Android sets the JA3/4 fingerprint to mimic Android 11 OkHttp client.
 func (j *JA) Android() *Builder { return j.SetHelloID(utls.HelloAndroid_11_OkHttp) }
 
-// Chrome applies the current Chrome 157 TLS template.
-func (j *JA) Chrome() *Builder { return j.Chrome157() }
+// Chrome applies the current Chrome 158 TLS template.
+func (j *JA) Chrome() *Builder { return j.Chrome158() }
 
-// Chrome157 applies the current Chrome TLS template with per-connection shuffling.
-func (j *JA) Chrome157() *Builder {
+// Chrome158 applies the current Chrome TLS template with per-connection
+// extension shuffling and the browser's ECH inner and session-cache policies.
+func (j *JA) Chrome158() *Builder {
 	j.builder.configureTCPSessionCache = chrome.Desktop.ConfigureTCPSessionCache
 	return j.ECHClientHelloInner(chrome.Desktop.ECHClientHelloInner).
 		ShuffleExtensions().
-		SetHelloSpec(chrome.HelloChrome_157)
+		SetHelloSpec(chrome.HelloChrome_158)
 }
 
 // Edge sets the JA3/4 fingerprint to mimic Microsoft Edge version 85.

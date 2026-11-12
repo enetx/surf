@@ -162,7 +162,7 @@ func TestQUICFluentOverridesPreserveBrowserProfiles(t *testing.T) {
 				requireQUICParameter(t, values, id, want)
 			}
 			if browser == "chrome" {
-				require.Equal(t, []byte("ORIG"), values[0x3128])
+				require.Equal(t, []byte("ORIGNOIP"), values[0x3128])
 				requireQUICParameter(t, values, 3, 1472)
 				requireQUICParameter(t, values, 4, 15<<20)
 				requireQUICParameter(t, values, 32, 65536)
@@ -171,7 +171,7 @@ func TestQUICFluentOverridesPreserveBrowserProfiles(t *testing.T) {
 				requireQUICParameter(t, values, 4, 24<<20)
 				requireQUICParameter(t, values, 32, 65535)
 			}
-			referenceName := "chrome_157_http3.json"
+			referenceName := "chromium_158_http3.json"
 			if browser == "firefox" {
 				referenceName = "firefox_160_http3.json"
 			}
@@ -349,7 +349,7 @@ func TestQUICFluentProfileReplacement(t *testing.T) {
 			t.Cleanup(func() { client.Close() })
 			capture := peer.request(t, client)
 			_, parameters, number := quicWireParameters(t, peer)
-			fixture := "chrome_157_http3.json"
+			fixture := "chromium_158_http3.json"
 			if browser == "firefox" {
 				fixture = "firefox_160_http3.json"
 			}

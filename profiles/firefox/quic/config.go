@@ -1,8 +1,9 @@
 package quic
 
 import (
-	"github.com/enetx/surf/profiles/firefox/desktop"
 	"time"
+
+	"github.com/enetx/surf/profiles/firefox/desktop"
 
 	"github.com/enetx/quic-go"
 	"github.com/enetx/surf/profiles"

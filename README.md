@@ -15,7 +15,7 @@
 ## ✨ Key Features
 
 ### 🎭 **Browser Impersonation**
-- **Chrome & Firefox Support**: Accurately mimic Chrome v157 (desktop/Android), Chrome v157 (iOS), and Firefox v160 (desktop) browser fingerprints
+- **Chrome & Firefox Support**: Accurately mimic Chrome v158 (desktop/Android), Chrome v158 (iOS), and Firefox v160 (desktop) browser fingerprints
 - **Platform Diversity**: Impersonate Windows, macOS, Linux, Android, and iOS devices
 - **TLS Fingerprinting**: Full JA3/JA4 fingerprint customization for enhanced privacy
 - **Automatic Headers**: Proper header ordering and browser-specific values
@@ -145,20 +145,25 @@ if resp.IsOk() {
 client := surf.NewClient().
     Builder().
     Impersonate().
-    Chrome().        // Chrome v157
+    Chrome().        // Chrome v158
     Build().
     Unwrap()
 
 resp := client.Get("https://example.com").Do()
 ```
 
-`Impersonate().Chrome()` selects the current Chrome 157 profile for desktop and Android.
-Its TLS and HTTP/2/HTTP/3 defaults are checked against Google Chrome 157.0.8103.51.
-`JA().Chrome()` and `JA().Chrome157()` select the current TLS template; older
-version-specific Chrome helpers have been removed.
+`Impersonate().Chrome()` selects Chrome 158 for desktop and Android.
+`JA().Chrome()` and `JA().Chrome158()` select its TLS template. The public
+Chrome version-specific API exposes 158 only.
+The [Chrome 158 audit](tests/testdata/wire/chrome_158/README.md) records the release
+source comparison and ordinary Chromium captures, including server_padding,
+ORIGNOIP and unbranded Client Hints. Chromium is the protocol reference;
+the selected OS supplies Chrome's User-Agent. The report identifies source-derived
+platform fixtures and retained independent historical HPACK references.
 
-`Impersonate().IOS().Chrome()` selects the separate WebKit profile from the Chrome 157
-iOS capture, including its User-Agent, TLS, HTTP/2 settings and header order. It sends no
+`Impersonate().IOS().Chrome()` selects Chrome 158 iOS branding over the separate
+captured WebKit TLS/HTTP2 shape. Its OS identity remains the verified iPhone
+identity; the new app-level UA is source-derived until a fresh device capture. It sends no
 Chromium Client Hints. Each platform keeps one current profile and its own golden reference.
 
 `Session()` preserves cookies and enables TLS resumption where the profile supports it.
@@ -255,7 +260,7 @@ client := surf.NewClient().
 
 ```
 
-Chrome 157 transport defaults follow the selected protocol, including fallback:
+Chrome 158 transport defaults follow the selected protocol, including fallback:
 HTTP/1.1 sends Connection and lowercase Client Hints without a default Priority.
 HTTP/2 and HTTP/3 preserve their own ordered defaults. Custom values take precedence.
 `HTTP3Settings().CoalesceRequestHeaders(true)` stages initial priority, HEADERS
@@ -266,7 +271,7 @@ omitted peer capacity from an explicit zero through
 `ForceHTTP3()` attempts QUIC directly and registers the transport itself. UDP
 unavailability and TCP-only proxies retain HTTP/2/HTTP/1 fallback; a SOCKS5 proxy
 with UDP support can carry HTTP/3. Proxy routes keep separate TCP pools while
-retaining the selected TLS profile. [Chrome157 audit](tests/testdata/wire/chrome_157_audit.json).
+retaining the selected TLS profile. [Chrome 158 audit](tests/testdata/wire/chrome_158/README.md).
 
 ### Request encoding and control frames
 
@@ -308,7 +313,7 @@ without receiving the request's HEADERS priority.
 GREASE and local QUIC `StreamPriority`. `QpackSplitCookies` and `QpackNeverIndex`
 control request fields. Browser presets select these independently:
 
-| Behavior | Chrome 157 desktop / Android | Firefox 160 desktop |
+| Behavior | Chrome 158 desktop / Android | Firefox 160 desktop |
 | --- | --- | --- |
 | HPACK varying `:path` | Literal without indexing | Literal without indexing, including static paths |
 | HPACK Authorization | Normal indexing | Never indexed |
@@ -328,7 +333,7 @@ control request fields. Browser presets select these independently:
 | Control GREASE payload | Length `n%4` | Independent draw, length 0–7 |
 | Initial HTTP/3 priority update | Explicit nondefault Priority | Disabled; Neqo uses updates for changed priority |
 
-Sources are pinned to [Chrome 157's Quiche revision](https://github.com/chromium/chromium/blob/157.0.8103.51/DEPS)
+Sources are pinned to [Chrome 158's QUICHE revision](https://github.com/chromium/chromium/blob/158.0.8127.18/DEPS)
 and [Firefox 160.0](https://github.com/mozilla-firefox/firefox/tree/FIREFOX_160_0_RELEASE).
 The profile functions link directly to the corresponding browser source files.
 iOS profiles keep their WebKit behavior; these desktop engine policies are not
@@ -727,7 +732,7 @@ TCP preparation, using standard TLS configuration and Surf's uTLS adapter. Rejec
 ECH. Proxies bypass local HTTPS discovery. Application-owned transports/TLS
 dialers and disabled TCP keep-alives retain their existing connection policy.
 
-Chrome 157 and Firefox 160 provide real-ECH inner ClientHello policies from
+Chrome 158 and Firefox 160 provide real-ECH inner ClientHello policies from
 their browser profile packages. The minimal `enetx/utls` fork preserves their
 cipher order and complete shared extension payloads, including fields unknown
 to Go. Custom templates can supply a policy through `JA().ECHClientHelloInner`
@@ -1060,7 +1065,7 @@ resp := client.Get("https://example.com/dashboard").Do()
 ### TLS Ticket Cache
 
 `Session()` enables independent browser-owned TCP and QUIC ticket queues alongside
-cookies. Chrome 157 keeps two tickets per server and consumes TLS 1.3 tickets
+cookies. Chrome 158 keeps two tickets per server and consumes TLS 1.3 tickets
 once; its legacy TCP TLS 1.2 tickets remain reusable. Firefox 160 keeps ten tokens
 in expiration order and consumes each selected token.
 

@@ -23,8 +23,9 @@ func TestChromeClientHelloMatchesGolden(t *testing.T) {
 		spec    *utls.ClientHelloSpec
 		shuffle bool
 	}{
-		{"chrome-157-windows", &chrome.HelloChrome_157, true},
-		{"chrome-157-android", &chrome.HelloChrome_157_Mobile, true},
+		{"chrome-158-windows", &chrome.HelloChrome_158, true},
+		{"chrome-158-android", &chrome.HelloChrome_158_Mobile, true},
+		{"chrome-158-ios", chrome.IOS.HelloSpec, false},
 		{"chrome-157-ios", chrome.IOS.HelloSpec, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -41,7 +42,7 @@ func TestChromeClientHelloMatchesGolden(t *testing.T) {
 			greases := make(map[uint16]bool)
 			for range 16 {
 				serverName := "127.0.0.1"
-				if tc.name == "chrome-157-ios" {
+				if tc.name == "chrome-157-ios" || tc.name == "chrome-158-ios" {
 					serverName = "tls.peet.ws"
 				}
 				conn := utls.UClient(nil, &utls.Config{

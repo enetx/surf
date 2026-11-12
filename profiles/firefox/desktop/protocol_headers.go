@@ -49,5 +49,6 @@ func setDefaultHeader(headers http.Header, name, value string) {
 			return
 		}
 	}
+
 	headers.Set(name, value)
 }

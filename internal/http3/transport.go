@@ -281,7 +281,7 @@ func (ut *Transport) initTransport() error {
 
 	ut.http3tr = &http3.Transport{
 		QPACKConfig:            ut.qpackConfig.Clone(),
-		WireConfig:             ut.wireConfig.Clone(),
+		WireConfig:             responseWireConfig(ut.wireConfig),
 		TLSClientConfig:        ut.tlsConfig,
 		QUICConfig:             config,
 		StreamPriority:         ut.streamPriority,
@@ -304,6 +304,7 @@ func (ut *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 		return nil, errors.New("HTTP/3 requires a request URL and host")
 	}
+	req = req.WithContext(context.WithValue(req.Context(), responseProgressKey{}, &responseProgress{}))
 
 	// Environment or application-selected TCP proxies own this request's route.
 	// Do not bypass them through direct UDP or local HTTPS-record discovery.
@@ -418,6 +419,9 @@ func (ut *Transport) handleError(req *http.Request, err error) (*http.Response, 
 	}
 
 	if !isHTTP3UnsupportedError(err) || ut.Fallback == nil {
+		return nil, err
+	}
+	if !requestProgress(req).allowFallback() {
 		return nil, err
 	}
 

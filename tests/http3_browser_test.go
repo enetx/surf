@@ -49,7 +49,7 @@ func wordsH3(t *testing.T, data []byte) []uint16 {
 }
 
 func TestChromeHTTP3MatchesIndependentBrowser(t *testing.T) {
-	data, err := os.ReadFile("testdata/wire/chrome_157_http3.json")
+	data, err := os.ReadFile("testdata/wire/chromium_158_http3.json")
 	require.NoError(t, err)
 	var reference browserH3Reference
 	require.NoError(t, json.Unmarshal(data, &reference))
@@ -99,7 +99,7 @@ func TestChromeHTTP3MatchesIndependentBrowser(t *testing.T) {
 		require.Equal(t, 1, grease)
 		require.Len(t, values, 13)
 		require.Empty(t, values[15])
-		require.Equal(t, []byte("ORIG"), values[0x3128])
+		require.Equal(t, []byte("ORIGNOIP"), values[0x3128])
 		require.Len(t, values[17], 12)
 		require.EqualValues(t, 1, binary.BigEndian.Uint32(values[17]))
 		available := []uint32{binary.BigEndian.Uint32(values[17][4:]), binary.BigEndian.Uint32(values[17][8:])}
@@ -163,6 +163,8 @@ func checkBrowserH3TLS(t *testing.T, hello []byte, reference browserH3Reference)
 			require.NoError(t, err)
 			require.Equal(t, value, hex.EncodeToString(ext[uint16(number)]), "extension %s", id)
 		}
+	}
+	if reference.TLS.ALPS == "" {
 		require.EqualValues(t, 1, binary.BigEndian.Uint16(ech[1:]))
 		require.Contains(t, []uint16{1, 3}, binary.BigEndian.Uint16(ech[3:]))
 		require.Len(t, ech, 282)

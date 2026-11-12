@@ -12,7 +12,7 @@ import (
 // ConfigureSessionCache follows QUICHE's two-ticket stack and invalidates older
 // tickets when remembered transport state changes. RTT is not compatibility
 // state and must not invalidate otherwise equivalent tickets.
-// https://github.com/google/quiche/blob/541aa2a7889b7ea7651e41afc58211f2a256850a/quiche/quic/core/crypto/quic_client_session_cache.cc
+// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/crypto/quic_client_session_cache.cc
 func ConfigureSessionCache(cache *profiles.SessionCacheConfig) {
 	cache.Capacity(1024).TicketsPerKey(2).
 		Order(tlscache.NewestFirst).DiscardOnExpiry(true).ClearEarlyDataOnReject(true).

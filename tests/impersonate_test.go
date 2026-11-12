@@ -420,8 +420,8 @@ func TestImpersonateChromeHeaders(t *testing.T) {
 	}
 
 	secChUa := receivedHeaders.Get("Sec-Ch-Ua")
-	if !strings.Contains(secChUa, "Google Chrome") {
-		t.Errorf("expected Google Chrome in Sec-Ch-Ua, got: %s", secChUa)
+	if !strings.Contains(secChUa, `"Chromium";v="158"`) {
+		t.Errorf("expected Chromium 158 in Sec-Ch-Ua, got: %s", secChUa)
 	}
 
 	acceptEncoding := receivedHeaders.Get("Accept-Encoding")

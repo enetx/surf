@@ -243,17 +243,20 @@ func TestPlatformMap(t *testing.T) {
 	}
 }
 
-func TestSecCHUAFormat(t *testing.T) {
+func TestChrome158SecCHUAFormat(t *testing.T) {
 	t.Parallel()
 
-	if !strings.Contains(chrome.SecCHUA, "Google Chrome") {
-		t.Errorf("SecCHUA missing Chrome brand: %s", chrome.SecCHUA)
+	// Release-tag GenerateBrandVersionList uses major 158 as the permutation
+	// and GREASE seed. The wire reference is the unbranded Chromium build.
+	const want = `"Not.A/Brand";v="24", "Chromium";v="158"`
+	if chrome.SecCHUA != want {
+		t.Errorf("SecCHUA = %q, want %q", chrome.SecCHUA, want)
 	}
 	if !strings.Contains(chrome.SecCHUA, "Chromium") {
 		t.Errorf("SecCHUA missing Chromium brand: %s", chrome.SecCHUA)
 	}
-	if !strings.Contains(chrome.SecCHUA, `v="157"`) {
-		t.Errorf("SecCHUA missing version 157: %s", chrome.SecCHUA)
+	if !strings.Contains(chrome.SecCHUA, `v="158"`) {
+		t.Errorf("SecCHUA missing version 158: %s", chrome.SecCHUA)
 	}
 }
 
@@ -263,8 +266,8 @@ func TestVariantDesktopFields(t *testing.T) {
 	if chrome.Desktop.HelloSpec == nil {
 		t.Fatal("Desktop.HelloSpec is nil")
 	}
-	if chrome.Desktop.HelloSpec != &chrome.HelloChrome_157 {
-		t.Error("Desktop.HelloSpec must point to HelloChrome_157")
+	if chrome.Desktop.HelloSpec != &chrome.HelloChrome_158 {
+		t.Error("Desktop.HelloSpec must point to HelloChrome_158")
 	}
 	if chrome.Desktop.Boundary == nil {
 		t.Error("Desktop.Boundary is nil")
@@ -286,10 +289,10 @@ func TestVariantMobileFields(t *testing.T) {
 	if chrome.Mobile.HelloSpec == nil {
 		t.Fatal("Mobile.HelloSpec is nil")
 	}
-	if chrome.Mobile.HelloSpec != &chrome.HelloChrome_157_Mobile {
-		t.Error("Mobile.HelloSpec must point to HelloChrome_157_Mobile")
+	if chrome.Mobile.HelloSpec != &chrome.HelloChrome_158_Mobile {
+		t.Error("Mobile.HelloSpec must point to HelloChrome_158_Mobile")
 	}
-	if chrome.Mobile.HelloSpec == &chrome.HelloChrome_157 {
+	if chrome.Mobile.HelloSpec == &chrome.HelloChrome_158 {
 		t.Error("Mobile.HelloSpec must NOT point to the desktop spec")
 	}
 	if chrome.Mobile.Boundary == nil {
@@ -320,16 +323,16 @@ const chromeTrustAnchors = "00b80582df1302010582df1302060582df13020d0582df13020e
 	"8c9b2d011304d679090104d679090404d679090504d679090604d679090704d679090804d679090a04d6" +
 	"79090b04d679090c04d679090d04d679090f"
 
-func TestHelloChrome157TrustAnchors(t *testing.T) {
+func TestHelloChrome158TrustAnchors(t *testing.T) {
 	t.Parallel()
 
 	for name, spec := range map[string]*utls.ClientHelloSpec{
-		"desktop": &chrome.HelloChrome_157,
-		"mobile":  &chrome.HelloChrome_157_Mobile,
+		"desktop": &chrome.HelloChrome_158,
+		"mobile":  &chrome.HelloChrome_158_Mobile,
 	} {
 		ext := trustAnchorsExtension(spec)
 		if ext == nil {
-			t.Fatalf("%s: HelloChrome_157 must carry the trust_anchors extension (0xca34)", name)
+			t.Fatalf("%s: HelloChrome_158 must carry the trust_anchors extension (0xca34)", name)
 		}
 		if len(ext.TrustAnchorIDs) != 28 {
 			t.Errorf("%s: got %d trust anchors, want 28", name, len(ext.TrustAnchorIDs))
@@ -352,10 +355,10 @@ func TestHelloChrome157TrustAnchors(t *testing.T) {
 	}
 }
 
-func TestHelloChrome157SignatureAlgorithmsGREASE(t *testing.T) {
+func TestHelloChrome158SignatureAlgorithmsGREASE(t *testing.T) {
 	t.Parallel()
 
-	for _, ext := range chrome.HelloChrome_157.Extensions {
+	for _, ext := range chrome.HelloChrome_158.Extensions {
 		sigalgs, ok := ext.(*utls.SignatureAlgorithmsExtension)
 		if !ok {
 			continue
@@ -365,12 +368,12 @@ func TestHelloChrome157SignatureAlgorithmsGREASE(t *testing.T) {
 		}
 		return
 	}
-	t.Fatal("HelloChrome_157 has no signature_algorithms extension")
+	t.Fatal("HelloChrome_158 has no signature_algorithms extension")
 }
 
 // uTLS shuffles Chrome's extension order when creating the spec. Pin the set;
 // JA wire tests check per-connection shuffling and template immutability.
-func TestHelloChrome157ExtensionSet(t *testing.T) {
+func TestHelloChrome158ExtensionSet(t *testing.T) {
 	t.Parallel()
 
 	want := []string{
@@ -392,12 +395,13 @@ func TestHelloChrome157ExtensionSet(t *testing.T) {
 		"*tls.ApplicationSettingsExtensionNew",
 		"*tls.TrustAnchorsExtension",
 		"*tls.GREASEEncryptedClientHelloExtension",
+		"*tls.GenericExtension",
 		"*tls.UtlsGREASEExtension",
 		"*tls.UtlsPreSharedKeyExtension",
 	}
 	slices.Sort(want)
-	got := make([]string, 0, len(chrome.HelloChrome_157.Extensions))
-	for _, ext := range chrome.HelloChrome_157.Extensions {
+	got := make([]string, 0, len(chrome.HelloChrome_158.Extensions))
+	for _, ext := range chrome.HelloChrome_158.Extensions {
 		got = append(got, fmt.Sprintf("%T", ext))
 	}
 	if got[len(got)-1] != "*tls.UtlsPreSharedKeyExtension" {
@@ -405,7 +409,7 @@ func TestHelloChrome157ExtensionSet(t *testing.T) {
 	}
 	slices.Sort(got)
 	if !slices.Equal(got, want) {
-		t.Errorf("HelloChrome_157 extension set changed\n got: %v\nwant: %v", got, want)
+		t.Errorf("HelloChrome_158 extension set changed\n got: %v\nwant: %v", got, want)
 	}
 }
 

@@ -66,8 +66,9 @@ func (ut *Transport) roundTripEarlyBackup(req *http.Request, address string) (*h
 		cancel()
 		return nil, err
 	}
-	decision <- selection.Protocol == 3
-	if selection.Protocol != 3 {
+	useQUIC := selection.Protocol == 3 || !requestProgress(req).allowFallback()
+	decision <- useQUIC
+	if !useQUIC {
 		cancel()
 		if selection.HTTP1 {
 			req = req.WithContext(context.WithValue(req.Context(), preparedTCPHTTP1Key{}, true))

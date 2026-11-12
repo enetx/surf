@@ -7,12 +7,11 @@ import (
 )
 
 func main() {
-
 	const url = "https://tls.peet.ws/api/all"
 
 	cli := surf.NewClient().
 		Builder().
-		JA().Chrome157().
+		JA().Chrome158().
 		Build().
 		Unwrap()
 

@@ -67,7 +67,7 @@ func NewTransportParameters(version quic.Version) (*transportparams.Layout, erro
 		DisableGrease: true,
 		Additional: []transportparams.Parameter{
 			{ID: 17, Value: information},
-			{ID: 0x3128, Value: []byte("ORIG")},
+			{ID: 0x3128, Value: []byte("ORIGNOIP")},
 			{ID: greaseID, Value: payload},
 		},
 		Order: []uint64{1, 3, 4, 5, 6, 7, 8, 9, 15, 17, 32, 0x3127, 0x3128, greaseID},

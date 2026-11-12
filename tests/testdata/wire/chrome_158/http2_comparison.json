@@ -1,0 +1,67 @@
+{
+  "browser": "Chromium 158.0.8127.0",
+  "snapshot_revision": 1727489,
+  "os": "macOS arm64",
+  "method": "Ordinary visible native browser; no protocol, resolver, certificate, field-trial or User-Agent overrides. Surf MacOS profile selected for like-for-like header comparison; Windows Chrome UA remains available through Windows().",
+  "endpoint": "https://tls.peet.ws/api/all",
+  "native_response_sha256": "1f741ff06e63dd2366a4fb35bf5d0f079cef0767e2a1bd88f961ccd2bd08257e",
+  "surf_response_sha256": "412cfc7c42c7c95759197bd73a61d6c94557e8bf93ecfb8e2f78d6bbd4fa77d9",
+  "native_ja4": "t13d1518h2_8daaf6152771_4980c97edce0",
+  "surf_ja4": "t13d1518h2_8daaf6152771_4980c97edce0",
+  "native_h2_fingerprint": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
+  "surf_h2_fingerprint": "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p",
+  "native_headers": [
+    ":method: GET",
+    ":authority: tls.peet.ws",
+    ":scheme: https",
+    ":path: /api/all",
+    "sec-ch-ua: \"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\"",
+    "sec-ch-ua-mobile: ?0",
+    "sec-ch-ua-platform: \"macOS\"",
+    "upgrade-insecure-requests: 1",
+    "user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+    "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "sec-fetch-site: none",
+    "sec-fetch-mode: navigate",
+    "sec-fetch-user: ?1",
+    "sec-fetch-dest: document",
+    "accept-encoding: gzip, deflate, br, zstd",
+    "accept-language: en-US,en;q=0.9",
+    "priority: u=0, i"
+  ],
+  "surf_headers": [
+    ":method: GET",
+    ":authority: tls.peet.ws",
+    ":scheme: https",
+    ":path: /api/all",
+    "sec-ch-ua: \"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\"",
+    "sec-ch-ua-mobile: ?0",
+    "sec-ch-ua-platform: \"macOS\"",
+    "upgrade-insecure-requests: 1",
+    "user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+    "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "sec-fetch-site: none",
+    "sec-fetch-mode: navigate",
+    "sec-fetch-user: ?1",
+    "sec-fetch-dest: document",
+    "accept-encoding: gzip, deflate, br, zstd",
+    "accept-language: en-US,en;q=0.9",
+    "priority: u=0, i"
+  ],
+  "headers_equal": true,
+  "native_server_padding": {
+    "name": "Unknown extension 4832",
+    "data": "0000"
+  },
+  "surf_server_padding": {
+    "name": "Unknown extension 4832",
+    "data": "0000"
+  },
+  "hpack_netlog_sha256": "648f832ae52c01b6b04f731c47c52accb85dab5e2ba5aff66ad20c4afdec185b",
+  "native_headers_frame": {
+    "stream_id": 1,
+    "length": 448,
+    "flags": 37,
+    "hpack_hex": "8241884d085eb2952bf84787048660759981d14740874148b1275ad1ffa3fe749d2bc2c5db07549fcfdf783f9135fcfd29fcde9ec3d26b69fe7efbc1fc85b7bf9f408b4148b1275ad1ad49e33505023f30408d4148b1275ad1ad5d034ca7b29f07226d61634f53224092b6b9ac1c8558d520a4b6c2ad617b5a54251f01317ad9d07f66a281b0dae053fad0321aa49d13fda992a49685340c8a6adca7e28104416e277fb521aeba0bc8b1e632586d975765c53facd8f7e8cff4a506ea5531149d4ffda97a7b0f49580b6f2e05c0b814dc394761986d975765cf53ec497ca589d34d1f43aeba0c41a4c7a98f33a69a3fdf9a68fa1d75d0620d263d4c79a68fbed00177fe8d48e62b1d3cd1f46a4731581f734bf46a473158f058ebfa352398ac0ebaa6faf963e7efb4005defa1d75d0620d263d4c20d35459162f924e3aa62fdf782367efb4005dd408a4148b4a549275906497f83a8f517408a4148b4a549275a93c85f86a87dcd30d25f408a4148b4a549275ad416cf023f31408a4148b4a549275a42a13f8690e4b692d49f50929bd9abfa5242cb40d25fa523b3e94f684c9f518b2d4b70ddf45abefb4005df4086aec31ec327d785b6007d286f"
+  }
+}

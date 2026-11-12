@@ -12,11 +12,11 @@ import (
 	"github.com/enetx/surf"
 )
 
-func TestJAChrome157(t *testing.T) {
+func TestJAChrome158(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome157().
+		JA().Chrome158().
 		Build().Unwrap()
 
 	if client == nil {
@@ -67,7 +67,7 @@ func TestJAChromeCurrentHelpers(t *testing.T) {
 		method func() *surf.Client
 	}{
 		{"Chrome", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome().Build().Unwrap() }},
-		{"Chrome157", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome157().Build().Unwrap() }},
+		{"Chrome158", func() *surf.Client { return surf.NewClient().Builder().JA().Chrome158().Build().Unwrap() }},
 	}
 
 	for _, tc := range chromeVersions {
@@ -413,7 +413,7 @@ func TestJAMultipleCalls(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome157().
+		JA().Chrome158().
 		JA().Firefox148().
 		Build().Unwrap()
 
@@ -442,7 +442,7 @@ func TestJAWithHTTP2(t *testing.T) {
 	t.Parallel()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome157().
+		JA().Chrome158().
 		HTTP2Settings().
 		HeaderTableSize(65536).
 		EnablePush(1).
@@ -489,7 +489,7 @@ func TestJARoundTripperHTTP1(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome157().
+		JA().Chrome158().
 		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))
@@ -516,7 +516,7 @@ func TestJACloseIdleConnections(t *testing.T) {
 	defer ts.Close()
 
 	client := surf.NewClient().Builder().
-		JA().Chrome157().
+		JA().Chrome158().
 		Build().Unwrap()
 
 	req := client.Get(g.String(ts.URL))

@@ -42,8 +42,10 @@ func (e *echPreSharedKey) InitializeByUtls(
 ) {
 	e.UtlsPreSharedKeyExtension.InitializeByUtls(session, secret, binderKey, identities)
 	length := e.innerLength + e.UtlsPreSharedKeyExtension.Len()
+
 	if e.early != nil && e.early.Len() > 0 {
 		length += 2 // The newly enabled inner early_data outer reference.
 	}
+
 	ech.SetPayloadLength(e.ech, length)
 }
