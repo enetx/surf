@@ -74,6 +74,14 @@ The native samples do not establish accepted early request data, so full Firefox
 request-scheduling or packet-count parity is not claimed. The DOM/referrer
 context still differs from the standalone API fetch.
 
+A [later Firefox 160 capture](firefox_160/README.md) confirms accepted early GETs
+in ordinary opaque Google fetches, including independently verified TLS Finished
+and dynamic QPACK decoding. Those resumptions do not use real ECH. A separate
+fresh Cloudflare transcript confirms accepted ECH plus control-only early data;
+combined native ECH+early-GET acceptance and matching Surf packet scheduling are
+still separate evidence gaps. The earlier control-only samples remain valid for
+their original scenario.
+
 A final independent Linux eth0 capture contains **175 captured packets, 175
 reported by the filter and zero kernel drops**. Three fresh connections per
 profile include four resumed connections. The existing transcript verifier

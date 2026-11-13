@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "browser": {
+    "name": "Firefox",
+    "version": "160.0",
+    "build_id": "20261104181552",
+    "actual_platform": "Linux arm64, official Mozilla binary under Xvfb in an IPv4 container",
+    "archive_sha512": "06bd97f3bf2c8447f686387c44a46c773bac0330d90fe2e25d9064f45a65df87a0f481d70f9cca852f5e364d677cd3fd5c471c18c078b5d437364cf495674ac7",
+    "archive_source": "https://archive.mozilla.org/pub/firefox/releases/160.0/linux-aarch64/en-US/firefox-160.0.tar.xz",
+    "mozilla_checksum_source": "https://archive.mozilla.org/pub/firefox/releases/160.0/SHA512SUMS"
+  },
+  "method": {
+    "action": "fetch(url, {mode: \"no-cors\", credentials: \"omit\"}) from one about:blank context",
+    "warm_requests": 4,
+    "repeat_requests": 3,
+    "idle_intervals_ms": [
+      45000,
+      45000,
+      45000
+    ],
+    "certificate_verification": true,
+    "acceptInsecureCerts": false,
+    "protocol_overrides": false,
+    "zero_rtt_overrides": false,
+    "dns_overrides": false,
+    "diagnostics": [
+      "BiDi automation with remote.prefs.recommended=false",
+      "NSS SSLKEYLOGFILE",
+      "network.http.http3.enable_qlog=true",
+      "tcpdump without immediate mode; UDP segmentation/GSO/GRO disabled for capture"
+    ]
+  },
+  "google": {
+    "capture": {
+      "pcap_sha256": "6c0da30b4a5db99a88726c435b3ad4523926b049aa7f6679d437105cd4b02c07",
+      "captured_packets": 21180,
+      "received_by_filter": 21180,
+      "kernel_drops": 0,
+      "truncated_frames": 0
+    },
+    "request_api_completion": [
+      {
+        "phase": "warm",
+        "type": "opaque",
+        "status": 0
+      },
+      {
+        "phase": "warm",
+        "type": "opaque",
+        "status": 0
+      },
+      {
+        "phase": "warm",
+        "type": "opaque",
+        "status": 0
+      },
+      {
+        "phase": "warm",
+        "type": "opaque",
+        "status": 0
+      },
+      {
+        "phase": "after-idle",
+        "type": "opaque",
+        "status": 0
+      },
+      {
+        "phase": "after-idle",
+        "type": "opaque",
+        "status": 0
+      },
+      {
+        "phase": "after-idle",
+        "type": "opaque",
+        "status": 0
+      }
+    ],
+    "ech_accepted": false,
+    "verification": {
+      "tls": "PSK selected_identity=0, server EncryptedExtensions early_data=42, independently recomputed server and client Finished HMAC-SHA256 from original transcript and logged handshake secrets",
+      "qpack": "Independent official pylsqpack 1.1.1 decoded the actual early request and encoder streams. No Surf decoder was used.",
+      "http": "Connection 3 contains HTTP/3 204 on stream 0. The later response status for connection 6 was not decoded; it is not a second independently established HTTP success."
+    },
+    "verified_connections": [
+      {
+        "connection": "3",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 2,
+          "earlyControlPackets": 1,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [
+          "204"
+        ],
+        "decoder": "official pylsqpack 1.1.1",
+        "request_stream_bytes": 141,
+        "encoder_stream_bytes": 68,
+        "request_stream_sha256": "5855d7ecac33cc4fa8059d154fd03bb7af4da17177ce21379aa8471c3b3d9e6f",
+        "ordered_fields": [
+          [
+            ":method",
+            "GET"
+          ],
+          [
+            ":scheme",
+            "https"
+          ],
+          [
+            ":authority",
+            "www.google.com"
+          ],
+          [
+            ":path",
+            "/generate_204?surf-resumption=4"
+          ],
+          [
+            "user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+          ],
+          [
+            "accept",
+            "*/*"
+          ],
+          [
+            "accept-language",
+            "en-US,en;q=0.9"
+          ],
+          [
+            "accept-encoding",
+            "gzip, deflate, br, zstd"
+          ],
+          [
+            "sec-fetch-dest",
+            "empty"
+          ],
+          [
+            "sec-fetch-mode",
+            "no-cors"
+          ],
+          [
+            "sec-fetch-site",
+            "cross-site"
+          ],
+          [
+            "priority",
+            "u=4"
+          ]
+        ]
+      },
+      {
+        "connection": "6",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 2,
+          "earlyControlPackets": 1,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [],
+        "decoder": "official pylsqpack 1.1.1",
+        "request_stream_bytes": 141,
+        "encoder_stream_bytes": 68,
+        "request_stream_sha256": "68383154e26c045dff74875e3f01361ff15642a7b5889e296280b70c6482fcb5",
+        "ordered_fields": [
+          [
+            ":method",
+            "GET"
+          ],
+          [
+            ":scheme",
+            "https"
+          ],
+          [
+            ":authority",
+            "www.google.com"
+          ],
+          [
+            ":path",
+            "/generate_204?surf-resumption=6"
+          ],
+          [
+            "user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+          ],
+          [
+            "accept",
+            "*/*"
+          ],
+          [
+            "accept-language",
+            "en-US,en;q=0.9"
+          ],
+          [
+            "accept-encoding",
+            "gzip, deflate, br, zstd"
+          ],
+          [
+            "sec-fetch-dest",
+            "empty"
+          ],
+          [
+            "sec-fetch-mode",
+            "no-cors"
+          ],
+          [
+            "sec-fetch-site",
+            "cross-site"
+          ],
+          [
+            "priority",
+            "u=4"
+          ]
+        ]
+      }
+    ]
+  },
+  "cloudflare_navigation": {
+    "capture": {
+      "pcap_sha256": "30c7d170abca0d3f2b91d0e7b3badd356e5dd45f1f48d6e97fe7b673756dcd46",
+      "captured_packets": 15620,
+      "received_by_filter": 15620,
+      "kernel_drops": 0,
+      "truncated_frames": 0
+    },
+    "ech_accepted": true,
+    "psk_selected": 0,
+    "early_data": {
+      "offered": true,
+      "accepted": true,
+      "request_packets": 0,
+      "packets": 2,
+      "control_packets": 2
+    },
+    "reference": "../../ech/resumption/native/firefox-160-quic-2.json"
+  },
+  "limits": [
+    "Accepted early GET is confirmed in the Google non-ECH scenario. A combined native accepted ECH+early GET transcript is not established here.",
+    "Normal navigation and same-origin fetch can produce control-only 0-RTT or a legitimate HTTP/2 winner; an early GET is not guaranteed on every request.",
+    "The original immediate-mode samples had truncated offload frames despite zero kernel drops and are excluded from conclusions.",
+    "These are native browser observations. Identical Surf packet ordering, dynamic QPACK bytes, Windows behavior and NIC pacing are not claimed."
+  ],
+  "primary_sources": [
+    "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Session.cpp",
+    "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Stream.cpp",
+    "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp",
+    "https://www.rfc-editor.org/rfc/rfc8446.html#section-4.4.4",
+    "https://github.com/aiortc/pylsqpack"
+  ]
+}

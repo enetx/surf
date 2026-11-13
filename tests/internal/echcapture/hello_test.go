@@ -10,7 +10,7 @@ import (
 )
 
 func nativeReferences(t *testing.T) []Reference {
-	return referenceFiles(t, "native", 10)
+	return referenceFiles(t, "native", 11)
 }
 
 func referenceFiles(t *testing.T, implementation string, count int) []Reference {

@@ -338,6 +338,21 @@ export function tsharkPair(packets, records) {
 // Input must select one connection, including every early packet, and use
 // tshark -T json -x --no-duplicate-keys. Count QUIC packets, not UDP datagrams.
 export function quicEvidence(packets) {
+  for (const packet of packets) {
+    const frame = packet._source?.layers?.frame;
+    if (!frame) continue;
+
+    const captured = Number(frame["frame.cap_len"]),
+      original = Number(frame["frame.len"]);
+    assert(
+      Number.isSafeInteger(captured) &&
+        Number.isSafeInteger(original) &&
+        original > 0 &&
+        captured === original,
+      "truncated capture frame cannot establish complete early-data evidence",
+    );
+  }
+
   let earlyPackets = 0,
     earlyControlPackets = 0,
     earlyRequestPackets = 0;

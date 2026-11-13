@@ -247,3 +247,30 @@ test("wire evidence handles coalescing, implicit STREAM lengths, control-only ea
     earlyRequestPackets: 0,
   });
 });
+
+test("wire evidence rejects a kernel-truncated offload frame even with parsed early STREAM data", () => {
+  const packet = {
+    _source: {
+      layers: {
+        frame: { "frame.len": "2546", "frame.cap_len": "1530" },
+        quic: {
+          "quic.version": "1",
+          "quic.long.packet_type": "1",
+          "quic.frame": {
+            "quic.stream.stream_id": "0",
+            "quic.stream.length": "400",
+          },
+        },
+      },
+    },
+  };
+
+  assert.throws(() => quicEvidence([packet]), /truncated capture frame/);
+
+  packet._source.layers.frame["frame.cap_len"] = "2546";
+  assert.deepEqual(quicEvidence([packet]), {
+    earlyPackets: 1,
+    earlyControlPackets: 0,
+    earlyRequestPackets: 1,
+  });
+});

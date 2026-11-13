@@ -14,9 +14,19 @@ assert(
 );
 assert(
   ["h2", "h3"].includes(protocol) &&
-    ["navigation", "fetch", "no-cors-fetch"].includes(action) &&
-    (action !== "no-cors-fetch" || kind === "chrome"),
+    ["navigation", "fetch", "no-cors-fetch"].includes(action),
 );
+const captureURL = process.env.SURF_CAPTURE_URL
+  ? new URL(process.env.SURF_CAPTURE_URL)
+  : null;
+assert(
+  !captureURL ||
+    (captureURL.protocol === "https:" && action === "no-cors-fetch"),
+  "SURF_CAPTURE_URL requires an HTTPS endpoint and no-cors-fetch",
+);
+const dnsMode = process.env.SURF_CAPTURE_DNS ?? "cloudflare";
+assert(["cloudflare", "default"].includes(dnsMode), "unsupported capture DNS mode");
+
 const out = resolve(directory);
 mkdirSync(out, { mode: 0o700 });
 mkdirSync(out + "/profile", { mode: 0o700 });
@@ -29,16 +39,25 @@ const prefs = firefox
       "devtools.jsonview.enabled": false,
       "browser.shell.checkDefaultBrowser": false,
       "browser.startup.page": 0,
-      "network.trr.mode": 3,
-      "network.trr.uri": "https://cloudflare-dns.com/dns-query",
-      "network.trr.bootstrapAddress": "1.1.1.1",
+      ...(dnsMode === "cloudflare"
+        ? {
+            "network.trr.mode": 3,
+            "network.trr.uri": "https://cloudflare-dns.com/dns-query",
+            "network.trr.bootstrapAddress": "1.1.1.1",
+          }
+        : {}),
+      ...(process.env.SURF_CAPTURE_QLOG === "1"
+        ? { "network.http.http3.enable_qlog": true }
+        : {}),
     }
-  : {
-      dns_over_https: {
-        mode: "secure",
-        templates: "https://cloudflare-dns.com/dns-query",
-      },
-    };
+  : dnsMode === "default"
+    ? {}
+    : {
+        dns_over_https: {
+          mode: "secure",
+          templates: "https://cloudflare-dns.com/dns-query",
+        },
+      };
 writeFileSync(
   out + "/profile/" + (firefox ? "user.js" : "Local State"),
   firefox
@@ -81,6 +100,7 @@ const method =
       : "Built-in socket-pool flush (TLS session cache retained)";
 const report = {
   kind,
+  dnsMode,
   prefs,
   flags,
   attempts: [],
@@ -89,6 +109,7 @@ const report = {
     method +
     "; certificate verification enabled; no protocol or certificate overrides.",
 };
+if (captureURL) report.endpoint = captureURL.origin + captureURL.pathname;
 if (action === "no-cors-fetch")
   report.method +=
     " Cross-origin opaque fetches retain one about:blank document; protocol and ECH require transcript verification, not response-body inference.";
@@ -109,25 +130,41 @@ async function navigate(url) {
 async function trace(phase, reload = false) {
   const host =
     protocol === "h2" ? "crypto.cloudflare.com" : "www.cloudflare-quic.com";
-  const url = reload
+  let url = reload
     ? currentURL
     : "https://" +
       host +
       "/cdn-cgi/trace?surf-resumption=" +
       report.attempts.length;
+  if (captureURL) {
+    const target = new URL(captureURL);
+    target.searchParams.set("surf-resumption", report.attempts.length);
+    url = target.href;
+  }
+
   if (action === "no-cors-fetch") {
-    const result = await b.send(
-      "Runtime.evaluate",
-      {
-        expression: `fetch(${JSON.stringify(url)}, {mode: 'no-cors', credentials: 'omit'}).then(response => ({type: response.type, status: response.status}))`,
-        returnByValue: true,
-        awaitPromise: true,
-      },
-      sessionId,
+    // A JSON string has the same primitive representation in CDP and BiDi;
+    // BiDi's remote object values are not ordinary JavaScript dictionaries.
+    const expression = `fetch(${JSON.stringify(url)}, {mode: 'no-cors', credentials: 'omit'}).then(response => JSON.stringify({type: response.type, status: response.status}))`;
+    const result = firefox
+      ? await b.send("script.evaluate", {
+          expression,
+          target: { context },
+          awaitPromise: true,
+        })
+      : await b.send(
+          "Runtime.evaluate",
+          { expression, returnByValue: true, awaitPromise: true },
+          sessionId,
+        );
+
+    assert(
+      !result.exceptionDetails && (!firefox || result.type === "success"),
+      "ordinary opaque fetch failed",
     );
-    assert(!result.exceptionDetails, "ordinary opaque fetch failed");
-    assert.equal(result.result?.value?.type, "opaque");
-    const fields = result.result.value;
+
+    const fields = JSON.parse(result.result?.value);
+    assert.equal(fields.type, "opaque");
     report.attempts.push({ phase, at: new Date().toISOString(), ...fields });
     console.log(JSON.stringify(report.attempts.at(-1)));
     return fields;
@@ -211,7 +248,8 @@ try {
     await b.send("Page.enable", {}, sessionId);
   }
   let fields;
-  for (let n = 0; n < (action === "no-cors-fetch" ? 2 : 6); n++) {
+  const warmups = action === "no-cors-fetch" ? (firefox ? 4 : 2) : 6;
+  for (let n = 0; n < warmups; n++) {
     fields = await trace("warm");
     if (
       action !== "no-cors-fetch" &&
@@ -255,7 +293,8 @@ try {
       await trace(firefox ? "hard-reload" : "socket-pool-flush", firefox);
     }
   } else {
-    for (let n = 0; n < 2; n++) {
+    const repeats = firefox && action === "no-cors-fetch" ? 3 : 2;
+    for (let n = 0; n < repeats; n++) {
       if (action === "navigation") await navigate("about:blank");
       console.log(JSON.stringify({ phase: "idle", milliseconds: 45000 }));
       await sleep(45000);

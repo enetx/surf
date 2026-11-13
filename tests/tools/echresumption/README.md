@@ -47,6 +47,15 @@ one about:blank document. Opaque responses establish completion only; their
 protocol, accepted ECH, PSK selection and early data must come from the captured
 transcript. This mode produced the fresh Chromium 158 references. Browser
 shutdown waits for normal exit so NetLog can finish flushing.
+
+Firefox also supports `no-cors-fetch`. Set `SURF_CAPTURE_URL` to an HTTPS endpoint
+when that mode should probe a service other than the default trace endpoint.
+This changes the requested URL, without forcing HTTP/3 or changing early-data
+policy. Opaque completion alone does not identify the negotiated protocol.
+`SURF_CAPTURE_DNS=default` retains the browser's own DNS policy instead of the
+tool's Cloudflare DoH preference. `SURF_CAPTURE_QLOG=1` enables Firefox's passive
+HTTP/3 qlog diagnostic. Firefox opaque mode performs four warm requests and three
+45-second idle/repeat cycles; other existing sequences retain their counts.
 H2 uses Chrome's socket-pool UI or Firefox's normal hard reload; it does not use
 unsupported BiDi cache flags. HTTP/3 availability and resumption are verified
 from the resulting capture, never inferred from the requested scenario.
@@ -55,6 +64,13 @@ Firefox needs a working display or an ordinary Xvfb desktop in a container.
 Run tcpdump separately. Container offload settings may be disabled for accurate
 analysis capture; they do not change browser TLS/protocol preferences. Otherwise
 record GSO segmentation explicitly and preserve the original capture.
+
+Check capture completeness as well as kernel-drop counters: `frame.cap_len`
+must equal `frame.len` for every frame. Linux immediate-mode capture can truncate
+offload superpackets at the interface MTU despite a large requested snapshot and
+zero reported drops. Use buffered capture, disable UDP segmentation offload when
+needed for observation, allow the buffer to drain, and reject truncated evidence.
+The early-packet extractor enforces the frame-length check on packet JSON.
 
 ## Extract private pairs, then verify and redact
 
