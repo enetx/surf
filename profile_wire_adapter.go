@@ -202,6 +202,11 @@ func (a h3adapter) CoalesceInitialSettings(enabled bool) profiles.H3Config {
 	return a
 }
 
+func (a h3adapter) FlushEarlySettings(enabled bool) profiles.H3Config {
+	a.s.FlushEarlySettings(enabled)
+	return a
+}
+
 func (a h3adapter) CoalesceRequestHeaders(enabled bool) profiles.H3Config {
 	a.s.CoalesceRequestHeaders(enabled)
 	return a

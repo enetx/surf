@@ -101,6 +101,8 @@ type H3Config interface {
 	ExpireFailedAlternatives(bool) H3Config
 	ConnectionRacingPolicy(ConnectionRacingPolicy) H3Config
 	CoalesceInitialSettings(bool) H3Config
+	// FlushEarlySettings gives SETTINGS a send opportunity before early requests.
+	FlushEarlySettings(bool) H3Config
 	CoalesceRequestHeaders(bool) H3Config
 	EarlyData(bool) H3Config
 	// EarlyDataRestart resets rejected HTTP/3 state on the same QUIC connection.
@@ -155,6 +157,16 @@ type QUICConfig interface {
 	ResumeRTT(time.Duration) QUICConfig
 	// OnEarlyDataRejected observes TLS 0-RTT rejection on the connection loop.
 	OnEarlyDataRejected(func(*quic.Conn)) QUICConfig
+	// OnEarlyDataReady stages bounded data before releasing the early connection.
+	OnEarlyDataReady(func(*quic.Conn)) QUICConfig
+	// FlushEarlyData separates the callback's staged data from sendable Initial data.
+	FlushEarlyData(bool) QUICConfig
+	// CoalesceSmallEarlyPackets permits a protected early packet in a small datagram tail.
+	CoalesceSmallEarlyPackets(bool) QUICConfig
+	// InitialCryptoCoalescingBarrier defers other spaces until queued Initial data is drained.
+	InitialCryptoCoalescingBarrier(bool) QUICConfig
+	// StreamSchedulingByCreation uses creation order instead of urgency/incremental queues.
+	StreamSchedulingByCreation(bool) QUICConfig
 	InitialRTT(time.Duration) QUICConfig
 	InitialPTOMultiplier(uint32) QUICConfig
 	CachedInitialRTT(uint64, time.Duration, time.Duration) QUICConfig

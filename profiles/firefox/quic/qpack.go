@@ -17,7 +17,14 @@ func ConfigureQPACK(h profiles.H3Config) {
 	// fixes Base before encoding, using post-base references for new entries.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-qpack/src/encoder.rs
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-qpack/src/header_block.rs
-	h.QpackDynamicTable(true).
+	// Neqo initializes SETTINGS and both QPACK send streams before transport
+	// output; the final Initial can share a datagram with their early bytes.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/connection.rs
+	// SendData stages the transaction, including its bodyless FIN, before
+	// ProcessOutput constructs datagrams. No priority update is introduced.
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Session.cpp
+	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Stream.cpp
+	h.CoalesceInitialSettings(true).CoalesceRequestHeaders(true).QpackDynamicTable(true).
 		QpackHuffman(http3.QPACKHuffmanAlways).
 		QpackIndexing(http3.QPACKIndexNewNames).
 		QpackIndexingPolicy(nil).

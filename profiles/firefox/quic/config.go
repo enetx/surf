@@ -79,6 +79,17 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		// Neqo resends outstanding bytes on PING or non-progressing CRYPTO.
 		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
 		InitialCryptoResendOnPeerProbe(true).
+		// Neqo builds a protected early packet from the actual remaining
+		// datagram budget, including tails smaller than Go's fixed threshold.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
+		CoalesceSmallEarlyPackets(true).
+		// Neqo's output loop stops coalescing after Initial while any Initial
+		// CRYPTO is still queued; its final Initial may carry early stream data.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
+		InitialCryptoCoalescingBarrier(true).
+		// Neqo's ordinary HTTP/3 streams use its non-fair insertion-order path.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/send_stream.rs
+		StreamSchedulingByCreation(true).
 		// Neqo shares PTO datagrams across active spaces and clears its PTO
 		// state on a new Initial ACK before address validation completes.
 		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/recovery/mod.rs

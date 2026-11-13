@@ -112,6 +112,50 @@ func (q *QUICSettings) OnEarlyDataRejected(callback func(*quic.Conn)) *QUICSetti
 	return q
 }
 
+// OnEarlyDataReady observes restored QUIC parameters and usable 0-RTT keys before
+// the early connection is released. It does not authenticate the server or enable
+// early data. The callback runs on the connection loop and must not block or
+// reenter it; OpenUniStream and SendStream.TryWriteAll may stage bounded data.
+// Nil removes this observer; HTTP/3's own initial-settings policy remains active.
+func (q *QUICSettings) OnEarlyDataReady(callback func(*quic.Conn)) *QUICSettings {
+	q.handshake().OnEarlyDataReady = callback
+	return q
+}
+
+// FlushEarlyData gives sendable Initial data and the early-ready callback's
+// staged data separate send opportunities before releasing the connection.
+// False permits coalescing with Initial; pacing and congestion still apply.
+// HTTP/3's FlushEarlySettings enables this for its control-stream initialization.
+func (q *QUICSettings) FlushEarlyData(enabled bool) *QUICSettings {
+	q.handshake().FlushEarlyData = enabled
+	return q
+}
+
+// CoalesceSmallEarlyPackets lets 0-RTT use a datagram remainder below Go's
+// ordinary coalescing threshold when a protected packet fits. Firefox enables
+// this; other encryption spaces retain their usual threshold.
+func (q *QUICSettings) CoalesceSmallEarlyPackets(enabled bool) *QUICSettings {
+	q.handshake().CoalesceSmallEarlyPackets = enabled
+	return q
+}
+
+// InitialCryptoCoalescingBarrier keeps later packet spaces out of an Initial
+// datagram while Initial CRYPTO remains queued. It permits coalescing with the
+// final Initial and does not wait for an ACK or handshake confirmation.
+func (q *QUICSettings) InitialCryptoCoalescingBarrier(enabled bool) *QUICSettings {
+	q.handshake().InitialCryptoCoalescingBarrier = enabled
+	return q
+}
+
+// StreamSchedulingByCreation drains writable streams in creation order instead
+// of local urgency/incremental queues. Lost data retains precedence, blocked
+// streams are skipped, and completed streams release bookkeeping. This mode
+// takes precedence over StreamPriority. Firefox selects it for ordinary HTTP/3.
+func (q *QUICSettings) StreamSchedulingByCreation(enabled bool) *QUICSettings {
+	q.handshake().StreamSchedulingByCreation = enabled
+	return q
+}
+
 // InitialRTT sets the local recovery estimate before the first measurement.
 // Zero uses the native default. No transport parameter is advertised by it.
 func (q *QUICSettings) InitialRTT(estimate time.Duration) *QUICSettings {

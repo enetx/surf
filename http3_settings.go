@@ -275,7 +275,8 @@ func (h *HTTP3Settings) ConnectionIDGenerator(generator quic.ConnectionIDGenerat
 
 // StreamPriority sets local QUIC scheduling for request data. Urgency is clipped
 // to 0 through 7 by quic-go. This does not send a PRIORITY_UPDATE frame or set
-// the HTTP Priority header.
+// the HTTP Priority header. StreamSchedulingByCreation takes precedence when
+// enabled; disable it through QUICSettings to select urgency-based scheduling.
 func (h *HTTP3Settings) StreamPriority(urgency int8, incremental bool) *HTTP3Settings {
 	h.options.StreamPriority = &http3.StreamPriority{Urgency: urgency, Incremental: incremental}
 	return h
@@ -335,11 +336,22 @@ func (h *HTTP3Settings) PriorityUpdates(enabled bool) *HTTP3Settings {
 	return h
 }
 
-// CoalesceInitialSettings queues SETTINGS with the first post-handshake flight
-// when peer flow-control credit permits. Backpressure uses an asynchronous
-// write on the same control stream. Control frame factories must not block.
+// CoalesceInitialSettings prepares SETTINGS before the first application flight
+// when peer credit permits. With early keys, preparation precedes Initial
+// packetization unless FlushEarlySettings is enabled. Backpressure keeps an
+// asynchronous write on the same stream. Control-frame factories must not block.
 func (h *HTTP3Settings) CoalesceInitialSettings(enabled bool) *HTTP3Settings {
 	h.wire().CoalesceInitialSettings = enabled
+	return h
+}
+
+// FlushEarlySettings gives initial SETTINGS a send opportunity before requests
+// use a resumed early connection. Sendable Initial CRYPTO is packetized first;
+// pacing, congestion and flow control retain authority over packet boundaries.
+// This does not enable early data. Chrome enables it; Firefox keeps its own
+// initialization order. Control-frame factories must not block.
+func (h *HTTP3Settings) FlushEarlySettings(enabled bool) *HTTP3Settings {
+	h.wire().FlushEarlySettings = enabled
 	return h
 }
 
@@ -469,13 +481,16 @@ func (h *HTTP3Settings) HTTPSRecordsLookup(lookup HTTPSRecordsLookup) *HTTP3Sett
 			if records == nil {
 				return nil, err
 			}
+
 			converted := make([]h3transport.HTTPSRecord, len(records))
 			for i, record := range records {
 				converted[i] = h3transport.HTTPSRecord(record)
 			}
+
 			return converted, err
 		}
 	}
+
 	return h
 }
 
@@ -536,6 +551,7 @@ func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) 
 	options.ProtocolHeaders = builder.protocolHeaders
 	options.Fallback = c.GetTransport()
 	options.TLSConfig = c.GetTLSConfig()
+
 	if settings := builder.sessionCacheSettings; settings != nil && settings.applied {
 		options.TLSConfig = options.TLSConfig.Clone()
 		options.TLSConfig.ClientSessionCache = settings.quic.cache
@@ -543,6 +559,7 @@ func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) 
 		options.TLSConfig = options.TLSConfig.Clone()
 		options.TLSConfig.ClientSessionCache = owned.ClientSessionCache
 	}
+
 	options.Dialer = c.GetDialer()
 
 	if base, ok := options.Fallback.(*roundtripper); ok {

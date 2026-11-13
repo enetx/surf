@@ -446,6 +446,31 @@ func (a quicadapter) OnEarlyDataRejected(callback func(*quic.Conn)) profiles.QUI
 	return a
 }
 
+func (a quicadapter) OnEarlyDataReady(callback func(*quic.Conn)) profiles.QUICConfig {
+	a.s.OnEarlyDataReady(callback)
+	return a
+}
+
+func (a quicadapter) FlushEarlyData(enabled bool) profiles.QUICConfig {
+	a.s.FlushEarlyData(enabled)
+	return a
+}
+
+func (a quicadapter) CoalesceSmallEarlyPackets(enabled bool) profiles.QUICConfig {
+	a.s.CoalesceSmallEarlyPackets(enabled)
+	return a
+}
+
+func (a quicadapter) InitialCryptoCoalescingBarrier(enabled bool) profiles.QUICConfig {
+	a.s.InitialCryptoCoalescingBarrier(enabled)
+	return a
+}
+
+func (a quicadapter) StreamSchedulingByCreation(enabled bool) profiles.QUICConfig {
+	a.s.StreamSchedulingByCreation(enabled)
+	return a
+}
+
 func (a quicadapter) InitialPTOMultiplier(factor uint32) profiles.QUICConfig {
 	a.s.InitialPTOMultiplier(factor)
 	return a

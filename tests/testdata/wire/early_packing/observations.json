@@ -1,0 +1,567 @@
+{
+  "schema": 1,
+  "browser_versions": {
+    "chromium": "158.0.8127.0 snapshot 1727489",
+    "firefox": "160.0"
+  },
+  "scope": {
+    "matched_chrome": "macOS arm64, same public origin, retained network context, GET with identical ordered fields and a 331-byte request-stream payload; natural idle expiry. Surf receives the public ECHConfig captured by the native resolver to avoid resolver-timing differences.",
+    "packet_evidence": "Native Chrome UDP bytes reconstructed from original NetLog payloads and independently decrypted. Surf Mac and native Firefox use protocol qlogs. Final independent Surf Linux eth0 capture: 175 captured/filter packets, zero kernel drops. No native NIC pacing/timing claim.",
+    "firefox_limit": "Native same-origin DOM fetch and Surf API fetch have different document/referrer scheduling. Native early data carries control streams only; accepted early request packing is not declared matched. Eager stream type order is independently source-confirmed.",
+    "qlog_length_limit": "Native Firefox raw.length can include the coalesced datagram prefix; it is not an independently measured protected-packet length."
+  },
+  "native_chromium": [
+    {
+      "netlog_source": 213,
+      "analysis_pcap_sha256": "a3f1d4bd2d3c0a3a006425ceb571f48e73c4da3c921d4cf6dc20e444194ce932",
+      "early_packets": [
+        {
+          "packet_number": 3,
+          "serialized_length": 82,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 46,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 4,
+          "serialized_length": 383,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 46,
+              "length": 12,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 331,
+              "fin": true
+            }
+          ]
+        }
+      ],
+      "ech_and_selected_psk_verified": true,
+      "early_request_accepted": true
+    },
+    {
+      "netlog_source": 326,
+      "analysis_pcap_sha256": "1de5f203d13940b9b91aae0ff17a285bfe1a7268d72c6b2d02fa099a8def5686",
+      "early_packets": [
+        {
+          "packet_number": 3,
+          "serialized_length": 81,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 45,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 4,
+          "serialized_length": 383,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 45,
+              "length": 12,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 331,
+              "fin": true
+            }
+          ]
+        }
+      ],
+      "ech_and_selected_psk_verified": true,
+      "early_request_accepted": true
+    }
+  ],
+  "native_ordered_fields": [
+    ":method: GET",
+    ":authority: www.cloudflare-quic.com",
+    ":scheme: https",
+    ":path: /cdn-cgi/trace?surf-resumption=2",
+    "sec-ch-ua-platform: \"macOS\"",
+    "user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+    "sec-ch-ua: \"Not.A/Brand\";v=\"24\", \"Chromium\";v=\"158\"",
+    "sec-ch-ua-mobile: ?0",
+    "accept: */*",
+    "sec-fetch-site: cross-site",
+    "sec-fetch-mode: no-cors",
+    "sec-fetch-dest: empty",
+    "accept-encoding: gzip, deflate, br, zstd",
+    "accept-language: en-US,en;q=0.9",
+    "priority: u=1, i"
+  ],
+  "surf_mac_before": [
+    {
+      "input_sha256": "72167d5cd241a56dd489f5c56f9dff3532c5c886befc1ff14a998e5c37632cf3",
+      "early_packets": [
+        {
+          "packet_number": 3,
+          "reported_raw_length": 82,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 46,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 4,
+          "reported_raw_length": 383,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 46,
+              "length": 12,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 331,
+              "fin": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "input_sha256": "74849852ce9652f05a1eacbbfa8c1fc2d5b0b08c687498aed4a3a9eda43ec830",
+      "early_packets": [
+        {
+          "packet_number": 3,
+          "reported_raw_length": 427,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 57,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 331,
+              "fin": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "surf_mac_after_chrome": [
+    {
+      "input_sha256": "787fd5d3e8f2f8f1d1b4931f15cd2f7608a371cfdd581459e807660128c76192",
+      "early_packets": [
+        {
+          "packet_number": 3,
+          "reported_raw_length": 78,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 42,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 4,
+          "reported_raw_length": 383,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 42,
+              "length": 12,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 331,
+              "fin": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "input_sha256": "c25e28fb9592f1ff11d249e378572410f07d84f765c8fc7df7c72b4c55ac354e",
+      "early_packets": [
+        {
+          "packet_number": 3,
+          "reported_raw_length": 81,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 45,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 4,
+          "reported_raw_length": 383,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 45,
+              "length": 12,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 331,
+              "fin": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "native_firefox_offered_control": [
+    {
+      "input_sha256": "b64f62a69163afdf0fb73b393a8952d6f0a06633f8e4689a13a6f444f7e9469b",
+      "early_packets": [
+        {
+          "packet_number": 0,
+          "reported_raw_length": 1252,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 16,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 1,
+          "reported_raw_length": 89,
+          "frames": [
+            {
+              "type": "new_connection_id"
+            },
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 16,
+              "length": 17,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 6,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 10,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            }
+          ]
+        }
+      ],
+      "acceptance_verified_from_transcript": false
+    },
+    {
+      "input_sha256": "c6fb8f1a938fe2c4960e5d48aa1c9ef229ca53d097ea6b132ec24e06f609685e",
+      "early_packets": [
+        {
+          "packet_number": 0,
+          "reported_raw_length": 1252,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 5,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 1,
+          "reported_raw_length": 112,
+          "frames": [
+            {
+              "type": "new_connection_id"
+            },
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 5,
+              "length": 35,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 6,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 10,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            }
+          ]
+        }
+      ],
+      "acceptance_verified_from_transcript": false
+    }
+  ],
+  "surf_mac_after_firefox": [
+    {
+      "input_sha256": "410dd3fc622b5ececb68f0462f39c1b9619182e4f7c3526200eb2476ccc29404",
+      "early_packets": [
+        {
+          "packet_number": 0,
+          "reported_raw_length": 55,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 16,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 1,
+          "reported_raw_length": 335,
+          "frames": [
+            {
+              "type": "new_connection_id"
+            },
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 16,
+              "length": 19,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 6,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 10,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 242,
+              "fin": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "input_sha256": "5475c50c05bc700258a171b22fb92ab6dc5a0c69f2cc9b07812520b18c7d7370",
+      "early_packets": [
+        {
+          "packet_number": 0,
+          "reported_raw_length": 55,
+          "frames": [
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 0,
+              "length": 16,
+              "fin": false
+            }
+          ]
+        },
+        {
+          "packet_number": 1,
+          "reported_raw_length": 335,
+          "frames": [
+            {
+              "type": "new_connection_id"
+            },
+            {
+              "type": "stream",
+              "stream_id": 2,
+              "offset": 16,
+              "length": 19,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 6,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 10,
+              "offset": 0,
+              "length": 1,
+              "fin": false
+            },
+            {
+              "type": "stream",
+              "stream_id": 0,
+              "offset": 0,
+              "length": 242,
+              "fin": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "surf_linux": {
+    "pcap_sha256": "20b0a9798cb5e8d4eec3cd95245f4d1b3be34b2fdeed847442d9eb29dbffed9f",
+    "captured_packets": 175,
+    "received_by_filter": 175,
+    "kernel_drops": 0,
+    "verified_resumptions": 4,
+    "verified_ech": true,
+    "verified_selected_psk": true,
+    "early_request_accepted": true,
+    "chrome_early_packets_per_resumption": [
+      2,
+      2
+    ],
+    "firefox_early_packets_per_resumption": [
+      2,
+      2
+    ],
+    "control_packets_per_resumption": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "request_packets_per_resumption": [
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "provenance": {
+    "netlog_sha256": "76b898604cd21948240f3d6c70628873da73237a67c17007cd48cb7c2eb1f390",
+    "target_sessions": [
+      132,
+      213,
+      326
+    ],
+    "target_udp_sockets": [
+      131,
+      212,
+      325
+    ],
+    "original_events": 44060,
+    "selected_events": 540
+  },
+  "request_block_comparison": {
+    "native_chrome": [
+      {
+        "length": 331,
+        "sha256": "9584cf71bb556e54c462179a54bb05bee4cb9db000c9b1a3e59ffe063ce85483"
+      },
+      {
+        "length": 331,
+        "sha256": "4f68793e2bf962c7e93762c7c795665973fb06c76ca6c02739c36d20b4d63835"
+      }
+    ],
+    "surf_linux": {
+      "1": {
+        "length": 331,
+        "sha256": "9584cf71bb556e54c462179a54bb05bee4cb9db000c9b1a3e59ffe063ce85483"
+      },
+      "2": {
+        "length": 331,
+        "sha256": "4f68793e2bf962c7e93762c7c795665973fb06c76ca6c02739c36d20b4d63835"
+      },
+      "4": {
+        "length": 242,
+        "sha256": "cd02d7000c5167bf08bc31867cbf284d20cdf9bf41c9dbd0e9756b5a0a267611"
+      },
+      "5": {
+        "length": 242,
+        "sha256": "3b5bb000ffa0b443f2b2b3769748d2aca76fdad3875b23a989351277506318a1"
+      }
+    },
+    "native_chrome_request_bytes_match": true
+  },
+  "mechanisms": [
+    "Chrome initial control flush before early request readiness",
+    "Firefox synchronous eager QPACK prefixes",
+    "Firefox bodyless HEADERS+FIN staging",
+    "Firefox small protected 0-RTT tails after the final Initial",
+    "Firefox Initial CRYPTO coalescing barrier",
+    "Firefox ordinary stream creation order; blocked streams skipped; recovery precedence retained"
+  ],
+  "sources": {
+    "chromium_deps": "https://github.com/chromium/chromium/blob/158.0.8127.18/DEPS",
+    "quiche_revision": "132bfd90ea370faeacee616c70d10210bb12ba66",
+    "firefox_tag": "FIREFOX_160_0_RELEASE"
+  },
+  "source_revision_crosscheck": {
+    "chromium_versions": [
+      "158.0.8127.0",
+      "158.0.8127.18"
+    ],
+    "quiche_revision_in_both": "132bfd90ea370faeacee616c70d10210bb12ba66",
+    "OnNewEncryptionKeyAvailable_sha256_in_both": "f2e837bac632bcdd562449d0cab054f0fc58ec10aa566aa469542e3c049c29d0",
+    "comparison": "Exact function bytes from the official tagged Chromium sources; native captured snapshot and referenced release have the same early-ready boundary."
+  }
+}

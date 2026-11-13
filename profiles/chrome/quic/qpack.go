@@ -20,7 +20,11 @@ func ConfigureQPACK(h profiles.H3Config) {
 	// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/qpack/qpack_instruction_encoder.cc
 	// SendInitialData runs as soon as application encryption is established.
 	// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/http/quic_spdy_session.cc
-	h.CoalesceInitialSettings(true).CoalesceRequestHeaders(true).QpackDynamicTable(true).
+	// SendInitialData's ScopedPacketFlusher finishes before the session's
+	// early-ready callback lets the request write PRIORITY_UPDATE and HEADERS.
+	// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/http/quic_spdy_session.cc
+	// https://github.com/chromium/chromium/blob/158.0.8127.18/net/quic/quic_chromium_client_session.cc
+	h.CoalesceInitialSettings(true).FlushEarlySettings(true).CoalesceRequestHeaders(true).QpackDynamicTable(true).
 		QpackHuffman(http3.QPACKHuffmanAuto).
 		QpackIndexing(http3.QPACKIndexAll).
 		QpackIndexingPolicy(nil).
