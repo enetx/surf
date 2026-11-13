@@ -55,6 +55,32 @@ func requireQUICParameter(t *testing.T, values map[uint64][]byte, id, want uint6
 	require.Equal(t, want, value, "transport parameter %d", id)
 }
 
+func TestQUICTLSClientFactoryWrapperOnWire(t *testing.T) {
+	peer := newH3Peer(t)
+	var calls atomic.Int32
+	settings := surf.NewClient().Builder().Impersonate().Chrome().Session().ForceHTTP3().Proxy("").QUICSettings()
+	settings.TLSClientFactoryWrapper(func(conn *quic.Conn, factory tlsquic.NewClient) tlsquic.NewClient {
+		require.NotNil(t, conn)
+		return func(config *tls.Config) (tlsquic.Conn, error) {
+			calls.Add(1)
+			require.Contains(t, config.NextProtos, "h3")
+			require.NotNil(t, config.ClientSessionCache)
+			return factory(config)
+		}
+	})
+	client := settings.Set().Timeout(5 * time.Second).Build().Unwrap()
+	t.Cleanup(func() { client.Close() })
+	settings.TLSClientFactoryWrapper(func(*quic.Conn, tlsquic.NewClient) tlsquic.NewClient {
+		t.Error("mutated builder reached completed client")
+		return nil
+	})
+	for range 2 {
+		peer.request(t, client)
+		client.CloseIdleConnections()
+	}
+	require.EqualValues(t, 2, calls.Load())
+}
+
 func TestQUICFluentSettingsOnWire(t *testing.T) {
 	peer := newH3Peer(t)
 	trace := new(h3Peer)

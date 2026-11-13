@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "scope": "Selected stage 5, fresh Chromium 158 accepted ECH/resumption and offline references",
+  "checks": [
+    "2 native TCP and 2 native QUIC original ECH/PSK transcripts independently authenticated before redaction",
+    "Native QUIC early control and request packets independently decrypted with TShark 4.6.9",
+    "6 fresh Surf verified connections, 4 resumed NIC transcript references, all stable inner features match native",
+    "0x12e0 retained inside ECH; source-version comparison preserves new meaningful extensions",
+    "20 repeated offline reference/extractor tests",
+    "Updated no-cors capture runner validated with 4 native fetches and graceful NetLog completion",
+    "macOS complete engine and Surf race/vet",
+    "Linux complete engine race/vet and exact Surf GitHub go.yml coverage command",
+    "linux/386, linux/arm6, linux/arm7 production builds and test compilation",
+    "All capture analyzer Node tests, Node syntax checks, gofmt and diff whitespace checks"
+  ],
+  "surf_coverage_percent": 88.8,
+  "native_reference_pairs": 4,
+  "surf_reference_pairs": 4,
+  "release_versions": {
+    "github.com/enetx/quic-go": "v1.0.23",
+    "github.com/enetx/surf": "v1.0.237"
+  }
+}

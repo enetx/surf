@@ -1,6 +1,6 @@
 # Native ECH resumption and early-data references
 
-Captured on 2026-11-11 with official Chrome 157.0.8103.51 on macOS arm64 and
+The original references were captured on 2026-11-11 with Chrome 157.0.8103.51 on macOS arm64 and
 official Firefox 160.0 on Linux aarch64. Browsers used fresh isolated profiles,
 ordinary Cloudflare Secure DNS preferences, and normal certificate verification.
 No TLS, ECH, cipher, QUIC or certificate bypass flags were used.
@@ -116,3 +116,51 @@ certificate failures, ALPN/session veto and 425 replay behavior.
 - [Firefox 160 NSS ECH construction](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/security/nss/lib/ssl/tls13ech.c).
 - [Firefox 160 QUIC TLS extension permutation](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/nss-rs/src/agent.rs#L448).
 - [Firefox 160 safe-method early-data policy](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp#L3529).
+
+## Fresh Chromium 158 references — 2026-11-13
+
+Four new native references use Chromium 158.0.8127.0, macOS arm64 snapshot
+1727489. [Audit metadata](chromium-158-audit.json) records the official archive
+URL, archive/executable hashes and original input hashes. This build reports an
+all-zero revision; no Git commit identity is inferred from that field. Windows
+Chrome remains Surf's selected UA identity; Chromium supplies the protocol
+reference. Historical captures keep their original version labels.
+
+| Reference | Pairs | ECH + selected PSK | Accepted early packets / control / request |
+| --- | ---: | --- | --- |
+| Native TCP 158 | 2 | independently authenticated | no early offer |
+| Native QUIC 158 | 2 | independently authenticated | 2 / 2 / 1 each |
+| Surf TCP 158 | 2 | independently authenticated | no early offer |
+| Surf QUIC 158 | 2 | independently authenticated | 2 / 2 / 1 and 1 / 1 / 1 |
+
+Native requests are ordinary cross-origin no-cors fetches from one about:blank
+document. Opaque fetches completed, but expose no readable protocol/ECH trace;
+TLS transcripts establish ECH confirmation, ALPN h2/h3 and selected PSK zero.
+The original inner retains 0x12e0 with a zero-length server-padding request.
+Socket-pool flush retains the TCP ticket cache; two 45-second QUIC idle periods
+produce fresh resumed connections. No forced QUIC or TLS-verification bypass is
+used. The repeatable runner exposes this mode as `no-cors-fetch`. Graceful
+browser shutdown lets NetLog finish flushing.
+
+TShark 4.6.9 independently reassembles native outer ClientHello messages from
+original NetLog UDP payloads and decrypts all early packets. IP/UDP analysis
+envelopes are synthetic. The original transcript is checked before masking PSK
+identities, ages and binders. Failed/incomplete speculative candidates are not
+reference pairs.
+
+Fresh Surf probes use the ordinary fluent Chrome profile and public
+`DNS("1.1.1.1:53")`, matching a resolver that supplies ECH records. The system
+resolver did not supply usable ECH for the H3 endpoint in the initial run; Surf
+correctly completed that request without claiming ECH. With the explicit public
+resolver, all six H2/H3 connections had verified ECH and the four repeats resumed.
+An immediate-mode Linux NIC capture retained all 162 filtered packets with zero
+kernel drops. Four original resumed pairs were independently decrypted,
+verified and redacted into `surf/chrome-158-*`. Stable inner features match their
+native references.
+
+Packet counts describe these captures, rather than a fixed packet-splitting
+rule. These ECH references do not compare renderer/header context or native NIC
+pacing. Offline regressions cover both full version-specific inner layouts,
+confirmation tampering, PSK privacy, early request evidence and native/Surf
+conformance. Browser versions are kept separate when comparing stable features
+so new extensions remain meaningful differences.

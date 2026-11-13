@@ -417,5 +417,30 @@ func isH3Initial(b []byte) bool {
 		return false
 	}
 	v := binary.BigEndian.Uint32(b[1:5])
-	return v == uint32(quic.Version1) && b[0]&0xf0 == 0xc0 || v == uint32(quic.Version2) && b[0]&0xf0 == 0xd0
+	// A negotiated grease_quic_bit permits the fixed bit to be zero. Packet
+	// type and header form still identify Initial in either compatible version.
+	return v == uint32(quic.Version1) && b[0]&0xb0 == 0x80 || v == uint32(quic.Version2) && b[0]&0xb0 == 0x90
+}
+
+func TestInitialPacketClassificationAllowsNegotiatedFixedBitGrease(t *testing.T) {
+	for _, sample := range []struct {
+		version uint32
+		first   byte
+		initial bool
+	}{
+		{uint32(quic.Version1), 0xc0, true}, {uint32(quic.Version1), 0x80, true},
+		{uint32(quic.Version2), 0xd0, true}, {uint32(quic.Version2), 0x90, true},
+		{uint32(quic.Version1), 0xe0, false}, {uint32(quic.Version2), 0xf0, false},
+		{uint32(quic.Version1), 0x40, false}, {0, 0xc0, false},
+	} {
+		packet := make([]byte, 7)
+		packet[0] = sample.first
+		binary.BigEndian.PutUint32(packet[1:5], sample.version)
+		if got := isH3Initial(packet); got != sample.initial {
+			t.Fatalf("version %x first byte %x: Initial=%t, want %t", sample.version, sample.first, got, sample.initial)
+		}
+	}
+	if isH3Initial(nil) {
+		t.Fatal("empty datagram classified as Initial")
+	}
 }

@@ -282,3 +282,53 @@ func TestChromeQUICProfileInvalidatesChangedConnectionContext(t *testing.T) {
 	require.Equal(t, "new-context", label(t, cache, "server"))
 	require.Empty(t, label(t, cache, "server"))
 }
+
+func TestChromeQUICProfileGroupsRememberedHTTP3Settings(t *testing.T) {
+	newTicket := ticketFactory(t, time.Now())
+	for _, tc := range []struct {
+		name         string
+		old, current [][2]uint64
+		same         bool
+	}{
+		{"identical", [][2]uint64{{1, 4096}, {7, 16}}, [][2]uint64{{1, 4096}, {7, 16}}, true},
+		{"reordered", [][2]uint64{{1, 4096}, {7, 16}}, [][2]uint64{{7, 16}, {1, 4096}}, true},
+		{"capacity", [][2]uint64{{1, 4096}}, [][2]uint64{{1, 8192}}, false},
+		{"blocked streams", [][2]uint64{{7, 16}}, [][2]uint64{{7, 32}}, false},
+		{"header limit", [][2]uint64{{6, 4096}}, [][2]uint64{{6, 8192}}, false},
+		{"explicit zero", nil, [][2]uint64{{6, 0}}, false},
+		{"datagrams", nil, [][2]uint64{{51, 1}}, false},
+		{"connect", nil, [][2]uint64{{8, 1}}, false},
+		{"extension", [][2]uint64{{1337, 1}}, [][2]uint64{{1337, 2}}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			settings := tlscache.New()
+			chromequic.ConfigureSessionCache(settings)
+			cache := settings.Build().Unwrap()
+			put := func(name string, fields [][2]uint64) {
+				state := newTicket(name, tls.VersionTLS13, time.Hour)
+				_, metadata, err := state.ResumptionState()
+				require.NoError(t, err)
+				transport := binary.BigEndian.AppendUint32(append([]byte("quic-go1"), 7), uint32(quic.Version1))
+				transport = quicvarint.Append(transport, 0) // RTT
+				transport = quicvarint.Append(transport, 4)
+				transport = append(transport, "same"...)
+				var payload []byte
+				for _, field := range fields {
+					payload = quicvarint.Append(quicvarint.Append(payload, field[0]), field[1])
+				}
+				application := quicvarint.Append([]byte("quic-go h3 peer settings v1\x00"), 4)
+				application = append(quicvarint.Append(application, uint64(len(payload))), payload...)
+				metadata.Extra = [][]byte{transport, application}
+				cache.Put("server", state)
+			}
+			put("older", tc.old)
+			put("newer", tc.current)
+			require.Equal(t, "newer", label(t, cache, "server"))
+			if tc.same {
+				require.Equal(t, "older", label(t, cache, "server"))
+			} else {
+				require.Empty(t, label(t, cache, "server"))
+			}
+		})
+	}
+}

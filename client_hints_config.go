@@ -2,6 +2,7 @@ package surf
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -64,10 +65,12 @@ func (b *clientHintsConfig) Value(name, value string) *clientHintsConfig {
 		b.err = fmt.Errorf("client hints: invalid hint %q or header value", name)
 		return b
 	}
+
 	b.values[name] = value
 	if name == "sec-ch-ua-full-version-list" {
 		b.brands = nil
 	}
+
 	return b
 }
 
@@ -77,6 +80,7 @@ func (b *clientHintsConfig) stringValue(name, value string) *clientHintsConfig {
 		b.err = fmt.Errorf("client hints: %s: %w", name, err)
 		return b
 	}
+
 	return b.Value(name, quoted)
 }
 
@@ -108,7 +112,9 @@ func (b *clientHintsConfig) FullVersion(value string) *clientHintsConfig {
 			b.brands[i].Version = value
 		}
 	}
+
 	b.fullVersion = value
+
 	return b.stringValue("sec-ch-ua-full-version", value)
 }
 
@@ -136,8 +142,10 @@ func (b *clientHintsConfig) FormFactors(values ...string) *clientHintsConfig {
 			b.err = err
 			return b
 		}
+
 		parts = append(parts, quoted)
 	}
+
 	return b.Value("sec-ch-ua-form-factors", strings.Join(parts, ", "))
 }
 
@@ -147,13 +155,14 @@ func (b *clientHintsConfig) build(base http.RoundTripper) (*clientHintsTransport
 	if b.err != nil {
 		return nil, b.err
 	}
+
 	if base == nil || b.capacity < 1 || b.capacity > 1<<20 || b.lifetime < 0 {
 		return nil, fmt.Errorf("client hints: invalid transport, capacity or lifetime")
 	}
+
 	values := make(map[string]string, len(b.values)+1)
-	for name, value := range b.values {
-		values[name] = value
-	}
+	maps.Copy(values, b.values)
+
 	if b.brands != nil {
 		var parts []string
 		for _, entry := range b.brands {
@@ -161,18 +170,23 @@ func (b *clientHintsConfig) build(base http.RoundTripper) (*clientHintsTransport
 			if err != nil {
 				return nil, err
 			}
+
 			version, err := quoteClientHint(entry.Version)
 			if err != nil {
 				return nil, err
 			}
+
 			parts = append(parts, brand+";v="+version)
 		}
+
 		values["sec-ch-ua-full-version-list"] = strings.Join(parts, ", ")
 	}
+
 	clock := b.clock
 	if clock == nil {
 		clock = time.Now
 	}
+
 	return &clientHintsTransport{
 		Base:    base,
 		enabled: b.enabled,
@@ -187,6 +201,7 @@ func validClientHintValue(s string) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -196,5 +211,6 @@ func quoteClientHint(value string) (string, error) {
 			return "", fmt.Errorf("client hints: value requires printable ASCII")
 		}
 	}
+
 	return `"` + strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(value) + `"`, nil
 }

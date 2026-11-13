@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"time"
 
@@ -15,9 +16,14 @@ import (
 // All browser policy is selected through Surf's ordinary fluent API. A single
 // client owns the TLS cache; closing idle connections forces new handshakes
 // while retaining that cache. Certificate verification remains enabled.
-func probe(browser, protocol, keylog string, early, racing bool) error {
+func probe(browser, protocol, keylog string, early, racing bool, resolver string) error {
 	if browser != "chrome" && browser != "firefox" || protocol != "h2" && protocol != "h3" || keylog == "" || (early || racing) && protocol != "h3" {
 		return errors.New("use -probe chrome|firefox -protocol h2|h3 -keylog NEW_PRIVATE_FILE [-early] [-racing]")
+	}
+	if resolver != "" {
+		if _, _, err := net.SplitHostPort(resolver); err != nil {
+			return fmt.Errorf("invalid DNS resolver: %w", err)
+		}
 	}
 	file, err := os.OpenFile(keylog, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
@@ -25,6 +31,9 @@ func probe(browser, protocol, keylog string, early, racing bool) error {
 	}
 	defer file.Close()
 	builder := surf.NewClient().Builder().Proxy("").Timeout(20 * time.Second)
+	if resolver != "" {
+		builder.DNS(g.String(resolver))
+	}
 	if browser == "chrome" {
 		builder.Impersonate().Chrome()
 	} else {

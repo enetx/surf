@@ -1,0 +1,759 @@
+{
+  "scope": "Surf Firefox profile; four controlled verified-TLS server cases. Not a native Firefox rejection capture. Wireshark cannot associate one late old-key HRR early datagram and does not decode the HRR early request; that request is established separately by qlog/test barriers, not claimed as independently decrypted.",
+  "original_pcap_sha256": "e322ebec43a514bea54b52635006ffe30e33693840295d0d4022bdd8e2380b57",
+  "tool": "Wireshark/TShark 4.6.9",
+  "kernel_capture_drops": 0,
+  "flows": [
+    {
+      "scenario": "rejected",
+      "handshakes": [
+        {
+          "direction": "client",
+          "type": 1,
+          "extensions": [
+            16,
+            43,
+            27,
+            10,
+            5,
+            23,
+            45,
+            51,
+            28,
+            42,
+            65281,
+            13,
+            34,
+            57,
+            65037,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 2,
+          "extensions": [
+            43,
+            51,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 8,
+          "extensions": [
+            16,
+            57
+          ]
+        }
+      ],
+      "early": [
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 0,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 1,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 40
+            },
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 186
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 2,
+          "streams": [
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 395
+            }
+          ]
+        }
+      ],
+      "restarted": [
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 3,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 4,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 24
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 5,
+          "streams": [
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 6,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 575
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 7,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 575,
+              "length": 0
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 2,
+              "offset": 24,
+              "length": 10
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 1,
+              "length": 3
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 184
+            },
+            {
+              "id": 6,
+              "offset": 4,
+              "length": 97
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 12,
+          "streams": []
+        }
+      ],
+      "same_quic_connection": true,
+      "psk_selected": true
+    },
+    {
+      "scenario": "unknown-ticket",
+      "handshakes": [
+        {
+          "direction": "client",
+          "type": 1,
+          "extensions": [
+            13,
+            65281,
+            16,
+            28,
+            51,
+            27,
+            45,
+            43,
+            34,
+            5,
+            42,
+            23,
+            10,
+            57,
+            65037,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 2,
+          "extensions": [
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 8,
+          "extensions": [
+            16,
+            57
+          ]
+        }
+      ],
+      "early": [
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 0,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 1,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 38
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 4
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 2,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 186
+            },
+            {
+              "id": 6,
+              "offset": 4,
+              "length": 391
+            }
+          ]
+        }
+      ],
+      "restarted": [
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 3,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 4,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 24
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 5,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 24,
+              "length": 15
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 6,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 575
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 7,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 184
+            },
+            {
+              "id": 6,
+              "offset": 1,
+              "length": 100
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "streams": []
+        }
+      ],
+      "same_quic_connection": true,
+      "psk_selected": false
+    },
+    {
+      "scenario": "hrr",
+      "handshakes": [
+        {
+          "direction": "client",
+          "type": 1,
+          "extensions": [
+            43,
+            16,
+            28,
+            34,
+            13,
+            42,
+            10,
+            51,
+            5,
+            65281,
+            23,
+            27,
+            45,
+            57,
+            65037,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 2,
+          "extensions": [
+            43,
+            51
+          ]
+        },
+        {
+          "direction": "client",
+          "type": 1,
+          "extensions": [
+            43,
+            16,
+            28,
+            34,
+            13,
+            10,
+            51,
+            5,
+            65281,
+            23,
+            27,
+            45,
+            57,
+            65037,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 2,
+          "extensions": [
+            43,
+            51,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 8,
+          "extensions": [
+            16,
+            57
+          ]
+        }
+      ],
+      "early": [
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 0,
+          "streams": []
+        }
+      ],
+      "restarted": [
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 2,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 3,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 34
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 4,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 1
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 5,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 575
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 6,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 575,
+              "length": 0
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 7,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 1,
+              "length": 3
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 184
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 4,
+              "length": 97
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 12,
+          "streams": []
+        }
+      ],
+      "same_quic_connection": true,
+      "psk_selected": true
+    },
+    {
+      "scenario": "zero-table",
+      "handshakes": [
+        {
+          "direction": "client",
+          "type": 1,
+          "extensions": [
+            43,
+            16,
+            45,
+            65281,
+            27,
+            42,
+            23,
+            5,
+            51,
+            10,
+            13,
+            34,
+            28,
+            57,
+            65037,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 2,
+          "extensions": [
+            43,
+            51,
+            41
+          ]
+        },
+        {
+          "direction": "server",
+          "type": 8,
+          "extensions": [
+            16,
+            57
+          ]
+        }
+      ],
+      "early": [
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 0,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 1,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 37
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 4
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 2,
+          "streams": [
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "early",
+          "number": 3,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 186
+            },
+            {
+              "id": 6,
+              "offset": 4,
+              "length": 391
+            }
+          ]
+        }
+      ],
+      "restarted": [
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 4,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 5,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 24
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 575
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 6,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 24,
+              "length": 13
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 7,
+          "streams": []
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 279
+            }
+          ]
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "streams": []
+        }
+      ],
+      "same_quic_connection": true,
+      "psk_selected": true
+    }
+  ]
+}

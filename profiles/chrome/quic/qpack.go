@@ -24,6 +24,9 @@ func ConfigureQPACK(h profiles.H3Config) {
 		QpackHuffman(http3.QPACKHuffmanAuto).
 		QpackIndexing(http3.QPACKIndexAll).
 		QpackIndexingPolicy(nil).
+		// QUICHE maps the resumption SETTINGS mismatch to H3_SETTINGS_ERROR.
+		// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/quic_error_codes.cc
+		QpackResumptionErrorCode(func(uint64, uint64) http3.ErrCode { return http3.ErrCodeSettingsError }).
 		QpackDrainingFraction(.25).
 		QpackPostBaseReferences(false).
 		QpackLiteralInsertNames(false).

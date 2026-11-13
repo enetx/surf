@@ -97,6 +97,11 @@ func (a h3adapter) QpackIndexingPolicy(v func(string, string) bool) profiles.H3C
 	return a
 }
 
+func (a h3adapter) QpackResumptionErrorCode(v func(uint64, uint64) http3.ErrCode) profiles.H3Config {
+	a.s.QpackResumptionErrorCode(v)
+	return a
+}
+
 func (a h3adapter) QpackDrainingFraction(v float64) profiles.H3Config {
 	a.s.QpackDrainingFraction(v)
 	return a
@@ -169,6 +174,11 @@ func (a h3adapter) OnResponseHeaders(callback func(*http.Request, *http.Response
 
 func (a h3adapter) CompactPriorityUpdates(v bool) profiles.H3Config {
 	a.s.CompactPriorityUpdates(v)
+	return a
+}
+
+func (a h3adapter) EarlyDataRestart(enabled bool) profiles.H3Config {
+	a.s.EarlyDataRestart(enabled)
 	return a
 }
 

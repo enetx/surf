@@ -1,0 +1,44 @@
+{
+  "browser": "Firefox 160.0 official Linux arm64",
+  "condition": "Network-only 600ms Initial loss window on flows offering early data, 75ms Initial admission grace; TCP path delayed 750ms to exercise ordinary racing. No forced QUIC or TLS bypass.",
+  "pto_expired_ms": 222.229,
+  "datagrams": [
+    {
+      "frame": 128,
+      "udp_payload_length": 1252,
+      "packets": [
+        {
+          "kind": "initial",
+          "number": 14,
+          "frames": [
+            "0x0000000000000006",
+            "0x0000000000000006"
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 129,
+      "udp_payload_length": 1252,
+      "packets": [
+        {
+          "kind": "initial",
+          "number": 15,
+          "frames": [
+            "0x0000000000000006"
+          ]
+        },
+        {
+          "kind": "0RTT",
+          "number": 6,
+          "frames": [
+            "0x0000000000000001",
+            "0x0000000000000000"
+          ]
+        }
+      ]
+    }
+  ],
+  "pcap_sha256": "54961030f36321d1d5ac3ea161b836c8dd0a6377a1f9e8c734024644aed9f787",
+  "limit": "This resumed candidate later loses its HTTP race; successful fetch traces do not identify this rejected candidate. Its independently decoded PTO datagrams and browser qlog are the reference, not accepted request completion."
+}

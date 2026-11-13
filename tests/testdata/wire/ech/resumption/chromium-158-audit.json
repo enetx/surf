@@ -1,0 +1,41 @@
+{
+  "browser": "Chromium 158.0.8127.0",
+  "platform": "macOS arm64",
+  "snapshot": "1727489",
+  "archive_url": "https://storage.googleapis.com/chromium-browser-snapshots/Mac_Arm/1727489/chrome-mac.zip",
+  "revision_reported": "@0000000000000000000000000000000000000000",
+  "native_tcp_sources": [
+    226,
+    241
+  ],
+  "native_quic_sources": [
+    227,
+    450
+  ],
+  "certificate_verification": true,
+  "native_method": "Ordinary no-cors cross-origin fetches from one about:blank document, Secure DNS preferences, normal socket-pool flush / two 45s natural QUIC idle intervals",
+  "native_original_netlog_sha256": {
+    "h2": "31183d430298e4cc2058ac825fec9c3322beb15cd781d60d85c66739922b8da4",
+    "h3": "85d242093de384d41998b96507fd03114a16db589fb46dd87ed97da3bd9d1d75"
+  },
+  "surf_pcap_sha256": "029114d607868244330f4270735ec04d0846bdc20baf964a7e610a5aa963c207",
+  "surf_capture_packets": 162,
+  "surf_kernel_drops": 0,
+  "surf_dns": "1.1.1.1:53",
+  "checks": [
+    "Four original native transcripts verify ECH acceptance and selected PSK identity zero before redaction",
+    "Native inner server-padding extension 0x12e0 requests zero bytes in TCP and QUIC",
+    "Each native QUIC reference independently decrypts two early packets, two with control data and one with a request",
+    "Six fresh Surf connections verify ECH and certificates; four resumed handshakes are independently extracted from NIC capture",
+    "Stable resumed inner features match native Chromium 158 in TCP and QUIC",
+    "PSKs, ages, binders and session-ticket bodies are redacted"
+  ],
+  "limits": [
+    "Native UDP envelopes reconstructed from original NetLog payloads, no native NIC pacing claim",
+    "Opaque fetch completion does not identify protocol/ECH; the transcript establishes them",
+    "Different request contexts and OS identity do not establish header-list parity from these ECH captures",
+    "The browser reports an all-zero source revision; snapshot identity and archive/executable hashes are recorded instead"
+  ],
+  "archive_sha256": "3f8352bf6022b59f2b06d2350a5914e4faf9274ff8d6b132a5ca1d5e8776e914",
+  "executable_sha256": "62b7a60b7f000a14210ba552e5397ba9e91047589c3f4ae2d91e2d0a26d3bc2f"
+}

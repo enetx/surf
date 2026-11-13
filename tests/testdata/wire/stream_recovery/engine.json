@@ -1,0 +1,1616 @@
+{
+  "tool": "Wireshark/TShark 4.6.9",
+  "source": "QUIC engine verified-TLS UDP regression; browser configuration wiring is checked separately in Surf",
+  "kernel_capture_drops": 0,
+  "flows": [
+    {
+      "scenario": "shared/pto",
+      "independently_decoded_packets": 17,
+      "repeated_closing_packets": 1,
+      "original": 6,
+      "copies": [
+        8
+      ],
+      "acknowledged_by": 8,
+      "packets": [
+        {
+          "direction": "server",
+          "number": 3,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            24,
+            24,
+            24
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 3,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              3
+            ]
+          ],
+          "frame_types": [
+            2,
+            25,
+            24,
+            24,
+            24
+          ],
+          "elapsed_us": 1942
+        },
+        {
+          "direction": "client",
+          "number": 4,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 2022
+        },
+        {
+          "direction": "server",
+          "number": 4,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              4
+            ]
+          ],
+          "frame_types": [
+            2,
+            6,
+            25,
+            30,
+            7
+          ],
+          "elapsed_us": 2414
+        },
+        {
+          "direction": "server",
+          "number": 5,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 2476
+        },
+        {
+          "direction": "client",
+          "number": 5,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              5
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 2769
+        },
+        {
+          "direction": "server",
+          "number": 6,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            18
+          ],
+          "elapsed_us": 3033
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              6
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 29823
+        },
+        {
+          "direction": "server",
+          "number": 7,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 29924
+        },
+        {
+          "direction": "client",
+          "number": 8,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [
+            [
+              4,
+              7
+            ]
+          ],
+          "frame_types": [
+            2,
+            9
+          ],
+          "elapsed_us": 41399
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 41492
+        },
+        {
+          "direction": "server",
+          "number": 8,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [
+            [
+              5,
+              7
+            ]
+          ],
+          "frame_types": [
+            2,
+            9
+          ],
+          "elapsed_us": 41632
+        },
+        {
+          "direction": "client",
+          "number": 9,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 41869
+        },
+        {
+          "direction": "server",
+          "number": 9,
+          "streams": [],
+          "acks": [
+            [
+              9,
+              9
+            ],
+            [
+              5,
+              7
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 41924
+        },
+        {
+          "direction": "client",
+          "number": 10,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 47750
+        },
+        {
+          "direction": "client",
+          "number": 11,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 52335
+        },
+        {
+          "direction": "server",
+          "number": 10,
+          "streams": [],
+          "acks": [
+            [
+              9,
+              11
+            ],
+            [
+              5,
+              7
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 52449
+        },
+        {
+          "direction": "client",
+          "number": 12,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 52504
+        },
+        {
+          "direction": "client",
+          "number": 13,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 58040
+        },
+        {
+          "direction": "server",
+          "number": 11,
+          "streams": [],
+          "acks": [
+            [
+              9,
+              13
+            ],
+            [
+              5,
+              7
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 58116
+        },
+        {
+          "direction": "client",
+          "number": 14,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 60499
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 63715
+        },
+        {
+          "direction": "client",
+          "number": 15,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 63947
+        },
+        {
+          "direction": "client",
+          "number": 15,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 63947
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 64004
+        }
+      ]
+    },
+    {
+      "scenario": "shared/loss",
+      "independently_decoded_packets": 19,
+      "repeated_closing_packets": 0,
+      "original": 5,
+      "copies": [
+        8
+      ],
+      "acknowledged_by": 8,
+      "packets": [
+        {
+          "direction": "server",
+          "number": 3,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            24,
+            24,
+            24
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 3,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [
+            [
+              3,
+              3
+            ]
+          ],
+          "frame_types": [
+            2,
+            24,
+            24,
+            25,
+            24,
+            9
+          ],
+          "elapsed_us": 1541
+        },
+        {
+          "direction": "server",
+          "number": 4,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              3
+            ]
+          ],
+          "frame_types": [
+            2,
+            30,
+            25,
+            6,
+            7
+          ],
+          "elapsed_us": 1882
+        },
+        {
+          "direction": "server",
+          "number": 5,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 1997
+        },
+        {
+          "direction": "client",
+          "number": 4,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              5
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 2332
+        },
+        {
+          "direction": "server",
+          "number": 6,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            18
+          ],
+          "elapsed_us": 2405
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 2674
+        },
+        {
+          "direction": "server",
+          "number": 7,
+          "streams": [],
+          "acks": [
+            [
+              6,
+              6
+            ],
+            [
+              4,
+              4
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 2728
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 4309
+        },
+        {
+          "direction": "client",
+          "number": 8,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [
+            [
+              6,
+              7
+            ]
+          ],
+          "frame_types": [
+            2,
+            49,
+            9
+          ],
+          "elapsed_us": 7814
+        },
+        {
+          "direction": "client",
+          "number": 5,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 7909
+        },
+        {
+          "direction": "server",
+          "number": 8,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              7
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 8042
+        },
+        {
+          "direction": "server",
+          "number": 9,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 8046
+        },
+        {
+          "direction": "client",
+          "number": 9,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 10741
+        },
+        {
+          "direction": "server",
+          "number": 10,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 10818
+        },
+        {
+          "direction": "server",
+          "number": 11,
+          "streams": [],
+          "acks": [
+            [
+              9,
+              9
+            ],
+            [
+              4,
+              7
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 10821
+        },
+        {
+          "direction": "client",
+          "number": 10,
+          "streams": [],
+          "acks": [
+            [
+              6,
+              11
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 11055
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            18
+          ],
+          "elapsed_us": 11143
+        },
+        {
+          "direction": "client",
+          "number": 11,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 13661
+        },
+        {
+          "direction": "client",
+          "number": 12,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 16347
+        },
+        {
+          "direction": "server",
+          "number": 13,
+          "streams": [],
+          "acks": [
+            [
+              10,
+              12
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 16426
+        },
+        {
+          "direction": "client",
+          "number": 13,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 19956
+        },
+        {
+          "direction": "server",
+          "number": 14,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 20007
+        },
+        {
+          "direction": "client",
+          "number": 14,
+          "streams": [],
+          "acks": [
+            [
+              12,
+              14
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 20182
+        },
+        {
+          "direction": "client",
+          "number": 15,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 22606
+        },
+        {
+          "direction": "server",
+          "number": 15,
+          "streams": [],
+          "acks": [
+            [
+              13,
+              15
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 22667
+        },
+        {
+          "direction": "client",
+          "number": 16,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 25553
+        },
+        {
+          "direction": "client",
+          "number": 17,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 28904
+        },
+        {
+          "direction": "server",
+          "number": 16,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 28963
+        },
+        {
+          "direction": "server",
+          "number": 17,
+          "streams": [],
+          "acks": [
+            [
+              13,
+              17
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 28967
+        },
+        {
+          "direction": "client",
+          "number": 18,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 31808
+        },
+        {
+          "direction": "server",
+          "number": 18,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 31859
+        },
+        {
+          "direction": "server",
+          "number": 18,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 31927
+        }
+      ]
+    },
+    {
+      "scenario": "separate/pto",
+      "independently_decoded_packets": 15,
+      "repeated_closing_packets": 0,
+      "original": 3,
+      "copies": [
+        5
+      ],
+      "acknowledged_by": 8,
+      "packets": [
+        {
+          "direction": "server",
+          "number": 3,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            24,
+            24,
+            24
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 0,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              3
+            ]
+          ],
+          "frame_types": [
+            2,
+            25,
+            24,
+            24,
+            24
+          ],
+          "elapsed_us": 1562
+        },
+        {
+          "direction": "client",
+          "number": 1,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 1744
+        },
+        {
+          "direction": "server",
+          "number": 4,
+          "streams": [],
+          "acks": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frame_types": [
+            2,
+            30,
+            25,
+            7,
+            6
+          ],
+          "elapsed_us": 2098
+        },
+        {
+          "direction": "server",
+          "number": 5,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 2160
+        },
+        {
+          "direction": "client",
+          "number": 2,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              5
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 2377
+        },
+        {
+          "direction": "server",
+          "number": 6,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            18
+          ],
+          "elapsed_us": 2519
+        },
+        {
+          "direction": "client",
+          "number": 4,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              6
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 28793
+        },
+        {
+          "direction": "server",
+          "number": 7,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 28877
+        },
+        {
+          "direction": "client",
+          "number": 5,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [
+            [
+              4,
+              7
+            ]
+          ],
+          "frame_types": [
+            2,
+            9
+          ],
+          "elapsed_us": 38573
+        },
+        {
+          "direction": "client",
+          "number": 3,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 38660
+        },
+        {
+          "direction": "server",
+          "number": 8,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [
+            [
+              2,
+              4
+            ]
+          ],
+          "frame_types": [
+            2,
+            9
+          ],
+          "elapsed_us": 38793
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 39026
+        },
+        {
+          "direction": "server",
+          "number": 9,
+          "streams": [],
+          "acks": [
+            [
+              6,
+              6
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 39116
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 42988
+        },
+        {
+          "direction": "client",
+          "number": 8,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 48539
+        },
+        {
+          "direction": "server",
+          "number": 10,
+          "streams": [],
+          "acks": [
+            [
+              6,
+              8
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 48607
+        },
+        {
+          "direction": "client",
+          "number": 9,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 53635
+        },
+        {
+          "direction": "client",
+          "number": 10,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 56025
+        },
+        {
+          "direction": "server",
+          "number": 11,
+          "streams": [],
+          "acks": [
+            [
+              6,
+              10
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 56107
+        },
+        {
+          "direction": "client",
+          "number": 11,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 59199
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 62052
+        }
+      ]
+    },
+    {
+      "scenario": "separate/loss",
+      "independently_decoded_packets": 20,
+      "repeated_closing_packets": 0,
+      "original": 3,
+      "copies": [
+        6
+      ],
+      "acknowledged_by": 7,
+      "packets": [
+        {
+          "direction": "server",
+          "number": 3,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            24,
+            24,
+            24
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 0,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              3
+            ]
+          ],
+          "frame_types": [
+            2,
+            25,
+            24,
+            24,
+            24
+          ],
+          "elapsed_us": 1591
+        },
+        {
+          "direction": "client",
+          "number": 1,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 1787
+        },
+        {
+          "direction": "server",
+          "number": 4,
+          "streams": [],
+          "acks": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frame_types": [
+            2,
+            25,
+            7,
+            6,
+            30
+          ],
+          "elapsed_us": 2086
+        },
+        {
+          "direction": "server",
+          "number": 5,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 4
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 2161
+        },
+        {
+          "direction": "client",
+          "number": 2,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              5
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 2531
+        },
+        {
+          "direction": "client",
+          "number": 4,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 2744
+        },
+        {
+          "direction": "server",
+          "number": 6,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              4
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "frame_types": [
+            2,
+            18
+          ],
+          "elapsed_us": 2840
+        },
+        {
+          "direction": "client",
+          "number": 5,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 4587
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [
+            [
+              6,
+              6
+            ]
+          ],
+          "frame_types": [
+            2,
+            49,
+            9
+          ],
+          "elapsed_us": 5921
+        },
+        {
+          "direction": "client",
+          "number": 3,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 6022
+        },
+        {
+          "direction": "server",
+          "number": 7,
+          "streams": [],
+          "acks": [
+            [
+              2,
+              5
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 6118
+        },
+        {
+          "direction": "server",
+          "number": 8,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 43
+            }
+          ],
+          "acks": [],
+          "frame_types": [
+            9
+          ],
+          "elapsed_us": 6186
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 11000
+        },
+        {
+          "direction": "server",
+          "number": 9,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 11076
+        },
+        {
+          "direction": "server",
+          "number": 10,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              7
+            ],
+            [
+              2,
+              5
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 11081
+        },
+        {
+          "direction": "client",
+          "number": 8,
+          "streams": [],
+          "acks": [
+            [
+              6,
+              10
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 11321
+        },
+        {
+          "direction": "server",
+          "number": 11,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            18
+          ],
+          "elapsed_us": 11419
+        },
+        {
+          "direction": "client",
+          "number": 9,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 13215
+        },
+        {
+          "direction": "client",
+          "number": 10,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 16529
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "streams": [],
+          "acks": [
+            [
+              8,
+              10
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 16581
+        },
+        {
+          "direction": "client",
+          "number": 11,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 19201
+        },
+        {
+          "direction": "server",
+          "number": 13,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 19267
+        },
+        {
+          "direction": "client",
+          "number": 12,
+          "streams": [],
+          "acks": [
+            [
+              11,
+              13
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 19522
+        },
+        {
+          "direction": "client",
+          "number": 13,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 23967
+        },
+        {
+          "direction": "server",
+          "number": 14,
+          "streams": [],
+          "acks": [
+            [
+              11,
+              13
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 24038
+        },
+        {
+          "direction": "client",
+          "number": 14,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 26125
+        },
+        {
+          "direction": "server",
+          "number": 15,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            0,
+            1
+          ],
+          "elapsed_us": 26186
+        },
+        {
+          "direction": "client",
+          "number": 15,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            48
+          ],
+          "elapsed_us": 29517
+        },
+        {
+          "direction": "server",
+          "number": 16,
+          "streams": [],
+          "acks": [
+            [
+              11,
+              15
+            ]
+          ],
+          "frame_types": [
+            2
+          ],
+          "elapsed_us": 29602
+        },
+        {
+          "direction": "server",
+          "number": 17,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 34740
+        },
+        {
+          "direction": "client",
+          "number": 16,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 34823
+        },
+        {
+          "direction": "server",
+          "number": 17,
+          "streams": [],
+          "acks": [],
+          "frame_types": [
+            29
+          ],
+          "elapsed_us": 34848
+        }
+      ]
+    }
+  ],
+  "original_capture_sha256": "01ab664fc0d59c3ae1aa1a978e0055c8a49ef5765b99d6ce9fc3b139db6792d2",
+  "analysis_sha256": "a8844401956136222555a5dfd502a558f21c7d0b28dd69cf599eed8ed6ce0b07",
+  "limits": "Exact encrypted client payloads are recorded before the delay/drop gate. Server packets come from the original NIC capture. Analysis IP/UDP headers are synthetic and delivered client timestamps come from the NIC; discarded copies use pre-admission logging times. This is not a pacing reference. TLS keys and raw captures remain private."
+}

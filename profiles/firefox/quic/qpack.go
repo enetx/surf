@@ -21,6 +21,14 @@ func ConfigureQPACK(h profiles.H3Config) {
 		QpackHuffman(http3.QPACKHuffmanAlways).
 		QpackIndexing(http3.QPACKIndexNewNames).
 		QpackIndexingPolicy(nil).
+		// Neqo reports a reduction as SETTINGS_ERROR before its QPACK check.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/connection.rs
+		QpackResumptionErrorCode(func(previous, current uint64) http3.ErrCode {
+			if current < previous {
+				return http3.ErrCodeSettingsError
+			}
+			return http3.ErrCodeQPACKDecoderStreamError
+		}).
 		QpackDrainingFraction(0).
 		QpackPostBaseReferences(true).
 		QpackLiteralInsertNames(true).

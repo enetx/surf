@@ -24,12 +24,13 @@ func main() {
 	protocol := flag.String("protocol", "h3", "probe protocol: h2 or h3")
 	early := flag.Bool("early", false, "explicitly enable HTTP/3 early data for the probe")
 	racing := flag.Bool("racing", false, "race prepared TCP against HTTP/3 in the probe")
+	dns := flag.String("dns", "", "optional DNS resolver host:port for the public capture probe")
 	reference := flag.String("reference", "", "sanitized browser reference for comparison")
 	record := flag.Int("record", 2, "one-based inner record to compare")
 	flag.Parse()
 	var err error
 	if *probeBrowser != "" {
-		err = probe(*probeBrowser, *protocol, *keylog, *early, *racing)
+		err = probe(*probeBrowser, *protocol, *keylog, *early, *racing, *dns)
 	} else if *keylog != "" {
 		err = compare(*keylog, *reference, *record)
 	} else {

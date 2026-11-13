@@ -10,7 +10,7 @@ Start tcpdump before the probe and stop it with SIGINT, waiting for it to flush
 before analysis. Keep the capture directory private (`umask 077`).
 
 ```sh
-go run ./tests/tools/echresumption -probe chrome -protocol h3 -early -keylog /private/capture/chrome-h3.keys
+go run ./tests/tools/echresumption -probe chrome -protocol h3 -early -dns 1.1.1.1:53 -keylog /private/capture/chrome-h3.keys
 go run ./tests/tools/echresumption -probe firefox -protocol h3 -early -keylog /private/capture/firefox-h3.keys
 go run ./tests/tools/echresumption -probe firefox -protocol h3 -early -racing -keylog /private/capture/firefox-racing.keys
 go run ./tests/tools/echresumption -probe chrome -protocol h2 -keylog /private/capture/chrome-h2.keys
@@ -22,6 +22,8 @@ The implementation in `probe.go` demonstrates ordinary `Impersonate`,
 cache makes three fresh connections. The probe fails on certificate/ECH failure
 or failure to resume its repeated handshakes. It never overwrites a key log.
 Early data is explicitly enabled only by `-early`; library defaults stay intact.
+Optional `-dns HOST:PORT` selects the ordinary public Builder.DNS resolver.
+Choose a resolver that supplies HTTPS/ECH records for the capture endpoint.
 `-racing` enables the profile's TCP/QUIC preparation policy instead of forcing
 HTTP/3. It requires `-protocol h3`. This probe still requires HTTP/3 on every
 attempt, so a legitimate TCP winner fails its strict capture requirements.
@@ -39,7 +41,12 @@ DNS preferences, enables key logging and starts CDP/BiDi automation. Native
 certificate verification remains enabled. It records browser version, options,
 method and public protocol/ECH trace results in `report.json`.
 H3 uses two 45-second idle intervals; optional final argument `fetch` keeps the
-same-origin page and performs an ordinary fetch instead of a navigation.
+same-origin page and performs an ordinary fetch instead of a navigation. Chrome
+also accepts `no-cors-fetch`: two warm-up fetches and subsequent requests retain
+one about:blank document. Opaque responses establish completion only; their
+protocol, accepted ECH, PSK selection and early data must come from the captured
+transcript. This mode produced the fresh Chromium 158 references. Browser
+shutdown waits for normal exit so NetLog can finish flushing.
 H2 uses Chrome's socket-pool UI or Firefox's normal hard reload; it does not use
 unsupported BiDi cache flags. HTTP/3 availability and resumption are verified
 from the resulting capture, never inferred from the requested scenario.

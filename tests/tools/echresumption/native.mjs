@@ -10,10 +10,12 @@ const [kind, directory, executable, protocol = "h3", action = "navigation"] =
 assert(["chrome", "firefox"].includes(kind));
 assert(
   directory && executable,
-  "usage: native.mjs chrome|firefox NEW_PRIVATE_DIR BROWSER_PATH [h2|h3] [navigation|fetch]",
+  "usage: native.mjs chrome|firefox NEW_PRIVATE_DIR BROWSER_PATH [h2|h3] [navigation|fetch|no-cors-fetch]",
 );
 assert(
-  ["h2", "h3"].includes(protocol) && ["navigation", "fetch"].includes(action),
+  ["h2", "h3"].includes(protocol) &&
+    ["navigation", "fetch", "no-cors-fetch"].includes(action) &&
+    (action !== "no-cors-fetch" || kind === "chrome"),
 );
 const out = resolve(directory);
 mkdirSync(out, { mode: 0o700 });
@@ -87,6 +89,9 @@ const report = {
     method +
     "; certificate verification enabled; no protocol or certificate overrides.",
 };
+if (action === "no-cors-fetch")
+  report.method +=
+    " Cross-origin opaque fetches retain one about:blank document; protocol and ECH require transcript verification, not response-body inference.";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let context, sessionId, currentURL;
 async function navigate(url) {
@@ -110,6 +115,23 @@ async function trace(phase, reload = false) {
       host +
       "/cdn-cgi/trace?surf-resumption=" +
       report.attempts.length;
+  if (action === "no-cors-fetch") {
+    const result = await b.send(
+      "Runtime.evaluate",
+      {
+        expression: `fetch(${JSON.stringify(url)}, {mode: 'no-cors', credentials: 'omit'}).then(response => ({type: response.type, status: response.status}))`,
+        returnByValue: true,
+        awaitPromise: true,
+      },
+      sessionId,
+    );
+    assert(!result.exceptionDetails, "ordinary opaque fetch failed");
+    assert.equal(result.result?.value?.type, "opaque");
+    const fields = result.result.value;
+    report.attempts.push({ phase, at: new Date().toISOString(), ...fields });
+    console.log(JSON.stringify(report.attempts.at(-1)));
+    return fields;
+  }
   let previousOrigin = 0;
   let fetchBody;
   if (action === "fetch" && phase === "after-idle") {
@@ -189,16 +211,21 @@ try {
     await b.send("Page.enable", {}, sessionId);
   }
   let fields;
-  for (let n = 0; n < 6; n++) {
+  for (let n = 0; n < (action === "no-cors-fetch" ? 2 : 6); n++) {
     fields = await trace("warm");
-    if (fields.http === (protocol === "h2" ? "http/2" : "http/3")) break;
+    if (
+      action !== "no-cors-fetch" &&
+      fields.http === (protocol === "h2" ? "http/2" : "http/3")
+    )
+      break;
     await sleep(2000);
   }
-  assert.equal(
-    fields.http,
-    protocol === "h2" ? "http/2" : "http/3",
-    "ordinary browser selected an unexpected protocol",
-  );
+  if (action !== "no-cors-fetch")
+    assert.equal(
+      fields.http,
+      protocol === "h2" ? "http/2" : "http/3",
+      "ordinary browser selected an unexpected protocol",
+    );
   if (protocol === "h2") {
     let controlSession;
     if (!firefox) {
@@ -229,7 +256,7 @@ try {
     }
   } else {
     for (let n = 0; n < 2; n++) {
-      if (action !== "fetch") await navigate("about:blank");
+      if (action === "navigation") await navigate("about:blank");
       console.log(JSON.stringify({ phase: "idle", milliseconds: 45000 }));
       await sleep(45000);
       await trace("after-idle");

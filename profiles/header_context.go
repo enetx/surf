@@ -35,7 +35,9 @@ func RequestKindFromContext(ctx context.Context) (RequestKind, bool) {
 	if ctx == nil {
 		return AutomaticRequest, false
 	}
+
 	kind, ok := ctx.Value(requestKindKey{}).(RequestKind)
+
 	return kind, ok
 }
 
@@ -78,6 +80,7 @@ func (c HeaderContext) Navigation() bool {
 	if kind == AutomaticRequest && c.Request != nil {
 		kind, _ = RequestKindFromContext(c.Request.Context())
 	}
+
 	if kind == NavigationRequest {
 		return true
 	}

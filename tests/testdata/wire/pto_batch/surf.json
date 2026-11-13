@@ -1,0 +1,90 @@
+{
+  "tool": "TShark 4.6.9",
+  "cases": [
+    {
+      "name": "TestFirefoxPTOCoalescesInitialAndEarlyApplicationOnWire/explicit-disable",
+      "datagrams": [
+        {
+          "frame": 20,
+          "udp_payload_length": 1252,
+          "packets": [
+            {
+              "kind": "initial",
+              "number": 16,
+              "frames": [
+                "0x0000000000000006"
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 21,
+          "udp_payload_length": 1252,
+          "packets": [
+            {
+              "kind": "initial",
+              "number": 17,
+              "frames": [
+                "0x0000000000000006"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TestFirefoxPTOCoalescesInitialAndEarlyApplicationOnWire/profile",
+      "datagrams": [
+        {
+          "frame": 59,
+          "udp_payload_length": 83,
+          "packets": [
+            {
+              "kind": "0RTT",
+              "number": 6,
+              "frames": [
+                "0x0000000000000018",
+                "0x0000000000000018"
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 57,
+          "udp_payload_length": 1252,
+          "packets": [
+            {
+              "kind": "initial",
+              "number": 751,
+              "frames": [
+                "0x0000000000000006"
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 58,
+          "udp_payload_length": 1252,
+          "packets": [
+            {
+              "kind": "initial",
+              "number": 752,
+              "frames": [
+                "0x0000000000000006"
+              ]
+            },
+            {
+              "kind": "0RTT",
+              "number": 5,
+              "frames": [
+                "0x0000000000000018"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pcap_sha256": "9992a984b1c0df6719286626f8c0770b1061b8e973a5358726409e1b91b295fd",
+  "limit": "CRC32C matches exact original UDP payloads to test qlog. Ordinary new application data can follow PTO and is not counted as a probe."
+}

@@ -26,6 +26,12 @@ type QUICSettings struct {
 // packet budgets to an InitialCryptoLayout policy.
 type InitialCryptoLayoutInfo = quic.InitialCryptoLayoutInfo
 
+// PeerPacketInfo describes a routed packet whose keys are unavailable.
+type PeerPacketInfo = quic.PeerPacketInfo
+
+// PeerPacketRecovery selects transport responses without accepting the packet.
+type PeerPacketRecovery = quic.PeerPacketRecovery
+
 // CryptoRange selects a byte range in the first ClientHello's CRYPTO stream.
 type CryptoRange = quic.CryptoRange
 
@@ -329,6 +335,18 @@ func (q *QUICSettings) TLSClientFactory(factory tlsquic.NewClient) *QUICSettings
 	return q
 }
 
+// TLSClientFactoryWrapper decorates the native or browser TLS factory for each
+// connection. The factory receives a private TLS config with destination and ALPN
+// set. The wrapper must preserve session events and must not perform network I/O.
+// HTTP/3 adds its per-ticket SETTINGS bookkeeping outside this wrapper.
+// Nil removes the application wrapper without changing the selected TLS engine.
+func (q *QUICSettings) TLSClientFactoryWrapper(
+	wrapper func(*quic.Conn, tlsquic.NewClient) tlsquic.NewClient,
+) *QUICSettings {
+	q.handshake().WrapTLSClient = wrapper
+	return q
+}
+
 // MaxUDPPayloadSize sets the advertised UDP payload limit and actual receive size.
 // It also enables advertising this parameter after OmitMaxUDPPayloadSize(true).
 func (q *QUICSettings) MaxUDPPayloadSize(size uint64) *QUICSettings {
@@ -589,6 +607,182 @@ func (q *QUICSettings) InitialCryptoLayout(policy func(InitialCryptoLayoutInfo) 
 	return q
 }
 
+// InitialCryptoRecovery tracks lost Initial bytes independently of their old
+// frame boundaries and retires them when a packet copy is acknowledged. Browser
+// profiles enable this automatically. Disabling clears its layout and probe batch.
+func (q *QUICSettings) InitialCryptoRecovery(enabled bool) *QUICSettings {
+	h := q.handshake()
+	h.InitialCryptoRecovery = enabled
+
+	if !enabled {
+		h.InitialCryptoRecoveryLayout = nil
+		h.InitialCryptoProbePackets = 0
+		h.InitialCryptoResendOnPeerProbe = false
+	}
+
+	return q
+}
+
+// InitialCryptoRecoveryLayout selects ordered lost ranges for each Initial
+// packet's live budget. Offsets remain absolute across HelloRetryRequest; Length
+// can include later Initial messages. A non-nil policy enables byte-range recovery.
+// Nil restores sequential lost ranges while retaining the current recovery mode.
+func (q *QUICSettings) InitialCryptoRecoveryLayout(policy func(InitialCryptoLayoutInfo) [][]CryptoRange) *QUICSettings {
+	h := q.handshake()
+	h.InitialCryptoRecoveryLayout = policy
+
+	if policy != nil {
+		h.InitialCryptoRecovery = true
+	}
+
+	return q
+}
+
+// InitialCryptoProbePackets sets the Initial PTO allowance and preparation batch.
+// Zero keeps the native allowance and a one-packet batch; valid counts are 0..2.
+// A nonzero count enables byte-range recovery and original-packet ACK tracking.
+func (q *QUICSettings) InitialCryptoProbePackets(count uint8) *QUICSettings {
+	h := q.handshake()
+	h.InitialCryptoProbePackets = count
+
+	if count != 0 {
+		h.InitialCryptoRecovery = true
+	}
+
+	return q
+}
+
+// InitialProbeSkipPacketNumber skips one Initial number when PTO fires to elicit
+// an immediate ACK. This is independent of Application Data PacketNumberSkipping.
+func (q *QUICSettings) InitialProbeSkipPacketNumber(enabled bool) *QUICSettings {
+	q.handshake().InitialProbeSkipPacketNumber = enabled
+	return q
+}
+
+// InitialCryptoResendOnPeerProbe resends sent, unacknowledged Initial bytes on
+// PING or CRYPTO input that delivers no new TLS bytes. Enabling also selects
+// byte-range recovery. Browser profiles configure their own policy.
+func (q *QUICSettings) InitialCryptoResendOnPeerProbe(enabled bool) *QUICSettings {
+	h := q.handshake()
+	h.InitialCryptoResendOnPeerProbe = enabled
+
+	if enabled {
+		h.InitialCryptoRecovery = true
+	}
+
+	return q
+}
+
+// CoalescePTOProbes shares one datagram budget across eligible encryption spaces.
+// It retains crypto PTO baselines and suppresses empty crypto follow-up probes;
+// queued data can still be sent in every space. Firefox enables this policy.
+func (q *QUICSettings) CoalescePTOProbes(enabled bool) *QUICSettings {
+	q.handshake().CoalescePTOProbes = enabled
+	return q
+}
+
+// InitialACKResetsPTO resets probe-timeout backoff on a new Initial ACK before
+// peer address validation completes. Firefox selects this recovery policy.
+func (q *QUICSettings) InitialACKResetsPTO(enabled bool) *QUICSettings {
+	q.handshake().InitialACKResetsPTO = enabled
+	return q
+}
+
+// StreamDataRecovery acknowledges STREAM byte ranges across all transmitted
+// copies, including late originals and split retransmissions. Browser profiles
+// enable it automatically; disabling retains the native frame recovery path.
+func (q *QUICSettings) StreamDataRecovery(enabled bool) *QUICSettings {
+	q.handshake().StreamDataRecovery = enabled
+	return q
+}
+
+// StreamLossRetention selects the lifetime of lost STREAM packet ACK metadata.
+// The callback receives transport measurements and must not block or reenter
+// QUIC. Nil retains useful metadata up to the engine's packet tracking limit.
+func (q *QUICSettings) StreamLossRetention(policy func(quic.StreamLossInfo) bool) *QUICSettings {
+	q.handshake().StreamLossRetention = policy
+	return q
+}
+
+// HandshakeCryptoRecovery tracks Handshake CRYPTO ranges and late original PTO ACKs.
+// Disabling also removes its peer-probe retransmission policy.
+func (q *QUICSettings) HandshakeCryptoRecovery(enabled bool) *QUICSettings {
+	h := q.handshake()
+	h.HandshakeCryptoRecovery = enabled
+	if !enabled {
+		h.HandshakeCryptoResendOnPeerProbe = false
+	}
+	return q
+}
+
+// HandshakeCryptoResendOnPeerProbe resends unacknowledged Handshake CRYPTO
+// on PING or non-progressing CRYPTO. Enabling also selects Handshake recovery.
+func (q *QUICSettings) HandshakeCryptoResendOnPeerProbe(enabled bool) *QUICSettings {
+	h := q.handshake()
+	h.HandshakeCryptoResendOnPeerProbe = enabled
+	if enabled {
+		h.HandshakeCryptoRecovery = true
+	}
+	return q
+}
+
+// HandshakeProbePackets sets the Handshake PTO allowance (0..2).
+// Zero preserves the native allowance; the selected profile supplies its default.
+func (q *QUICSettings) HandshakeProbePackets(count uint8) *QUICSettings {
+	q.handshake().HandshakeProbePackets = count
+	return q
+}
+
+// ApplicationProbePackets sets the 1-RTT PTO allowance (0..2).
+// Zero preserves the native allowance. It does not change random number skipping.
+func (q *QUICSettings) ApplicationProbePackets(count uint8) *QUICSettings {
+	q.handshake().ApplicationProbePackets = count
+	return q
+}
+
+// HandshakeProbeSkipPacketNumber controls a deliberate Handshake PTO number gap.
+func (q *QUICSettings) HandshakeProbeSkipPacketNumber(enabled bool) *QUICSettings {
+	q.handshake().HandshakeProbeSkipPacketNumber = enabled
+	return q
+}
+
+// ApplicationProbeSkipPacketNumber controls the 1-RTT PTO gap independently of
+// random PacketNumberSkipping. It overrides that setting for PTO only. Browser
+// profiles select their explicit policy; native configs retain the legacy coupling.
+func (q *QUICSettings) ApplicationProbeSkipPacketNumber(enabled bool) *QUICSettings {
+	q.handshake().ApplicationProbeSkipPacketNumber = &enabled
+	return q
+}
+
+// HandshakeProbeOnlyWithData suppresses empty follow-up Handshake probes.
+// The first probe can still send PING; queued CRYPTO uses the full allowance.
+func (q *QUICSettings) HandshakeProbeOnlyWithData(enabled bool) *QUICSettings {
+	q.handshake().HandshakeProbeOnlyWithData = enabled
+	return q
+}
+
+// PeerPacketRecoveryPolicy selects responses to missing or retired peer keys.
+// Authentication failures never invoke it. Nil restores native behavior.
+func (q *QUICSettings) PeerPacketRecoveryPolicy(policy func(quic.PeerPacketInfo) quic.PeerPacketRecovery) *QUICSettings {
+	q.handshake().PeerPacketRecoveryPolicy = policy
+	return q
+}
+
+// EarlyDataResendOnPeerCrypto repeats outstanding 0-RTT recovery tokens when
+// authenticated Initial CRYPTO makes no TLS progress. The first Application ACK
+// ends this mechanism. PING alone never repeats early STREAM data.
+func (q *QUICSettings) EarlyDataResendOnPeerCrypto(enabled bool) *QUICSettings {
+	q.handshake().EarlyDataResendOnPeerCrypto = enabled
+	return q
+}
+
+// ImmediateACKOnPeerPing selects immediate acknowledgment of a verified 1-RTT
+// PING. Other application packets retain the configured ACK policy.
+func (q *QUICSettings) ImmediateACKOnPeerPing(enabled bool) *QUICSettings {
+	q.handshake().ImmediateACKOnPeerPing = enabled
+	return q
+}
+
 // ResetInitialPacketProtection clears random Initial splits, PINGs and prefix
 // sizing. Explicit InitialCryptoLayout and DisableClientHelloScrambling retain
 // their independently configured values.
@@ -663,8 +857,9 @@ func (q *QUICSettings) SeparatePacketNumberSpaces(enabled bool) *QUICSettings {
 	return q
 }
 
-// PacketNumberSkipping controls artificial Application Data gaps, including
-// PTO skips. Enabled preserves the engine's native skipped-ACK defense.
+// PacketNumberSkipping controls random Application Data gaps. It also controls
+// PTO gaps unless ApplicationProbeSkipPacketNumber explicitly overrides them.
+// Peer ACK validation remains enabled.
 func (q *QUICSettings) PacketNumberSkipping(enabled bool) *QUICSettings {
 	q.handshake().DisablePacketNumberSkipping = !enabled
 	return q

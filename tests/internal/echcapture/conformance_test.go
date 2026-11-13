@@ -11,7 +11,7 @@ func TestSurfResumptionWireReferences(t *testing.T) {
 	for _, ref := range nativeReferences(t) {
 		native[ref.Browser+"/"+ref.Transport] = ref
 	}
-	for _, ref := range referenceFiles(t, "surf", 4) {
+	for _, ref := range referenceFiles(t, "surf", 8) {
 		t.Run(ref.Browser+"/"+ref.Transport, func(t *testing.T) {
 			want, ok := native[ref.Browser+"/"+ref.Transport]
 			if !ok || ref.Implementation != "surf" || ref.Schema != 1 {

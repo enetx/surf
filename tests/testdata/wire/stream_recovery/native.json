@@ -1,0 +1,1987 @@
+{
+  "anchors": [
+    {
+      "browser": "firefox",
+      "connection": 0,
+      "original": 1,
+      "copied_in": [
+        3
+      ],
+      "acknowledged_by": 17,
+      "overlapping_transmissions_after_late_ack": [],
+      "packets": [
+        {
+          "direction": "server",
+          "number": 8,
+          "held": false,
+          "streams": [
+            {
+              "id": 3,
+              "offset": 0,
+              "length": 44
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 0,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              8,
+              8
+            ]
+          ],
+          "elapsed_us": 972
+        },
+        {
+          "direction": "client",
+          "number": 1,
+          "held": true,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 40
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 5
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 1049
+        },
+        {
+          "direction": "server",
+          "number": 10,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 50659
+        },
+        {
+          "direction": "server",
+          "number": 9,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              0,
+              0
+            ]
+          ],
+          "elapsed_us": 50659
+        },
+        {
+          "direction": "client",
+          "number": 2,
+          "held": true,
+          "streams": [],
+          "acks": [
+            [
+              8,
+              10
+            ]
+          ],
+          "elapsed_us": 51239
+        },
+        {
+          "direction": "client",
+          "number": 3,
+          "held": false,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 40
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 5
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 146214
+        },
+        {
+          "direction": "client",
+          "number": 4,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 146337
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 151130
+        },
+        {
+          "direction": "client",
+          "number": 5,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              12,
+              12
+            ],
+            [
+              8,
+              10
+            ]
+          ],
+          "elapsed_us": 151377
+        },
+        {
+          "direction": "server",
+          "number": 14,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              4
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "elapsed_us": 196942
+        },
+        {
+          "direction": "server",
+          "number": 13,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              3
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "elapsed_us": 196942
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 266974
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 267083
+        },
+        {
+          "direction": "server",
+          "number": 15,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              6
+            ]
+          ],
+          "elapsed_us": 322063
+        },
+        {
+          "direction": "server",
+          "number": 16,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              7
+            ]
+          ],
+          "elapsed_us": 348118
+        },
+        {
+          "direction": "server",
+          "number": 17,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              7
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "elapsed_us": 561915
+        },
+        {
+          "direction": "server",
+          "number": 18,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              1,
+              7
+            ]
+          ],
+          "elapsed_us": 611343
+        }
+      ],
+      "original_capture_sha256": "fc695e8bdbbe7a592fcf0939e6d1dffb779f04a77cb4089b774e959e85a22d7b",
+      "analysis_sha256": "b1abfb110afa3c7c315a9b65785082d5d4d18204f826e534e2093ee1e2984928",
+      "browser_version": "160.0"
+    },
+    {
+      "browser": "firefox",
+      "connection": 1,
+      "original": 1,
+      "copied_in": [
+        4
+      ],
+      "acknowledged_by": 15,
+      "overlapping_transmissions_after_late_ack": [],
+      "packets": [
+        {
+          "direction": "client",
+          "number": 0,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 1,
+          "held": true,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 35
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 37
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "held": false,
+          "streams": [
+            {
+              "id": 3,
+              "offset": 0,
+              "length": 12
+            },
+            {
+              "id": 7,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 11,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 240113
+        },
+        {
+          "direction": "client",
+          "number": 2,
+          "held": true,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 1,
+              "length": 3
+            }
+          ],
+          "acks": [
+            [
+              12,
+              12
+            ]
+          ],
+          "elapsed_us": 240575
+        },
+        {
+          "direction": "server",
+          "number": 13,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              0,
+              0
+            ]
+          ],
+          "elapsed_us": 250631
+        },
+        {
+          "direction": "client",
+          "number": 3,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 195
+            },
+            {
+              "id": 6,
+              "offset": 4,
+              "length": 99
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 343745
+        },
+        {
+          "direction": "server",
+          "number": 14,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              3
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "elapsed_us": 585119
+        },
+        {
+          "direction": "client",
+          "number": 4,
+          "held": false,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 35
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 4
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 585996
+        },
+        {
+          "direction": "server",
+          "number": 15,
+          "held": false,
+          "streams": [
+            {
+              "id": 7,
+              "offset": 1,
+              "length": 4
+            }
+          ],
+          "acks": [
+            [
+              3,
+              3
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "elapsed_us": 742134
+        },
+        {
+          "direction": "client",
+          "number": 5,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              12,
+              15
+            ]
+          ],
+          "elapsed_us": 742379
+        },
+        {
+          "direction": "server",
+          "number": 16,
+          "held": false,
+          "streams": [
+            {
+              "id": 11,
+              "offset": 1,
+              "length": 1
+            },
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 34
+            }
+          ],
+          "acks": [
+            [
+              3,
+              4
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "elapsed_us": 819186
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              12,
+              16
+            ]
+          ],
+          "elapsed_us": 819468
+        },
+        {
+          "direction": "server",
+          "number": 17,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              5
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "elapsed_us": 988851
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "held": false,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 195
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 1339606
+        },
+        {
+          "direction": "server",
+          "number": 18,
+          "held": false,
+          "streams": [
+            {
+              "id": 7,
+              "offset": 5,
+              "length": 4
+            },
+            {
+              "id": 11,
+              "offset": 2,
+              "length": 1
+            },
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 31
+            }
+          ],
+          "acks": [
+            [
+              5,
+              7
+            ]
+          ],
+          "elapsed_us": 1573716
+        },
+        {
+          "direction": "client",
+          "number": 8,
+          "held": false,
+          "streams": [
+            {
+              "id": 10,
+              "offset": 1,
+              "length": 1
+            }
+          ],
+          "acks": [
+            [
+              12,
+              18
+            ]
+          ],
+          "elapsed_us": 1574030
+        },
+        {
+          "direction": "server",
+          "number": 19,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              8,
+              8
+            ]
+          ],
+          "elapsed_us": 1805472
+        },
+        {
+          "direction": "client",
+          "number": 9,
+          "held": false,
+          "streams": [
+            {
+              "id": 8,
+              "offset": 0,
+              "length": 195
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 2097679
+        },
+        {
+          "direction": "server",
+          "number": 20,
+          "held": false,
+          "streams": [
+            {
+              "id": 11,
+              "offset": 3,
+              "length": 1
+            },
+            {
+              "id": 8,
+              "offset": 0,
+              "length": 31
+            }
+          ],
+          "acks": [
+            [
+              8,
+              9
+            ]
+          ],
+          "elapsed_us": 2336912
+        },
+        {
+          "direction": "client",
+          "number": 10,
+          "held": false,
+          "streams": [
+            {
+              "id": 10,
+              "offset": 2,
+              "length": 1
+            }
+          ],
+          "acks": [
+            [
+              12,
+              20
+            ]
+          ],
+          "elapsed_us": 2337225
+        },
+        {
+          "direction": "server",
+          "number": 21,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              10,
+              10
+            ]
+          ],
+          "elapsed_us": 2575023
+        }
+      ],
+      "original_capture_sha256": "fc695e8bdbbe7a592fcf0939e6d1dffb779f04a77cb4089b774e959e85a22d7b",
+      "analysis_sha256": "b1abfb110afa3c7c315a9b65785082d5d4d18204f826e534e2093ee1e2984928",
+      "browser_version": "160.0"
+    },
+    {
+      "browser": "firefox",
+      "connection": 1,
+      "original": 2,
+      "copied_in": [
+        4
+      ],
+      "acknowledged_by": 17,
+      "overlapping_transmissions_after_late_ack": [],
+      "packets": [
+        {
+          "direction": "client",
+          "number": 0,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 1,
+          "held": true,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 35
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 37
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "held": false,
+          "streams": [
+            {
+              "id": 3,
+              "offset": 0,
+              "length": 12
+            },
+            {
+              "id": 7,
+              "offset": 0,
+              "length": 1
+            },
+            {
+              "id": 11,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 240113
+        },
+        {
+          "direction": "client",
+          "number": 2,
+          "held": true,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 1,
+              "length": 3
+            }
+          ],
+          "acks": [
+            [
+              12,
+              12
+            ]
+          ],
+          "elapsed_us": 240575
+        },
+        {
+          "direction": "server",
+          "number": 13,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              0,
+              0
+            ]
+          ],
+          "elapsed_us": 250631
+        },
+        {
+          "direction": "client",
+          "number": 3,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 195
+            },
+            {
+              "id": 6,
+              "offset": 4,
+              "length": 99
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 343745
+        },
+        {
+          "direction": "server",
+          "number": 14,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              3,
+              3
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "elapsed_us": 585119
+        },
+        {
+          "direction": "client",
+          "number": 4,
+          "held": false,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 35
+            },
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 4
+            },
+            {
+              "id": 10,
+              "offset": 0,
+              "length": 1
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 585996
+        },
+        {
+          "direction": "server",
+          "number": 15,
+          "held": false,
+          "streams": [
+            {
+              "id": 7,
+              "offset": 1,
+              "length": 4
+            }
+          ],
+          "acks": [
+            [
+              3,
+              3
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "elapsed_us": 742134
+        },
+        {
+          "direction": "client",
+          "number": 5,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              12,
+              15
+            ]
+          ],
+          "elapsed_us": 742379
+        },
+        {
+          "direction": "server",
+          "number": 16,
+          "held": false,
+          "streams": [
+            {
+              "id": 11,
+              "offset": 1,
+              "length": 1
+            },
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 34
+            }
+          ],
+          "acks": [
+            [
+              3,
+              4
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "elapsed_us": 819186
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              12,
+              16
+            ]
+          ],
+          "elapsed_us": 819468
+        },
+        {
+          "direction": "server",
+          "number": 17,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              4,
+              5
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          "elapsed_us": 988851
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "held": false,
+          "streams": [
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 195
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 1339606
+        },
+        {
+          "direction": "server",
+          "number": 18,
+          "held": false,
+          "streams": [
+            {
+              "id": 7,
+              "offset": 5,
+              "length": 4
+            },
+            {
+              "id": 11,
+              "offset": 2,
+              "length": 1
+            },
+            {
+              "id": 4,
+              "offset": 0,
+              "length": 31
+            }
+          ],
+          "acks": [
+            [
+              5,
+              7
+            ]
+          ],
+          "elapsed_us": 1573716
+        },
+        {
+          "direction": "client",
+          "number": 8,
+          "held": false,
+          "streams": [
+            {
+              "id": 10,
+              "offset": 1,
+              "length": 1
+            }
+          ],
+          "acks": [
+            [
+              12,
+              18
+            ]
+          ],
+          "elapsed_us": 1574030
+        },
+        {
+          "direction": "server",
+          "number": 19,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              8,
+              8
+            ]
+          ],
+          "elapsed_us": 1805472
+        },
+        {
+          "direction": "client",
+          "number": 9,
+          "held": false,
+          "streams": [
+            {
+              "id": 8,
+              "offset": 0,
+              "length": 195
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 2097679
+        },
+        {
+          "direction": "server",
+          "number": 20,
+          "held": false,
+          "streams": [
+            {
+              "id": 11,
+              "offset": 3,
+              "length": 1
+            },
+            {
+              "id": 8,
+              "offset": 0,
+              "length": 31
+            }
+          ],
+          "acks": [
+            [
+              8,
+              9
+            ]
+          ],
+          "elapsed_us": 2336912
+        },
+        {
+          "direction": "client",
+          "number": 10,
+          "held": false,
+          "streams": [
+            {
+              "id": 10,
+              "offset": 2,
+              "length": 1
+            }
+          ],
+          "acks": [
+            [
+              12,
+              20
+            ]
+          ],
+          "elapsed_us": 2337225
+        },
+        {
+          "direction": "server",
+          "number": 21,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              10,
+              10
+            ]
+          ],
+          "elapsed_us": 2575023
+        }
+      ],
+      "original_capture_sha256": "fc695e8bdbbe7a592fcf0939e6d1dffb779f04a77cb4089b774e959e85a22d7b",
+      "analysis_sha256": "b1abfb110afa3c7c315a9b65785082d5d4d18204f826e534e2093ee1e2984928",
+      "browser_version": "160.0"
+    },
+    {
+      "browser": "chromium",
+      "connection": 4,
+      "original": 10,
+      "copied_in": [
+        28
+      ],
+      "acknowledged_by": 47,
+      "overlapping_transmissions_after_late_ack": [],
+      "packets": [
+        {
+          "direction": "server",
+          "number": 7,
+          "held": false,
+          "streams": [
+            {
+              "id": 3,
+              "offset": 0,
+              "length": 130
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "number": 6,
+          "held": false,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 0,
+              "length": 46
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 7028
+        },
+        {
+          "direction": "client",
+          "number": 7,
+          "held": false,
+          "streams": [
+            {
+              "id": 2,
+              "offset": 46,
+              "length": 9
+            },
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 388
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 7373
+        },
+        {
+          "direction": "client",
+          "number": 8,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              7
+            ]
+          ],
+          "elapsed_us": 32072
+        },
+        {
+          "direction": "server",
+          "number": 8,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 47654
+        },
+        {
+          "direction": "server",
+          "number": 9,
+          "held": false,
+          "streams": [],
+          "acks": [],
+          "elapsed_us": 47672
+        },
+        {
+          "direction": "server",
+          "number": 10,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              6,
+              7
+            ]
+          ],
+          "elapsed_us": 48063
+        },
+        {
+          "direction": "server",
+          "number": 11,
+          "held": false,
+          "streams": [
+            {
+              "id": 11,
+              "offset": 0,
+              "length": 427
+            },
+            {
+              "id": 0,
+              "offset": 0,
+              "length": 795
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 50008
+        },
+        {
+          "direction": "server",
+          "number": 12,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 795,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 50013
+        },
+        {
+          "direction": "server",
+          "number": 13,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 2023,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 50019
+        },
+        {
+          "direction": "server",
+          "number": 14,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 3251,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 50029
+        },
+        {
+          "direction": "server",
+          "number": 15,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 4479,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 52642
+        },
+        {
+          "direction": "server",
+          "number": 16,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 5707,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 52651
+        },
+        {
+          "direction": "server",
+          "number": 17,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 6935,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 53596
+        },
+        {
+          "direction": "client",
+          "number": 9,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              9
+            ]
+          ],
+          "elapsed_us": 53935
+        },
+        {
+          "direction": "server",
+          "number": 18,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 8163,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 55527
+        },
+        {
+          "direction": "server",
+          "number": 19,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 9391,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 55540
+        },
+        {
+          "direction": "client",
+          "number": 10,
+          "held": true,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 2
+            }
+          ],
+          "acks": [
+            [
+              7,
+              12
+            ]
+          ],
+          "elapsed_us": 57795
+        },
+        {
+          "direction": "client",
+          "number": 11,
+          "held": true,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              14
+            ]
+          ],
+          "elapsed_us": 57936
+        },
+        {
+          "direction": "server",
+          "number": 20,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 10619,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 58252
+        },
+        {
+          "direction": "server",
+          "number": 21,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 11847,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 58256
+        },
+        {
+          "direction": "server",
+          "number": 22,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 13075,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 60190
+        },
+        {
+          "direction": "server",
+          "number": 23,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 14303,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 60192
+        },
+        {
+          "direction": "client",
+          "number": 12,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              16
+            ]
+          ],
+          "elapsed_us": 61504
+        },
+        {
+          "direction": "client",
+          "number": 13,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              18
+            ]
+          ],
+          "elapsed_us": 61666
+        },
+        {
+          "direction": "server",
+          "number": 24,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 15531,
+              "length": 1228
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 62873
+        },
+        {
+          "direction": "server",
+          "number": 25,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 16759,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 62875
+        },
+        {
+          "direction": "client",
+          "number": 14,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              20
+            ]
+          ],
+          "elapsed_us": 64161
+        },
+        {
+          "direction": "server",
+          "number": 26,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 17985,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 64689
+        },
+        {
+          "direction": "server",
+          "number": 27,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 19211,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 64696
+        },
+        {
+          "direction": "client",
+          "number": 15,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              22
+            ]
+          ],
+          "elapsed_us": 65832
+        },
+        {
+          "direction": "server",
+          "number": 28,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 20437,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 67572
+        },
+        {
+          "direction": "server",
+          "number": 29,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 21663,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 67577
+        },
+        {
+          "direction": "client",
+          "number": 16,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              24
+            ]
+          ],
+          "elapsed_us": 68557
+        },
+        {
+          "direction": "server",
+          "number": 30,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 22889,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 69236
+        },
+        {
+          "direction": "client",
+          "number": 17,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              26
+            ]
+          ],
+          "elapsed_us": 70542
+        },
+        {
+          "direction": "server",
+          "number": 31,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 24115,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 71302
+        },
+        {
+          "direction": "server",
+          "number": 32,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 25341,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 72326
+        },
+        {
+          "direction": "server",
+          "number": 33,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 26567,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 72340
+        },
+        {
+          "direction": "client",
+          "number": 18,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              28
+            ]
+          ],
+          "elapsed_us": 73382
+        },
+        {
+          "direction": "server",
+          "number": 34,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 27793,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 74912
+        },
+        {
+          "direction": "server",
+          "number": 35,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 29019,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 74915
+        },
+        {
+          "direction": "client",
+          "number": 19,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              30
+            ]
+          ],
+          "elapsed_us": 75020
+        },
+        {
+          "direction": "server",
+          "number": 36,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 30245,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 77240
+        },
+        {
+          "direction": "server",
+          "number": 37,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 31471,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 77989
+        },
+        {
+          "direction": "client",
+          "number": 20,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              32
+            ]
+          ],
+          "elapsed_us": 78104
+        },
+        {
+          "direction": "server",
+          "number": 38,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 32697,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 79497
+        },
+        {
+          "direction": "client",
+          "number": 21,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              34
+            ]
+          ],
+          "elapsed_us": 80675
+        },
+        {
+          "direction": "server",
+          "number": 39,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 33923,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 80709
+        },
+        {
+          "direction": "server",
+          "number": 40,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 35149,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 80713
+        },
+        {
+          "direction": "client",
+          "number": 22,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              36
+            ]
+          ],
+          "elapsed_us": 82966
+        },
+        {
+          "direction": "server",
+          "number": 41,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 36375,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 83647
+        },
+        {
+          "direction": "server",
+          "number": 42,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 37601,
+              "length": 1226
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 83656
+        },
+        {
+          "direction": "client",
+          "number": 23,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              38
+            ]
+          ],
+          "elapsed_us": 85197
+        },
+        {
+          "direction": "server",
+          "number": 43,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 38827,
+              "length": 721
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 86333
+        },
+        {
+          "direction": "client",
+          "number": 24,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              40
+            ]
+          ],
+          "elapsed_us": 86477
+        },
+        {
+          "direction": "client",
+          "number": 25,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              42
+            ]
+          ],
+          "elapsed_us": 89364
+        },
+        {
+          "direction": "client",
+          "number": 26,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              7,
+              43
+            ]
+          ],
+          "elapsed_us": 118259
+        },
+        {
+          "direction": "client",
+          "number": 28,
+          "held": false,
+          "streams": [
+            {
+              "id": 6,
+              "offset": 0,
+              "length": 2
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 156498
+        },
+        {
+          "direction": "server",
+          "number": 45,
+          "held": false,
+          "streams": [
+            {
+              "id": 0,
+              "offset": 38827,
+              "length": 721
+            }
+          ],
+          "acks": [],
+          "elapsed_us": 159904
+        },
+        {
+          "direction": "client",
+          "number": 29,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              45,
+              45
+            ],
+            [
+              7,
+              43
+            ]
+          ],
+          "elapsed_us": 165699
+        },
+        {
+          "direction": "server",
+          "number": 46,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              28,
+              28
+            ],
+            [
+              12,
+              26
+            ],
+            [
+              8,
+              9
+            ]
+          ],
+          "elapsed_us": 195695
+        },
+        {
+          "direction": "server",
+          "number": 47,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              28,
+              29
+            ],
+            [
+              12,
+              26
+            ],
+            [
+              8,
+              10
+            ]
+          ],
+          "elapsed_us": 599560
+        },
+        {
+          "direction": "server",
+          "number": 48,
+          "held": false,
+          "streams": [],
+          "acks": [
+            [
+              28,
+              29
+            ],
+            [
+              8,
+              26
+            ]
+          ],
+          "elapsed_us": 599563
+        }
+      ],
+      "original_capture_sha256": "6d827910e4a2035b2490dbf7271c5dc1444ca29255a45a754229f434ca43f7b1",
+      "analysis_sha256": "b491d1797be7331072296a5e3562a0cea0814048a2738bb8c38f185628c4c478",
+      "browser_version": "158.0.8127.0"
+    }
+  ],
+  "scope": "Official Firefox and Chromium. Network delays of 500 ms are injected at NFQUEUE; no forced QUIC or TLS verification bypass. References primarily establish HTTP/3 protocol-stream recovery, not browser upload or OS pacing parity."
+}

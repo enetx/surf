@@ -1,0 +1,67 @@
+{
+  "stage": 1,
+  "implementation": "same-connection Firefox HTTP/3 restart after verified TLS rejection",
+  "go": "1.27.3",
+  "platforms": [
+    "darwin/arm64",
+    "linux/arm64"
+  ],
+  "checks": {
+    "engine-gate.log": {
+      "sha256": "c458a1399ec0a21c388f0f34c22a614fb6de68971aae6588fe09755289576e49",
+      "status": "pass"
+    },
+    "engine-final-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "engine-linux-final.log": {
+      "sha256": "b2f9a015cd4241242858f9f33afe91413025296b889464e7d279aca9a0c498ed",
+      "status": "pass"
+    },
+    "engine-linux-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "surf-gate.log": {
+      "sha256": "bc211196e6c832a0d25bda71c2edc520ddd1cc7636e9433eea719c0096473372",
+      "status": "pass"
+    },
+    "surf-final-race.log": {
+      "sha256": "7250fa958f2fd7a8a01d456d28333ec6888abb02aa4cb4821d8aa3e4907b4b4a",
+      "status": "pass"
+    },
+    "surf-final-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "surf-linux-final-fixed.log": {
+      "sha256": "bef93bfac84d2dfc588cd5e1f7e7772559aa6929cfe89890bb3556577526f4ff",
+      "status": "pass"
+    },
+    "surf-linux-stress.log": {
+      "sha256": "bfe262b587066cf65d5162b538e6dc1e60a7889d07feac594858ee2bfc8050e9",
+      "status": "pass"
+    },
+    "surf-linux-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "linux-stage1-plus-proxy.log": {
+      "sha256": "64b283e275692c524cd1965d872b96ff437fbe28cd751b674e1489f3e0d34f1f",
+      "status": "pass"
+    },
+    "surf-ci.log": {
+      "sha256": "0a000c1b8b61d369fe8958249464b0737d4a962bd354b33951423611c1a3fbcf",
+      "status": "pass"
+    },
+    "engine-386.log": {
+      "sha256": "9235bde4f95d5aeb3f962ae9b65f3758f17eed2f2a2f87d8080aed01d21ac0e8",
+      "status": "pass"
+    }
+  },
+  "surf_coverage_percent": 88.8,
+  "stress_repetitions": 20,
+  "wire": "surf.json",
+  "limits": "Native Firefox server-rejection golden is not established. Controlled Surf wire tests and pinned Firefox sources establish the implemented scope; HRR early payload is not independently decoded."
+}

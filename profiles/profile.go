@@ -102,6 +102,8 @@ type H3Config interface {
 	CoalesceInitialSettings(bool) H3Config
 	CoalesceRequestHeaders(bool) H3Config
 	EarlyData(bool) H3Config
+	// EarlyDataRestart resets rejected HTTP/3 state on the same QUIC connection.
+	EarlyDataRestart(bool) H3Config
 	EarlyDataBackup(bool) H3Config
 	RequestBodyBufferSize(int) H3Config
 	RequestBodyBufferSizePolicy(func(int64) int) H3Config
@@ -122,6 +124,8 @@ type H3Config interface {
 	QpackHuffman(http3.QPACKHuffmanMode) H3Config
 	QpackIndexing(http3.QPACKIndexingMode) H3Config
 	QpackIndexingPolicy(func(string, string) bool) H3Config
+	// QpackResumptionErrorCode configures the accepted-0-RTT capacity error policy.
+	QpackResumptionErrorCode(func(uint64, uint64) http3.ErrCode) H3Config
 	QpackDrainingFraction(float64) H3Config
 	QpackPostBaseReferences(bool) H3Config
 	QpackLiteralInsertNames(bool) H3Config
@@ -180,6 +184,46 @@ type QUICConfig interface {
 	InitialCryptoFirstFrameSize(int, int) QUICConfig
 	// InitialCryptoLayout selects ordered first-ClientHello ranges and packet groups.
 	InitialCryptoLayout(func(quic.InitialCryptoLayoutInfo) [][]quic.CryptoRange) QUICConfig
+	// InitialCryptoRecovery enables lost-range and late-ACK tracking for Initial.
+	InitialCryptoRecovery(bool) QUICConfig
+	// InitialCryptoRecoveryLayout applies the packet policy to lost Initial bytes.
+	InitialCryptoRecoveryLayout(func(quic.InitialCryptoLayoutInfo) [][]quic.CryptoRange) QUICConfig
+	// InitialCryptoProbePackets selects the Initial PTO preparation batch.
+	InitialCryptoProbePackets(uint8) QUICConfig
+	// InitialProbeSkipPacketNumber controls the deliberate Initial PTO number gap.
+	InitialProbeSkipPacketNumber(bool) QUICConfig
+	// InitialCryptoResendOnPeerProbe selects reaction to a peer Initial probe.
+	InitialCryptoResendOnPeerProbe(bool) QUICConfig
+	// CoalescePTOProbes shares a datagram budget across timed encryption spaces.
+	CoalescePTOProbes(bool) QUICConfig
+	// InitialACKResetsPTO resets backoff before peer address validation completes.
+	InitialACKResetsPTO(bool) QUICConfig
+	// StreamDataRecovery acknowledges STREAM ranges across transmission copies.
+	StreamDataRecovery(bool) QUICConfig
+	// StreamLossRetention selects the lifetime of lost STREAM ACK metadata.
+	StreamLossRetention(func(quic.StreamLossInfo) bool) QUICConfig
+	// HandshakeCryptoRecovery tracks Handshake CRYPTO ranges and late original PTO ACKs.
+	HandshakeCryptoRecovery(bool) QUICConfig
+	// HandshakeCryptoResendOnPeerProbe resends unacknowledged Handshake CRYPTO
+	// on a peer PING or non-progressing CRYPTO frame.
+	HandshakeCryptoResendOnPeerProbe(bool) QUICConfig
+	// HandshakeProbePackets sets the Handshake PTO allowance (0..2).
+	HandshakeProbePackets(uint8) QUICConfig
+	// ApplicationProbePackets sets the 1-RTT PTO allowance (0..2).
+	ApplicationProbePackets(uint8) QUICConfig
+	// HandshakeProbeSkipPacketNumber controls a deliberate Handshake PTO number gap.
+	HandshakeProbeSkipPacketNumber(bool) QUICConfig
+	// ApplicationProbeSkipPacketNumber separates the 1-RTT PTO gap from random gaps.
+	ApplicationProbeSkipPacketNumber(bool) QUICConfig
+	// HandshakeProbeOnlyWithData suppresses empty follow-up Handshake probes.
+	HandshakeProbeOnlyWithData(bool) QUICConfig
+	// PeerPacketRecoveryPolicy selects responses to missing or retired peer keys.
+	PeerPacketRecoveryPolicy(func(quic.PeerPacketInfo) quic.PeerPacketRecovery) QUICConfig
+	// EarlyDataResendOnPeerCrypto repeats early data on non-progressing Initial CRYPTO.
+	EarlyDataResendOnPeerCrypto(bool) QUICConfig
+	// ImmediateACKOnPeerPing selects immediate acknowledgment of a verified
+	// 1-RTT PING instead of waiting for the normal ACK threshold.
+	ImmediateACKOnPeerPing(bool) QUICConfig
 	InitialDestinationConnectionIDLengthFactory(func() (int, error)) QUICConfig
 	ReceiveWindowUpdateDivisor(uint32) QUICConfig
 	AckOnlyPingThreshold(int) QUICConfig

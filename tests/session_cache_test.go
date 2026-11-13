@@ -302,6 +302,21 @@ func TestSessionCacheCustomOwnershipAndScopes(t *testing.T) {
 				defer client.Close()
 				client.Get(g.String(server.URL)).Do().Unwrap().Body.String().Unwrap()
 				peer.request(t, client)
+				// Response data, TLS tickets and server SETTINGS use independent
+				// QUIC streams. HTTP/3 publishes a ticket only with its SETTINGS;
+				// the completed response does not order this cache callback.
+				if scope == "both" || scope == "quic" {
+					require.Eventually(t, func() bool {
+						if scope == "both" {
+							tcp.mu.Lock()
+							defer tcp.mu.Unlock()
+							return len(tcp.entries) >= 2
+						}
+						quic.mu.Lock()
+						defer quic.mu.Unlock()
+						return len(quic.entries) == 1
+					}, 5*time.Second, time.Millisecond)
+				}
 				tcp.mu.Lock()
 				tcpCount := len(tcp.entries)
 				tcp.mu.Unlock()

@@ -1,0 +1,223 @@
+{
+  "date": "2026-11-12",
+  "go": "go1.27.3",
+  "workspace": "Local four-module workspace; changes are not published by this audit.",
+  "bases": {
+    "http": "v1.0.38",
+    "quic-go": "v1.0.22",
+    "surf": "v1.0.236",
+    "utls": "v1.0.6"
+  },
+  "checks": [
+    {
+      "platform": "macOS arm64",
+      "scope": "QUIC complete package suite, race detector",
+      "status": "passed",
+      "log_sha256": "bb526a41ba81213c2d2517dffe240a925327a7602322e74d0ebbdc8d55883e24"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "QUIC go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Surf exact go.yml Go test command, race detector and production-package coverage",
+      "status": "passed",
+      "log_sha256": "7c5e72e6dca0b0c35e0ed3d9c360ecd27ed6bae70903b4051ccb6ce8e7fd6703"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Surf go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "QUIC complete package suite, race detector",
+      "status": "passed",
+      "log_sha256": "2452176d570dfd5d194a5f1d936d34483920cecc03221a30c809deb961104de5"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "QUIC go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Surf complete tests/... suite, race detector",
+      "status": "passed",
+      "log_sha256": "3c0ecbf029858a3efdb6345639b0fcd8709dc9d41f9c567fa1c57d975dd89a69"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Surf go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Focused Initial recovery and ACK handler tests, 20 race repetitions",
+      "status": "passed",
+      "log_sha256": "1ca476ec6fe87c7e5acfd02391c129af976272ae2bf1fa331d1300bd84b53534"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Native references, 14 encrypted UDP cases and public builder controls, 10 race repetitions",
+      "status": "passed",
+      "log_sha256": "023e4f78c90bb4ac1d96e315e4bba1b59570974997c47a30f53964e25dbd8f89"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Native references, 14 encrypted UDP cases and public builder controls, 10 race repetitions",
+      "status": "passed",
+      "log_sha256": "d93349e516f6760dcfbb1573be2e9b808cc7a0e66538f10ad696d6bb0ebddc71"
+    },
+    {
+      "platform": "linux/386",
+      "scope": "Cross-compile root engine, ACK handler and HTTP/3 tests; execution skipped",
+      "status": "passed",
+      "log_sha256": "a47a39da9b0122ea4ad20ad88576cd4b819defc062d995d4b5612d2a604c5aaa"
+    },
+    {
+      "platform": "linux/386",
+      "scope": "Cross-build production packages",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Native ClientHello SHA-256 assertions, 10 race repetitions",
+      "status": "passed",
+      "log_sha256": "4fbe753189b59eaf03f702a79cfee462ee983b65433f09cec38059569ef638fa"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Native ClientHello SHA-256 assertions, 10 race repetitions",
+      "status": "passed",
+      "log_sha256": "b2968c4567807033a0650eec35356e5c2eccff6aa429dceda561ca31b12bbdcf"
+    }
+  ],
+  "surf_ci_statement_coverage_percent": 88.7,
+  "native_reference_cases": 14,
+  "encrypted_surf_udp_cases": 14,
+  "native_independent_decode": {
+    "tool": "TShark (Wireshark) 4.6.9 (Git commit 2d548b197c75).",
+    "samples": [
+      {
+        "name": "firefox-final-control",
+        "crypto_packets": 2,
+        "socket_pcap_sha256": "3814bb4878075acb214573c91fec5831de3ee3ab688141da5fcbaeed78163626",
+        "original_pcap_sha256": "5f5f97e06890168f9a38ccfa50a85e8b80b850f475a40fb73c2e4d6b8d2b2f82",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "firefox-final-hrr",
+        "crypto_packets": 3,
+        "socket_pcap_sha256": "4aa218b7faa34b32679b68adde8972bac7b45b6c82de72f617acf2b5121594bd",
+        "original_pcap_sha256": "f41d0f0960b83407c83626596dbbd9b8612ad759be39c4e2d1ce7929fc0d1191",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "firefox-final-hrr-loss",
+        "crypto_packets": 5,
+        "socket_pcap_sha256": "2bf15522215d8f90744559ef989ffb2da50f85141357b01612643e54f6b7229d",
+        "original_pcap_sha256": "6b5dfeb5292c91d4f54a26cf17095a79f1bdc1347d3466aa5960725bfc43dd51",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "firefox-final-loss",
+        "crypto_packets": 4,
+        "socket_pcap_sha256": "d60d2af9361fe8920bd377f4617bf6e70daf35eb859a3c30eb8723bdc47d2390",
+        "original_pcap_sha256": "68dcdc5c3235cc1dc3eeee6dd83580c3ebb47864d98f0b99942ba3f5a5264986",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "firefox-partial-first-only",
+        "crypto_packets": 3,
+        "socket_pcap_sha256": "3210c94592293517310761c3cf80871dfb8bd6f37537b189beaec10b0c6e53db",
+        "original_pcap_sha256": "dac7bf727ca56c5d8ed4ae44cec14345e44ca8df5de33731b4063a12446ded3a",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "firefox-partial-hrr-first",
+        "crypto_packets": 4,
+        "socket_pcap_sha256": "8713a60417ee1c43a81cc4d761a863ef13f856e365c56e3dfcd1ed219fdadfa5",
+        "original_pcap_sha256": "d9a2587a80465fce7b47fe8e945363ca1a70ce9707bcb348d0b188456c40bed8",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "firefox-partial-hrr-third",
+        "crypto_packets": 4,
+        "socket_pcap_sha256": "829cce20c9d15645c9f3f46483f2b72151b1065bfdb6ea1cd0b5ec7e318f0fa7",
+        "original_pcap_sha256": "8cf5d390604e7a316ac4e2a5b9b4e4374a56f0fa954aa95543c6c538064c3a54",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "chromium-final2-control",
+        "crypto_packets": 2,
+        "socket_pcap_sha256": "3aadd8c3c787e7c8ea6165df9bf8df17208f0d5feb006d718d9fc1fc2b50d2e1",
+        "original_pcap_sha256": "7225a3355f022cf977c572e27d2d5f0926a857b3b4ac5e9f0a9a2cc037565ee3",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "chromium-final2-hrr",
+        "crypto_packets": 3,
+        "socket_pcap_sha256": "8e181c125229a9b651573759c76215350d56d4ff48ee2f7027f052c18cae9cd2",
+        "original_pcap_sha256": "a0ba9bfb760373c617ada6c77c8a174761ce8bafcb93e3a342c75a8eebc47c0b",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "chromium-final2-hrr-loss",
+        "crypto_packets": 5,
+        "socket_pcap_sha256": "d7c11f359e9d6745fdb42030716a10c4fc14e792651e2d2d232d4ab1b62b29a7",
+        "original_pcap_sha256": "8e33313e227b3ee80aae9cd45481cf3d62cdbaa58425826e70255955686db8d2",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "chromium-final2-loss",
+        "crypto_packets": 4,
+        "socket_pcap_sha256": "fd78a1f45c7838c90fee31b7bcd1f1d1235ef358b62ac5c94d6c651a0f2be6e0",
+        "original_pcap_sha256": "8047bc361df263c49db0bd623c6b15f47dc72f0b623b679212ace40be3b0688f",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "chromium-partial-first-only",
+        "crypto_packets": 3,
+        "socket_pcap_sha256": "9672b9f609d74f361e499bab5d5cab77c294d491b22d0419cb9539d61db59ca7",
+        "original_pcap_sha256": "d66773d6a43984653b25610fe914e9c8490f599660142e271321274c538ecc7d",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "chromium-partial-hrr-first",
+        "crypto_packets": 4,
+        "socket_pcap_sha256": "e4f723ded66a40f8cacdb4ab44c5b3d52eeb7a2816cef912b582a57d8a1a5841",
+        "original_pcap_sha256": "ebd2b4caaa08a8836a3906fcc70c14739a00a285e2e63ce375181539e6866928",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      },
+      {
+        "name": "chromium-partial-hrr-third",
+        "crypto_packets": 4,
+        "socket_pcap_sha256": "85c13bb7908659a829cd541d4d2e096615f2f806c4d36dffff7bf8ac83d6e083",
+        "original_pcap_sha256": "363d6849d8807c1ea63fee0c9db13fc848a39fc4595224ad73449189b5ad3f0b",
+        "status": "exact packet number, CRYPTO offset/length and order match"
+      }
+    ]
+  },
+  "surf_linux_capture": {
+    "packets_captured": 2600,
+    "packets_received_by_filter": 5540,
+    "packets_dropped_by_kernel": 0,
+    "sha256": "416df711e6aa253e29853f676f1a000061f1da575b6e48a0411e64cc96500055",
+    "scope": "Loopback encrypted UDP regression suite; not a native browser application-session reference."
+  },
+  "limits": [
+    "Native browsers retain certificate verification and reject the controlled alternate peer certificate after their Initial/HRR exchange. Native accepted application-session parity is not established.",
+    "Chromium references are www.google.com background connections from an official x64 snapshot under emulation. Firefox executes natively on Linux arm64.",
+    "Socket payloads preserve exact UDP segmentation. Wireshark analysis envelopes are synthetic and establish neither OS packet layout nor timing parity.",
+    "Handshake/Application-space PTO behavior, undecryptable peer hints and full congestion/timing parity remain separate work.",
+    "Native byte vectors include no TLS PSK ticket identities; raw captures, profiles and key logs are excluded from the repository."
+  ]
+}

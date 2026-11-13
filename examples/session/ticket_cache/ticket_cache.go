@@ -9,6 +9,8 @@ import (
 
 func main() {
 	// Session uses Chrome's TCP and QUIC ticket policies automatically.
+	// HTTP/3 remembers server SETTINGS with each ticket. EarlyData restores those
+	// limits on a new connection, while the QPACK table itself always starts empty.
 	client := surf.NewClient().Builder().
 		Impersonate().
 		Chrome().

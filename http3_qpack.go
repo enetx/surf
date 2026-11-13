@@ -125,6 +125,15 @@ func (h *HTTP3Settings) QpackIndexingPolicy(policy func(name, value string) bool
 	return h
 }
 
+// QpackResumptionErrorCode selects the close code for an incompatible nonzero
+// table capacity after accepted 0-RTT. Browser profiles configure their source
+// policy. Nil or a zero result keeps the RFC 9204 decoder-stream error. The
+// callback may run concurrently on different connections and must not do I/O.
+func (h *HTTP3Settings) QpackResumptionErrorCode(policy func(previous, current uint64) http3.ErrCode) *HTTP3Settings {
+	h.qpack().ResumptionErrorCode = policy
+	return h
+}
+
 // QpackDrainingFraction reserves a fraction [0,1] of the table for eviction.
 // Old exact entries may be duplicated instead of acquiring new references.
 func (h *HTTP3Settings) QpackDrainingFraction(fraction float64) *HTTP3Settings {

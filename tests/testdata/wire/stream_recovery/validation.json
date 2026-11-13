@@ -1,0 +1,80 @@
+{
+  "stage": 2,
+  "go": "1.27.3",
+  "platforms": [
+    "darwin/arm64",
+    "linux/arm64"
+  ],
+  "checks": {
+    "engine-final-full.log": {
+      "sha256": "62a3d2b2c6d1e6af886ea1e0b11bc0a5ea65fdb2d17b0dc7c1955bfda66c392e",
+      "status": "pass"
+    },
+    "engine-final-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "surf-full-race.log": {
+      "sha256": "1c74a3e0e5fbffb6607347c14b8d1c0435eef619ad70ea105fa953473668cce6",
+      "status": "pass"
+    },
+    "surf-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "engine-linux-race.log": {
+      "sha256": "b82beaa7d9d5e4abe07bbaa2671e8db75800d22962fb16efcf201503346e91ad",
+      "status": "pass"
+    },
+    "engine-linux-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "surf-linux-race.log": {
+      "sha256": "aa097ab5f3b46a95feaf22e46bc080c36aca5465c95303ffbf4422d758248f0e",
+      "status": "pass"
+    },
+    "surf-linux-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "pass"
+    },
+    "units-third.log": {
+      "sha256": "04369ace9154adc3aa7b8a351aca939eddad1a5e7869aa8d8310631fc8e79ae5",
+      "status": "pass"
+    },
+    "combined-final-stress.log": {
+      "sha256": "5a943e2734fa988c9a29b33dcfcdcdf721445495f3be44e31eca9f29924f1175",
+      "status": "pass"
+    },
+    "model-final.log": {
+      "sha256": "083e437ab56deee94f1d78614a93846347e5db8acc9b4fad9a8437c05d77ed41",
+      "status": "pass"
+    },
+    "udp-compact-final-stress.log": {
+      "sha256": "0af0f672261e4f024ce6433b315df42d57103d1a93edac76670a0845627f76d1",
+      "status": "pass"
+    },
+    "retention-domain.log": {
+      "sha256": "87da7ae5af37c44ab6bd17b4175c64fa4bafdd54d96806060d60ee19c593e34c",
+      "status": "pass"
+    },
+    "surf-new-final.log": {
+      "sha256": "de97dd6da01a17aeb6b5554e34967609ee045d4527dec276b5b2e4f2a60701fb",
+      "status": "pass"
+    },
+    "engine-386.log": {
+      "sha256": "70806f7abedb7c86253313d1d1e030608e8a43c64754856fb238b5fb1c0c3175",
+      "status": "pass"
+    },
+    "wire.log": {
+      "sha256": "1f3050895fc443b5a9986f767c533ff61b171de36c586f9039ead432e3d08a6a",
+      "status": "pass"
+    }
+  },
+  "native_anchors": {
+    "Firefox/160.0": 3,
+    "Chromium/158.0.8127.0": 1
+  },
+  "independently_decoded_engine_client_packets": 71,
+  "scope": "STREAM copies, late original ACKs, split/partial ranges and FIN; profile-selected normal-loss metadata retirement. Native anchors establish protocol-stream cases. Complete browser upload/migration/OS timing parity remains outside these references."
+}

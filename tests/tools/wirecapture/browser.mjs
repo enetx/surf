@@ -67,14 +67,17 @@ export async function launchBrowser(executable, flags, pattern) {
   }
   async function close(method) {
     try {
-      await send(method);
+      await Promise.race([send(method), exited]);
     } catch {}
     if (ws.readyState === WebSocket.OPEN) ws.close();
     for (const p of pending.values()) {
       clearTimeout(p.timer);
       p.reject(Error("browser closed"));
     }
-    proc.kill("SIGTERM");
+    // Browser.close can return before NetLog has finished flushing. Give the
+    // normal exit path time to complete before escalating shutdown signals.
+    await Promise.race([exited, delay(3000)]);
+    if (proc.exitCode === null) proc.kill("SIGTERM");
     await Promise.race([exited, delay(3000)]);
     if (proc.exitCode === null) proc.kill("SIGKILL");
   }

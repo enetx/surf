@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "scope": "Selected stage 3: shared-space PTO batching; not universal browser parity",
+  "checks": [
+    "macOS engine full race and vet",
+    "Linux arm64 engine full race and vet with NET_ADMIN for upstream forced-buffer tests",
+    "macOS Surf tests race and full vet",
+    "Linux arm64 Surf all packages race and vet",
+    "20 handler/packer repetitions",
+    "30 resumed UDP batch repetitions",
+    "20 early rejection/restart and batch repetitions after cleanup fix",
+    "linux/386 engine compile",
+    "Independent TShark decode of Firefox and Surf PTO datagrams, zero kernel drops",
+    "Diff whitespace checks"
+  ],
+  "fixture_corrections": [
+    "Warm-up connections excluded from resumed observation",
+    "Ordinary fresh 0-RTT writes excluded from probe counting",
+    "Peer cleanup unblocks both handshake barriers even after failed assertions"
+  ]
+}

@@ -71,8 +71,109 @@ func (a quicadapter) InitialCryptoFirstFrameSize(min, max int) profiles.QUICConf
 	return a
 }
 
-func (a quicadapter) InitialCryptoLayout(policy func(quic.InitialCryptoLayoutInfo) [][]quic.CryptoRange) profiles.QUICConfig {
+func (a quicadapter) InitialCryptoLayout(
+	policy func(quic.InitialCryptoLayoutInfo) [][]quic.CryptoRange,
+) profiles.QUICConfig {
 	a.s.InitialCryptoLayout(policy)
+	return a
+}
+
+func (a quicadapter) InitialCryptoRecovery(enabled bool) profiles.QUICConfig {
+	a.s.InitialCryptoRecovery(enabled)
+	return a
+}
+
+func (a quicadapter) InitialCryptoRecoveryLayout(
+	policy func(quic.InitialCryptoLayoutInfo) [][]quic.CryptoRange,
+) profiles.QUICConfig {
+	a.s.InitialCryptoRecoveryLayout(policy)
+	return a
+}
+
+func (a quicadapter) InitialCryptoProbePackets(count uint8) profiles.QUICConfig {
+	a.s.InitialCryptoProbePackets(count)
+	return a
+}
+
+func (a quicadapter) InitialProbeSkipPacketNumber(enabled bool) profiles.QUICConfig {
+	a.s.InitialProbeSkipPacketNumber(enabled)
+	return a
+}
+
+func (a quicadapter) InitialCryptoResendOnPeerProbe(enabled bool) profiles.QUICConfig {
+	a.s.InitialCryptoResendOnPeerProbe(enabled)
+	return a
+}
+
+func (a quicadapter) CoalescePTOProbes(enabled bool) profiles.QUICConfig {
+	a.s.CoalescePTOProbes(enabled)
+	return a
+}
+
+func (a quicadapter) InitialACKResetsPTO(enabled bool) profiles.QUICConfig {
+	a.s.InitialACKResetsPTO(enabled)
+	return a
+}
+
+func (a quicadapter) EarlyDataResendOnPeerCrypto(enabled bool) profiles.QUICConfig {
+	a.s.EarlyDataResendOnPeerCrypto(enabled)
+	return a
+}
+
+func (a quicadapter) StreamDataRecovery(enabled bool) profiles.QUICConfig {
+	a.s.StreamDataRecovery(enabled)
+	return a
+}
+
+func (a quicadapter) StreamLossRetention(policy func(quic.StreamLossInfo) bool) profiles.QUICConfig {
+	a.s.StreamLossRetention(policy)
+	return a
+}
+
+func (a quicadapter) HandshakeCryptoRecovery(enabled bool) profiles.QUICConfig {
+	a.s.HandshakeCryptoRecovery(enabled)
+	return a
+}
+
+func (a quicadapter) HandshakeCryptoResendOnPeerProbe(enabled bool) profiles.QUICConfig {
+	a.s.HandshakeCryptoResendOnPeerProbe(enabled)
+	return a
+}
+
+func (a quicadapter) HandshakeProbePackets(count uint8) profiles.QUICConfig {
+	a.s.HandshakeProbePackets(count)
+	return a
+}
+
+func (a quicadapter) ApplicationProbePackets(count uint8) profiles.QUICConfig {
+	a.s.ApplicationProbePackets(count)
+	return a
+}
+
+func (a quicadapter) HandshakeProbeSkipPacketNumber(enabled bool) profiles.QUICConfig {
+	a.s.HandshakeProbeSkipPacketNumber(enabled)
+	return a
+}
+
+func (a quicadapter) ApplicationProbeSkipPacketNumber(enabled bool) profiles.QUICConfig {
+	a.s.ApplicationProbeSkipPacketNumber(enabled)
+	return a
+}
+
+func (a quicadapter) HandshakeProbeOnlyWithData(enabled bool) profiles.QUICConfig {
+	a.s.HandshakeProbeOnlyWithData(enabled)
+	return a
+}
+
+func (a quicadapter) PeerPacketRecoveryPolicy(
+	policy func(quic.PeerPacketInfo) quic.PeerPacketRecovery,
+) profiles.QUICConfig {
+	a.s.PeerPacketRecoveryPolicy(policy)
+	return a
+}
+
+func (a quicadapter) ImmediateACKOnPeerPing(enabled bool) profiles.QUICConfig {
+	a.s.ImmediateACKOnPeerPing(enabled)
 	return a
 }
 

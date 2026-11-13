@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "scope": "Selected stage 4, peer-triggered outstanding early recovery",
+  "checks": [
+    "Engine full macOS and Linux race/vet",
+    "Surf complete macOS and Linux race/vet suites",
+    "20 consecutive resumed UDP profile/opt-out repetitions on each platform",
+    "20 repeated handler/connection boundary checks",
+    "Linux/386 compile",
+    "Native Firefox source and independently decoded pre-PTO STREAM reference",
+    "Independent AEAD authentication of 301 local early packets; all STREAM ranges match test trace",
+    "Diff whitespace checks"
+  ],
+  "fixture_isolation": [
+    "Correct v1/v2 Initial classification with negotiated fixed-bit GREASE",
+    "Preserve Handshake from a coalesced withheld server Initial",
+    "Disable learned and ticket-restored loopback RTT, use 300ms recovery estimate",
+    "Disable separate early backup attempt only in this isolated fixture",
+    "Native browser capture uses normal verification and ordinary racing"
+  ]
+}

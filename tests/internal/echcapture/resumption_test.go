@@ -57,7 +57,9 @@ func TestNativeResumptionReferences(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			key := family + "/" + ref.Transport
+			// New browser versions may add meaningful extensions. Preserve those
+			// differences and compare repeated captures of the same build only.
+			key := ref.Browser + "/" + ref.Transport
 			if previous := canonical[key]; previous != nil && !reflect.DeepEqual(previous, fp) {
 				t.Fatalf("native stable features differ: %v / %v", previous, fp)
 			}
@@ -98,5 +100,35 @@ func TestFingerprintKeepsMeaningfulDifferences(t *testing.T) {
 	}
 	if _, err := StableFingerprint(ref.Inner, "other", ref.Transport); err == nil {
 		t.Fatal("accepted an unspecified permutation policy")
+	}
+}
+
+func TestChromium158ResumedECHAndEarlyRequestReferences(t *testing.T) {
+	seen := make(map[string]int)
+	for _, ref := range nativeReferences(t) {
+		if !strings.HasPrefix(ref.Browser, "Chrome/158.") {
+			continue
+		}
+		seen[ref.Transport]++
+		hello, err := ReadClientHello(ref.Inner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		padding, present := hello.Extension(0x12e0)
+		if !present || !bytes.Equal(padding, []byte{0, 0}) {
+			t.Fatal("Chromium 158 lost its zero-length server-padding request inside ECH")
+		}
+		if ref.PSK.Selected != 0 || ref.PSK.Outer != "omitted" {
+			t.Fatal("native resumed PSK selection/privacy changed")
+		}
+		if ref.Transport == "quic" && (!ref.EarlyData.Accepted || ref.EarlyData.ControlPackets < 1 || ref.EarlyData.RequestPackets < 1) {
+			t.Fatal("native QUIC reference lacks authenticated early control/request data")
+		}
+		if ref.Transport == "tcp" && (ref.EarlyData.Offered || ref.EarlyData.Accepted || ref.EarlyData.Packets != 0) {
+			t.Fatal("native TCP reference unexpectedly offers early data")
+		}
+	}
+	if seen["tcp"] != 2 || seen["quic"] != 2 {
+		t.Fatalf("fresh Chromium 158 references: %v", seen)
 	}
 }

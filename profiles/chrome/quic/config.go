@@ -88,7 +88,26 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		InitialCryptoFirstFrameSize(55, 86).
 		InitialPacketNumber(1).
 		PacketNumberLengthPolicy(PacketNumberLength).
-		DisableClientHelloScrambling(true)
+		DisableClientHelloScrambling(true).
+		// QUICHE retires ACKed crypto ranges and batches its pending PTO
+		// packets before retransmission. Packet-local Chaos Protection remains.
+		// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/quic_crypto_stream.cc
+		// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/quic_sent_packet_manager.cc
+		InitialCryptoRecovery(true).InitialCryptoRecoveryLayout(nil).
+		InitialCryptoProbePackets(1).
+		// QuicConnection::OnRetransmissionTimeout skips a number at every PTO.
+		// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/quic_connection.cc
+		InitialProbeSkipPacketNumber(true).InitialCryptoResendOnPeerProbe(false).
+		CoalescePTOProbes(false).InitialACKResetsPTO(false).EarlyDataResendOnPeerCrypto(false).
+		StreamDataRecovery(true).StreamLossRetention(StreamLossRetention).
+		HandshakeCryptoRecovery(true).HandshakeCryptoResendOnPeerProbe(false).
+		HandshakeProbePackets(1).ApplicationProbePackets(1).
+		HandshakeProbeSkipPacketNumber(true).ApplicationProbeSkipPacketNumber(true).
+		// QUICHE's creator increments ordinary packet numbers consecutively;
+		// OnRetransmissionAlarm explicitly inserts the PTO gap.
+		// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/quic_packet_creator.cc
+		PacketNumberSkipping(false).HandshakeProbeOnlyWithData(false).
+		PeerPacketRecoveryPolicy(nil).ImmediateACKOnPeerPing(false)
 	configureAck(q)
 }
 

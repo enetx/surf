@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "scope": "Controlled local QUIC peers and Surf clients; not a new native browser 0-RTT reference.",
+  "go": "1.27.3",
+  "platforms": [
+    "darwin/arm64",
+    "linux/arm64"
+  ],
+  "build": "local workspace: HTTP v1.0.38, uTLS v1.0.6, modified QUIC v1.0.22 and Surf v1.0.236 bases",
+  "browser_source_pins": {
+    "chromium": "158.0.8127.18",
+    "quiche": "132bfd90ea370faeacee616c70d10210bb12ba66",
+    "firefox": "FIREFOX_160_0_RELEASE"
+  },
+  "source_sha256": {
+    "quiche_client": "a1d23fbaa6b02c71c1bd2dcfc6afc9f07ff665ecc20a4d7b896f6c461cca0e3c",
+    "quiche_session": "f2cb6199011635a2af5771cf5c3681f653d95ce73fe768711102d00d582f84f3",
+    "firefox_connection": "17c54864ef79aa59d4d863ccc1e2e61ff3ed19023553a683ba8cb4cdb3b85437",
+    "quiche_error_codes": "158ec9121f0e8c13d5db74a316a297f48f7e978ccc46ca5e8c311c8a848dd806"
+  },
+  "matrix": {
+    "clients": [
+      "native",
+      "chrome",
+      "firefox"
+    ],
+    "scenarios": [
+      "same",
+      "new-table",
+      "larger-blocked",
+      "smaller-blocked",
+      "changed-capacity",
+      "smaller-capacity",
+      "smaller-fields",
+      "rejected",
+      "disabled",
+      "missing-state"
+    ],
+    "cases_per_round": 30,
+    "repetitions_per_platform": 10,
+    "incompatible_peer_close_codes": {
+      "native": {
+        "smaller-blocked": "0x109",
+        "smaller-capacity": "0x202",
+        "smaller-fields": "0x109",
+        "changed-capacity": "0x202"
+      },
+      "chrome": {
+        "smaller-blocked": "0x109",
+        "smaller-capacity": "0x109",
+        "smaller-fields": "0x109",
+        "changed-capacity": "0x109"
+      },
+      "firefox": {
+        "smaller-blocked": "0x109",
+        "smaller-capacity": "0x109",
+        "smaller-fields": "0x109",
+        "changed-capacity": "0x202"
+      }
+    },
+    "rejection_behavior": "One existing post-handshake retry; three connections including the warm connection."
+  },
+  "dynamic_qpack_raw_peer": {
+    "connections_per_round": 3,
+    "cold": {
+      "resumed": false,
+      "early": false,
+      "required_insert_count_byte": 0
+    },
+    "resumed": [
+      {
+        "resumed": true,
+        "early": true,
+        "required_insert_count_byte": 5
+      },
+      {
+        "resumed": true,
+        "early": true,
+        "required_insert_count_byte": 5
+      }
+    ],
+    "new_decoder_per_connection": true,
+    "server_handshake_gated_on_sent_0rtt_request": true,
+    "repetitions_per_platform": 10
+  },
+  "linux_loopback_capture": {
+    "pcap_sha256": "7787003c3c88cdc035010d748cd0cbad8187fa7d2cd90d4ff3ffdab935de47f6",
+    "counts": {
+      "captured_packets": 8717,
+      "ipv4_udp_datagrams": 8717
+    },
+    "readable_quic_headers": {
+      "short_header_or_gso_tail": 5696,
+      "initial": 2787,
+      "0rtt": 532,
+      "handshake": 2025
+    },
+    "versions": {
+      "0x00000001": 5344
+    },
+    "kernel_capture_drops": 0
+  },
+  "limits": [
+    "Native Chromium 158 accepted-0-RTT reference remains open.",
+    "Short-header/GSO tails are not independently decrypted packet counts.",
+    "Extended CONNECT still waits for actual peer SETTINGS.",
+    "Unknown settings retained without extension capability claims.",
+    "Firefox in-place rejection restart is not implemented by Surf retry."
+  ],
+  "validation": {
+    "engine_macos_race": "pass",
+    "engine_linux_race": "pass",
+    "engine_macos_vet": "pass",
+    "engine_linux_vet": "pass",
+    "surf_macos_race": "pass",
+    "surf_linux_race": "pass",
+    "surf_macos_vet": "pass",
+    "surf_linux_vet": "pass",
+    "engine_linux_386_compile": "pass",
+    "workspace": true,
+    "surf_macos_ci_race_with_coverage": "pass; exact go.yml command",
+    "surf_macos_total_statement_coverage_percent": 88.6,
+    "surf_linux_386_build": "pass"
+  },
+  "log_sha256": {
+    "linux-surf-wire.log": "3f9e18ac4b72cfd670a217d7c07db1171e7d5bd78dc635404adee7d851ae2f0c",
+    "linux-qpack-wire.log": "fe9a19ff67722e767480bab2a65ba7310b5ac971d78a7a82395e99b58b9554a8",
+    "surf-final-settings.log": "74cdabf367041d9112031912c672b1dd00e02e114f8140ac2afd1d27145d78e0",
+    "engine-full-race.log": "85d9b318c49ca1c2c7820438b83a7d7e4785a718e3ed6795652e3c6e0a8531cc",
+    "engine-linux-race.log": "3e6c0f1924103cf9fd02e8fadafa7526578feeea065baea8b2a86ad62a447353",
+    "surf-linux-race.log": "ccabdc17a58c98c1170e68aeaf03a0f84f5203e476db9b9fa2e0f31546737133",
+    "surf-ci-race.log": "4013120a976a40bc01b9c955252d92adbfb998cc8ed03fd7234c38d4107192db",
+    "surf-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "engine-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "engine-linux-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "surf-linux-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "engine-386.log": "5b4b4ee7b27c69ec7fb7a0329c2abf219004a2ef2f609b696f4e746d5037b32c",
+    "surf-386.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

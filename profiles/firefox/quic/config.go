@@ -70,7 +70,24 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		// Neqo swaps and balances SNI ranges with each Initial packet's live
 		// budget. The engine's upstream SNI/ECH fragmentation is independent.
 		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/crypto.rs
-		InitialCryptoLayout(InitialCryptoLayout)
+		InitialCryptoLayout(InitialCryptoLayout).
+		// Neqo queues up to two packets' CRYPTO tokens before building PTO
+		// probes, then reselects ranges from its byte buffer with live budgets.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/recovery/mod.rs
+		InitialCryptoRecovery(true).InitialCryptoRecoveryLayout(InitialCryptoLayout).
+		InitialCryptoProbePackets(2).InitialProbeSkipPacketNumber(false).
+		// Neqo resends outstanding bytes on PING or non-progressing CRYPTO.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs
+		InitialCryptoResendOnPeerProbe(true).
+		// Neqo shares PTO datagrams across active spaces and clears its PTO
+		// state on a new Initial ACK before address validation completes.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/recovery/mod.rs
+		CoalescePTOProbes(true).InitialACKResetsPTO(true).
+		StreamDataRecovery(true).StreamLossRetention(StreamLossRetention).
+		HandshakeCryptoRecovery(true).HandshakeCryptoResendOnPeerProbe(true).
+		HandshakeProbePackets(2).ApplicationProbePackets(2).
+		HandshakeProbeSkipPacketNumber(false).ApplicationProbeSkipPacketNumber(false).HandshakeProbeOnlyWithData(true).
+		PeerPacketRecoveryPolicy(PeerRecovery).EarlyDataResendOnPeerCrypto(true).ImmediateACKOnPeerPing(true)
 	// Neqo keeps the active path's ID until Retire Prior To or migration.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/path.rs
 	// Neqo output_dgram_on_path retires Initial keys on the first Handshake

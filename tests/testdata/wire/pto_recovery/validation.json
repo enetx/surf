@@ -1,0 +1,172 @@
+{
+  "source_sha256": {
+    "quic-go/client_handshake.go": "ec803601c1e54596aad7fce1dc2342ee66101707df4be6b0e5f6dea424a8c147",
+    "quic-go/internal/ackhandler/sent_packet_handler.go": "635dea35edf5aafc5ef4926b1cf535c940726c36245c7ee86037d119f6770e47",
+    "quic-go/crypto_range_recovery.go": "e5c7eabe57a46d3339d0402892fd218d6043a9df2a0829e9fa545c73ab715ad5",
+    "quic-go/client_peer_recovery.go": "002e21060a6c0843e7544adb9dfaf7ba98a0b3ac27e4d6f7e130428f02a308bd",
+    "surf/quic_settings.go": "57d5610d7c7eec11a9a89f15723dee3ddb8354f5333dfc013ab37eeff29590d5",
+    "surf/profiles/chrome/quic/config.go": "b48551622e339f5f8d646467d8116a7b91ec580cb3eaa6dac910f96f8e0e6f07",
+    "surf/profiles/firefox/quic/config.go": "26a8ea806ed5e11e74e27222064aa06f54d91c0df003f056dc15af6176f246dc",
+    "surf/profiles/firefox/quic/peer_recovery.go": "a6138b3974c88c34653d17495960a8907e6461d87bdf51453d5c133bf6b02e63"
+  },
+  "transient_recheck": "One prior loaded macOS suite hit the existing five-second TLS 1.2/H1 local resumption deadline (the URL retains tls.peet.ws SNI but its dial is redirected locally). Three isolated repetitions passed; the final exact CI suite result is recorded above.",
+  "date": "2026-11-12",
+  "go": "go1.27.3",
+  "workspace": "Local workspace; no publication or dependency version changes in this stage.",
+  "bases": {
+    "http": "v1.0.38",
+    "quic-go": "v1.0.22",
+    "surf": "v1.0.236",
+    "utls": "v1.0.6"
+  },
+  "checks": [
+    {
+      "platform": "macOS arm64",
+      "scope": "QUIC complete go test -race ./... suite",
+      "status": "passed",
+      "log_sha256": "0192a7baf0a3608676ded19a58b5b942708e4377d9cee7b8ecac50297dbfaabe"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "QUIC go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Surf exact go.yml Go test command with race detector and production package coverage",
+      "status": "passed",
+      "log_sha256": "e416c7a2610219574823cb3f9f25428586d93e2254c4e98a52173894697ea18f"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Surf go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "QUIC complete go test -race ./... suite",
+      "status": "passed",
+      "log_sha256": "e4b9bd9b643aa1b1fb68beed4215499b4ca248f0081103712031e7bac11bf932"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "QUIC go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Surf complete tests/... suite with race detector",
+      "status": "passed",
+      "log_sha256": "e07b864869ea46d437d28ae2dfe0e6aa5406939789778a1eb51c39a561243e36"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Surf go vet ./...",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "New transport and ACK-handler regressions, 20 race repetitions",
+      "status": "passed",
+      "log_sha256": "5bf5dc07fdfa3254c63378abb8466658621cb4f03ae937183ceb90447bccaa6e"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Native anchors, four later-space loss cases, missing Initial and public controls, 10 race repetitions",
+      "status": "passed",
+      "log_sha256": "9b20b4c2a882c35084f1590a478a7192694c8523c9c537019c85db60513acb08"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Four later-space loss cases, missing Initial and public controls, 10 race repetitions",
+      "status": "passed",
+      "log_sha256": "b36eca7eb82c5bd6dfae6c8ec0e95b7d6dfeb40eebe7ba12366d52a397bae6d4"
+    },
+    {
+      "platform": "linux/386",
+      "scope": "Cross-compile engine, ACK handler and HTTP/3 tests; execution skipped",
+      "status": "passed",
+      "log_sha256": "1c2313df4c318087ebfbba44be856d4b70bb84ec8436e2871f501e14e7c95aa8"
+    },
+    {
+      "platform": "linux/386",
+      "scope": "Cross-build production packages",
+      "status": "passed",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "platform": "macOS arm64",
+      "scope": "Existing local TLS 1.2 resumption case with captured public SNI: three isolated race repetitions after a loaded-suite deadline",
+      "status": "passed",
+      "log_sha256": "ff8b2cd36d6bb468ff3f4cfffefd396faa1917855617f19c02a8066f6b6301eb"
+    },
+    {
+      "platform": "Linux arm64",
+      "scope": "Verified TLS HTTP/3 loss cases with passive diagnostic overlay, key logs and exact peer socket datagrams",
+      "status": "passed",
+      "log_sha256": "41fa3f36f5d2ebc76e9db34794ee29981b5cc7dff5fadddf674810a0669d7a9a"
+    }
+  ],
+  "surf_ci_statement_coverage_percent": 88.8,
+  "native_flows": 7,
+  "surf_independent_wire": {
+    "nic_tail_datagrams": 3,
+    "tool": "TShark (Wireshark) 4.6.9 (Git commit 2d548b197c75).",
+    "flows": [
+      {
+        "flow": 0,
+        "recorded_packets": 103,
+        "independently_decoded_received_packets": 103,
+        "unreceived_tail_packets": 0,
+        "status": "all received packet types and numbers match the qlog sequence",
+        "scenario": "chrome/handshake"
+      },
+      {
+        "flow": 1,
+        "recorded_packets": 162,
+        "independently_decoded_received_packets": 162,
+        "unreceived_tail_packets": 0,
+        "status": "all received packet types and numbers match the qlog sequence",
+        "scenario": "chrome/application"
+      },
+      {
+        "flow": 2,
+        "recorded_packets": 112,
+        "independently_decoded_received_packets": 112,
+        "unreceived_tail_packets": 0,
+        "status": "all received packet types and numbers match the qlog sequence",
+        "scenario": "firefox/handshake"
+      },
+      {
+        "flow": 3,
+        "recorded_packets": 117,
+        "independently_decoded_received_packets": 117,
+        "unreceived_tail_packets": 0,
+        "status": "all received packet types and numbers match the qlog sequence",
+        "scenario": "firefox/application"
+      }
+    ],
+    "analysis_pcap_sha256": "329cd8e6b01079963f35155841233a03447ceed7bab74e912efa01fb9eaf5a94",
+    "original_nic_pcap_sha256": "7013ca11a98900229dd754a2a07ed842893309882a545c2432eb50ddc426f0a0",
+    "limits": "Exact encrypted UDP payloads are recorded at the peer socket before loss injection; small unreceived closing datagrams are retained directly from the original NIC capture. Analysis IP/UDP envelopes and times are synthetic. Every sent client packet type and decoded number matches the qlog sequence. TLS verification remains enabled; private key logs are not committed."
+  },
+  "stress_capture": {
+    "packets": 6598,
+    "kernel_drops": 0,
+    "sha256": "48592ee891065b9ce058cc6f32796240c158fdaa4af0492764548076b5cc4b42"
+  },
+  "independent_nic_capture": {
+    "packets": 668,
+    "kernel_drops": 0
+  },
+  "limits": [
+    "Native source and individual references establish only the recorded packet/probe behavior, not complete congestion, pacing or every loss scenario.",
+    "Exact socket payloads are independently decrypted; synthetic analysis envelopes/times do not establish OS timing.",
+    "Application STREAM copy ACK tracking, Neqo simultaneous-space probe batching and peer-triggered outstanding 0-RTT recovery remain separate work.",
+    "TLS key logs, raw captures, browser profiles and any application payloads remain private and are not committed."
+  ]
+}

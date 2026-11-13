@@ -65,6 +65,8 @@ func TestFirefoxInnerMatchesNativeCapture(t *testing.T) {
 func TestResumedInnerMatchesNativeCapture(t *testing.T) {
 	testNativeInnerFixtures(t, "resumption/native/chrome-157-tcp-*.json", 2, common.ClientHelloInner)
 	testNativeInnerFixtures(t, "resumption/native/chrome-157-quic-*.json", 2, common.ClientHelloInner)
+	testNativeInnerFixtures(t, "resumption/native/chrome-158-tcp-*.json", 2, common.ClientHelloInner)
+	testNativeInnerFixtures(t, "resumption/native/chrome-158-quic-*.json", 2, common.ClientHelloInner)
 	testNativeInnerFixtures(t, "resumption/native/firefox-160-tcp-*.json", 1, desktop.ClientHelloInner)
 	testNativeInnerFixtures(t, "resumption/native/firefox-160-quic-*.json", 1, desktop.ClientHelloInner)
 }

@@ -72,21 +72,28 @@ func TestProbeRejectsInvalidOptionsBeforeOpeningLog(t *testing.T) {
 		{"other", "h3", false, false}, {"chrome", "h1", false, false}, {"firefox", "h2", true, false}, {"chrome", "h2", false, true},
 	} {
 		path := filepath.Join(t.TempDir(), "private.keys")
-		if err := probe(tc.browser, tc.protocol, path, tc.early, tc.racing); err == nil {
+		if err := probe(tc.browser, tc.protocol, path, tc.early, tc.racing, ""); err == nil {
 			t.Fatal("accepted invalid probe options")
 		}
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
 			t.Fatal("opened log before validating options")
 		}
 	}
-	if err := probe("chrome", "h3", "", false, false); err == nil {
+	if err := probe("chrome", "h3", "", false, false, ""); err == nil {
 		t.Fatal("accepted missing key log")
+	}
+	invalidDNSLog := filepath.Join(t.TempDir(), "invalid-dns.keys")
+	if err := probe("chrome", "h3", invalidDNSLog, false, false, "1.1.1.1"); err == nil {
+		t.Fatal("accepted resolver without a port")
+	}
+	if _, err := os.Stat(invalidDNSLog); !os.IsNotExist(err) {
+		t.Fatal("opened log before validating the resolver")
 	}
 	path := filepath.Join(t.TempDir(), "existing.keys")
 	if err := os.WriteFile(path, []byte("keep"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := probe("chrome", "h3", path, false, false); err == nil {
+	if err := probe("chrome", "h3", path, false, false, ""); err == nil {
 		t.Fatal("overwrote an existing key log")
 	}
 	data, _ := os.ReadFile(path)

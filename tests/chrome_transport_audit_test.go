@@ -206,6 +206,11 @@ func TestChromeProxyEnvironmentFingerprint(t *testing.T) {
 		t.Setenv("NO_PROXY", "origin.example")
 	}
 	b := surf.NewClient().Builder().Impersonate().Windows().Chrome().Timeout(5 * time.Second)
+	// This peer is local and tests proxy routing, not public HTTPS DNS. Discovery
+	// must not let an external resolver delay the custom dialer's direct route.
+	b.HTTP3Settings().HTTPSRecordsLookup(func(context.Context, string) ([]surf.HTTPSRecord, error) {
+		return nil, nil
+	}).Set()
 	if route == "h3-environment" || route == "selector" {
 		b.ForceHTTP3()
 		b.HTTP3Settings().HTTPSRecordsLookup(func(context.Context, string) ([]surf.HTTPSRecord, error) {

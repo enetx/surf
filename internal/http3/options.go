@@ -46,6 +46,7 @@ type Options struct {
 	TCPFallbackDelay                     *time.Duration
 	AltUsed                              bool
 	EarlyData                            bool
+	EarlyDataRestart                     bool
 	EarlyDataBackup                      bool
 	ResumeVersion                        bool
 	// ResumeRTTGranularity truncates a live ticket RTT to this precision.

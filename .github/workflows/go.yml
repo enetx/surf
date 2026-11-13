@@ -47,6 +47,9 @@ jobs:
           go-version: '1.27.x'
           check-latest: true
           cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
       - name: Check formatting
         run: test -z "$(gofmt -l .)"
       - name: Configure UDP socket buffers

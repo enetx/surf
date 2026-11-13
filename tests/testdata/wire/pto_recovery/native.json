@@ -1,0 +1,5669 @@
+{
+  "date": "2026-11-12",
+  "method": "Visible browsers with fresh profiles and normal HTTPS discovery; NFQUEUE injects UDP loss without altering QUIC/TLS payloads. Peer certificates remain verified. Chromium snapshot 1727495 is emulated Linux x64; Firefox is an official Linux arm64 executable. TLS key logs enable offline Wireshark decryption. No forced QUIC, UA override or certificate bypass. Original PCAPs have zero kernel capture drops. Initial six analysis files combine captured server IP packets with exact queued client UDP payloads in synthetic IP/UDP envelopes. Missing-Initial analysis retains exact raw IP packets at the queue hook with an arbitrary time origin. Analysis is not an OS timing oracle.",
+  "samples": [
+    {
+      "name": "chromium-none-0",
+      "hostname": "www.google.com",
+      "packets": [
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 59
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1017,
+              "crypto.length": 17
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1059,
+              "crypto.length": 373
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1012,
+              "crypto.length": 5
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1432,
+              "crypto.length": 470
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1034,
+              "crypto.length": 25
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 59,
+              "crypto.length": 85
+            },
+            {
+              "type": 6,
+              "crypto.offset": 154,
+              "crypto.length": 278
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 656,
+              "crypto.length": 356
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 630,
+              "crypto.length": 26
+            },
+            {
+              "type": 6,
+              "crypto.offset": 432,
+              "crypto.length": 198
+            },
+            {
+              "type": 6,
+              "crypto.offset": 144,
+              "crypto.length": 10
+            }
+          ],
+          "elapsed_us": 2727
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 51508
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 2,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 52486
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1171
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 52487
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1171,
+              "crypto.length": 7
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 52487
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1212
+            }
+          ],
+          "elapsed_us": 59818
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1212,
+              "crypto.length": 500
+            }
+          ],
+          "elapsed_us": 59826
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 3
+            }
+          ],
+          "elapsed_us": 59826
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 4,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 67724
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 6,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 75114
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 117781
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 6,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 0,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 166565
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 46
+            }
+          ],
+          "elapsed_us": 721207
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 2
+            }
+          ],
+          "elapsed_us": 723855
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 729378
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 7,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 738338
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 2,
+              "stream.offset": 45,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 326
+            },
+            {
+              "type": 9,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 752882
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 7
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 772297
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 978
+            }
+          ],
+          "elapsed_us": 772297
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 9,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 0,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 775968
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 10,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 1,
+              "ack.gap": 0,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 777340
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 9,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 778787
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 7,
+              "stream.length": 2
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 11,
+              "stream.length": 520
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 824582
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 13,
+              "stream.stream_id": 0,
+              "stream.offset": 406
+            }
+          ],
+          "elapsed_us": 824583
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 12,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 6
+            }
+          ],
+          "elapsed_us": 840434
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 13,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 4
+            }
+          ],
+          "elapsed_us": 873920
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 14,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 2
+            }
+          ],
+          "elapsed_us": 914912
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 16,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 936316
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 16,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 4
+            }
+          ],
+          "elapsed_us": 1016634
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 2,
+              "stream.offset": 57,
+              "stream.length": 12
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 10,
+              "stream.offset": 326,
+              "stream.length": 461
+            },
+            {
+              "type": 9,
+              "stream.stream_id": 4
+            }
+          ],
+          "elapsed_us": 5672426
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 12,
+              "stream.stream_id": 4,
+              "stream.offset": 352
+            }
+          ],
+          "elapsed_us": 5742679
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 16,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 17,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 5
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 7,
+              "stream.offset": 2,
+              "stream.length": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 520,
+              "stream.length": 856
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 4
+            }
+          ],
+          "elapsed_us": 5742679
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 17,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 12,
+              "stream.stream_id": 6,
+              "stream.offset": 2
+            }
+          ],
+          "elapsed_us": 5745815
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 12,
+              "stream.stream_id": 4,
+              "stream.offset": 892
+            }
+          ],
+          "elapsed_us": 5750907
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 13,
+              "stream.stream_id": 4,
+              "stream.offset": 895
+            }
+          ],
+          "elapsed_us": 5750907
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 19,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 5
+            }
+          ],
+          "elapsed_us": 5759231
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 5818072
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 19,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 5825030
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 20,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 2
+            }
+          ],
+          "elapsed_us": 5893155
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 32675239
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 22,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 21,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 32754907
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 22,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 59681280
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 23,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 22,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 4
+            }
+          ],
+          "elapsed_us": 59757626
+        }
+      ],
+      "original_pcap_sha256": "2a246015e02782b12fd61de6cce0c77b6a824e4fb52ac6a89b63bfb537c1792e",
+      "queue_log_sha256": "2cc512bc72e316ef48b65419b43caa0fa75f55fcd4cf5d60911b678e76bb5b37",
+      "analysis_pcap_sha256": "9bcf3eaed29c6a50e2015dd17bd344ad6f731a1fe5de62233544af84511e5d16",
+      "wireshark_json_sha256": "6d42971192a63a1082fa507bb5488725e771ecb0a41541505642efd52138c5af",
+      "browser": "Chromium 158.0.8127.0"
+    },
+    {
+      "name": "chromium-handshake-0",
+      "hostname": "www.google.com",
+      "packets": [
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1021,
+              "crypto.length": 774
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 25
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 26,
+              "crypto.length": 36
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 25,
+              "crypto.length": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 70,
+              "crypto.length": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 62,
+              "crypto.length": 8
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1795,
+              "crypto.length": 101
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 326,
+              "crypto.length": 248
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 937,
+              "crypto.length": 11
+            },
+            {
+              "type": 6,
+              "crypto.offset": 794,
+              "crypto.length": 143
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 71,
+              "crypto.length": 255
+            },
+            {
+              "type": 6,
+              "crypto.offset": 948,
+              "crypto.length": 53
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1001,
+              "crypto.length": 20
+            },
+            {
+              "type": 6,
+              "crypto.offset": 574,
+              "crypto.length": 220
+            }
+          ],
+          "elapsed_us": 3939
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 51379
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 2,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 53404
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1171
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 53412
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1171,
+              "crypto.length": 7
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 53412
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1212
+            }
+          ],
+          "elapsed_us": 60830
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1212,
+              "crypto.length": 504
+            }
+          ],
+          "elapsed_us": 60834
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 3
+            }
+          ],
+          "elapsed_us": 60834
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 4,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 66531
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 4,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 6,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 73666
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 6,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 118933
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1212
+            }
+          ],
+          "elapsed_us": 183938
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 7,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 9,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 1,
+              "ack.ack_range": 1
+            }
+          ],
+          "elapsed_us": 188075
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 9,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 330836
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 10,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 46
+            }
+          ],
+          "elapsed_us": 410192
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 2
+            }
+          ],
+          "elapsed_us": 414890
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 420317
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 7,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 422906
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1212,
+              "crypto.length": 504
+            }
+          ],
+          "elapsed_us": 429069
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 3
+            }
+          ],
+          "elapsed_us": 429069
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 2,
+              "stream.offset": 44,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 326
+            },
+            {
+              "type": 9,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 432014
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 15,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 0,
+              "ack.gap": [
+                0,
+                1
+              ],
+              "ack.ack_range": [
+                0,
+                1
+              ]
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 46
+            }
+          ],
+          "elapsed_us": 433503
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 16,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 12,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 3,
+              "ack.ack_range": 0
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 2
+            }
+          ],
+          "elapsed_us": 433503
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 18,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 46
+            }
+          ],
+          "elapsed_us": 858883
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 19,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 2,
+              "stream.offset": 44,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 326
+            },
+            {
+              "type": 9,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 858883
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1212
+            }
+          ],
+          "elapsed_us": 917794
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 14,
+              "ack.ack_range_count": 3,
+              "ack.first_ack_range": 0,
+              "ack.gap": [
+                1,
+                0,
+                1
+              ],
+              "ack.ack_range": [
+                0,
+                0,
+                1
+              ]
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 46
+            }
+          ],
+          "elapsed_us": 922044
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 2
+            }
+          ],
+          "elapsed_us": 922044
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 978
+            }
+          ],
+          "elapsed_us": 974259
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 16,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 7
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 976112
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 21,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 5,
+              "ack.ack_range": 3
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 7
+            }
+          ],
+          "elapsed_us": 976114
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 22,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 15,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 0,
+              "ack.gap": [
+                1,
+                3
+              ],
+              "ack.ack_range": [
+                0,
+                0
+              ]
+            }
+          ],
+          "elapsed_us": 978731
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 23,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 16,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 1,
+              "ack.gap": [
+                1,
+                3
+              ],
+              "ack.ack_range": [
+                0,
+                0
+              ]
+            }
+          ],
+          "elapsed_us": 982153
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 24,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 17,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 2,
+              "ack.gap": 1,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 982228
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 10,
+              "stream.stream_id": 11,
+              "stream.length": 520
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 998042
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 13,
+              "stream.stream_id": 0,
+              "stream.offset": 406
+            }
+          ],
+          "elapsed_us": 998045
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 25,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 18,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 3,
+              "ack.gap": 1,
+              "ack.ack_range": 0
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 6
+            }
+          ],
+          "elapsed_us": 1003964
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 26,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 19,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 4,
+              "ack.gap": 1,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 1037450
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 25,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 1077990
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 27,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 27430965
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 27,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 5
+            }
+          ],
+          "elapsed_us": 27510832
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 28,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 54438594
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 22,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 28,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 6
+            }
+          ],
+          "elapsed_us": 54514628
+        }
+      ],
+      "original_pcap_sha256": "d3b93ab9f0a284c2c38a187a01b99d93f65dd59fd7ca82e5cc957a4e41fee399",
+      "queue_log_sha256": "a350300dfd5e813c3d380a9ca0ae24012fb4ec8e47e322dcf3fd3acd0d556de7",
+      "analysis_pcap_sha256": "7c60688ec3f0ca42e9cd6c48c7b68c35da15c4ca3214a761e498a8bd06a36220",
+      "wireshark_json_sha256": "84a1eacf50d717ed4a50f8abc6193657f14a4c8c7c2bad64f588391fc1041e43",
+      "browser": "Chromium 158.0.8127.0"
+    },
+    {
+      "name": "chromium-app-0",
+      "hostname": "www.google.com",
+      "packets": [
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 57,
+              "crypto.length": 1
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1249,
+              "crypto.length": 136
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 54,
+              "crypto.length": 3
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 51
+            },
+            {
+              "type": 6,
+              "crypto.offset": 51,
+              "crypto.length": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 52,
+              "crypto.length": 2
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1385,
+              "crypto.length": 542
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1024,
+              "crypto.length": 225
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 171,
+              "crypto.length": 549
+            },
+            {
+              "type": 6,
+              "crypto.offset": 58,
+              "crypto.length": 113
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1014,
+              "crypto.length": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 853,
+              "crypto.length": 161
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 720,
+              "crypto.length": 133
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 1015,
+              "crypto.length": 9
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 2716
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 51657
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 2,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 52779
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1171
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 52782
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1171,
+              "crypto.length": 7
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 52790
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1212
+            }
+          ],
+          "elapsed_us": 61597
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1212,
+              "crypto.length": 507
+            }
+          ],
+          "elapsed_us": 61602
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 3
+            }
+          ],
+          "elapsed_us": 61602
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 4,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 66238
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 6,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 73229
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 116233
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 6,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 0,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 165875
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 46
+            }
+          ],
+          "elapsed_us": 330509
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 2
+            }
+          ],
+          "elapsed_us": 336006
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 341788
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 7,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 348043
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 2,
+              "stream.offset": 45,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 326
+            },
+            {
+              "type": 9,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 352965
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 978
+            }
+          ],
+          "elapsed_us": 380669
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 7
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 380674
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 12,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 9,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 0,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 385818
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 13,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 10,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 1,
+              "ack.gap": 0,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 385932
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 15,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 2
+            }
+          ],
+          "elapsed_us": 457225
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 3
+            }
+          ],
+          "elapsed_us": 474769
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 16,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 12,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 0,
+              "ack.gap": [
+                0,
+                0
+              ],
+              "ack.ack_range": [
+                1,
+                0
+              ]
+            }
+          ],
+          "elapsed_us": 477731
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 18,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 2,
+              "stream.offset": 45,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 326
+            },
+            {
+              "type": 9,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 700380
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 978
+            }
+          ],
+          "elapsed_us": 741944
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 19,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 14,
+              "ack.ack_range_count": 3,
+              "ack.first_ack_range": 0,
+              "ack.gap": [
+                0,
+                0,
+                0
+              ],
+              "ack.ack_range": [
+                0,
+                1,
+                0
+              ]
+            }
+          ],
+          "elapsed_us": 744797
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 23,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 2
+            }
+          ],
+          "elapsed_us": 1185657
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 23,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 1265852
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 24,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 2,
+              "stream.offset": 45,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 326
+            },
+            {
+              "type": 9,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 1272118
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 7
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 1277211
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 25,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 17,
+              "ack.ack_range_count": 4,
+              "ack.first_ack_range": 0,
+              "ack.gap": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "ack.ack_range": [
+                1,
+                0,
+                1,
+                0
+              ]
+            }
+          ],
+          "elapsed_us": 1280641
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 25,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 7,
+              "stream.length": 2
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 11,
+              "stream.length": 520
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 0
+            }
+          ],
+          "elapsed_us": 1343786
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 13,
+              "stream.stream_id": 0,
+              "stream.offset": 395
+            }
+          ],
+          "elapsed_us": 1343810
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 26,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 19,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 8,
+              "stream.stream_id": 6
+            }
+          ],
+          "elapsed_us": 1373201
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 26,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 1455155
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 28,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 25
+            }
+          ],
+          "elapsed_us": 1783458
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 24
+            },
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 28,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 0,
+              "ack.ack_range": 0
+            }
+          ],
+          "elapsed_us": 1830461
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 29,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 21,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 1862116
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 30,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 28360329
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 22,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 30,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 28434751
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 31,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 55367045
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 23,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 31,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 2
+            }
+          ],
+          "elapsed_us": 55448148
+        }
+      ],
+      "original_pcap_sha256": "c4d044a2e78c2f072dc0c7fef5d1d39d4a454485001e4c670de22e844167d053",
+      "queue_log_sha256": "9d0682ee8390f1c1954a0db2d7391b0126df950c70a771c6585bef57ff64df5b",
+      "analysis_pcap_sha256": "13a5bbcde7cced5da11d6aff2dd1b6578aab168786a98bfe93591e8c7630c6cd",
+      "wireshark_json_sha256": "2e125b1ab7e352f1d6133a7b089572f3d5c588420e9276858d4c67432ed28586",
+      "browser": "Chromium 158.0.8127.0"
+    },
+    {
+      "name": "firefox-none-1",
+      "hostname": "fp.impersonate.pro",
+      "packets": [
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 549,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1458,
+              "crypto.length": 442
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 508
+            }
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 550,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 508,
+              "crypto.length": 950
+            }
+          ],
+          "elapsed_us": 201
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 549,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 240907
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 550,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 90
+            }
+          ],
+          "elapsed_us": 240908
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1018
+            }
+          ],
+          "elapsed_us": 240908
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1018,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 240908
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2175,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 240908
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 551,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 243523
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 5,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 243523
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 244457
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 244457
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 10,
+              "stream.stream_id": 2,
+              "stream.length": 33
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 6,
+              "stream.length": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 244777
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1025,
+              "crypto.length": 1082
+            }
+          ],
+          "elapsed_us": 452715
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 90
+            }
+          ],
+          "elapsed_us": 452715
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1025
+            }
+          ],
+          "elapsed_us": 452715
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 8,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 1,
+              "ack.gap": 0,
+              "ack.ack_range": 3
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 454669
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 3264,
+              "crypto.length": 412
+            }
+          ],
+          "elapsed_us": 470817
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2107,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 470817
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 10,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 3,
+              "ack.gap": 0,
+              "ack.ack_range": 3
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 471133
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 7,
+              "stream.offset": 1,
+              "stream.length": 4
+            }
+          ],
+          "elapsed_us": 474105
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 12,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 474344
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 292
+            }
+          ],
+          "elapsed_us": 540870
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 675289
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 13,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 675633
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 11,
+              "stream.length": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 3,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 7,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 728087
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 14,
+              "stream.stream_id": 6,
+              "stream.offset": 1,
+              "stream.length": 3
+            }
+          ],
+          "elapsed_us": 728422
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 14,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 2
+            }
+          ],
+          "elapsed_us": 748366
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 3,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 34
+            }
+          ],
+          "elapsed_us": 774795
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 15,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 795081
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 16,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 5,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 964201
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 4,
+              "stream.length": 195
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 6,
+              "stream.offset": 4,
+              "stream.length": 99
+            }
+          ],
+          "elapsed_us": 1297278
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 8,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 4
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 1,
+              "stream.length": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 7,
+              "stream.offset": 5,
+              "stream.length": 4
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 4,
+              "stream.length": 31
+            }
+          ],
+          "elapsed_us": 1527667
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 17,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 5
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 10,
+              "stream.offset": 1,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 1527988
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 9,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 1756305
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 8,
+              "stream.length": 195
+            }
+          ],
+          "elapsed_us": 2041049
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 10,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 2,
+              "stream.length": 1
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 8,
+              "stream.length": 31
+            }
+          ],
+          "elapsed_us": 2268875
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 19,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 7
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 10,
+              "stream.offset": 2,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 2269545
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 2497147
+        }
+      ],
+      "original_pcap_sha256": "bcc9665bdee551ab1d9bc2a30a031d8b8b25241a60684b803e88ca57f4f8a701",
+      "queue_log_sha256": "6f2b6998eb71be318a725bad9ff6c1c64d343204ce4deddc41b83ffb40dc0149",
+      "analysis_pcap_sha256": "7fa351bc8bf816b8188e179c6513cfaa22b9c64bce91dfac400a4ab87eed34d5",
+      "wireshark_json_sha256": "574641133777c2bc42ae325bad894fd11afc4f99f9deb14611713d74916d20fd",
+      "browser": "Firefox 160.0"
+    },
+    {
+      "name": "firefox-handshake-1",
+      "hostname": "fp.impersonate.pro",
+      "packets": [
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 24,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1050,
+              "crypto.length": 850
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 100
+            }
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 25,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 100,
+              "crypto.length": 950
+            }
+          ],
+          "elapsed_us": 97
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 24,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 235075
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 26,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 0,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 100,
+              "crypto.length": 950
+            }
+          ],
+          "elapsed_us": 235355
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 25,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 90
+            }
+          ],
+          "elapsed_us": 237603
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1019
+            }
+          ],
+          "elapsed_us": 237603
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1019,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 237603
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 3333,
+              "crypto.length": 340
+            }
+          ],
+          "elapsed_us": 237604
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2176,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 237604
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 27,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 238202
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 5,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 238202
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 1,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 238625
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 0,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 238625
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 10,
+              "stream.stream_id": 2,
+              "stream.length": 40
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 6,
+              "stream.length": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 238656
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1025,
+              "crypto.length": 1086
+            }
+          ],
+          "elapsed_us": 437912
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 90
+            }
+          ],
+          "elapsed_us": 437912
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1025
+            }
+          ],
+          "elapsed_us": 437912
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 2,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 8,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 1,
+              "ack.gap": 0,
+              "ack.ack_range": 3
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 438150
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 26,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 473170
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2111,
+              "crypto.length": 1113
+            }
+          ],
+          "elapsed_us": 473170
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 3224,
+              "crypto.length": 449
+            }
+          ],
+          "elapsed_us": 473190
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 3,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 1,
+              "ack.gap": [
+                0,
+                0
+              ],
+              "ack.ack_range": [
+                1,
+                3
+              ]
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 473758
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 292
+            }
+          ],
+          "elapsed_us": 530831
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 1,
+              "ack.gap": [
+                0,
+                0
+              ],
+              "ack.ack_range": [
+                1,
+                3
+              ]
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 1065586
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 1065586
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 1065676
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1158
+            }
+          ],
+          "elapsed_us": 1168451
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2315,
+              "crypto.length": 557
+            }
+          ],
+          "elapsed_us": 1168489
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1158,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 1168489
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 14,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 4,
+              "ack.gap": [
+                0,
+                0
+              ],
+              "ack.ack_range": [
+                1,
+                3
+              ]
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 1168763
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 3,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 7,
+              "stream.length": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 11,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 1293861
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 15,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 6,
+              "stream.offset": 1,
+              "stream.length": 3
+            }
+          ],
+          "elapsed_us": 1294183
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 16,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 4,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 1295115
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 2,
+              "stream.length": 40
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 6,
+              "stream.length": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 1
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 292
+            }
+          ],
+          "elapsed_us": 1295303
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 6,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 7,
+              "stream.offset": 1,
+              "stream.length": 4
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 34
+            }
+          ],
+          "elapsed_us": 1531570
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 17,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 2
+            }
+          ],
+          "elapsed_us": 1532088
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 4,
+              "stream.length": 195
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 6,
+              "stream.offset": 4,
+              "stream.length": 99
+            }
+          ],
+          "elapsed_us": 2071390
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 8,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 1,
+              "stream.length": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 7,
+              "stream.offset": 5,
+              "stream.length": 4
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 4,
+              "stream.length": 31
+            }
+          ],
+          "elapsed_us": 2304275
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 18,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 10,
+              "stream.offset": 1,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 2304651
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 9,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 2533430
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 8,
+              "stream.length": 195
+            }
+          ],
+          "elapsed_us": 2821645
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 10,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 2,
+              "stream.length": 1
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 8,
+              "stream.length": 31
+            }
+          ],
+          "elapsed_us": 3059047
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 20,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 5
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 10,
+              "stream.offset": 2,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 3059547
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 3290547
+        }
+      ],
+      "original_pcap_sha256": "dbb58fe48a6bc22b6f76b62e2c30823b376fe84d4dfcf68911a97bb0aaea1807",
+      "queue_log_sha256": "23242a8a0d3d535bb96b2fed7e9a40939104bf50deeb7c0c4cc93ad9a6c351b8",
+      "analysis_pcap_sha256": "9600af7d0b85de4eab2e3be1454f6fd33e942d6b3653c57a6d3b8efddcad40ed",
+      "wireshark_json_sha256": "e87355de26b01a96e8545c3f19e58ada854f5087cdd8e3ab55c0bba41454acaa",
+      "browser": "Firefox 160.0"
+    },
+    {
+      "name": "firefox-app-1",
+      "hostname": "fp.impersonate.pro",
+      "packets": [
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1477,
+              "crypto.length": 423
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 527
+            }
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 527,
+              "crypto.length": 950
+            }
+          ],
+          "elapsed_us": 141
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 3,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 227788
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 0,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 6,
+              "crypto.offset": 527,
+              "crypto.length": 950
+            }
+          ],
+          "elapsed_us": 227976
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 4,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 90
+            }
+          ],
+          "elapsed_us": 228870
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1019
+            }
+          ],
+          "elapsed_us": 228870
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 3333,
+              "crypto.length": 341
+            }
+          ],
+          "elapsed_us": 228871
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1019,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 228871
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2176,
+              "crypto.length": 1157
+            }
+          ],
+          "elapsed_us": 228871
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 229671
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 5,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 229671
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 229966
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 229966
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 1,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 10,
+              "stream.stream_id": 2,
+              "stream.length": 35
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 6,
+              "stream.length": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 230016
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1025,
+              "crypto.length": 1085
+            }
+          ],
+          "elapsed_us": 429583
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 90
+            }
+          ],
+          "elapsed_us": 429583
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1025
+            }
+          ],
+          "elapsed_us": 429583
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 8,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 1,
+              "ack.gap": 0,
+              "ack.ack_range": 3
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 429834
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 5,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 460213
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2110,
+              "crypto.length": 1113
+            }
+          ],
+          "elapsed_us": 460213
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 3223,
+              "crypto.length": 451
+            }
+          ],
+          "elapsed_us": 460214
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 3,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 2,
+              "ack.first_ack_range": 1,
+              "ack.gap": [
+                0,
+                0
+              ],
+              "ack.ack_range": [
+                1,
+                3
+              ]
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 52
+            }
+          ],
+          "elapsed_us": 460451
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 24
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 3,
+              "stream.length": 12
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 7,
+              "stream.length": 1
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 11,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 460937
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 2,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 12,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 6,
+              "stream.offset": 1,
+              "stream.length": 3
+            }
+          ],
+          "elapsed_us": 461090
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 0,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 462401
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 3,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 195
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 6,
+              "stream.offset": 4,
+              "stream.length": 99
+            }
+          ],
+          "elapsed_us": 526607
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 10,
+              "stream.stream_id": 2,
+              "stream.length": 35
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 6,
+              "stream.length": 103
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 1
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 195
+            }
+          ],
+          "elapsed_us": 1040769
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 1040946
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 1176272
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 14,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 2
+            }
+          ],
+          "elapsed_us": 1176498
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 4,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 0,
+              "ack.gap": 2,
+              "ack.ack_range": 0
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 1,
+              "stream.length": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 7,
+              "stream.offset": 1,
+              "stream.length": 4
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 0,
+              "stream.length": 34
+            }
+          ],
+          "elapsed_us": 1271352
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 16,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 5,
+              "ack.ack_range_count": 1,
+              "ack.first_ack_range": 1,
+              "ack.gap": 2,
+              "ack.ack_range": 0
+            },
+            {
+              "type": 1
+            }
+          ],
+          "elapsed_us": 1272950
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 16,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 4
+            }
+          ],
+          "elapsed_us": 1273179
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 1445138
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 9,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 1445416
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 9,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 1672834
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 10,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 4,
+              "stream.length": 195
+            }
+          ],
+          "elapsed_us": 1791635
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 10,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 4
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 2,
+              "stream.length": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 7,
+              "stream.offset": 5,
+              "stream.length": 4
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 4,
+              "stream.length": 31
+            }
+          ],
+          "elapsed_us": 2020829
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 18,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 6
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 10,
+              "stream.offset": 1,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 2022373
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 2256738
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 11,
+              "stream.stream_id": 8,
+              "stream.length": 195
+            }
+          ],
+          "elapsed_us": 2541431
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 12,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 11,
+              "stream.offset": 3,
+              "stream.length": 1
+            },
+            {
+              "type": 11,
+              "stream.stream_id": 8,
+              "stream.length": 31
+            }
+          ],
+          "elapsed_us": 2777271
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 20,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 8
+            },
+            {
+              "type": 14,
+              "stream.stream_id": 10,
+              "stream.offset": 2,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 2777461
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 13,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 3002280
+        }
+      ],
+      "original_pcap_sha256": "d57302f213e81b55f504ec5ad600aba551fe777fbab2a45dab40eed599aa6982",
+      "queue_log_sha256": "30fece4d57432d09c3482c0995930a52d6ec874faa123a90b198714cf41a6a0b",
+      "analysis_pcap_sha256": "afd9fd9fe0a9ab4468fc5542e6718d452274421bdb23e867ae07daa6353ec3df",
+      "wireshark_json_sha256": "2714adc3cddf7fd1976ee39d84be51bbe81fa0ad831c6df6f5cf8e7747abc0d7",
+      "browser": "Firefox 160.0"
+    },
+    {
+      "name": "firefox-missing-initial-0",
+      "hostname": "push.services.mozilla.com",
+      "packets": [
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 11,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1035,
+              "crypto.length": 872
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 81
+            }
+          ],
+          "elapsed_us": 0
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 12,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 81,
+              "crypto.length": 954
+            }
+          ],
+          "elapsed_us": 4597
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 1,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 11,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 64185
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 2,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 12,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 64366
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 3,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1178
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 66589
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 4,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1211
+            }
+          ],
+          "elapsed_us": 66779
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 5,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1211,
+              "crypto.length": 1210
+            }
+          ],
+          "elapsed_us": 67083
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 6,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 2421,
+              "crypto.length": 1210
+            }
+          ],
+          "elapsed_us": 67286
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 7,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 3631,
+              "crypto.length": 221
+            }
+          ],
+          "elapsed_us": 67459
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 8,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 8,
+              "stream.stream_id": 3
+            }
+          ],
+          "elapsed_us": 67459
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 13,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1035,
+              "crypto.length": 872
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 81
+            }
+          ],
+          "elapsed_us": 67556
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 81,
+              "crypto.length": 954
+            }
+          ],
+          "elapsed_us": 67726
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 15,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1035,
+              "crypto.length": 872
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 81
+            }
+          ],
+          "elapsed_us": 67843
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 16,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1035,
+              "crypto.length": 872
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 81
+            }
+          ],
+          "elapsed_us": 75345
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 81,
+              "crypto.length": 954
+            }
+          ],
+          "elapsed_us": 77461
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 9,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 14,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1178
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 122351
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 10,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 15,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 4
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1178
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 122556
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 11,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 16,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 5
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1178
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 133013
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 12,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 17,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 6
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1178
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 133236
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 14,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1211
+            }
+          ],
+          "elapsed_us": 370446
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1035,
+              "crypto.length": 872
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 81
+            }
+          ],
+          "elapsed_us": 380234
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 81,
+              "crypto.length": 954
+            }
+          ],
+          "elapsed_us": 380475
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 15,
+          "dropped": true,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 19,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 8
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1178
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 431844
+        },
+        {
+          "direction": "server",
+          "space": "handshake",
+          "number": 17,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1211,
+              "crypto.length": 1210
+            }
+          ],
+          "elapsed_us": 968367
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 1035,
+              "crypto.length": 872
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 81
+            }
+          ],
+          "elapsed_us": 983161
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 81,
+              "crypto.length": 954
+            }
+          ],
+          "elapsed_us": 983279
+        },
+        {
+          "direction": "server",
+          "space": "initial",
+          "number": 18,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 21,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 10
+            },
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 1178
+            },
+            {
+              "type": 0
+            }
+          ],
+          "elapsed_us": 1037480
+        },
+        {
+          "direction": "client",
+          "space": "initial",
+          "number": 22,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 18,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            }
+          ],
+          "elapsed_us": 1039483
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 7,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 3
+            }
+          ],
+          "elapsed_us": 1039483
+        },
+        {
+          "direction": "client",
+          "space": "handshake",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 36
+            }
+          ],
+          "elapsed_us": 1039574
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 0,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 8,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 0
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 1039574
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 1,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 10,
+              "stream.stream_id": 2,
+              "stream.length": 34
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 6,
+              "stream.length": 5
+            },
+            {
+              "type": 10,
+              "stream.stream_id": 10,
+              "stream.length": 1
+            }
+          ],
+          "elapsed_us": 1039612
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 19,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 6,
+              "crypto.offset": 0,
+              "crypto.length": 548
+            }
+          ],
+          "elapsed_us": 1106991
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 20,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 30
+            },
+            {
+              "type": 7
+            },
+            {
+              "type": 24
+            }
+          ],
+          "elapsed_us": 1107093
+        },
+        {
+          "direction": "server",
+          "space": "application",
+          "number": 21,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 1,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 1
+            }
+          ],
+          "elapsed_us": 1107319
+        },
+        {
+          "direction": "client",
+          "space": "application",
+          "number": 2,
+          "dropped": false,
+          "frames": [
+            {
+              "type": 2,
+              "ack.largest_acknowledged": 21,
+              "ack.ack_range_count": 0,
+              "ack.first_ack_range": 2
+            }
+          ],
+          "elapsed_us": 1109389
+        }
+      ],
+      "original_pcap_sha256": "600ada44f0e7981ffe41d2e1448d0cdd3fac727acaf5bce472cc644a9aece6c8",
+      "queue_log_sha256": "8607abc961d96ab323784dde160efaf72816c7b7c9fb6ca8d5e5ba0d4d393471",
+      "analysis_pcap_sha256": "6f4ab45355db332cab1534884c257256215db00c382599e569d9c9ce942a95f7",
+      "wireshark_json_sha256": "552d48cc7fdfe470032bd69b8c149f3963cc4468fe4b69c6a0957f27ee31dc8a",
+      "browser": "Firefox 160.0"
+    }
+  ],
+  "number_gap_anchors": [
+    {
+      "sample": "chromium-handshake-0",
+      "space": "handshake",
+      "previous": 4,
+      "probe": 6,
+      "expected_gap": 2
+    },
+    {
+      "sample": "chromium-app-0",
+      "space": "application",
+      "previous": 13,
+      "probe": 15,
+      "expected_gap": 2
+    },
+    {
+      "sample": "chromium-app-0",
+      "space": "application",
+      "previous": 16,
+      "probe": 18,
+      "expected_gap": 2
+    },
+    {
+      "sample": "firefox-handshake-1",
+      "space": "handshake",
+      "previous": 1,
+      "probe": 2,
+      "expected_gap": 1
+    },
+    {
+      "sample": "firefox-app-1",
+      "space": "application",
+      "previous": 3,
+      "probe": 4,
+      "expected_gap": 1
+    }
+  ],
+  "application_pair": {
+    "sample": "firefox-app-1",
+    "numbers": [
+      4,
+      5
+    ],
+    "maximum_elapsed_us": 2000
+  }
+}

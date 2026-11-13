@@ -112,6 +112,7 @@ func SortByOrder[T ~string](h *g.MapOrd[T, T], method string, enums g.Map[string
 		if ida == g.Int(math.MaxInt) && idb == g.Int(math.MaxInt) {
 			return g.String(strings.ToLower(string(a))).Cmp(g.String(strings.ToLower(string(b))))
 		}
+
 		return order
 	})
 }
@@ -132,10 +133,15 @@ func NewRequestHeadersApplier(factory func(HeaderContext) g.MapOrd[g.String, g.S
 	}
 }
 
-func applyRequestHeaderPreset[T ~string](fields *g.MapOrd[T, T], method string, factory func(HeaderContext) g.MapOrd[g.String, g.String]) {
+func applyRequestHeaderPreset[T ~string](
+	fields *g.MapOrd[T, T],
+	method string,
+	factory func(HeaderContext) g.MapOrd[g.String, g.String],
+) {
 	if fields == nil || factory == nil {
 		return
 	}
+
 	req := &http.Request{Method: method, Header: make(http.Header)}
 	fields.Iter().ForEach(func(name, value T) {
 		if value != "" && !strings.HasPrefix(string(name), ":") {
@@ -147,15 +153,20 @@ func applyRequestHeaderPreset[T ~string](fields *g.MapOrd[T, T], method string, 
 	if length, err := strconv.ParseInt(req.Header.Get("Content-Length"), 10, 64); err == nil && length > 0 {
 		req.ContentLength = length
 	}
+
 	preset := factory(HeaderContext{Request: req, Protocol: 2})
 	positions := make(map[string]int, preset.Len())
 	position := 0
+
 	preset.Iter().ForEach(func(name, value g.String) {
 		positions[strings.ToLower(name.Std())] = position
 		position++
+
 		var matched T
+
 		present := false
 		nonempty := false
+
 		fields.Iter().ForEach(func(key, actual T) {
 			if strings.EqualFold(string(key), name.Std()) {
 				if !present {
@@ -165,24 +176,31 @@ func applyRequestHeaderPreset[T ~string](fields *g.MapOrd[T, T], method string, 
 				nonempty = nonempty || actual != ""
 			}
 		})
+
 		if !present {
 			fields.Insert(T(name), T(value))
 		} else if !nonempty && value != "" {
 			fields.Insert(matched, T(value))
 		}
 	})
+
 	fields.SortByKey(func(a, b T) cmp.Ordering {
 		first, ok := positions[strings.ToLower(string(a))]
 		if !ok {
 			first = math.MaxInt
 		}
+
 		second, ok := positions[strings.ToLower(string(b))]
 		if !ok {
 			second = math.MaxInt
 		}
+
 		if first != second {
 			return g.Int(first).Cmp(g.Int(second))
 		}
-		return g.String(strings.ToLower(string(a))).Cmp(g.String(strings.ToLower(string(b)))).Then(g.String(a).Cmp(g.String(b)))
+
+		return g.String(strings.ToLower(string(a))).
+			Cmp(g.String(strings.ToLower(string(b)))).
+			Then(g.String(a).Cmp(g.String(b)))
 	})
 }

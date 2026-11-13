@@ -173,11 +173,22 @@ func (h *HTTP3Settings) Set() *Builder {
 	}, math.MaxInt-1)
 }
 
+// EarlyDataRestart recreates HTTP/3 state on the same QUIC connection when TLS
+// rejects 0-RTT. Requests restart once after verified TLS; rejected SETTINGS and
+// QPACK state are discarded. It does not enable early data or replay unsafe
+// request bodies. Firefox desktop enables this policy automatically.
+func (h *HTTP3Settings) EarlyDataRestart(enabled bool) *HTTP3Settings {
+	h.options.EarlyDataRestart = enabled
+	return h
+}
+
 // EarlyData opts bodyless GET and HEAD requests into TLS 0-RTT on resumed
 // HTTP/3 connections. Disabled by default. Enable only when replay of these
 // requests is acceptable; POST and requests with bodies always wait for 1-RTT.
 // A TLS ClientSessionCache is needed to resume a connection. Standard TLS and
 // custom browser ClientHello templates support this, including accepted ECH.
+// Peer SETTINGS are retained with each exact ticket. A ticket without this
+// application state still supports ordinary TLS resumption, without early data.
 func (h *HTTP3Settings) EarlyData(enabled bool) *HTTP3Settings {
 	h.options.EarlyData = enabled
 	return h

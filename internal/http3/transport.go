@@ -47,6 +47,7 @@ type Transport struct {
 	disableCompression     bool
 	altUsed                bool
 	earlyData              bool
+	earlyDataRestart       bool
 	earlyDataBackup        bool
 	forceHTTP3             bool
 	tcpVersion             int
@@ -66,6 +67,7 @@ func New(settings Options) (*Transport, error) {
 		wireConfig:             settings.WireConfig.Clone(),
 		altUsed:                settings.AltUsed,
 		earlyData:              settings.EarlyData,
+		earlyDataRestart:       settings.EarlyDataRestart,
 		earlyDataBackup:        settings.EarlyDataBackup,
 		forceHTTP3:             settings.ForceHTTP3,
 		tcpVersion:             settings.TCPVersion,
@@ -287,6 +289,7 @@ func (ut *Transport) initTransport() error {
 	}
 
 	ut.http3tr = &http3.Transport{
+		EarlyDataRestart:       ut.earlyDataRestart,
 		QPACKConfig:            ut.qpackConfig.Clone(),
 		WireConfig:             responseWireConfig(ut.wireConfig),
 		TLSClientConfig:        ut.tlsConfig,

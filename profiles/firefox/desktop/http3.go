@@ -9,7 +9,11 @@ import (
 func ConfigureH3(h profiles.H3Config) {
 	// Keep the backup timer active while a transaction sends 0-RTT.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp#L3935
-	h.EarlyDataBackup(true)
+	h.EarlyDataBackup(true).
+		// Neqo resets protocol streams and Firefox requeues transactions on
+		// the existing connection after verified TLS completes.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Session.cpp
+		EarlyDataRestart(true)
 
 	// Firefox waits for HTTPS RR when ECH is enabled, without Chromium's
 	// supplemental timer after address resolution.

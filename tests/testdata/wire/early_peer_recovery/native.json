@@ -1,0 +1,74 @@
+{
+  "browser": "Firefox 160.0 official Linux arm64",
+  "condition": "Same independently decrypted controlled-loss capture as ../pto_batch/native.json",
+  "packets": [
+    {
+      "frame": 86,
+      "number": 0,
+      "streams": [
+        {
+          "StreamID": 2,
+          "Offset": 0,
+          "Length": 16,
+          "Fin": false
+        }
+      ],
+      "milliseconds": 2.095
+    },
+    {
+      "frame": 97,
+      "number": 2,
+      "streams": [
+        {
+          "StreamID": 2,
+          "Offset": 0,
+          "Length": 16,
+          "Fin": false
+        }
+      ],
+      "milliseconds": 55.297
+    },
+    {
+      "frame": 101,
+      "number": 4,
+      "streams": [
+        {
+          "StreamID": 2,
+          "Offset": 0,
+          "Length": 16,
+          "Fin": false
+        }
+      ],
+      "milliseconds": 60.826
+    }
+  ],
+  "first_pto_ms": 222.229,
+  "flight_discard_events": [
+    {
+      "milliseconds": 55.267,
+      "bytes": 2544
+    },
+    {
+      "milliseconds": 55.267,
+      "bytes": 2449
+    },
+    {
+      "milliseconds": 55.297,
+      "bytes": 3701
+    },
+    {
+      "milliseconds": 55.297,
+      "bytes": 3756
+    },
+    {
+      "milliseconds": 55.297,
+      "bytes": 4953
+    },
+    {
+      "milliseconds": 55.297,
+      "bytes": 5048
+    }
+  ],
+  "pcap_sha256": "54961030f36321d1d5ac3ea161b836c8dd0a6377a1f9e8c734024644aed9f787",
+  "limit": "Protocol control STREAM example on a resumed racing candidate; no native user-upload or request-completion parity is inferred."
+}
