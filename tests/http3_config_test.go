@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"crypto/tls"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -120,6 +121,8 @@ type h3Peer struct {
 	controlFrames   chan h3WireFrame
 	responseGate    <-chan struct{}
 	qpackCapacity   *uint64
+	qpackBlocked    uint64
+	rawQPACK        bool // Retain independently decoded dynamic field sections without a static decoder.
 	qpackStreams    chan h3QPACKCapture
 	packet          *h3CaptureConn
 	mu              sync.Mutex
@@ -169,6 +172,19 @@ func startH3PeerWithBody(t *testing.T, capacity *uint64, responseGate <-chan str
 
 func startH3PeerConfigured(t *testing.T, capacity *uint64, responseGate <-chan struct{}, headers http.Header, captureBody bool, configure ...func(*quic.Config)) *h3Peer {
 	t.Helper()
+	return startH3PeerWithOptions(t, capacity, responseGate, headers, captureBody, nil, configure...)
+}
+
+func startH3PeerWithOptions(
+	t *testing.T,
+	capacity *uint64,
+	responseGate <-chan struct{},
+	headers http.Header,
+	captureBody bool,
+	customize func(*h3Peer, *tls.Config),
+	configure ...func(*quic.Config),
+) *h3Peer {
+	t.Helper()
 	s, udp, _, err := createHTTP3TestServer(func(w http.ResponseWriter, r *http.Request) {})
 	if err != nil {
 		t.Fatal(err)
@@ -185,6 +201,9 @@ func startH3PeerConfigured(t *testing.T, capacity *uint64, responseGate <-chan s
 	if capacity != nil {
 		p.qpackCapacity = new(*capacity)
 		p.qpackStreams = make(chan h3QPACKCapture, 4)
+	}
+	if customize != nil {
+		customize(p, s.TLSConfig)
 	}
 	transport := &quic.Transport{Conn: p.packet}
 	config := &quic.Config{
@@ -234,6 +253,9 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 	var payload []byte
 	if p.qpackCapacity != nil {
 		payload = quicvarint.Append(quicvarint.Append(nil, 1), *p.qpackCapacity)
+	}
+	if p.qpackBlocked != 0 {
+		payload = quicvarint.Append(quicvarint.Append(payload, 7), p.qpackBlocked)
 	}
 	settingsFrame := quicvarint.Append([]byte{0, 4}, uint64(len(payload)))
 	settingsFrame = append(settingsFrame, payload...)
@@ -360,7 +382,7 @@ func (p *h3Peer) serve(ctx context.Context, conn *quic.Conn) {
 			}
 			decode := qpack.NewDecoder().Decode(buf)
 			var headers []qpack.HeaderField
-			for {
+			for !p.rawQPACK {
 				field, err := decode()
 				if err == io.EOF {
 					break

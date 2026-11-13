@@ -7,7 +7,9 @@
     "actual_platform": "Linux arm64, official Mozilla binary under Xvfb in an IPv4 container",
     "archive_sha512": "06bd97f3bf2c8447f686387c44a46c773bac0330d90fe2e25d9064f45a65df87a0f481d70f9cca852f5e364d677cd3fd5c471c18c078b5d437364cf495674ac7",
     "archive_source": "https://archive.mozilla.org/pub/firefox/releases/160.0/linux-aarch64/en-US/firefox-160.0.tar.xz",
-    "mozilla_checksum_source": "https://archive.mozilla.org/pub/firefox/releases/160.0/SHA512SUMS"
+    "mozilla_checksum_source": "https://archive.mozilla.org/pub/firefox/releases/160.0/SHA512SUMS",
+    "source_repository": "https://hg.mozilla.org/releases/mozilla-release",
+    "source_stamp": "d84e7a6936554efe26097d9d9b24a0e11330e630"
   },
   "method": {
     "action": "fetch(url, {mode: \"no-cors\", credentials: \"omit\"}) from one about:blank context",
@@ -252,10 +254,12 @@
     "reference": "../../ech/resumption/native/firefox-160-quic-2.json"
   },
   "limits": [
-    "Accepted early GET is confirmed in the Google non-ECH scenario. A combined native accepted ECH+early GET transcript is not established here.",
+    "Native accepted ECH + PSK + early GET are now verified together on one connection, including independent client/server Finished checks and HTTP/3 200.",
+    "The matched Surf/native Google early HEADERS bytes and dynamic encoder instructions agree exactly. HTTP/3 selection is forced only for the isolated Surf replay, with Alt-Used disabled to reproduce the captured fields.",
+    "Early stream interleaving and QPACK instruction packet grouping still differ in this sample; no identical packet schedule is claimed. Native opaque fetch also sends STOP_SENDING, whereas Surf consumes the response body.",
     "Normal navigation and same-origin fetch can produce control-only 0-RTT or a legitimate HTTP/2 winner; an early GET is not guaranteed on every request.",
-    "The original immediate-mode samples had truncated offload frames despite zero kernel drops and are excluded from conclusions.",
-    "These are native browser observations. Identical Surf packet ordering, dynamic QPACK bytes, Windows behavior and NIC pacing are not claimed."
+    "Native real-browser NIC captures are inside Linux Docker; they do not establish Windows OS packet behavior or matching physical-host NIC pacing.",
+    "Raw pcaps, NSS secrets, live tickets and browser profiles remain private."
   ],
   "primary_sources": [
     "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Session.cpp",
@@ -263,5 +267,449 @@
     "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpTransaction.cpp",
     "https://www.rfc-editor.org/rfc/rfc8446.html#section-4.4.4",
     "https://github.com/aiortc/pylsqpack"
-  ]
+  ],
+  "matched_surf": {
+    "capture": {
+      "pcap_sha256": "ebcbcbe6641e768d7c4a829d0e7b5c0568eda180a8afbb47f7e6ff0464277602",
+      "captured_packets": 113,
+      "received_by_filter": 113,
+      "kernel_drops": 0,
+      "truncated_frames": 0
+    },
+    "method": {
+      "profile": "Firefox 160",
+      "api": "Impersonate().Firefox().ForceHTTP3(); HTTP3Settings().EarlyData(true).AltUsed(false).Set(); Session().SecureTLS(); Fetch().SetHeaders(g.MapOrd)",
+      "identity": "Exact native Linux UA and fields replayed explicitly; stock Windows profile unchanged",
+      "verification": true,
+      "dns_overrides": false,
+      "ech": false,
+      "scope": "Forced HTTP/3 isolates the selected transport and exact field bytes; automatic browser DNS/Alt-Svc/protocol racing is not replayed.",
+      "sequence": "Four warm requests, then three GETs after 45-second idle intervals.",
+      "server_ip_matches_native": true
+    },
+    "verified_connections": [
+      {
+        "connection": "1",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 2,
+          "earlyControlPackets": 2,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [
+          "204"
+        ],
+        "timeline": [
+          {
+            "frame": "49",
+            "udp_length_including_header": "1260",
+            "streams": [
+              {
+                "id": "2",
+                "offset": "0",
+                "bytes": 33
+              },
+              {
+                "id": "6",
+                "offset": "0",
+                "bytes": 1
+              },
+              {
+                "id": "6",
+                "offset": "1",
+                "bytes": 4
+              },
+              {
+                "id": "10",
+                "offset": "0",
+                "bytes": 1
+              },
+              {
+                "id": "0",
+                "offset": "0",
+                "bytes": 141
+              }
+            ]
+          },
+          {
+            "frame": "50",
+            "udp_length_including_header": "111",
+            "streams": [
+              {
+                "id": "6",
+                "offset": "5",
+                "bytes": 63
+              }
+            ]
+          }
+        ],
+        "streams": {
+          "0": {
+            "bytes": 141,
+            "sha256": "5855d7ecac33cc4fa8059d154fd03bb7af4da17177ce21379aa8471c3b3d9e6f"
+          },
+          "6": {
+            "bytes": 68,
+            "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+          },
+          "10": {
+            "bytes": 1,
+            "sha256": "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5"
+          }
+        }
+      },
+      {
+        "connection": "2",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 2,
+          "earlyControlPackets": 2,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [
+          "204"
+        ],
+        "timeline": [
+          {
+            "frame": "72",
+            "udp_length_including_header": "1260",
+            "streams": [
+              {
+                "id": "2",
+                "offset": "0",
+                "bytes": 38
+              },
+              {
+                "id": "6",
+                "offset": "0",
+                "bytes": 1
+              },
+              {
+                "id": "6",
+                "offset": "1",
+                "bytes": 4
+              },
+              {
+                "id": "10",
+                "offset": "0",
+                "bytes": 1
+              },
+              {
+                "id": "0",
+                "offset": "0",
+                "bytes": 141
+              }
+            ]
+          },
+          {
+            "frame": "73",
+            "udp_length_including_header": "111",
+            "streams": [
+              {
+                "id": "6",
+                "offset": "5",
+                "bytes": 63
+              }
+            ]
+          }
+        ],
+        "streams": {
+          "0": {
+            "bytes": 141,
+            "sha256": "2b610a17ec8a85e732920df3dc5333c5dfbc3bfe4331d7ea53f4dbe37652f99e"
+          },
+          "6": {
+            "bytes": 68,
+            "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+          },
+          "10": {
+            "bytes": 1,
+            "sha256": "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5"
+          }
+        }
+      },
+      {
+        "connection": "3",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 2,
+          "earlyControlPackets": 2,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [
+          "204"
+        ],
+        "timeline": [
+          {
+            "frame": "96",
+            "udp_length_including_header": "1260",
+            "streams": [
+              {
+                "id": "2",
+                "offset": "0",
+                "bytes": 39
+              },
+              {
+                "id": "6",
+                "offset": "0",
+                "bytes": 1
+              },
+              {
+                "id": "6",
+                "offset": "1",
+                "bytes": 4
+              },
+              {
+                "id": "10",
+                "offset": "0",
+                "bytes": 1
+              },
+              {
+                "id": "0",
+                "offset": "0",
+                "bytes": 141
+              }
+            ]
+          },
+          {
+            "frame": "97",
+            "udp_length_including_header": "116",
+            "streams": [
+              {
+                "id": "6",
+                "offset": "5",
+                "bytes": 63
+              }
+            ]
+          }
+        ],
+        "streams": {
+          "0": {
+            "bytes": 141,
+            "sha256": "68383154e26c045dff74875e3f01361ff15642a7b5889e296280b70c6482fcb5"
+          },
+          "6": {
+            "bytes": 68,
+            "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+          },
+          "10": {
+            "bytes": 1,
+            "sha256": "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5"
+          }
+        }
+      }
+    ],
+    "byte_matches": [
+      {
+        "native_connection": "3",
+        "surf_connection": "1",
+        "stream": 0,
+        "byte_identical": true,
+        "bytes": 141,
+        "sha256": "5855d7ecac33cc4fa8059d154fd03bb7af4da17177ce21379aa8471c3b3d9e6f"
+      },
+      {
+        "native_connection": "3",
+        "surf_connection": "1",
+        "stream": 6,
+        "byte_identical": true,
+        "bytes": 68,
+        "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+      },
+      {
+        "native_connection": "6",
+        "surf_connection": "3",
+        "stream": 0,
+        "byte_identical": true,
+        "bytes": 141,
+        "sha256": "68383154e26c045dff74875e3f01361ff15642a7b5889e296280b70c6482fcb5"
+      },
+      {
+        "native_connection": "6",
+        "surf_connection": "3",
+        "stream": 6,
+        "byte_identical": true,
+        "bytes": 68,
+        "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+      }
+    ],
+    "peer_settings": [
+      [
+        1,
+        65536
+      ],
+      [
+        6,
+        65536
+      ],
+      [
+        7,
+        100
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        51,
+        1
+      ]
+    ],
+    "peer_settings_note": "Stable server SETTINGS match on both native and all three Surf resumptions; reserved GREASE settings vary."
+  },
+  "combined_ech_get": {
+    "capture": {
+      "pcap_sha256": "0450e970592d8db8573befa1c57eb1159fef8e9c7048d7a56f16b3435266907a",
+      "captured_packets": 25026,
+      "received_by_filter": 25026,
+      "kernel_drops": 0,
+      "truncated_frames": 0
+    },
+    "method": "Same native Firefox opaque sequence; www.cloudflare-quic.com/cdn-cgi/trace, default DNS policy, verified certificates, no protocol/TLS/early-data overrides.",
+    "reference": "../../ech/resumption/native/firefox-160-quic-3.json",
+    "ech_accepted": true,
+    "connection": "3",
+    "cipher": 4865,
+    "selectedPSK": 0,
+    "server_extensions": [
+      16,
+      42,
+      57
+    ],
+    "server_finished_verified": true,
+    "client_finished_verified": true,
+    "early_data_accepted": true,
+    "wire": {
+      "earlyPackets": 3,
+      "earlyControlPackets": 2,
+      "earlyRequestPackets": 1
+    },
+    "stream0_statuses": [
+      "200"
+    ],
+    "decoder": "official pylsqpack 1.1.1",
+    "ordered_fields": [
+      [
+        ":method",
+        "GET"
+      ],
+      [
+        ":scheme",
+        "https"
+      ],
+      [
+        ":authority",
+        "www.cloudflare-quic.com"
+      ],
+      [
+        ":path",
+        "/cdn-cgi/trace?surf-resumption=4"
+      ],
+      [
+        "user-agent",
+        "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+      ],
+      [
+        "accept",
+        "*/*"
+      ],
+      [
+        "accept-language",
+        "en-US,en;q=0.9"
+      ],
+      [
+        "accept-encoding",
+        "gzip, deflate, br, zstd"
+      ],
+      [
+        "sec-fetch-dest",
+        "empty"
+      ],
+      [
+        "sec-fetch-mode",
+        "no-cors"
+      ],
+      [
+        "sec-fetch-site",
+        "cross-site"
+      ],
+      [
+        "priority",
+        "u=4"
+      ]
+    ],
+    "request_stream_sha256": "b87e3b87b882a48f38f82b45f2acb8a40a59f68f6b42f37fa28d97ce648e69ce",
+    "request_stream_bytes": 209,
+    "timeline": [
+      {
+        "frame": "10510",
+        "udp_length_including_header": "1260",
+        "streams": [
+          {
+            "id": "2",
+            "offset": "0",
+            "bytes": 14
+          }
+        ]
+      },
+      {
+        "frame": "10511",
+        "udp_length_including_header": "317",
+        "streams": [
+          {
+            "id": "0",
+            "offset": "0",
+            "bytes": 209
+          },
+          {
+            "id": "2",
+            "offset": "14",
+            "bytes": 23
+          },
+          {
+            "id": "6",
+            "offset": "0",
+            "bytes": 1
+          },
+          {
+            "id": "10",
+            "offset": "0",
+            "bytes": 1
+          }
+        ]
+      },
+      {
+        "frame": "10521",
+        "udp_length_including_header": "50",
+        "streams": []
+      }
+    ]
+  }
 }

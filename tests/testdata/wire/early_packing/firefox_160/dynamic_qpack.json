@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "browser": "Firefox/160.0",
+  "source": "linux-google-opaque.pcap",
+  "pcap_sha256": "6c0da30b4a5db99a88726c435b3ad4523926b049aa7f6679d437105cd4b02c07",
+  "decoder": "official pylsqpack 1.1.1; NSS original transcript Finished verification",
+  "peer_qpack_capacity": 65536,
+  "peer_qpack_blocked_streams": 100,
+  "requests": [
+    {
+      "connection": "3",
+      "request_stream_hex": "01408a0583d1d7508bf1e3c2f31cf35055c87a7f51976262d45b0692c42035fe22db255ac2a2da6b498f540d7f5f50b5d07f66a281b0dae053fafc087ed4ce6aadf2a7979c89c6bed4b3bdc0b805c1fda988a4ea76040080010054c26b0b29fcb01700b83fdd5f398b2d4b70ddf45abefb4005df5f10929bd9abfa5242cb40d25fa523b3e94f684c9f10111213",
+      "encoder_stream_hex": "023fe1ff036a4148b4a549275a42a13f842d35a7d76a4148b4a549275a93c85f85a8eb10f6236a4148b4a549275906497f872587421641925f66aec31ec327d783b606bf",
+      "fin": true,
+      "ordered_fields": [
+        [
+          ":method",
+          "GET"
+        ],
+        [
+          ":scheme",
+          "https"
+        ],
+        [
+          ":authority",
+          "www.google.com"
+        ],
+        [
+          ":path",
+          "/generate_204?surf-resumption=4"
+        ],
+        [
+          "user-agent",
+          "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "accept-encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "sec-fetch-dest",
+          "empty"
+        ],
+        [
+          "sec-fetch-mode",
+          "no-cors"
+        ],
+        [
+          "sec-fetch-site",
+          "cross-site"
+        ],
+        [
+          "priority",
+          "u=4"
+        ]
+      ]
+    },
+    {
+      "connection": "6",
+      "request_stream_hex": "01408a0583d1d7508bf1e3c2f31cf35055c87a7f51976262d45b0692c42035fe22db255ac2a2da6b498f540e7f5f50b5d07f66a281b0dae053fafc087ed4ce6aadf2a7979c89c6bed4b3bdc0b805c1fda988a4ea76040080010054c26b0b29fcb01700b83fdd5f398b2d4b70ddf45abefb4005df5f10929bd9abfa5242cb40d25fa523b3e94f684c9f10111213",
+      "encoder_stream_hex": "023fe1ff036a4148b4a549275a42a13f842d35a7d76a4148b4a549275a93c85f85a8eb10f6236a4148b4a549275906497f872587421641925f66aec31ec327d783b606bf",
+      "fin": true,
+      "ordered_fields": [
+        [
+          ":method",
+          "GET"
+        ],
+        [
+          ":scheme",
+          "https"
+        ],
+        [
+          ":authority",
+          "www.google.com"
+        ],
+        [
+          ":path",
+          "/generate_204?surf-resumption=6"
+        ],
+        [
+          "user-agent",
+          "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "accept-encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "sec-fetch-dest",
+          "empty"
+        ],
+        [
+          "sec-fetch-mode",
+          "no-cors"
+        ],
+        [
+          "sec-fetch-site",
+          "cross-site"
+        ],
+        [
+          "priority",
+          "u=4"
+        ]
+      ]
+    }
+  ]
+}

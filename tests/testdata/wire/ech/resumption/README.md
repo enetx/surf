@@ -73,16 +73,22 @@ secret material. This was needed to decrypt native and Surf early packets.
 TShark extraction uses `--no-duplicate-keys`, retains coalesced packet objects,
 and reads raw STREAM payload length when a STREAM frame omits its LEN field.
 
-The accepted Firefox QUIC reference has control-only early data. A follow-up
-native same-origin fetch capture also sent request stream zero in 0-RTT, but
-completion of that connection was not established and it is not an accepted
-reference. Firefox's safe-method source policy allows early GET requests; this
-sample does not justify forcing all Firefox requests to wait for 1-RTT.
+The original Firefox QUIC reference has control-only early data. The additional
+`firefox-160-quic-2.json` confirms the same property in a complete buffered NIC
+capture. The fresh `firefox-160-quic-3.json` additionally establishes accepted
+ECH and an early GET on the same connection: three decrypted early packets,
+two with control data and one with request data. Independent checks verify both
+original Finished messages and the HTTP/3 200 response. Its capture, exact fields
+and scope are recorded in the [Firefox early-GET audit](../../early_packing/firefox_160/README.md).
+The native browser uses default DNS policy and certificate verification without
+protocol or early-data overrides. Early requests remain dependent on transaction,
+session and race state; these samples do not justify forcing every Firefox
+request either into 0-RTT or behind 1-RTT confirmation.
 
 ## Comparison result
 
 `tests/profiles/ech/inner_test.go` checks the complete cipher/extension bytes and
-order by applying Surf's callback to each of the six native outer messages.
+order by applying Surf's callback to each retained native outer message.
 The engine appends its own final PSK; callbacks cannot supply live binders.
 
 Independent comparisons of actual Surf/native inner messages preserve cipher

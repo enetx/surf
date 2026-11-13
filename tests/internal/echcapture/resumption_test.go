@@ -73,6 +73,33 @@ func TestNativeResumptionReferences(t *testing.T) {
 	}
 }
 
+func TestFirefoxNativeECHAcceptedWithEarlyRequest(t *testing.T) {
+	var found bool
+	for _, ref := range nativeReferences(t) {
+		if ref.Browser != "Firefox/160.0" || ref.Transport != "quic" || ref.EarlyData.RequestPackets == 0 {
+			continue
+		}
+
+		found = true
+		if ref.PSK.Selected != 0 || ref.PSK.Outer != "randomized" ||
+			!ref.EarlyData.Offered || !ref.EarlyData.Accepted ||
+			ref.EarlyData.ControlPackets < 1 || !slices.Contains(ref.ServerExtensions, 42) {
+			t.Fatal("native Firefox early GET lost its accepted ECH/PSK/early-data proof")
+		}
+
+		inner, err := ReadClientHello(ref.Inner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := VerifyECHConfirmation(inner.Random, ref.ServerHello, ref.ConfirmationHash); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !found {
+		t.Fatal("missing a native Firefox accepted ECH plus early request reference")
+	}
+}
+
 func TestFingerprintKeepsMeaningfulDifferences(t *testing.T) {
 	ref := nativeReferences(t)[0]
 	base, err := StableFingerprint(ref.Inner, "chrome", ref.Transport)

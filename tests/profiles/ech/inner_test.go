@@ -71,10 +71,18 @@ func TestResumedInnerMatchesNativeCapture(t *testing.T) {
 	testNativeInnerFixtures(t, "resumption/native/firefox-160-quic-*.json", 1, desktop.ClientHelloInner)
 }
 
-func testNativeInnerFixtures(t *testing.T, pattern string, count int, policy utls.ECHClientHelloInnerFunc) {
+// Every matching capture participates. Require the original minimum coverage;
+// the exact inventory is checked centrally by echcapture's nativeReferences.
+// Adding an independently verified capture must not exclude it from this audit.
+func testNativeInnerFixtures(
+	t *testing.T,
+	pattern string,
+	minimum int,
+	policy utls.ECHClientHelloInnerFunc,
+) {
 	t.Helper()
 	paths, err := filepath.Glob("../../testdata/wire/ech/" + pattern)
-	if err != nil || len(paths) != count {
+	if err != nil || len(paths) < minimum {
 		t.Fatalf("capture fixtures: %v, %v", paths, err)
 	}
 	for _, path := range paths {
