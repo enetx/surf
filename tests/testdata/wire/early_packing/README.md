@@ -34,7 +34,11 @@ builders use the remaining capacity; Go's separate 128-byte packet/STREAM
 heuristics are not equivalent to that rule.
 
 [Neqo's SendStreams::write_frames](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/send_stream.rs)
-services ordinary, non-fair HTTP/3 streams in creation order. WebTransport's
+services ordinary, non-fair HTTP/3 streams in creation order within each
+transmission class. `DataSent` admits queued bytes and pending FIN in the higher
+retransmission class even before their first transmission; `Send` keeps the
+retransmission-offset cutoff. This puts a bodyless finished request ahead of
+ordinary new control/QPACK data without sorting by stream ID. WebTransport's
 fair/send-group path is a separate mechanism. An earlier quiescent stream keeps
 its place; credit-blocked streams do not starve later writable streams.
 [Http3Session::SendData](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Session.cpp)
@@ -79,11 +83,20 @@ in ordinary opaque Google fetches, including independently verified TLS Finished
 and dynamic QPACK decoding. An exact-field Surf replay matches the HEADERS and
 dynamic encoder bytes. A fresh ordinary Cloudflare opaque fetch additionally
 confirms accepted ECH and an early GET on the same native connection. Packet
-interleaving still differs in the matched sample and is recorded explicitly;
+interleaving differs in that baseline matched sample and is recorded explicitly;
 neither equal bytes nor equal packet counts establish full scheduling parity.
 The earlier control-only samples remain valid for their original scenario.
 
-A final independent Linux eth0 capture contains **175 captured packets, 175
+The subsequent [encoder-batching audit](firefox_160/qpack_batching.json) verifies
+three accepted Surf resumptions with complete encoder instructions sharing the
+early request packet, removing the unnecessary continuation packet. A fresh
+accepted native early GET has identical encoder and matching query-6 request
+bytes. The final scheduling capture also reproduces native stream order for
+ready finished requests by selecting the source-confirmed higher class.
+Earlier setup opportunities and native cancellation versus application body
+consumption remain distinct scenarios, recorded in the Firefox report.
+
+The existing profile-matrix Linux eth0 capture contains **175 captured packets, 175
 reported by the filter and zero kernel drops**. Three fresh connections per
 profile include four resumed connections. The existing transcript verifier
 authenticates accepted ECH, selected PSK and accepted early request data for all
@@ -114,6 +127,14 @@ constraints. Raw transport controls are also available through QUICSettings:
 `InitialCryptoCoalescingBarrier` and `StreamSchedulingByCreation`.
 Creation-order mode takes precedence over urgency/incremental scheduling;
 disable it explicitly when an application wants the latter.
+`PrioritizeFinishedStreams` optionally groups finished writes with lost data in
+that mode; Firefox enables it by default through its preset. A custom builder
+can select the same mechanism explicitly:
+
+```go
+builder.QUICSettings().StreamSchedulingByCreation(true).
+    PrioritizeFinishedStreams(true).Set()
+```
 
 ## Regression coverage and limits
 

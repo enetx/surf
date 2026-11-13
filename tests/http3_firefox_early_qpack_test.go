@@ -120,6 +120,8 @@ func TestFirefoxEarlyDynamicQPACKMatchesNative(t *testing.T) {
 		ClientSessionCache: cache,
 	}).Build().Unwrap()
 	t.Cleanup(func() { client.Close() })
+	// This change must affect future builds only, including resumed connections.
+	builder.QUICSettings().PrioritizeFinishedStreams(false).Set()
 
 	warm := client.Get(g.String(peer.url + "/warm")).Do()
 	require.False(t, warm.IsErr(), "%v", warm.Err())
@@ -185,26 +187,18 @@ func TestFirefoxEarlyDynamicQPACKMatchesNative(t *testing.T) {
 		tracesMu.Lock()
 		trace := traces[len(traces)-1]
 		tracesMu.Unlock()
-		var requestFrames []qlog.StreamFrame
 		trace.mu.Lock()
-		for _, packet := range trace.packets {
-			for _, stream := range packet.streams {
-				if stream.StreamID == 0 {
-					requestFrames = append(requestFrames, stream)
-				}
-			}
-		}
+		packets := append([]earlySettingsPacket(nil), trace.packets...)
+		requestFrames := append([]qlog.StreamFrame(nil), trace.requestFrames...)
 		trace.mu.Unlock()
+		assertEarlyFinishedStreamOrder(t, packets, 0)
 		require.NotEmpty(t, requestFrames)
-		fin := false
+		assertFinishedHeadersFIN(t, requestFrames)
 		for _, stream := range requestFrames {
 			if stream.Fin {
-				fin = true
-				require.Positive(t, stream.Length, "FIN must accompany the HEADERS bytes")
 				require.EqualValues(t, len(request), stream.Offset+stream.Length)
 			}
 		}
-		require.True(t, fin, "early HEADERS did not carry the bodyless request FIN")
 
 		encoder, err := hex.DecodeString(want.Encoder)
 		require.NoError(t, err)

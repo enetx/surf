@@ -406,8 +406,9 @@ func (h *HTTP3Settings) FlushEarlySettings(enabled bool) *HTTP3Settings {
 	return h
 }
 
-// CoalesceRequestHeaders stages initial priority, HEADERS and a bodyless
-// request's FIN together. Blocked streams retain asynchronous control writes.
+// CoalesceRequestHeaders stages initial priority, ready QPACK encoder
+// instructions, HEADERS and a bodyless request's FIN together. Busy or blocked
+// critical streams retain their asynchronous writer without holding requests.
 func (h *HTTP3Settings) CoalesceRequestHeaders(enabled bool) *HTTP3Settings {
 	h.wire().CoalesceRequestHeaders = enabled
 	return h

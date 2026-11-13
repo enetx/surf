@@ -21,7 +21,9 @@ func ConfigureQPACK(h profiles.H3Config) {
 	// output; the final Initial can share a datagram with their early bytes.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-http3/src/connection.rs
 	// SendData stages the transaction, including its bodyless FIN, before
-	// ProcessOutput constructs datagrams. No priority update is introduced.
+	// ProcessOutput constructs datagrams. Coalescing also stages ready encoder
+	// instructions with HEADERS instead of awaiting a competing writer.
+	// No priority update is introduced.
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Session.cpp
 	// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/Http3Stream.cpp
 	h.CoalesceInitialSettings(true).CoalesceRequestHeaders(true).QpackDynamicTable(true).

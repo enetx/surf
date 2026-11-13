@@ -1,0 +1,627 @@
+{
+  "schema": 1,
+  "browser": "Firefox/160.0",
+  "scope": "Ready encoder batching and source-confirmed priority of write-closed streams; ordering is checked in each request-containing packet, without a fixed packet-count claim.",
+  "source_verification": {
+    "source_repository": "https://hg-edge.mozilla.org/releases/mozilla-release",
+    "source_stamp": "d84e7a6936554efe26097d9d9b24a0e11330e630",
+    "files": [
+      {
+        "path": "third_party/rust/neqo-transport/src/send_stream.rs",
+        "sha256": "08e55f6a3c1d7b297dd9872cb8e0a161baf694dfb7d60f46f2b15d06f8a4a6f3",
+        "identical_to_tag": "FIREFOX_160_0_RELEASE"
+      },
+      {
+        "path": "third_party/rust/neqo-transport/src/streams.rs",
+        "sha256": "25fdd785615271cf39915902e5e8db15a5790a062d891074a4a4190fbd357683",
+        "identical_to_tag": "FIREFOX_160_0_RELEASE"
+      },
+      {
+        "path": "third_party/rust/neqo-http3/src/connection.rs",
+        "sha256": "17c54864ef79aa59d4d863ccc1e2e61ff3ed19023553a683ba8cb4cdb3b85437",
+        "identical_to_tag": "FIREFOX_160_0_RELEASE"
+      }
+    ],
+    "finished_write_priority": {
+      "functions": [
+        "SendStream::has_next_bytes",
+        "SendStream::next_bytes",
+        "SendStream::close",
+        "SendStreams::write_frames"
+      ],
+      "rule": "DataSent admits queued new bytes and pending FIN in the effective retransmission priority; Send limits that class to retransmission ranges. Default Normal plus Higher selects High. Creation order applies within each class.",
+      "generic_control": "QUICSettings().StreamSchedulingByCreation(true).PrioritizeFinishedStreams(true).Set()"
+    }
+  },
+  "method": {
+    "native": "Official Firefox 160 Linux arm64, default DNS, verified certificates, opaque no-cors GETs from about:blank; passive NSS/qlog diagnostics. BiDi script evaluation observation timeout 120 seconds, browser protocol policy unchanged.",
+    "surf": "Same endpoint, method, ordered fields and native Linux User-Agent; Firefox profile with ForceHTTP3, EarlyData(true), AltUsed(false), Session and SecureTLS. Four warm requests, three requests after 45-second idle periods.",
+    "decoder": "official pylsqpack 1.1.1",
+    "tls_verification": "Independent original-transcript server/client Finished HMAC-SHA256, selected PSK identity zero and server EncryptedExtensions early_data; certificates verified by each client."
+  },
+  "native": {
+    "capture": {
+      "pcap_sha256": "5f8a3344a9d81e52547458b023b434a0a896f03f1f23d27d960e41dffc183634",
+      "captured_packets": 9804,
+      "received_by_filter": 9804,
+      "kernel_drops": 0,
+      "truncated_frames": 0
+    },
+    "accepted": {
+      "connection": "6",
+      "cipher": 4865,
+      "selectedPSK": 0,
+      "server_extensions": [
+        16,
+        42,
+        57
+      ],
+      "server_finished_verified": true,
+      "client_finished_verified": true,
+      "early_data_accepted": true,
+      "wire": {
+        "earlyPackets": 2,
+        "earlyControlPackets": 1,
+        "earlyRequestPackets": 1
+      },
+      "stream0_statuses": [
+        "204"
+      ],
+      "ordered_fields": [
+        [
+          ":method",
+          "GET"
+        ],
+        [
+          ":scheme",
+          "https"
+        ],
+        [
+          ":authority",
+          "www.google.com"
+        ],
+        [
+          ":path",
+          "/generate_204?surf-resumption=6"
+        ],
+        [
+          "user-agent",
+          "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "en-US,en;q=0.9"
+        ],
+        [
+          "accept-encoding",
+          "gzip, deflate, br, zstd"
+        ],
+        [
+          "sec-fetch-dest",
+          "empty"
+        ],
+        [
+          "sec-fetch-mode",
+          "no-cors"
+        ],
+        [
+          "sec-fetch-site",
+          "cross-site"
+        ],
+        [
+          "priority",
+          "u=4"
+        ]
+      ],
+      "timeline": [
+        {
+          "frame": "9739",
+          "udp_length_including_header": "1260",
+          "streams": [
+            {
+              "id": "0",
+              "offset": "0",
+              "fin": true,
+              "bytes": 141
+            },
+            {
+              "id": "2",
+              "offset": "0",
+              "fin": false,
+              "bytes": 37
+            },
+            {
+              "id": "6",
+              "offset": "0",
+              "fin": false,
+              "bytes": 68
+            },
+            {
+              "id": "10",
+              "offset": "0",
+              "fin": false,
+              "bytes": 1
+            }
+          ]
+        },
+        {
+          "frame": "9740",
+          "udp_length_including_header": "49",
+          "streams": []
+        }
+      ],
+      "streams": {
+        "0": {
+          "bytes": 141,
+          "sha256": "68383154e26c045dff74875e3f01361ff15642a7b5889e296280b70c6482fcb5"
+        },
+        "2": {
+          "bytes": 37,
+          "sha256": "98f382e389a1aebd3e8b449155dbe832e6a13355e00cc3ea8f5c5f5e6b92532e"
+        },
+        "6": {
+          "bytes": 68,
+          "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+        },
+        "10": {
+          "bytes": 1,
+          "sha256": "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5"
+        }
+      },
+      "request_fin_verified": true
+    },
+    "excluded": [
+      {
+        "connection": "3",
+        "reason": "No complete accepted handshake transcript; offered early packets are not acceptance evidence."
+      }
+    ]
+  },
+  "surf": {
+    "capture": {
+      "pcap_sha256": "ffcc9c023488a57335f1cbd1a2cbe5c91fd37560146960ac3c5a405b65fffc44",
+      "captured_packets": 108,
+      "received_by_filter": 108,
+      "kernel_drops": 0,
+      "truncated_frames": 0
+    },
+    "accepted": [
+      {
+        "connection": "1",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 2,
+          "earlyControlPackets": 2,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [
+          "204"
+        ],
+        "ordered_fields": [
+          [
+            ":method",
+            "GET"
+          ],
+          [
+            ":scheme",
+            "https"
+          ],
+          [
+            ":authority",
+            "www.google.com"
+          ],
+          [
+            ":path",
+            "/generate_204?surf-resumption=4"
+          ],
+          [
+            "user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+          ],
+          [
+            "accept",
+            "*/*"
+          ],
+          [
+            "accept-language",
+            "en-US,en;q=0.9"
+          ],
+          [
+            "accept-encoding",
+            "gzip, deflate, br, zstd"
+          ],
+          [
+            "sec-fetch-dest",
+            "empty"
+          ],
+          [
+            "sec-fetch-mode",
+            "no-cors"
+          ],
+          [
+            "sec-fetch-site",
+            "cross-site"
+          ],
+          [
+            "priority",
+            "u=4"
+          ]
+        ],
+        "request_fin_verified": true,
+        "timeline": [
+          {
+            "frame": "47",
+            "udp_length_including_header": "1260",
+            "streams": [
+              {
+                "id": "2",
+                "offset": "0",
+                "fin": false,
+                "bytes": 36
+              },
+              {
+                "id": "6",
+                "offset": "0",
+                "fin": false,
+                "bytes": 5
+              },
+              {
+                "id": "10",
+                "offset": "0",
+                "fin": false,
+                "bytes": 1
+              }
+            ]
+          },
+          {
+            "frame": "48",
+            "udp_length_including_header": "256",
+            "streams": [
+              {
+                "id": "0",
+                "offset": "0",
+                "fin": true,
+                "bytes": 141
+              },
+              {
+                "id": "6",
+                "offset": "5",
+                "fin": false,
+                "bytes": 63
+              }
+            ]
+          }
+        ],
+        "streams": {
+          "0": {
+            "bytes": 141,
+            "sha256": "5855d7ecac33cc4fa8059d154fd03bb7af4da17177ce21379aa8471c3b3d9e6f"
+          },
+          "2": {
+            "bytes": 36,
+            "sha256": "4661b06b3fca8fb4f93a87680fb1623d027dabaa4c86acc5cadb915117fc1d33"
+          },
+          "6": {
+            "bytes": 68,
+            "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+          },
+          "10": {
+            "bytes": 1,
+            "sha256": "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5"
+          }
+        }
+      },
+      {
+        "connection": "2",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 1,
+          "earlyControlPackets": 1,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [
+          "204"
+        ],
+        "ordered_fields": [
+          [
+            ":method",
+            "GET"
+          ],
+          [
+            ":scheme",
+            "https"
+          ],
+          [
+            ":authority",
+            "www.google.com"
+          ],
+          [
+            ":path",
+            "/generate_204?surf-resumption=5"
+          ],
+          [
+            "user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+          ],
+          [
+            "accept",
+            "*/*"
+          ],
+          [
+            "accept-language",
+            "en-US,en;q=0.9"
+          ],
+          [
+            "accept-encoding",
+            "gzip, deflate, br, zstd"
+          ],
+          [
+            "sec-fetch-dest",
+            "empty"
+          ],
+          [
+            "sec-fetch-mode",
+            "no-cors"
+          ],
+          [
+            "sec-fetch-site",
+            "cross-site"
+          ],
+          [
+            "priority",
+            "u=4"
+          ]
+        ],
+        "request_fin_verified": true,
+        "timeline": [
+          {
+            "frame": "72",
+            "udp_length_including_header": "1260",
+            "streams": [
+              {
+                "id": "0",
+                "offset": "0",
+                "fin": true,
+                "bytes": 141
+              },
+              {
+                "id": "2",
+                "offset": "0",
+                "fin": false,
+                "bytes": 33
+              },
+              {
+                "id": "6",
+                "offset": "0",
+                "fin": false,
+                "bytes": 68
+              },
+              {
+                "id": "10",
+                "offset": "0",
+                "fin": false,
+                "bytes": 1
+              }
+            ]
+          }
+        ],
+        "streams": {
+          "0": {
+            "bytes": 141,
+            "sha256": "2b610a17ec8a85e732920df3dc5333c5dfbc3bfe4331d7ea53f4dbe37652f99e"
+          },
+          "2": {
+            "bytes": 33,
+            "sha256": "48b7a505e069a2f3a2c3ff81ce20c2e972efbe8be483af08012d0635ff51b211"
+          },
+          "6": {
+            "bytes": 68,
+            "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+          },
+          "10": {
+            "bytes": 1,
+            "sha256": "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5"
+          }
+        }
+      },
+      {
+        "connection": "3",
+        "cipher": 4865,
+        "selectedPSK": 0,
+        "server_extensions": [
+          16,
+          42,
+          57
+        ],
+        "server_finished_verified": true,
+        "client_finished_verified": true,
+        "early_data_accepted": true,
+        "wire": {
+          "earlyPackets": 1,
+          "earlyControlPackets": 1,
+          "earlyRequestPackets": 1
+        },
+        "stream0_statuses": [
+          "204"
+        ],
+        "ordered_fields": [
+          [
+            ":method",
+            "GET"
+          ],
+          [
+            ":scheme",
+            "https"
+          ],
+          [
+            ":authority",
+            "www.google.com"
+          ],
+          [
+            ":path",
+            "/generate_204?surf-resumption=6"
+          ],
+          [
+            "user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0"
+          ],
+          [
+            "accept",
+            "*/*"
+          ],
+          [
+            "accept-language",
+            "en-US,en;q=0.9"
+          ],
+          [
+            "accept-encoding",
+            "gzip, deflate, br, zstd"
+          ],
+          [
+            "sec-fetch-dest",
+            "empty"
+          ],
+          [
+            "sec-fetch-mode",
+            "no-cors"
+          ],
+          [
+            "sec-fetch-site",
+            "cross-site"
+          ],
+          [
+            "priority",
+            "u=4"
+          ]
+        ],
+        "request_fin_verified": true,
+        "timeline": [
+          {
+            "frame": "95",
+            "udp_length_including_header": "1260",
+            "streams": [
+              {
+                "id": "0",
+                "offset": "0",
+                "fin": true,
+                "bytes": 141
+              },
+              {
+                "id": "2",
+                "offset": "0",
+                "fin": false,
+                "bytes": 33
+              },
+              {
+                "id": "6",
+                "offset": "0",
+                "fin": false,
+                "bytes": 68
+              },
+              {
+                "id": "10",
+                "offset": "0",
+                "fin": false,
+                "bytes": 1
+              }
+            ]
+          }
+        ],
+        "streams": {
+          "0": {
+            "bytes": 141,
+            "sha256": "68383154e26c045dff74875e3f01361ff15642a7b5889e296280b70c6482fcb5"
+          },
+          "2": {
+            "bytes": 33,
+            "sha256": "ee482a7ab6ca072f432f191e090aa7c991251715a6ce7cb57d06d70ceeab95a2"
+          },
+          "6": {
+            "bytes": 68,
+            "sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7"
+          },
+          "10": {
+            "bytes": 1,
+            "sha256": "084fed08b978af4d7d196a7446a86b58009e636b611db16211b65a9aadff29c5"
+          }
+        }
+      }
+    ]
+  },
+  "result": {
+    "request_bytes": 141,
+    "encoder_bytes": 68,
+    "encoder_sha256": "7d66d3b87a00a8752467c937312ecb0924aa38c83ada8da7e9ede1d291c9d9e7",
+    "native_first_data_packet_order": [
+      0,
+      2,
+      6,
+      10
+    ],
+    "fixed_packet_count_claim": false,
+    "notes": [
+      "Two Surf resumptions place streams 0,2,6,10 in their first early data packet, matching the native ready-request sample.",
+      "One emits setup before application admission, then streams 0,6 with the request and remaining encoder instructions. Newly queued request data still precedes ordinary critical-stream data.",
+      "Native opaque cancellation and full Surf response consumption are separate application choices; no cancellation or fixed delay is manufactured.",
+      "Original pre-fix byte references remain unchanged. Full OS/NIC pacing and arbitrary resource-scheduling parity are not claimed."
+    ],
+    "surf_request_packet_stream_orders": [
+      [
+        0,
+        6
+      ],
+      [
+        0,
+        2,
+        6,
+        10
+      ],
+      [
+        0,
+        2,
+        6,
+        10
+      ]
+    ],
+    "finished_write_priority_matches_source": true,
+    "encoder_only_continuation_packet_removed": true
+  },
+  "before_finished_priority": {
+    "capture": {
+      "pcap_sha256": "8f9ebf3d69e7eaca8574750076696fbc543337bb37ce9e4f05d140932ac97807",
+      "captured_packets": 112,
+      "received_by_filter": 112,
+      "kernel_drops": 0,
+      "truncated_frames": 0
+    },
+    "request_packet_order": [
+      2,
+      6,
+      10,
+      0
+    ],
+    "note": "Encoder batching removed the extra instruction packet; finished-write priority subsequently corrected the stream class/order."
+  }
+}

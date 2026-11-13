@@ -179,6 +179,9 @@ type QUICConfig interface {
 	InitialCryptoCoalescingBarrier(bool) QUICConfig
 	// StreamSchedulingByCreation uses creation order instead of urgency/incremental queues.
 	StreamSchedulingByCreation(bool) QUICConfig
+	// PrioritizeFinishedStreams groups write-closed streams with retransmissions
+	// ahead of ordinary new data when creation-order scheduling is selected.
+	PrioritizeFinishedStreams(bool) QUICConfig
 	InitialRTT(time.Duration) QUICConfig
 	InitialPTOMultiplier(uint32) QUICConfig
 	CachedInitialRTT(uint64, time.Duration, time.Duration) QUICConfig

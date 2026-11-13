@@ -481,6 +481,11 @@ func (a quicadapter) StreamSchedulingByCreation(enabled bool) profiles.QUICConfi
 	return a
 }
 
+func (a quicadapter) PrioritizeFinishedStreams(enabled bool) profiles.QUICConfig {
+	a.s.PrioritizeFinishedStreams(enabled)
+	return a
+}
+
 func (a quicadapter) InitialPTOMultiplier(factor uint32) profiles.QUICConfig {
 	a.s.InitialPTOMultiplier(factor)
 	return a

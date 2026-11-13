@@ -166,11 +166,21 @@ func (q *QUICSettings) InitialCryptoCoalescingBarrier(enabled bool) *QUICSetting
 }
 
 // StreamSchedulingByCreation drains writable streams in creation order instead
-// of local urgency/incremental queues. Lost data retains precedence, blocked
+// of local urgency/incremental queues. Lost data retains precedence unless
+// PrioritizeFinishedStreams groups finished writes in that same class. Blocked
 // streams are skipped, and completed streams release bookkeeping. This mode
 // takes precedence over StreamPriority. Firefox selects it for ordinary HTTP/3.
 func (q *QUICSettings) StreamSchedulingByCreation(enabled bool) *QUICSettings {
 	q.handshake().StreamSchedulingByCreation = enabled
+	return q
+}
+
+// PrioritizeFinishedStreams sends queued bytes and FIN of write-closed streams
+// alongside retransmissions before ordinary new data, retaining creation order
+// within each class. It applies only with StreamSchedulingByCreation. Firefox
+// enables this to match Neqo's DataSent scheduling; urgency scheduling is unchanged.
+func (q *QUICSettings) PrioritizeFinishedStreams(enabled bool) *QUICSettings {
+	q.handshake().PrioritizeFinishedStreams = enabled
 	return q
 }
 

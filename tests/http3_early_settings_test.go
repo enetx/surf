@@ -25,6 +25,51 @@ import (
 
 type earlySettingsPacket struct{ streams []qlog.StreamFrame }
 
+func assertFinishedHeadersFIN(t *testing.T, frames []qlog.StreamFrame) {
+	t.Helper()
+	var end, finEnd int64
+	var seenFIN bool
+	for _, frame := range frames {
+		end = max(end, frame.Offset+frame.Length)
+		if frame.Fin {
+			if !seenFIN {
+				require.Positive(t, frame.Length, "the first FIN must accompany HEADERS bytes")
+				finEnd = frame.Offset + frame.Length
+			} else {
+				require.Equal(t, finEnd, frame.Offset+frame.Length, "retransmitted FIN changed final size")
+			}
+			seenFIN = true
+		}
+	}
+	require.True(t, seenFIN, "HEADERS did not close the bodyless request")
+	require.Equal(t, end, finEnd, "FIN did not accompany the last HEADERS byte")
+}
+
+// Neqo's DataSent bytes are eligible in its higher retransmission class.
+// Previously sent critical ranges can precede the request in that same class;
+// ordinary new critical bytes must follow. Earlier setup-only packets remain
+// legitimate when the application had not queued its request yet.
+func assertEarlyFinishedStreamOrder(t *testing.T, packets []earlySettingsPacket, request quic.StreamID) {
+	t.Helper()
+	seen := make(map[quic.StreamID]int64)
+	for _, packet := range packets {
+		requestAt := -1
+		for i, stream := range packet.streams {
+			if stream.StreamID == request && stream.Length > 0 {
+				requestAt = i
+				break
+			}
+		}
+		for i, stream := range packet.streams {
+			if requestAt >= 0 && stream.StreamID != request && stream.Length > 0 &&
+				stream.Offset+stream.Length > seen[stream.StreamID] {
+				require.Less(t, requestAt, i, "new stream %d passed finished request %d", stream.StreamID, request)
+			}
+			seen[stream.StreamID] = max(seen[stream.StreamID], stream.Offset+stream.Length)
+		}
+	}
+}
+
 type earlySettingsTrace struct {
 	mu                  sync.Mutex
 	packets             []earlySettingsPacket
@@ -35,6 +80,7 @@ type earlySettingsTrace struct {
 	initialDatagrams    map[qlog.DatagramPayloadChecksum]bool
 	firstEarlyComplete  bool
 	firstEarlyCoalesced bool
+	requestFrames       []qlog.StreamFrame
 }
 
 func (t *earlySettingsTrace) AddProducer() qlogwriter.Recorder { return t }
@@ -50,6 +96,15 @@ func (t *earlySettingsTrace) RecordEvent(event qlogwriter.Event) {
 	p, ok := event.(qlog.PacketSent)
 	if !ok {
 		return
+	}
+	if p.Header.PacketType == qlog.PacketType0RTT || p.Header.PacketType == qlog.PacketType1RTT {
+		t.mu.Lock()
+		for _, frame := range p.Frames {
+			if stream, ok := frame.Frame.(*qlog.StreamFrame); ok && stream.StreamID == 0 {
+				t.requestFrames = append(t.requestFrames, *stream)
+			}
+		}
+		t.mu.Unlock()
 	}
 	if p.Header.PacketType == qlog.PacketTypeInitial {
 		t.mu.Lock()
@@ -203,6 +258,7 @@ func TestHTTP3EarlySettingsFlushBeforeRequest(t *testing.T) {
 				trace := snapshot[1]
 				trace.mu.Lock()
 				packets := append([]earlySettingsPacket(nil), trace.packets...)
+				requestFrames := append([]qlog.StreamFrame(nil), trace.requestFrames...)
 				complete, coalesced := trace.firstEarlyComplete, trace.firstEarlyCoalesced
 				trace.mu.Unlock()
 				require.NotEmpty(t, packets)
@@ -219,27 +275,33 @@ func TestHTTP3EarlySettingsFlushBeforeRequest(t *testing.T) {
 						}
 						if stream.StreamID == 0 && firstRequest == -1 {
 							firstRequest = i
-							if profile == "chrome" || profile == "firefox" {
-								require.True(t, stream.Fin, "a bodyless browser request must stage FIN with HEADERS")
-							}
 						}
 					}
 				}
+				if profile == "chrome" || profile == "firefox" {
+					assertFinishedHeadersFIN(t, requestFrames)
+				}
 				if profile == "firefox" {
-					// Neqo initializes the control, encoder and decoder streams before
-					// request output. First writes must keep this order under load.
+					// Critical streams retain creation order in their normal class.
+					// The finished request can precede them in its higher class.
+					// Once that request unlocks the server handshake, remaining
+					// critical prefixes can legitimately continue in 1-RTT.
 					var firstStreams []quic.StreamID
 					seen := make(map[quic.StreamID]bool)
 					for _, packet := range packets {
 						for _, stream := range packet.streams {
-							if stream.Length == 0 || seen[stream.StreamID] {
+							if stream.StreamID == 0 || stream.Length == 0 || seen[stream.StreamID] {
 								continue
 							}
 							seen[stream.StreamID] = true
 							firstStreams = append(firstStreams, stream.StreamID)
 						}
 					}
-					require.Equal(t, []quic.StreamID{2, 6, 10, 0}, firstStreams)
+					wantStreams := []quic.StreamID{2, 6, 10}
+					require.NotEmpty(t, firstStreams)
+					require.LessOrEqual(t, len(firstStreams), len(wantStreams))
+					require.Equal(t, wantStreams[:len(firstStreams)], firstStreams)
+					assertEarlyFinishedStreamOrder(t, packets, 0)
 				} else {
 					require.Greater(t, firstRequest, 0, "initial settings shared the first early packet with the request")
 				}

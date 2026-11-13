@@ -90,6 +90,11 @@ func ConfigureQUIC(q profiles.QUICConfig) {
 		// Neqo's ordinary HTTP/3 streams use its non-fair insertion-order path.
 		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/send_stream.rs
 		StreamSchedulingByCreation(true).
+		// DataSent ignores the retransmission-only cutoff: queued bytes and
+		// pending FIN are eligible at the effective (higher) priority, even
+		// before their first transmission. Send keeps the retransmission bound.
+		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/send_stream.rs
+		PrioritizeFinishedStreams(true).
 		// Neqo shares PTO datagrams across active spaces and clears its PTO
 		// state on a new Initial ACK before address validation completes.
 		// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/recovery/mod.rs

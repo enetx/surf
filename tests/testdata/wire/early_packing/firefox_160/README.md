@@ -41,7 +41,7 @@ reference is [firefox-160-quic-2.json](../../ech/resumption/native/firefox-160-q
 Other navigation/fetch attempts legitimately selected HTTP/2 or did not send the
 GET early. The capture does not imply early GET on every Firefox request.
 
-## Matched Surf replay
+## Matched Surf replay before encoder batching
 
 An isolated Surf run replays the exact captured method, paths, Linux User-Agent,
 field values and order through `Fetch().SetHeaders(g.MapOrd)`. It uses the
@@ -65,7 +65,7 @@ bytes for [the public-profile regression](../../../../http3_firefox_early_qpack_
 The test restores peer SETTINGS from tickets on two successive connections,
 checks fresh dynamic state and verifies that HEADERS bytes carry the early FIN.
 
-Packet grouping still differs in this sample. Surf splits encoder instructions
+Packet grouping differs in this baseline sample. Surf splits encoder instructions
 across early packets and services control streams before the request. Native
 Firefox's Google request precedes the control/encoder/decoder data in its first
 early packet. Its other early packet carries STOP_SENDING, whereas Surf consumes
@@ -79,7 +79,86 @@ queues control, request and encoder output before the transport output loop;
 services the writable ordinary streams in creation order. These are distinct
 from Surf's independent QPACK writer scheduling. Stream reservation order alone
 does not establish the observed packet interleaving. A faithful combined output
-cycle remains open; no speculative timing or ordering fix was applied.
+cycle motivated the encoder-batching change below. The finished-write priority
+described below resolves the remaining order difference in the retained scenarios.
+
+## Ready encoder instructions with HEADERS
+
+The updated `CoalesceRequestHeaders` implementation borrows an idle encoder
+writer before encoding the fields. Ready instructions and HEADERS+FIN then
+enter one QUIC connection-loop turn. Critical writers first try to append to
+already reserved type/capacity bytes; the previous blocking write could wait
+for those bytes to be packetized before releasing the writer. Busy or
+flow-blocked writers retain the asynchronous path, and accepted batch prefixes
+are never replayed. The Firefox preset already enables this ordinary builder
+setting; it requires no additional application configuration or new TLS fork.
+
+A fresh full Linux capture records **three accepted Surf resumptions**, each
+with HTTP/3 204. Independent verification authenticates selected PSK zero,
+server early_data and both Finished messages on every resumed connection.
+The batching-only stage places all 141 HEADERS bytes and 68 encoder-stream bytes
+in the early request packet. A fresh official Firefox run independently authenticates one matching
+early GET with HTTP/3 204 and the same dynamic encoder bytes. Official pylsqpack
+decodes all retained fields and their order. The query-6 request bytes also
+match the fresh native capture exactly.
+
+[qpack_batching.json](qpack_batching.json) retains hashes, complete capture
+counts, the original-transcript checks and stream ranges. The pcaps contain
+**112 Surf frames in the batching-only stage, 108 in the final scheduling
+capture, and 9,804 native frames**, with equal captured/filter counts,
+zero kernel drops and no truncated frames. A native attempt lacking complete
+EncryptedExtensions/Finished evidence is explicitly excluded. Other earlier
+attempts with diagnostic or network timeouts are not positive references.
+
+The Firefox sources were additionally fetched at the binary's exact
+`SourceStamp` through Mozilla's hg-edge mirror. The SHA-256 hashes of HTTP/3
+`connection.rs` and transport `streams.rs` / `send_stream.rs` match the existing
+`FIREFOX_160_0_RELEASE` files; they are recorded in the new report.
+
+The remaining stream-order difference was traced to Neqo's `DataSent` state:
+`has_next_bytes` and `next_bytes` ignore the retransmission-only cutoff there,
+whereas `Send` retains it. With the default higher retransmission priority,
+write-closed streams therefore send queued bytes and pending FIN before ordinary
+new critical-stream data. The insertion-order map is iterated within each class.
+
+Firefox now selects the generic public
+`QUICSettings().PrioritizeFinishedStreams(true)` control alongside creation-order
+scheduling. It groups finished writes and retransmissions by creation order;
+reset/canceled streams are excluded and blocked credit still allows progress.
+The control defaults off in the engine. It has no effect on urgency scheduling
+and introduces no stream-ID special case, delay, TLS fork or browser constant.
+
+In the final capture, **two accepted resumptions reproduce native order
+0, 2, 6, 10 in one early packet**, with identical request/encoder bytes. The
+other connection legitimately sends setup before application admission, then streams
+0, 6 with HEADERS and the remaining insertions: the ready finished request still
+precedes new normal-class data. Earlier setup packets, retransmitted ranges and
+available packet space remain part of the rule. Native opaque fetch also sends
+a cancellation; Surf's replay consumes the response.
+Separate network tests check early body close (`H3_REQUEST_CANCELLED`) and full
+consumption without canceling stream zero. A native cancellation packet is not
+manufactured for requests whose application consumes the body.
+
+The new tests cover finished data spanning packets, empty pending FIN, both
+configurations, blocked credit, creation order across finished new data and loss,
+and 0-RTT rejection cleanup. The public-profile test also mutates the builder
+after Build to verify that resumed connections retain the captured policy.
+The early wire matrix permits prior setup/retransmission while asserting that a
+ready finished request precedes new normal-class STREAM frames in its packet.
+FIN is checked on the final HEADERS fragment, including a continuation in 1-RTT;
+the first fragment may occupy a small final-Initial tail. Critical-stream
+backpressure retries the request independently so available request credit can
+still stage HEADERS and FIN atomically.
+These observations establish this mechanism and retained scenarios, not full
+browser resource scheduling or OS/NIC pacing parity.
+
+The engine regressions cover partial acceptance at control, encoder and request
+boundaries; encoder credit, busy writers, validation, cancellation, bounded
+batch size and concurrent requests. Dynamic request/feedback tests run both
+with and without coalescing, including POST bodies and trailers. Existing
+accepted/rejected 0-RTT, Chrome, header sorting and resumption tests remain in
+the full race-enabled suites. Packet count remains an observation, not a preset
+constant.
 
 ## Accepted ECH and early GET together
 
