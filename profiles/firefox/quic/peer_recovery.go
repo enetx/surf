@@ -22,5 +22,6 @@ func PeerRecovery(info quic.PeerPacketInfo) quic.PeerPacketRecovery {
 	resend := !info.ReceivedFirstPacket &&
 		(info.PacketType == qlog.PacketTypeHandshake || info.PacketType == qlog.PacketType1RTT) &&
 		info.BufferedHandshakePackets < 4 && info.BufferedApplicationPackets < 4
+
 	return quic.PeerPacketRecovery{ResendInitialCrypto: resend, ResendEarlyData: resend}
 }

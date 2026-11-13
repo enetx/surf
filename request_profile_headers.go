@@ -11,6 +11,8 @@ import (
 	"github.com/enetx/surf/profiles"
 )
 
+type requestHeadersPolicy func(*http.Request, int)
+
 // requestHeaderProfile is an immutable selection, captured when a profile is
 // configured. Requests never resolve profile headers through the mutable Builder.
 type requestHeaderProfile struct {
@@ -115,7 +117,13 @@ func profileRedirectResponse(req *http.Request) any {
 }
 
 func (p *requestHeaderProfile) context(req *http.Request, major int) profiles.HeaderContext {
-	info := profiles.HeaderContext{Request: req, OS: p.os, Protocol: major, Redirect: profileRedirectResponse(req) != nil}
+	info := profiles.HeaderContext{
+		Request:  req,
+		OS:       p.os,
+		Protocol: major,
+		Redirect: profileRedirectResponse(req) != nil,
+	}
+
 	kind, selected := profiles.RequestKindFromContext(req.Context())
 	info.Kind = kind
 	if !selected && info.Redirect {
@@ -233,7 +241,12 @@ func (p *requestHeaderProfile) logical(req *http.Request) *http.Request {
 		context.WithValue(
 			clone.Context(),
 			profileHeaderKey{},
-			&profileHeaderState{generated: generated, bodyDropped: dropped, kind: kind, redirectResponse: redirectResponse},
+			&profileHeaderState{
+				generated:        generated,
+				bodyDropped:      dropped,
+				kind:             kind,
+				redirectResponse: redirectResponse,
+			},
 		),
 	)
 }

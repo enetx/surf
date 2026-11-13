@@ -20,13 +20,21 @@ import (
 
 type handshakeFlightTrace struct {
 	sync.Mutex
-	newIDs    []uint64
-	handshake []bool // whether a sent Handshake packet contains CRYPTO
+	newIDs                  []uint64
+	recoveryBeforeHandshake bool
+	handshake               []bool // whether a sent Handshake packet contains CRYPTO
 }
 
 func (r *handshakeFlightTrace) AddProducer() qlogwriter.Recorder { return r }
 func (*handshakeFlightTrace) Close() error                       { return nil }
 func (r *handshakeFlightTrace) RecordEvent(event qlogwriter.Event) {
+	if timer, ok := event.(qlog.TimerUpdated); ok && timer.Type == qlog.TimerEventTypeExpired && timer.TimerType == qlog.TimerTypePTO {
+		r.Lock()
+		if len(r.handshake) == 0 {
+			r.recoveryBeforeHandshake = true
+		}
+		r.Unlock()
+	}
 	p, ok := event.(qlog.PacketSent)
 	if !ok {
 		return
@@ -60,6 +68,13 @@ func TestQUICInitialFlightOptionsAreIndependent(t *testing.T) {
 		for _, separate := range []bool{false, true} {
 			t.Run(fmt.Sprintf("mode=%d/separate=%v", mode, separate), func(t *testing.T) {
 				peer := newH3Peer(t)
+				// This matrix checks ordinary first-flight composition. Give the
+				// measured RTT a network-sized baseline so a sub-millisecond loopback
+				// estimate cannot start a recovery flight before local Finished is sent.
+				// PTO packing is independently checked in quic_pto_batch_test.go.
+				peer.packet.mu.Lock()
+				peer.packet.initialReadDelay = 50 * time.Millisecond
+				peer.packet.mu.Unlock()
 				trace := new(handshakeFlightTrace)
 				client := surf.NewClient().Builder().Impersonate().Firefox().QUICSettings().
 					InitialPaddingMode(mode).HandshakeAckBeforeData(separate).
@@ -71,7 +86,9 @@ func TestQUICInitialFlightOptionsAreIndependent(t *testing.T) {
 				trace.Lock()
 				packets := append([]bool(nil), trace.handshake...)
 				newIDs := append([]uint64(nil), trace.newIDs...)
+				recoveryBeforeHandshake := trace.recoveryBeforeHandshake
 				trace.Unlock()
+				require.False(t, recoveryBeforeHandshake, "ordinary first-flight fixture entered PTO before its first Handshake")
 				require.Equal(t, []uint64{1, 2, 3}, newIDs)
 				require.NotEmpty(t, packets)
 				require.Equal(t, !separate, packets[0], "first Handshake must follow the selected ACK/data policy")

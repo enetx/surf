@@ -96,3 +96,38 @@ func TestSessionRTTPolicyDoesNotFabricateOrChangeDisallowedVersion(t *testing.T)
 		})
 	}
 }
+
+type refreshingSessionCache struct {
+	tls.ClientSessionCache
+	beforeGet func()
+}
+
+func (c *refreshingSessionCache) Get(key string) (*tls.ClientSessionState, bool) {
+	if refresh := c.beforeGet; refresh != nil {
+		c.beforeGet = nil
+		refresh()
+	}
+	return c.ClientSessionCache.Get(key)
+}
+
+func TestSessionVersionKeepsTicketPublishedDuringLookup(t *testing.T) {
+	base := realVersionTicket(t)
+	cache := &refreshingSessionCache{ClientSessionCache: tlscache.New().Build().Unwrap()}
+	h := &sessionVersions{restoreVersion: true, rttPrecision: time.Millisecond}
+	config := &tls.Config{ClientSessionCache: cache}
+	original := &quic.Config{Versions: []quic.Version{quic.Version1, quic.Version2}}
+	store, _ := h.prepare("origin:443", config, original)
+	store.ClientSessionCache.Put("key", ticketWithMetadata(t, base, "old", time.Millisecond))
+	fresh := ticketWithMetadata(t, base, "fresh", 29*time.Millisecond)
+	// A post-handshake ticket can arrive after prepare snapshots the key list
+	// but before the application's single-use cache selects its next ticket.
+	cache.beforeGet = func() { store.ClientSessionCache.Put("key", fresh) }
+	prepared, selected := h.prepare("origin:443", config, original)
+	require.Equal(t, quic.Version2, selected.Versions[0])
+	require.Equal(t, 29*time.Millisecond, selected.ClientHandshake.InitialRTT)
+	state, ok := prepared.ClientSessionCache.Get("key")
+	require.True(t, ok, "a newly published ticket must reach TLS instead of being discarded")
+	require.Same(t, fresh, state)
+	_, ok = prepared.ClientSessionCache.Get("key")
+	require.False(t, ok, "selection must still consume the ticket exactly once")
+}

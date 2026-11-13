@@ -712,6 +712,7 @@ func (q *QUICSettings) HandshakeCryptoRecovery(enabled bool) *QUICSettings {
 	if !enabled {
 		h.HandshakeCryptoResendOnPeerProbe = false
 	}
+
 	return q
 }
 
@@ -723,6 +724,7 @@ func (q *QUICSettings) HandshakeCryptoResendOnPeerProbe(enabled bool) *QUICSetti
 	if enabled {
 		h.HandshakeCryptoRecovery = true
 	}
+
 	return q
 }
 
@@ -763,7 +765,9 @@ func (q *QUICSettings) HandshakeProbeOnlyWithData(enabled bool) *QUICSettings {
 
 // PeerPacketRecoveryPolicy selects responses to missing or retired peer keys.
 // Authentication failures never invoke it. Nil restores native behavior.
-func (q *QUICSettings) PeerPacketRecoveryPolicy(policy func(quic.PeerPacketInfo) quic.PeerPacketRecovery) *QUICSettings {
+func (q *QUICSettings) PeerPacketRecoveryPolicy(
+	policy func(quic.PeerPacketInfo) quic.PeerPacketRecovery,
+) *QUICSettings {
 	q.handshake().PeerPacketRecoveryPolicy = policy
 	return q
 }

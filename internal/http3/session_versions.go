@@ -62,7 +62,12 @@ func (h *sessionVersions) prepare(origin string, tlsConfig *tls.Config, config *
 		ticket, identified := sessionTicketID(session)
 		info, marked := quic.ClientSessionMetadata(session)
 		from, until, usable := quictls.SessionLifetime(session)
-		known := slices.ContainsFunc(refs, func(r sessionTicketRef) bool { return r.key == ref.key && r.id == ticket })
+		// Put publishes ownership before storing a ticket in the application
+		// cache. Get can therefore select a newer ticket than our key snapshot.
+		// Check live ownership after Get, without holding a lock across callbacks.
+		h.mu.Lock()
+		known := !h.closed && slices.ContainsFunc(h.entries[origin].tickets, func(r sessionTicketRef) bool { return r.key == ref.key && r.id == ticket })
+		h.mu.Unlock()
 		if !ok || !identified || !known || !marked || !usable || now.Before(from) || !now.Before(until) {
 			continue
 		}

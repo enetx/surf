@@ -54,6 +54,9 @@ type h3CaptureConn struct {
 	rawInitials [][]byte
 	serverCIDs  map[string]bool
 	ignoredCIDs map[string]bool
+	// initialReadDelay supplies a real first RTT for first-flight tests. It is
+	// consumed under mu after receiving the first Initial, before TLS sees it.
+	initialReadDelay time.Duration
 }
 
 func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
@@ -66,7 +69,12 @@ func (c *h3CaptureConn) ReadFrom(b []byte) (int, net.Addr, error) {
 				c.rawInitials = append(c.rawInitials, bytes.Clone(b[:n]))
 				c.initials = append(c.initials, h3InitialCapture{version: binary.BigEndian.Uint32(b[1:5]), size: n, sourceCIDLength: int(b[sourcePos])})
 			}
+			firstDelay := c.initialReadDelay
+			c.initialReadDelay = 0
 			c.mu.Unlock()
+			if firstDelay > 0 {
+				time.Sleep(firstDelay)
+			}
 		}
 	}
 	return n, addr, err

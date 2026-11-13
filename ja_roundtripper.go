@@ -49,6 +49,10 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 		panic("surf: underlying transport must be *http.Transport")
 	}
 
+	// Clone the base configuration before attaching the JA protocol adapter.
+	// A prior HTTP2Settings middleware may already own a transport registration.
+	http1tr = http1tr.Clone()
+
 	rt := &roundtripper{
 		http1tr:         http1tr,
 		ja:              ja,
@@ -83,12 +87,19 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 
 func (rt *roundtripper) configureTransports(enableHTTP2 bool) {
 	rt.http1tr.DialTLSContext = rt.dialTLS
-	rt.http1trFallback = rt.http1tr.Clone()
-	rt.http1trFallback.DialTLSContext = rt.dialTLSHTTP1
+	rt.http1tr.PrepareHeaders = rt.protocolHeaders
 
 	if enableHTTP2 {
+		if rt.http1tr.Protocols != nil {
+			rt.http1tr.Protocols.SetHTTP1(true)
+		}
 		rt.http2tr = rt.buildHTTP2Transport()
 	}
+
+	rt.http1trFallback = rt.http1tr.Clone()
+	rt.http1trFallback.DialTLSContext = rt.dialTLSHTTP1
+	rt.http1trFallback.Protocols = new(http.Protocols)
+	rt.http1trFallback.Protocols.SetHTTP1(true)
 }
 
 // RoundTrip executes a single HTTP request using cached transports.
@@ -98,7 +109,7 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	switch scheme {
 	case "http":
 		// Plain HTTP always uses HTTP/1.1 (HTTP/2 requires TLS)
-		return rt.http1tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
+		return rt.http1tr.RoundTrip(req)
 	case "https":
 		var err error
 		req, err = rt.prepareProxy(req)
@@ -132,12 +143,12 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 // Reuses pre-built transports to avoid allocations.
 func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, error) {
 	if h3transport.PreparedHTTP1(req.Context()) {
-		return rt.http1trFallback.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
+		return rt.http1trFallback.RoundTrip(req)
 	}
 
 	// If HTTP/1 is forced, use it directly
 	if rt.http2tr == nil {
-		return rt.http1tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
+		return rt.http1tr.RoundTrip(req)
 	}
 
 	// Like Chrome, only resend after a reused connection closes without any
@@ -146,7 +157,8 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 
 	trace := &httptrace.ClientTrace{
 		GotConn: func(info httptrace.GotConnInfo) {
-			reused.Store(info.Reused)
+			secure, ok := info.Conn.(*profileTLSConn)
+			reused.Store(info.Reused && ok && secure.ConnectionState().NegotiatedProtocol == "h2")
 			receivedInformational.Store(false)
 		},
 		Got1xxResponse: func(_ int, _ textproto.MIMEHeader) error {
@@ -158,7 +170,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
 
 	// Try HTTP/2 first
-	resp, err := rt.http2tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 2))
+	resp, err := rt.http2tr.RoundTrip(req)
 	if err == nil {
 		return resp, nil
 	}
@@ -172,7 +184,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 			return nil, err
 		}
 
-		resp, err = rt.http2tr.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 2))
+		resp, err = rt.http2tr.RoundTrip(req)
 		if err == nil {
 			return resp, nil
 		}
@@ -189,7 +201,7 @@ func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, e
 	}
 
 	// Retry with HTTP/1.1
-	resp, err = rt.http1trFallback.RoundTrip(withProtocolHeaders(req, rt.protocolHeaders, 1))
+	resp, err = rt.http1trFallback.RoundTrip(req)
 	if err != nil {
 		return nil, &ErrHTTP2Fallback{HTTP2: h2Err, HTTP1: err}
 	}
@@ -221,44 +233,27 @@ func rewindBody(req *http.Request, err error) error {
 	return nil
 }
 
-// h2DialError marks a failure to open the HTTP/2 connection, so that it is never mistaken for
+// tlsDialError marks a failure to establish TLS, so that it is never mistaken for
 // a connection the server closed after the handshake. A proxy tunnel can fail its own
 // handshake with io.ErrUnexpectedEOF too.
-type h2DialError struct{ err error }
+type tlsDialError struct{ err error }
 
-func (e *h2DialError) Error() string { return e.err.Error() }
-func (e *h2DialError) Unwrap() error { return e.err }
+func (e *tlsDialError) Error() string { return e.err.Error() }
+func (e *tlsDialError) Unwrap() error { return e.err }
 
 // connClosedBeforeResponse classifies closure and reset errors returned before final
 // HTTP/2 response headers. The caller separately checks reuse and informational responses.
 func connClosedBeforeResponse(err error) bool {
-	if _, ok := errors.AsType[*h2DialError](err); ok {
+	if _, ok := errors.AsType[*tlsDialError](err); ok {
 		return false
 	}
 
 	return errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, syscall.ECONNRESET)
 }
 
-// errALPNNotH2 is returned by dialTLSHTTP2 when the server's ALPN choice was not h2.
-var errALPNNotH2 = errors.New("surf: server did not negotiate h2")
-
-// wantsHTTP1 reports whether the server asked for HTTP/1.1, the only HTTP/2 failures after
-// which Chrome sends the request again over HTTP/1.1:
-//   - the server picked http/1.1 (or no protocol) in ALPN. Chrome then simply speaks
-//     HTTP/1.1 on that connection; surf's HTTP/2 transport cannot, so it redials;
-//   - the server reset the stream, or sent GOAWAY, with HTTP_1_1_REQUIRED.
-//
-// Every other failure is returned as it is, as Chrome does. A connect or TLS handshake
-// timeout, a refused or reset connection, or a TLS alert would only be repeated against the
-// same address: a residential exit that accepts the connection but never relays the
-// handshake made every such request wait out the handshake timeout twice. A stream reset by
-// the server is its answer to the request: Akamai Bot Manager resets a request carrying a
-// stale ak_bmsc over HTTP/2 and holds the same request over HTTP/1.1 with no response.
+// wantsHTTP1 reports an explicit HTTP_1_1_REQUIRED response from HTTP/2.
+// ALPN selection is handled by the normal transport on the selected connection.
 func wantsHTTP1(err error) bool {
-	if errors.Is(err, errALPNNotH2) {
-		return true
-	}
-
 	if se, ok := errors.AsType[http2.StreamError](err); ok {
 		return se.Code == http2.ErrCodeHTTP11Required
 	}
@@ -301,16 +296,20 @@ func (rt *roundtripper) CloseIdleConnections() {
 
 // buildHTTP2Transport builds a new HTTP/2 transport using the completed builder snapshot.
 func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
-	t := &http2.Transport{
-		DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
-			return rt.dialTLSHTTP2(ctx, network, addr)
-		},
-		DisableCompression: rt.http1tr.DisableCompression,
-		IdleConnTimeout:    rt.http1tr.IdleConnTimeout,
-		PingTimeout:        _http2PingTimeout,
-		ReadIdleTimeout:    _http2ReadIdleTimeout,
-		WriteByteTimeout:   _http2WriteByteTimeout,
+	t, err := http2.ConfigureTransports(rt.http1tr)
+	if err != nil {
+		panic(err)
 	}
+
+	t.DialTLSContext = func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+		return rt.dialTLS(ctx, network, addr)
+	}
+
+	t.DisableCompression = rt.http1tr.DisableCompression
+	t.IdleConnTimeout = rt.http1tr.IdleConnTimeout
+	t.PingTimeout = _http2PingTimeout
+	t.ReadIdleTimeout = _http2ReadIdleTimeout
+	t.WriteByteTimeout = _http2WriteByteTimeout
 
 	if rt.http2settings != nil {
 		h := rt.http2settings
@@ -358,26 +357,23 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	return t
 }
 
-// dialTLS performs TLS handshake using uTLS with default ALPN (h2, http/1.1).
+// dialTLS retains the connection for its negotiated protocol. Normal HTTP/1
+// selection does not change subsequent ClientHellos or require body replay.
+// https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_stream_pool_attempt_manager.cc
+// https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpConnection.cpp
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
-	return wrapProfileTLS(rt.tlsHandshake(ctx, network, addr, false))
-}
-
-// dialTLSHTTP2 performs TLS handshake and ensures ALPN selected HTTP/2.
-// If ALPN negotiated HTTP/1.1 (or no protocol), this fails before any HTTP/2 bytes are written.
-func (rt *roundtripper) dialTLSHTTP2(ctx context.Context, network, addr string) (net.Conn, error) {
-	uconn, err := rt.tlsHandshake(ctx, network, addr, false)
+	conn, err := rt.tlsHandshake(ctx, network, addr, false)
 	if err != nil {
-		return nil, &h2DialError{err}
+		return nil, &tlsDialError{err}
 	}
 
-	negotiatedProtocol := uconn.ConnectionState().NegotiatedProtocol
-	if negotiatedProtocol != "h2" {
-		uconn.Close()
-		return nil, fmt.Errorf("%w: negotiated ALPN %q, expected h2", errALPNNotH2, negotiatedProtocol)
+	switch protocol := conn.ConnectionState().NegotiatedProtocol; protocol {
+	case "", "http/1.1", "h2":
+		return &profileTLSConn{conn}, nil
+	default:
+		conn.Close()
+		return nil, &tlsDialError{fmt.Errorf("surf: unsupported negotiated ALPN %q", protocol)}
 	}
-
-	return &profileTLSConn{uconn}, nil
 }
 
 // dialTLSHTTP1 performs TLS handshake using uTLS with HTTP/1.1 only ALPN.

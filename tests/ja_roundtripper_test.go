@@ -823,10 +823,10 @@ func TestJARoundtripperSessionCaching(t *testing.T) {
 	}
 }
 
-// TestDialTLSHTTP2ALPNGateSuccess verifies that when the server negotiates
-// "h2", the ALPN gate in dialTLSHTTP2 passes the connection through and the
+// TestTLSNegotiatedHTTP2 verifies that when the server negotiates
+// "h2", the negotiated connection is retained and the
 // request completes over HTTP/2.
-func TestDialTLSHTTP2ALPNGateSuccess(t *testing.T) {
+func TestTLSNegotiatedHTTP2(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -859,10 +859,9 @@ func TestDialTLSHTTP2ALPNGateSuccess(t *testing.T) {
 	}
 }
 
-// TestDialTLSHTTP2ALPNGateFallback verifies that when a server only negotiates
-// "http/1.1" (no h2), dialTLSHTTP2 rejects the connection and the request
-// successfully falls back to HTTP/1.1.
-func TestDialTLSHTTP2ALPNGateFallback(t *testing.T) {
+// TestTLSNegotiatedHTTP1 verifies that when a server only negotiates
+// "http/1.1" (no h2), the request uses the negotiated HTTP/1 connection.
+func TestTLSNegotiatedHTTP1(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -891,14 +890,71 @@ func TestDialTLSHTTP2ALPNGateFallback(t *testing.T) {
 
 	httpResp := resp.Ok().GetResponse()
 	if httpResp.Proto != "HTTP/1.1" {
-		t.Errorf("expected HTTP/1.1 after ALPN gate, got %s", httpResp.Proto)
+		t.Errorf("expected HTTP/1.1 after ALPN selection, got %s", httpResp.Proto)
 	}
 }
 
-// TestDialTLSHTTP2ALPNGateNoProtocol verifies that when the server does not
-// include any ALPN extension (nil NextProtos), dialTLSHTTP2 also rejects the
-// connection (empty NegotiatedProtocol != "h2") and falls back to HTTP/1.1.
-func TestDialTLSHTTP2ALPNGateNoProtocol(t *testing.T) {
+// TestALPNHTTP1FallbackReusesConnection verifies that when the server picks http/1.1 in
+// ALPN, Surf speaks HTTP/1.1 on that same connection, as Chrome does. A normal
+// protocol selection must not cause an extra HTTP/1-only ClientHello.
+func TestALPNHTTP1FallbackReusesConnection(t *testing.T) {
+	t.Parallel()
+
+	var handshakes atomic.Int32
+	var offeredWithoutH2 atomic.Int32
+
+	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	ts.TLS = &tls.Config{
+		NextProtos: []string{"http/1.1"},
+		GetConfigForClient: func(hello *tls.ClientHelloInfo) (*tls.Config, error) {
+			handshakes.Add(1)
+
+			hasH2 := false
+			for _, p := range hello.SupportedProtos {
+				if p == "h2" {
+					hasH2 = true
+				}
+			}
+
+			if !hasH2 {
+				offeredWithoutH2.Add(1)
+			}
+
+			return nil, nil
+		},
+	}
+	ts.StartTLS()
+	defer ts.Close()
+
+	client := surf.NewClient().Builder().
+		JA().Chrome158().
+		Timeout(5 * time.Second).
+		Build().Unwrap()
+
+	resp := client.Get(g.String(ts.URL)).Do()
+	if resp.IsErr() {
+		t.Fatal(resp.Err())
+	}
+
+	if proto := resp.Ok().GetResponse().Proto; proto != "HTTP/1.1" {
+		t.Fatalf("expected HTTP/1.1, got %s", proto)
+	}
+
+	if n := handshakes.Load(); n != 1 {
+		t.Errorf("expected 1 TLS handshake, got %d", n)
+	}
+
+	if n := offeredWithoutH2.Load(); n != 0 {
+		t.Errorf("expected every ClientHello to offer h2, %d did not", n)
+	}
+}
+
+// TestTLSWithoutALPNUsesHTTP1 verifies that when the server does not
+// include an ALPN extension, its established connection carries HTTP/1.
+func TestTLSWithoutALPNUsesHTTP1(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -906,9 +962,9 @@ func TestDialTLSHTTP2ALPNGateNoProtocol(t *testing.T) {
 		fmt.Fprint(w, `{"alpn":"empty"}`)
 	}))
 
-	// nil (not []string{}) guarantees no ALPN extension in ServerHello.
+	// A non-nil empty list keeps httptest.StartTLS from adding HTTP/1.1.
 	ts.TLS = &tls.Config{
-		NextProtos: nil,
+		NextProtos: []string{},
 	}
 	ts.StartTLS()
 	defer ts.Close()
@@ -932,14 +988,9 @@ func TestDialTLSHTTP2ALPNGateNoProtocol(t *testing.T) {
 	}
 }
 
-// TestDialTLSHTTP2ALPNGateErrorWrapping verifies that when the ALPN gate
-// rejects the HTTP/2 connection AND the HTTP/1.1 fallback also fails, the
-// returned error is an *ErrHTTP2Fallback containing both underlying errors.
-//
-// To achieve this the server stays alive (so TLS handshake succeeds and the
-// ALPN gate fires) but hijacks the HTTP/1.1 fallback connection and closes
-// it immediately, causing the fallback transport to fail as well.
-func TestDialTLSHTTP2ALPNGateErrorWrapping(t *testing.T) {
+// TestNegotiatedHTTP1FailureDoesNotTriggerHTTP2Fallback checks that a failed
+// exchange after HTTP/1 ALPN selection is not reported as an HTTP/2 retry.
+func TestNegotiatedHTTP1FailureDoesNotTriggerHTTP2Fallback(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -978,28 +1029,19 @@ func TestDialTLSHTTP2ALPNGateErrorWrapping(t *testing.T) {
 		t.Fatal("expected error when fallback connection is hijacked and closed")
 	}
 
-	// Verify the error is the combined wrapper produced by handleHTTPSRequest.
+	// This is an HTTP/1 exchange on the negotiated connection, so its failure
+	// is returned directly. It is not a failed HTTP/2 request followed by a retry.
 	var fallbackErr *surf.ErrHTTP2Fallback
-	if !errors.As(resp.Err(), &fallbackErr) {
-		t.Fatalf("expected *ErrHTTP2Fallback, got %T: %v", resp.Err(), resp.Err())
+	if errors.As(resp.Err(), &fallbackErr) {
+		t.Fatalf("ordinary HTTP/1 error was misclassified as HTTP/2 fallback: %v", resp.Err())
 	}
 
-	if fallbackErr.HTTP2 == nil {
-		t.Error("ErrHTTP2Fallback.HTTP2 should contain the ALPN gate error")
-	}
-
-	if fallbackErr.HTTP1 == nil {
-		t.Error("ErrHTTP2Fallback.HTTP1 should contain the fallback error")
-	}
-
-	t.Logf("HTTP2 error: %v", fallbackErr.HTTP2)
-	t.Logf("HTTP1 error: %v", fallbackErr.HTTP1)
 }
 
-// TestForceHTTP1BypassesALPNGate verifies that when the client forces
-// HTTP/1.1, the ALPN gate is never involved and requests succeed over
+// TestForceHTTP1UsesHTTP1ALPN verifies that when the client forces
+// HTTP/1.1, the ClientHello and request both use
 // HTTP/1.1 even when the server supports h2.
-func TestForceHTTP1BypassesALPNGate(t *testing.T) {
+func TestForceHTTP1UsesHTTP1ALPN(t *testing.T) {
 	t.Parallel()
 
 	ts := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
