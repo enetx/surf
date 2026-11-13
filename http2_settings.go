@@ -12,6 +12,8 @@ import (
 // HTTP2Settings represents HTTP/2 settings.
 // https://lwthiker.com/networks/2022/06/17/http2-fingerprinting.html
 type HTTP2Settings struct {
+	http1RequiredCache        int
+	http1RequiredCacheSet     bool
 	streamReceiveWindow       uint32
 	receiveWindowUpdatePolicy func(http2.ReceiveWindowUpdateInfo) bool
 	registered                bool
@@ -32,6 +34,16 @@ type HTTP2Settings struct {
 	headerPriority            func(http2.PriorityRequest) http2.PriorityParam
 	chainStreamDependencies   bool
 	maxEncoderHeaderTableSize uint32
+}
+
+// HTTP1RequiredCache bounds remembered HTTPS origins requiring HTTP/1 in the
+// JA TCP transport. Zero disables remembering and keeps per-request fallback.
+// Chrome profiles select 100; Firefox and generic TLS profiles keep it disabled.
+// Entries are client-local LRU state shared by proxy routes, without a TTL or
+// disk persistence. HTTP/3 remains eligible. The valid range is 0..1048576.
+func (h *HTTP2Settings) HTTP1RequiredCache(capacity int) *HTTP2Settings {
+	h.http1RequiredCache, h.http1RequiredCacheSet = capacity, true
+	return h
 }
 
 // InitialStreamID sets the initial stream id for HTTP/2 streams.
@@ -124,6 +136,9 @@ func (h *HTTP2Settings) Set() *Builder {
 	}
 
 	return h.builder.addCliMW(func(c *Client) error {
+		if h.http1RequiredCache < 0 || h.http1RequiredCache > 1<<20 {
+			return fmt.Errorf("HTTP/1 requirement cache capacity must be in 0..1048576")
+		}
 		if h.maxEncoderHeaderTableSize > math.MaxInt32 {
 			return fmt.Errorf("HTTP/2 encoder table limit exceeds supported range")
 		}

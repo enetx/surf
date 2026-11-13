@@ -72,6 +72,7 @@ func (rt *roundtripper) proxyTransport(req *http.Request) (*roundtripper, error)
 		protocolHeaders:    rt.protocolHeaders,
 		http2settings:      rt.http2settings,
 		clientSessionCache: rt.clientSessionCache,
+		http1Required:      rt.http1Required,
 	}
 
 	child.configureTransports(rt.http2tr != nil)

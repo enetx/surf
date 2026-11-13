@@ -7,6 +7,7 @@ import (
 	h3transport "github.com/enetx/surf/internal/http3"
 	"github.com/enetx/surf/internal/specclone"
 	"github.com/enetx/surf/profiles/chrome"
+	"github.com/enetx/surf/profiles/chrome/common"
 	"github.com/enetx/surf/profiles/firefox"
 	utls "github.com/enetx/utls"
 )
@@ -18,11 +19,12 @@ import (
 //
 // Reference: https://lwthiker.com/networks/2022/06/17/tls-fingerprinting.html
 type JA struct {
-	echInner utls.ECHClientHelloInnerFunc
-	spec     utls.ClientHelloSpec // Custom TLS ClientHello specification
-	id       utls.ClientHelloID   // Predefined TLS ClientHello identifier
-	builder  *Builder             // Reference to the parent builder for method chaining
-	shuffle  bool                 // Re-shuffle the spec's extension order on every connection (Chrome behaviour)
+	http1RequiredCache int // Default origin cache capacity for this TLS profile.
+	echInner           utls.ECHClientHelloInnerFunc
+	spec               utls.ClientHelloSpec // Custom TLS ClientHello specification
+	id                 utls.ClientHelloID   // Predefined TLS ClientHello identifier
+	builder            *Builder             // Reference to the parent builder for method chaining
+	shuffle            bool                 // Re-shuffle the spec's extension order on every connection (Chrome behaviour)
 }
 
 // SetHelloID sets a ClientHelloID for the TLS connection.
@@ -149,6 +151,7 @@ func (j *JA) Chrome() *Builder { return j.Chrome158() }
 // Chrome158 applies the current Chrome TLS template with per-connection
 // extension shuffling and the browser's ECH inner and session-cache policies.
 func (j *JA) Chrome158() *Builder {
+	j.http1RequiredCache = common.HTTP1RequiredCacheCapacity
 	j.builder.configureTCPSessionCache = chrome.Desktop.ConfigureTCPSessionCache
 	return j.ECHClientHelloInner(chrome.Desktop.ECHClientHelloInner).
 		ShuffleExtensions().

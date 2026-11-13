@@ -37,6 +37,7 @@ type roundtripper struct {
 	protocolHeaders    requestHeadersPolicy
 	requestProxy       func(*http.Request) (*url.URL, error)
 	http2settings      *HTTP2Settings
+	http1Required      *http1RequiredCache
 	proxyMu            sync.Mutex
 	proxyTransports    map[string]*roundtripper
 }
@@ -78,6 +79,13 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 		snapshot.hpack = h.hpack.Clone()
 		snapshot.priorityFrames = slices.Clone(h.priorityFrames)
 		rt.http2settings = &snapshot
+	}
+	capacity := ja.http1RequiredCache
+	if rt.http2settings != nil && rt.http2settings.http1RequiredCacheSet {
+		capacity = rt.http2settings.http1RequiredCache
+	}
+	if capacity > 0 {
+		rt.http1Required = &http1RequiredCache{capacity: capacity}
 	}
 
 	rt.configureTransports(!ja.builder.forceHTTP1)
@@ -142,7 +150,7 @@ func (rt *roundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
 // handleHTTPSRequest handles HTTPS requests with optional HTTP/2 support.
 // Reuses pre-built transports to avoid allocations.
 func (rt *roundtripper) handleHTTPSRequest(req *http.Request) (*http.Response, error) {
-	if h3transport.PreparedHTTP1(req.Context()) {
+	if h3transport.PreparedHTTP1(req.Context()) || rt.requiresHTTP1(req) {
 		return rt.http1trFallback.RoundTrip(req)
 	}
 
@@ -262,9 +270,8 @@ func wantsHTTP1(err error) bool {
 		return ga.ErrCode == http2.ErrCodeHTTP11Required
 	}
 
-	// http2 v1.0.26 returns an untyped error when GOAWAY rejects stream 1
-	// with LastStreamID=0. Match its complete message until that path also
-	// returns a GoAwayError; other GOAWAY codes must not enable fallback.
+	// Native handling returns an untyped error when GOAWAY rejects the first
+	// request. Match its complete message; other codes must not enable fallback.
 	const firstStreamHTTP1Required = "http2: Transport received GOAWAY from server ErrCode:HTTP_1_1_REQUIRED"
 
 	for err != nil {
@@ -310,6 +317,9 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 	t.PingTimeout = _http2PingTimeout
 	t.ReadIdleTimeout = _http2ReadIdleTimeout
 	t.WriteByteTimeout = _http2WriteByteTimeout
+	if rt.http1Required != nil {
+		t.ConnectionErrorPolicy = rt.connectionErrorPolicy
+	}
 
 	if rt.http2settings != nil {
 		h := rt.http2settings
@@ -362,14 +372,18 @@ func (rt *roundtripper) buildHTTP2Transport() *http2.Transport {
 // https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_stream_pool_attempt_manager.cc
 // https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpConnection.cpp
 func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
-	conn, err := rt.tlsHandshake(ctx, network, addr, false)
+	var key string
+	if rt.http1Required != nil {
+		key = tlsOrigin(addr)
+	}
+	conn, err := rt.tlsHandshake(ctx, network, addr, rt.http1Required.contains(key))
 	if err != nil {
 		return nil, &tlsDialError{err}
 	}
 
 	switch protocol := conn.ConnectionState().NegotiatedProtocol; protocol {
 	case "", "http/1.1", "h2":
-		return &profileTLSConn{conn}, nil
+		return &profileTLSConn{UConn: conn, origin: key}, nil
 	default:
 		conn.Close()
 		return nil, &tlsDialError{fmt.Errorf("surf: unsupported negotiated ALPN %q", protocol)}
@@ -588,7 +602,10 @@ func setAlpnProtocolToHTTP1(utlsSpec *utls.ClientHelloSpec) {
 
 // HTTP transports recognize the standard ConnectionState signature. Keep uTLS's
 // methods available through embedding while translating only public state.
-type profileTLSConn struct{ *utls.UConn }
+type profileTLSConn struct {
+	*utls.UConn
+	origin string // Original TLS destination, independent of request Host and proxy.
+}
 
 func (c *profileTLSConn) ConnectionState() tls.ConnectionState {
 	return tlsstate.FromUTLS(c.UConn.ConnectionState())
@@ -599,5 +616,5 @@ func wrapProfileTLS(c *utls.UConn, err error) (net.Conn, error) {
 		return nil, err
 	}
 
-	return &profileTLSConn{c}, nil
+	return &profileTLSConn{UConn: c}, nil
 }

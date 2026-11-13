@@ -85,8 +85,57 @@ pseudo headers, redirects, HTTP/2 reset/GOAWAY fallback and safe resend behavior
 These are controlled, verified TLS peer observations and primary-source checks;
 no new native browser NIC capture or anti-bot success rate is claimed here.
 
-## Separately tracked scope
+## Chrome origin-level HTTP_1_1_REQUIRED state
 
-Chrome's origin-level `HTTP_1_1_REQUIRED` cache is broader than Surf's existing
-per-request fallback. It is tracked separately in `BROWSER_PARITY.md`; the ALPN
-fix does not turn a normal HTTP/1 ALPN answer into a persistent origin downgrade.
+The follow-up implementation extends the per-request fallback. Chromium 158's
+`SpdySession::OnRstStream` accepts the reset only for an active stream, then
+`DoDrainSession` makes the session unavailable, marks the TLS destination and
+aborts its other active streams with the same requirement. `OnGoAway` also
+drains the entire session for this code, including streams at or below the
+advertised LastStreamID. It deliberately sends no GOAWAY in reply.
+
+[HttpServerProperties](https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_server_properties.h)
+stores at most 100 required servers in a separate LRU set. Lookups refresh its
+order. There is no TTL or disk write. The key contains the normalized origin and
+NetworkAnonymizationKey, without a proxy identifier. The
+[upstream tests](https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_server_properties_unittest.cc)
+check partitioning, HTTPS/WSS normalization and LRU eviction.
+
+Despite its name, this property only prohibits H2. Chromium explicitly says so
+in [HttpStreamPool::CanUseQuic](https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_stream_pool.cc)
+and `CalculateAllowedAlpns` in
+[http_stream_pool_job.cc](https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_stream_pool_job.cc).
+`FindAvailableSpdySession` ignores existing H2 sessions after a requirement is
+recorded. A valid alternative H3 service remains available.
+
+Surf implements this state per built JA TCP transport. Proxy child transports
+share the same cache; separate clients are separate network contexts. The key
+uses the actual TLS destination, never an overridden request Host. The generic
+HTTP engine's `ConnectionErrorPolicy` runs before waking requests, so origin
+state is visible before a retry or concurrent request can start. Chrome owns
+the code selection and capacity; the engine owns connection retirement.
+`HTTP2Settings().HTTP1RequiredCache(n).Set()` exposes the capacity through the
+existing nested builder. Chrome desktop/Android and JA.Chrome158 select 100;
+Firefox, iOS and generic TLS profiles leave the policy disabled. An explicit
+zero selects the previous per-request fallback behavior. Builder mutations
+after Build do not alter the created state.
+
+New verified TLS tests cover RST_STREAM and GOAWAY, affected concurrent streams,
+idle Preconnect GOAWAY, subsequent Preconnect, keep-alive, LRU hits/eviction,
+ports and client isolation, proxy/direct transitions, unrelated error codes,
+inactive resets, Host overrides, single-use bodies, public overrides, and
+ordered headers/replayable bodies for GET/HEAD/POST/PUT/PATCH/DELETE/OPTIONS.
+Explicit peer-requested retry remains available after 103; final response
+headers expose the body error without replay. A real ECH transition verifies
+certificate checks, accepted ECH and HTTP/1 ALPN through the owned ticket cache.
+[Independent loopback decoding](../http2_required/README.md) additionally checks
+actual ClientHello ALPN lists, the peer RST and the absence of GOAWAY.
+An authenticated Alt-Svc case verifies HTTP/3 remains eligible; a controlled
+fallback delay isolates eligibility from the connection race. Existing suites
+retain normal ALPN/no-ALPN behavior and Firefox's per-request fallback.
+
+These are source checks and actual frame/header observations through controlled
+TLS peers. They do not claim a new ordinary native-browser capture of a forced
+error on a publicly trusted server, full browser socket-pool scheduling after
+LRU eviction, or top-frame partitioning. Surf has no browser document model;
+applications needing distinct contexts use independent clients.

@@ -64,6 +64,7 @@ func (k OSKey) Mobile() g.String {
 // H2Config is the fluent contract used by profile.ConfigureH2 callbacks. It mirrors the
 // methods on surf.HTTP2Settings, the surf package provides an adapter that satisfies it.
 type H2Config interface {
+	HTTP1RequiredCache(int) H2Config
 	StreamReceiveWindow(uint32) H2Config
 	ReceiveWindowUpdatePolicy(func(http2.ReceiveWindowUpdateInfo) bool) H2Config
 	HeaderTableSize(uint32) H2Config

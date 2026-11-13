@@ -2,8 +2,8 @@ github.com/andybalholm/brotli v1.2.8 h1:H9F6r7RNwzSRsx/lytpIYkbjNFMt2yNBwsJ2+0gp
 github.com/andybalholm/brotli v1.2.8/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/enetx/g v1.1.1 h1:Lu3l3/Vy51cd52o1V37iCDmE5jAympCWQYHcb7AKlpI=
 github.com/enetx/g v1.1.1/go.mod h1:nVdbiRFOVdOb/TDVPB3gMaMd8161Wv6dQZYdqvg9IHE=
-github.com/enetx/http v1.0.39 h1:lpkkC3FVbScRrMgG15fR4ayrOw7hknW+69zsL1g61Ic=
-github.com/enetx/http v1.0.39/go.mod h1:5gUSfUXVty5/7tAZxFKSX4anUMNS2CEf3ekjJFMAHQE=
+github.com/enetx/http v1.0.40 h1:sTdOMyyEZkEP1gujA9Z0lku1vCCc1lRwEwaBiPxwiF0=
+github.com/enetx/http v1.0.40/go.mod h1:5gUSfUXVty5/7tAZxFKSX4anUMNS2CEf3ekjJFMAHQE=
 github.com/enetx/quic-go v1.0.23 h1:Jkhmd2e6Gyr7tMvONa+TAclruiwo74KgN9igiWS84II=
 github.com/enetx/quic-go v1.0.23/go.mod h1:5XbjrDr6x1jyunpDhJg1rAhjybzrbIa+SZ2/1i2svfI=
 github.com/enetx/utls v1.0.6 h1:TInpVDeuH3dIEwgIl1z330Xg/LdA7/DyiUtibcbaMNY=

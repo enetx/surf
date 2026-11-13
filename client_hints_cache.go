@@ -2,16 +2,11 @@ package surf
 
 import (
 	"container/list"
-	"net"
-	"net/netip"
 	"net/url"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/enetx/surf/internal/origin"
-	"golang.org/x/net/idna"
 )
 
 type clientHintStore struct {
@@ -88,55 +83,7 @@ func (s *clientHintStore) put(origin string, hints []string) {
 	}
 }
 
-func clientHintOrigin(u *url.URL) (string, bool) {
-	if u == nil {
-		return "", false
-	}
-
-	scheme := strings.ToLower(u.Scheme)
-	if scheme != "http" && scheme != "https" {
-		return "", false
-	}
-
-	host := strings.ToLower(u.Hostname())
-	if host == "" {
-		return "", false
-	}
-
-	if ip, err := netip.ParseAddr(host); err == nil {
-		host = ip.String()
-	} else {
-		var err error
-		host, err = idna.Lookup.ToASCII(host)
-		if err != nil {
-			return "", false
-		}
-	}
-
-	port := u.Port()
-	if port != "" {
-		n, err := strconv.ParseUint(port, 10, 16)
-		if err != nil {
-			return "", false
-		}
-
-		port = strconv.FormatUint(n, 10)
-	}
-
-	if port == "" || scheme == "https" && port == "443" || scheme == "http" && port == "80" {
-		port = ""
-	}
-
-	authority := host
-
-	if port != "" {
-		authority = net.JoinHostPort(host, port)
-	} else if strings.Contains(host, ":") {
-		authority = "[" + host + "]"
-	}
-
-	return scheme + "://" + authority, true
-}
+func clientHintOrigin(u *url.URL) (string, bool) { return origin.Key(u) }
 
 func clientHintTrustworthy(u *url.URL) bool {
 	_, valid := clientHintOrigin(u)

@@ -21,6 +21,9 @@ func (rt *roundtripper) Preconnect(req *http.Request) error {
 	if child != nil {
 		return child.Preconnect(req)
 	}
+	if rt.requiresHTTP1(req) {
+		return rt.http1trFallback.Preconnect(req)
+	}
 
 	if rt.http2tr != nil && req.URL.Scheme == "https" {
 		return rt.http2tr.Preconnect(req)

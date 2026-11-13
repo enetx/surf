@@ -7,6 +7,11 @@ import (
 	"github.com/enetx/surf/profiles"
 )
 
+func (a h2adapter) HTTP1RequiredCache(capacity int) profiles.H2Config {
+	a.s.HTTP1RequiredCache(capacity)
+	return a
+}
+
 func (a h2adapter) StreamReceiveWindow(n uint32) profiles.H2Config {
 	a.s.StreamReceiveWindow(n)
 	return a

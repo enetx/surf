@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "scope": "Controlled verified TLS peer; actual Linux loopback capture; Surf Chrome profile; no native browser capture or NIC pacing claim",
+  "go": "1.27.4",
+  "decoder": "Wireshark 4.6.9",
+  "capture_interface": "lo",
+  "pcap_sha256": "db1a7f4f1e7928a00ced2dd9fa397ae6d35c0bad86f48a237e9d2b2e03ef90fc",
+  "captured_packets": 52,
+  "packets_received_by_filter": 104,
+  "kernel_drops": 0,
+  "loopback_accounting": "Linux loopback ingress/egress filter accounting reports each packet twice; the pcap records one copy. Protocol assertions use the recorded packet streams.",
+  "client_hello_alpn": [
+    [
+      "h2",
+      "http/1.1"
+    ],
+    [
+      "http/1.1"
+    ],
+    [
+      "http/1.1"
+    ]
+  ],
+  "http2_request_attempts": 1,
+  "http2_reset_codes": [
+    13
+  ],
+  "http1_requests": 3,
+  "http2_goaway_frames": 0,
+  "method": "One RST_STREAM HTTP_1_1_REQUIRED, HTTP/1 fallback, pooled repeat, CloseIdleConnections, TCP Preconnect and another HTTP/1 request. Raw pcap and key logs remain private."
+}
