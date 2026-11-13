@@ -3,12 +3,26 @@ package quic
 import (
 	"crypto/rand"
 	"encoding/binary"
+	"fmt"
 	"math/big"
 
 	"github.com/enetx/quic-go"
 	"github.com/enetx/quic-go/quicvarint"
 	"github.com/enetx/quic-go/transportparams"
 )
+
+// ValidatePeerTransportParameters follows QUICHE's four-byte tag vector parser
+// for google_connection_options. Recognizing this format does not itself enable
+// NOIP-based connection reuse, which is a separate Chromium policy setting.
+// https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/crypto/transport_parameters.cc
+func ValidatePeerTransportParameters(parameters []transportparams.Parameter) error {
+	for _, parameter := range parameters {
+		if parameter.ID == 0x3128 && len(parameter.Value)%4 != 0 {
+			return fmt.Errorf("invalid google_connection_options length: %d", len(parameter.Value))
+		}
+	}
+	return nil
+}
 
 func randomQUICValue(limit uint64) (uint64, error) {
 	n, err := rand.Int(rand.Reader, new(big.Int).SetUint64(limit))

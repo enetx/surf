@@ -185,6 +185,7 @@ func exchangeHTTPS(
 	var message dnsmessage.Message
 	var conn net.Conn
 	var err error
+
 	if resolver != nil && resolver.Dial != nil {
 		conn, err = resolver.Dial(ctx, network, server)
 	} else {

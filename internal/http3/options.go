@@ -2,6 +2,7 @@
 package h3transport
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -32,6 +33,12 @@ const (
 
 // Options contains construction state; public fluent builders remain in surf.
 type Options struct {
+	ConnectionCoalescing                 bool
+	OriginFrames                         bool
+	IgnoreIPMatching                     bool
+	OriginFrameLimit                     int
+	OnOrigin                             func(*quic.Conn, []string)
+	ConnectionPoolPartition              func(context.Context, string) string
 	CachedRTTParameter                   uint64
 	MinimumInitialRTT, MaximumInitialRTT time.Duration
 	UseResolvedTCPAddresses              bool
@@ -82,6 +89,9 @@ const (
 )
 
 func (h *Options) validateQUICConfig() error {
+	if h.OriginFrameLimit < 0 || h.OriginFrameLimit > 65536 {
+		return errors.New("HTTP/3 origin limit must be between zero and 65536")
+	}
 	if h.ResumeRTTGranularity < 0 || h.ResumeRTTGranularity > time.Minute {
 		return errors.New("session RTT precision must be between zero and one minute")
 	}

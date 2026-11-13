@@ -138,6 +138,7 @@ func (d *alternativeDiscovery) resolve(ctx context.Context, origin string) (alte
 		if route.origin == "" {
 			route.origin = origin
 		}
+
 		return route, available
 	}
 }

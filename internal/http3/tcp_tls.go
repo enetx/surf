@@ -50,15 +50,19 @@ func (ut *Transport) dialTCPWithECH(base *http.Transport) func(context.Context, 
 			if err != nil {
 				return nil, err
 			}
+
 			secure := tls.Client(conn, config)
 			if err = secure.HandshakeContext(ctx); err == nil {
 				return secure, nil
 			}
+
 			conn.Close()
+
 			retry := echretry.Configs(err)
 			if attempt > 0 || len(retry) == 0 || ctx.Err() != nil {
 				return nil, err
 			}
+
 			config.EncryptedClientHelloConfigList = retry
 		}
 	}

@@ -22,6 +22,7 @@ func Factory(spec func() (utls.ClientHelloSpec, error), inner ...utls.ECHClientH
 	if len(inner) > 0 {
 		innerPolicy = inner[0]
 	}
+
 	return func(config *tls.Config) (tlsquic.Conn, error) {
 		if config.GetClientCertificate != nil {
 			return nil, errors.New(

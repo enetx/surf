@@ -93,6 +93,14 @@ type H2Config interface {
 // H3Config is the fluent contract used by profile.ConfigureH3 callbacks. It mirrors the
 // methods on surf.HTTP3Settings, the surf package provides an adapter that satisfies it.
 type H3Config interface {
+	// ConnectionCoalescing permits authenticated reuse across authorities.
+	ConnectionCoalescing(bool) H3Config
+	// OriginFrames learns the server's ORIGIN extension for coalescing.
+	OriginFrames(bool) H3Config
+	// IgnoreIPMatching honors the server's NOIP option when explicitly enabled.
+	IgnoreIPMatching(bool) H3Config
+	// OriginFrameLimit bounds distinct retained origins per connection.
+	OriginFrameLimit(int) H3Config
 	// OnResponseHeaders observes valid response headers; an error aborts the request.
 	OnResponseHeaders(func(*http.Request, *http.Response) error) H3Config
 	Discovery(bool) H3Config
@@ -152,6 +160,10 @@ type H3Config interface {
 // method delegates to surf.QUICSettings, so profiles are examples of the same
 // API available to applications. The dispatcher calls Set after configuration.
 type QUICConfig interface {
+	// PeerTransportParameters selects unknown peer extensions for capture.
+	PeerTransportParameters(...uint64) QUICConfig
+	// ValidatePeerTransportParameters validates captured handshake extensions.
+	ValidatePeerTransportParameters(func([]transportparams.Parameter) error) QUICConfig
 	ResumeVersion(bool) QUICConfig
 	// ResumeRTT restores measured ticket RTT with the specified precision; zero disables it.
 	ResumeRTT(time.Duration) QUICConfig

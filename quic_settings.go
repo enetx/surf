@@ -86,6 +86,24 @@ const (
 // Set applies the accumulated QUIC settings and returns the main Builder.
 func (q *QUICSettings) Set() *Builder { return q.http3.Set() }
 
+// PeerTransportParameters selects unrecognized peer extension IDs to retain
+// from each handshake. Values are available through Conn.PeerTransportParameter
+// after verification and are not restored from session tickets. An empty list
+// disables capture; the supplied IDs are copied.
+func (q *QUICSettings) PeerTransportParameters(ids ...uint64) *QUICSettings {
+	q.config().PeerTransportParameterIDs = slices.Clone(ids)
+	return q
+}
+
+// ValidatePeerTransportParameters checks captured peer extensions before they
+// are accepted. The callback receives private copies, runs before authentication
+// on the connection loop, and must not block or reenter QUIC. An error rejects
+// the handshake with TRANSPORT_PARAMETER_ERROR. Nil clears this validation.
+func (q *QUICSettings) ValidatePeerTransportParameters(validate func([]transportparams.Parameter) error) *QUICSettings {
+	q.config().ValidatePeerTransportParameters = validate
+	return q
+}
+
 // ResumeVersion chooses the first QUIC version from an available session ticket
 // previously stored by this client for the origin. Expired, evicted, unmarked
 // and disabled-version tickets retain the configured first version. It does not

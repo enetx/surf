@@ -29,6 +29,7 @@ func (ut *Transport) roundTripRacing(req *http.Request) (*http.Response, error) 
 	if eligible && ut.earlyDataBackup {
 		return ut.roundTripEarlyBackup(req, address)
 	}
+
 	selection, err := ut.racer.SelectProtocol(req, address, eligible)
 	if err != nil {
 		if req.Body != nil {
@@ -36,6 +37,7 @@ func (ut *Transport) roundTripRacing(req *http.Request) (*http.Response, error) 
 		}
 		return nil, err
 	}
+
 	// After selection, only the selected normal transport owns the body. Never
 	// retry a failed application exchange against the other protocol here.
 	if selection.Protocol == 3 {
@@ -50,10 +52,15 @@ func (ut *Transport) roundTripRacing(req *http.Request) (*http.Response, error) 
 }
 
 func (ut *Transport) preconnectQUIC(ctx context.Context, address string, early bool) error {
+	if ut.coalescer != nil {
+		ctx = ut.coalescer.prepareContext(ctx, address)
+	}
+
 	if early {
 		_, err := ut.http3tr.PreconnectEarly(ctx, address)
 		return err
 	}
+
 	return ut.http3tr.Preconnect(ctx, address)
 }
 
@@ -67,6 +74,7 @@ func (ut *Transport) preconnectTCP(req *http.Request) error {
 
 	return preconnect.Preconnect(req)
 }
+
 func PreparedHTTP1(ctx context.Context) bool {
 	preferred, _ := ctx.Value(preparedTCPHTTP1Key{}).(bool)
 	return preferred

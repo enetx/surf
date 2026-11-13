@@ -92,9 +92,11 @@ func (d *alternativeDiscovery) resolveDNS(
 				continue
 			default:
 			}
+
 			// Only optional HTTPS metadata times out. Keep the completed address
 			// result and the caller's context for its normal TCP connection.
 			cancelHTTPS()
+
 			return nil, addresses, errors.New("optional HTTPS lookup exceeded its supplemental wait")
 		}
 	}

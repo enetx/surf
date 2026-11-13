@@ -69,6 +69,7 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 		if owned, ok := cache.(*defaultSessionCache); ok {
 			cache = owned.ClientSessionCache
 		}
+
 		if cache != nil {
 			rt.clientSessionCache = quictls.TCPSessionCache(cache)
 		}
@@ -80,10 +81,13 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 		snapshot.priorityFrames = slices.Clone(h.priorityFrames)
 		rt.http2settings = &snapshot
 	}
+
 	capacity := ja.http1RequiredCache
+
 	if rt.http2settings != nil && rt.http2settings.http1RequiredCacheSet {
 		capacity = rt.http2settings.http1RequiredCache
 	}
+
 	if capacity > 0 {
 		rt.http1Required = &http1RequiredCache{capacity: capacity}
 	}
@@ -376,6 +380,7 @@ func (rt *roundtripper) dialTLS(ctx context.Context, network, addr string) (net.
 	if rt.http1Required != nil {
 		key = tlsOrigin(addr)
 	}
+
 	conn, err := rt.tlsHandshake(ctx, network, addr, rt.http1Required.contains(key))
 	if err != nil {
 		return nil, &tlsDialError{err}

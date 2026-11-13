@@ -1,0 +1,2544 @@
+{
+  "schema": 1,
+  "browser": "Chromium 158.0.8127.0 macOS arm64 snapshot 1727489",
+  "source_tags": [
+    "158.0.8127.0",
+    "158.0.8127.18"
+  ],
+  "source_files_identical_sha256": {
+    "session_pool": "c47104bee57e08ff6c801266ba7bb19bc4de52403d4170e7cc9256bdbb4d5d4d",
+    "session_key": "9a0eec07f7e81f5a0ff8054ab7c1ebca8318a8063f185dd85456bc3a14c33a67",
+    "client_session": "830d3efe43f5c6bebcb80294345190e80bd551762b9f5078c1e69dd7dbeff306",
+    "transaction": "f0f9bb5013359c22ab7e844ef1c2c10e89d6d92256dfed61621dcd9d89fc33a9"
+  },
+  "quiche_revision": "132bfd90ea370faeacee616c70d10210bb12ba66",
+  "native": {
+    "netlog_sha256": "f40c717f3d34cb05a1c1cb6e6a301ed8548d3744f9c41f8744b345c0fa30f86b",
+    "cdp_report_sha256": "a1b813fecf1285042f41ee0937915165b2a1a88e565718018236ed2c9d2132be",
+    "analysis_pcap_sha256": "35470147803a88b87f6027874b75bbf2d092a0b506c60a652d6ae0a66ddde28f",
+    "udp_payloads": 57,
+    "synthetic_ip_udp_envelopes": true,
+    "active_session": 111,
+    "observations": [
+      {
+        "host": "www.google.com",
+        "protocol": "h3",
+        "connection": 50,
+        "reused": false
+      },
+      {
+        "host": "www.google.com",
+        "protocol": "h3",
+        "connection": 50,
+        "reused": true
+      },
+      {
+        "host": "www.google.com",
+        "protocol": "h3",
+        "connection": 111,
+        "reused": false
+      },
+      {
+        "host": "www.gstatic.com",
+        "protocol": "h2",
+        "connection": 122,
+        "reused": false
+      },
+      {
+        "host": "www.gstatic.com",
+        "protocol": "h3",
+        "connection": 111,
+        "reused": true
+      },
+      {
+        "host": "fonts.gstatic.com",
+        "protocol": "h2",
+        "connection": 153,
+        "reused": false
+      },
+      {
+        "host": "fonts.gstatic.com",
+        "protocol": "h3",
+        "connection": 111,
+        "reused": true
+      },
+      {
+        "host": "www.youtube.com",
+        "protocol": "h2",
+        "connection": 170,
+        "reused": false
+      },
+      {
+        "host": "www.youtube.com",
+        "protocol": "h3",
+        "connection": 111,
+        "reused": true
+      },
+      {
+        "host": "google.com",
+        "protocol": "h3",
+        "connection": 111,
+        "reused": true
+      },
+      {
+        "host": "google.com",
+        "protocol": "h3",
+        "connection": 111,
+        "reused": true
+      },
+      {
+        "host": "www.google.com",
+        "protocol": "h3",
+        "connection": 111,
+        "reused": true
+      }
+    ],
+    "origin_frame_independently_decrypted": [
+      "https://fonts.gstatic.com",
+      "https://google.com",
+      "https://www.google.com",
+      "https://www.gstatic.com",
+      "https://encrypted-tbn0.gstatic.com",
+      "https://encrypted-tbn1.gstatic.com",
+      "https://encrypted-tbn2.gstatic.com",
+      "https://encrypted-tbn3.gstatic.com",
+      "https://play.google.com",
+      "https://m.google.com",
+      "https://www.youtube.com"
+    ],
+    "independently_decoded_requests": [
+      {
+        "stream": 0,
+        "authority": "www.google.com",
+        "method": "GET",
+        "path": "/generate_204?surf-coalescing=2"
+      },
+      {
+        "stream": 4,
+        "authority": "www.gstatic.com",
+        "method": "GET",
+        "path": "/generate_204?surf-coalescing=4"
+      }
+    ],
+    "netlog_use_existing": [
+      {
+        "destination": "https://www.gstatic.com",
+        "session": 111
+      },
+      {
+        "destination": "https://fonts.gstatic.com",
+        "session": 111
+      },
+      {
+        "destination": "https://www.youtube.com",
+        "session": 111
+      },
+      {
+        "destination": "https://google.com",
+        "session": 111
+      },
+      {
+        "destination": "https://google.com",
+        "session": 111
+      },
+      {
+        "destination": "https://www.google.com",
+        "session": 111
+      }
+    ],
+    "decoder_limit": "TShark 4.6.9 later dynamic-QPACK authority/path values were inconsistent. The independent request field oracle is limited to the first valid fields on streams 0 and 4. Later google.com reuse is supported by NetLog and CDP, not those decoded fields.",
+    "certificate_verification_disabled": false,
+    "quic_or_feature_overrides": false
+  },
+  "surf_linux": {
+    "pcap_sha256": "3579d8aa4ff9a08274f16ee8b2d17e752596173ff6034c2e921746bca2806779",
+    "test_log_sha256": "9327f07e4c90732742e6202be052077c47b420af12151eca4718f9b5fc02d6b6",
+    "captured_packets": 1300,
+    "received_by_filter": 2600,
+    "kernel_drops": 0,
+    "loopback_filter_counts_both_directions": true,
+    "capture_interface": "lo",
+    "capture_filter": "tcp or udp",
+    "analyzer": "TShark 4.6.9 with private diagnostic key log",
+    "request_connections": 46,
+    "coalesced_connections": 17,
+    "methods_and_order_connection": "29",
+    "ordered_request_methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "HEAD",
+      "OPTIONS",
+      "TRACE"
+    ],
+    "ordered_user_fields": [
+      "x-second",
+      "x-first"
+    ],
+    "dns_altsvc_transition": {
+      "connection": "0",
+      "first_requests_http2": [
+        {
+          "packet": 17,
+          "authority": "a.test:39622"
+        },
+        {
+          "packet": 53,
+          "authority": "b.test:39622"
+        }
+      ],
+      "then_shared_http3": [
+        {
+          "stream": 0,
+          "method": "GET",
+          "authority": "a.test:39622",
+          "header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-user",
+            "sec-fetch-dest",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ],
+          "user_headers": []
+        },
+        {
+          "stream": 4,
+          "method": "GET",
+          "authority": "b.test:39622",
+          "header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-user",
+            "sec-fetch-dest",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ],
+          "user_headers": []
+        }
+      ]
+    },
+    "connections": [
+      {
+        "connection": "0",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:39622",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:39622",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "1",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:49814",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "2",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "c.test:56707",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:49814",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "3",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:41822",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "4",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "b.test:41822",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "5",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:59010",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:59010",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "6",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:34241",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "7",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:34241",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "8",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "b.test:34241",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "9",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:52684",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:52684",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "10",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:52684",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "11",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:33585",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "12",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:35001",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "13",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:36183",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "14",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:42936",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "15",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:38446",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:38446",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 8,
+            "method": "GET",
+            "authority": "c.test:38446",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "16",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:33946",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:33946",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "17",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:33946",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:33946",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "18",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:57179",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:57179",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "19",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:50748",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:50748",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "20",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:60434",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:60434",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "21",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:33581",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "22",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:53458",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "24",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:54229",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "25",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:56253",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "26",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:42962",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "27",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:54172",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "28",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "b.test:54172",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "29",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "sec-fetch-user",
+              "upgrade-insecure-requests",
+              "user-agent"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          },
+          {
+            "stream": 8,
+            "method": "POST",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "content-type",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "user-agent",
+              "content-length"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          },
+          {
+            "stream": 12,
+            "method": "PUT",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "content-type",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "user-agent",
+              "content-length"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          },
+          {
+            "stream": 16,
+            "method": "PATCH",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "content-type",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "user-agent",
+              "content-length"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          },
+          {
+            "stream": 20,
+            "method": "DELETE",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "content-type",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "user-agent",
+              "content-length"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          },
+          {
+            "stream": 24,
+            "method": "HEAD",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "sec-fetch-user",
+              "upgrade-insecure-requests",
+              "user-agent"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          },
+          {
+            "stream": 28,
+            "method": "OPTIONS",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "user-agent"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          },
+          {
+            "stream": 32,
+            "method": "TRACE",
+            "authority": "b.test:44798",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "x-second",
+              "x-first",
+              "accept",
+              "accept-encoding",
+              "accept-language",
+              "priority",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "sec-fetch-dest",
+              "sec-fetch-mode",
+              "sec-fetch-site",
+              "user-agent"
+            ],
+            "user_headers": [
+              [
+                "x-second",
+                "two"
+              ],
+              [
+                "x-first",
+                "one"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "connection": "30",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:37322",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "31",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "b.test:37322",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "32",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:35790",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "33",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "b.test:35790",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "34",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:37005",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "35",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "b.test:37005",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "36",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:53107",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "37",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "b.test:53107",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "38",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "POST",
+            "authority": "a.test:40968",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua-platform",
+              "user-agent",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "39",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:33517",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "POST",
+            "authority": "b.test:33517",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "content-length",
+              "sec-ch-ua-platform",
+              "user-agent",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 8,
+            "method": "GET",
+            "authority": "c.test:33517",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "40",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "POST",
+            "authority": "b.test:33517",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "content-length",
+              "sec-ch-ua-platform",
+              "user-agent",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "41",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:40902",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "POST",
+            "authority": "b.test:40902",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua-platform",
+              "user-agent",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "42",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:39540",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "POST",
+            "authority": "b.test:39540",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "content-length",
+              "sec-ch-ua-platform",
+              "user-agent",
+              "sec-ch-ua",
+              "content-type",
+              "sec-ch-ua-mobile",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 8,
+            "method": "POST",
+            "authority": "b.test:39540",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "content-length",
+              "sec-ch-ua-platform",
+              "user-agent",
+              "sec-ch-ua",
+              "content-type",
+              "sec-ch-ua-mobile",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 12,
+            "method": "GET",
+            "authority": "c.test:39540",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "43",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:52828",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:52828",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 8,
+            "method": "GET",
+            "authority": "c.test:52828",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "44",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:44607",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:443",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "45",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:54787",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      },
+      {
+        "connection": "46",
+        "requests": [
+          {
+            "stream": 0,
+            "method": "GET",
+            "authority": "a.test:55265",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          },
+          {
+            "stream": 4,
+            "method": "GET",
+            "authority": "b.test:443",
+            "header_names": [
+              ":method",
+              ":authority",
+              ":scheme",
+              ":path",
+              "sec-ch-ua",
+              "sec-ch-ua-mobile",
+              "sec-ch-ua-platform",
+              "upgrade-insecure-requests",
+              "user-agent",
+              "accept",
+              "sec-fetch-site",
+              "sec-fetch-mode",
+              "sec-fetch-user",
+              "sec-fetch-dest",
+              "accept-encoding",
+              "accept-language",
+              "priority"
+            ],
+            "user_headers": []
+          }
+        ]
+      }
+    ],
+    "origin_frames": [
+      {
+        "connection": "0",
+        "origins": [
+          "https://b.test:39622"
+        ]
+      },
+      {
+        "connection": "2",
+        "origins": [
+          "https://b.test:49814"
+        ]
+      },
+      {
+        "connection": "3",
+        "origins": [
+          "https://b.test:41822"
+        ]
+      },
+      {
+        "connection": "5",
+        "origins": [
+          "https://c.test:34140"
+        ]
+      },
+      {
+        "connection": "16",
+        "origins": [
+          "https://b.test:33946"
+        ]
+      },
+      {
+        "connection": "17",
+        "origins": [
+          "https://b.test:33946"
+        ]
+      },
+      {
+        "connection": "19",
+        "origins": [
+          "https://b.test:50748"
+        ]
+      },
+      {
+        "connection": "24",
+        "origins": [
+          "https://bad.test:54229"
+        ]
+      },
+      {
+        "connection": "26",
+        "origins": [
+          "https://b.test:42962"
+        ]
+      },
+      {
+        "connection": "27",
+        "origins": [
+          "https://b.test:54172"
+        ]
+      },
+      {
+        "connection": "28",
+        "origins": [
+          "https://b.test:54172"
+        ]
+      },
+      {
+        "connection": "42",
+        "origins": [
+          "https://b.test:39540",
+          "https://c.test:39540"
+        ]
+      },
+      {
+        "connection": "43",
+        "origins": [
+          "not an origin",
+          "https://b.test:52828/path",
+          "http://unused.test",
+          "https://b.test:52828",
+          "https://b.test:52828",
+          "https://c.test:52828",
+          "https://ignored.example:52828"
+        ]
+      },
+      {
+        "connection": "44",
+        "origins": [
+          "https://b.test"
+        ]
+      },
+      {
+        "connection": "45",
+        "origins": [
+          "https://b.test:54787"
+        ]
+      },
+      {
+        "connection": "46",
+        "origins": [
+          "https://b.test"
+        ]
+      }
+    ]
+  },
+  "scope": {
+    "firefox_early_get": "Native Firefox early GET acceptance remains unconfirmed; this audit does not close ECH-03.",
+    "public_initial_protocol": "Surf and Chromium public cold-start eligibility/history differ; no full first-protocol parity claim. Docker public sample selected H2 only.",
+    "privacy": "One Surf client context and optional application keys; no synthetic browser document NAK.",
+    "candidate_order": "Generic engine key order is not Chromium port/host ordering for multiple eligible peers.",
+    "tls_scope": "Confirmed verified chains/hostname. Custom verification or configured client credentials keep dedicated connections.",
+    "native_timing": "Native UDP bytes only, no native NIC pacing claim."
+  }
+}

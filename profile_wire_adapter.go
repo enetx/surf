@@ -7,6 +7,26 @@ import (
 	"github.com/enetx/surf/profiles"
 )
 
+func (a h3adapter) ConnectionCoalescing(enabled bool) profiles.H3Config {
+	a.s.ConnectionCoalescing(enabled)
+	return a
+}
+
+func (a h3adapter) OriginFrames(enabled bool) profiles.H3Config {
+	a.s.OriginFrames(enabled)
+	return a
+}
+
+func (a h3adapter) IgnoreIPMatching(enabled bool) profiles.H3Config {
+	a.s.IgnoreIPMatching(enabled)
+	return a
+}
+
+func (a h3adapter) OriginFrameLimit(limit int) profiles.H3Config {
+	a.s.OriginFrameLimit(limit)
+	return a
+}
+
 func (a h2adapter) HTTP1RequiredCache(capacity int) profiles.H2Config {
 	a.s.HTTP1RequiredCache(capacity)
 	return a

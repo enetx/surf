@@ -26,6 +26,7 @@ import (
 // It provides SOCKS5 proxy compatibility and automatic fallback to HTTP/2
 // when HTTP/3 is unavailable or for non-SOCKS5 proxies.
 type Transport struct {
+	coalescer              *connectionCoalescer
 	rttHistory             *rttHistory
 	sessionVersions        *sessionVersions
 	Fallback               http.RoundTripper
@@ -110,6 +111,10 @@ func New(settings Options) (*Transport, error) {
 
 	ut.quicDialer.DedicatedConn = ut.quicDialer.ConnectionIDGenerator != nil &&
 		ut.quicDialer.ConnectionIDGenerator.ConnectionIDLen() == 0
+
+	if settings.ConnectionCoalescing || settings.ConnectionPoolPartition != nil {
+		ut.coalescer = newConnectionCoalescer(ut, settings)
+	}
 
 	if ut.quicDialer.NetDialer == nil {
 		ut.quicDialer.NetDialer = new(net.Dialer)
@@ -302,6 +307,23 @@ func (ut *Transport) initTransport() error {
 		Dial:                   ut.dial,
 	}
 
+	if ut.coalescer != nil {
+		ut.http3tr.ConnectionPoolPartition = ut.coalescer.partition
+		if ut.coalescer.enabled {
+			ut.http3tr.ConnectionReusePolicy = ut.coalescer.canReuse
+			ut.http3tr.WireConfig.OnControlFrame = ut.coalescer.controlFrameHandler(
+				ut.http3tr.WireConfig.OnControlFrame,
+			)
+		}
+
+		if ut.coalescer.ignoreIP {
+			ut.http3tr.QUICConfig.PeerTransportParameterIDs = append(
+				ut.http3tr.QUICConfig.PeerTransportParameterIDs,
+				0x3128,
+			)
+		}
+	}
+
 	return nil
 }
 
@@ -357,6 +379,20 @@ func (ut *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	if req.URL.Scheme == "" {
 		req = cloneRequestWithScheme(req, "https")
+	}
+
+	if ut.coalescer != nil && ut.coalescer.enabled && req.URL.Scheme == "https" && !requiresTCPHTTP(req) {
+		authority, _ := raceAddress(req)
+		if !ut.coalescer.hasOwnConnection(req.Context(), authority) {
+			response, err := ut.roundTripHTTP3Attempt(req, true)
+			if err != http3.ErrNoCachedConn {
+				if err != nil {
+					return ut.handleError(req, err)
+				}
+
+				return response, nil
+			}
+		}
 	}
 
 	if ut.discovery != nil {
@@ -574,6 +610,24 @@ func isSOCKS5Proxy(proxyURL string) bool {
 type http3RequireHandshakeKey struct{}
 
 func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
+	return ut.roundTripHTTP3Attempt(req, false)
+}
+
+func (ut *Transport) roundTripHTTP3Attempt(req *http.Request, cached bool) (*http.Response, error) {
+	if ut.coalescer != nil {
+		authority, err := raceAddress(req)
+		if err != nil {
+			return nil, err
+		}
+
+		req = req.WithContext(ut.coalescer.prepareContext(req.Context(), authority))
+	}
+
+	roundTrip := ut.http3tr.RoundTrip
+	if cached {
+		roundTrip = ut.http3tr.RoundTripCached
+	}
+
 	attempt := WithProtocolHeaders(ut.requestWithAltUsed(req), ut.protocolHeaders, 3)
 
 	eligible := ut.eligibleEarlyData(req)
@@ -582,7 +636,9 @@ func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
 			attempt = attempt.WithContext(context.WithValue(attempt.Context(), http3RequireHandshakeKey{}, true))
 		}
 
-		return ut.http3tr.RoundTrip(attempt)
+		response, err := roundTrip(attempt)
+
+		return ut.finishHTTP3Attempt(req, response, err)
 	}
 
 	clone := *attempt
@@ -593,17 +649,20 @@ func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
 		clone.Method = http3.MethodHead0RTT
 	}
 
-	response, err := ut.http3tr.RoundTrip(&clone)
+	response, err := roundTrip(&clone)
 	if config := echretry.Configs(err); len(config) > 0 && req.Context().Err() == nil {
 		// Only bodyless GET/HEAD can reach this branch. Reconnect once with
 		// authenticated retry_configs and wait for the complete handshake.
 		ctx := echretry.WithConfig(attempt.Context(), config)
 		ctx = context.WithValue(ctx, http3RequireHandshakeKey{}, true)
-		return ut.http3tr.RoundTrip(attempt.WithContext(ctx))
+
+		response, err = ut.http3tr.RoundTrip(attempt.WithContext(ctx))
+
+		return ut.finishHTTP3Attempt(req, response, err)
 	}
 
 	if !errors.Is(err, quic.Err0RTTRejected) && (err != nil || response.StatusCode != http.StatusTooEarly) {
-		return response, err
+		return ut.finishHTTP3Attempt(req, response, err)
 	}
 
 	if response != nil {
@@ -614,7 +673,9 @@ func (ut *Transport) roundTripHTTP3(req *http.Request) (*http.Response, error) {
 	// request context; a new dial must not attempt early data either.
 	retry := attempt.WithContext(context.WithValue(attempt.Context(), http3RequireHandshakeKey{}, true))
 
-	return ut.http3tr.RoundTrip(retry)
+	response, err = ut.http3tr.RoundTrip(retry)
+
+	return ut.finishHTTP3Attempt(req, response, err)
 }
 
 func (ut *Transport) useEarlyData(ctx context.Context) bool {

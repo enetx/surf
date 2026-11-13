@@ -15,11 +15,14 @@ import (
 func (ut *Transport) roundTripEarlyBackup(req *http.Request, address string) (*http.Response, error) {
 	ctx, cancel := context.WithCancel(req.Context())
 	decision := make(chan bool, 1)
+
 	type result struct {
 		response *http.Response
 		err      error
 	}
+
 	completed := make(chan result)
+
 	go func() {
 		var selected, decided bool
 		choose := func() bool {
@@ -30,8 +33,10 @@ func (ut *Transport) roundTripEarlyBackup(req *http.Request, address string) (*h
 				}
 				decided = true
 			}
+
 			return selected && ctx.Err() == nil
 		}
+
 		conn, err := ut.http3tr.PreconnectEarly(ctx, address)
 		var response *http.Response
 		if err == nil {
@@ -49,6 +54,7 @@ func (ut *Transport) roundTripEarlyBackup(req *http.Request, address string) (*h
 				err = context.Cause(ctx)
 			}
 		}
+
 		if choose() {
 			select {
 			case completed <- result{response, err}:
@@ -56,6 +62,7 @@ func (ut *Transport) roundTripEarlyBackup(req *http.Request, address string) (*h
 			case <-ctx.Done():
 			}
 		}
+
 		if response != nil && response.Body != nil {
 			response.Body.Close()
 		}
@@ -66,6 +73,7 @@ func (ut *Transport) roundTripEarlyBackup(req *http.Request, address string) (*h
 		cancel()
 		return nil, err
 	}
+
 	useQUIC := selection.Protocol == 3 || !requestProgress(req).allowFallback()
 	decision <- useQUIC
 	if !useQUIC {
@@ -75,6 +83,7 @@ func (ut *Transport) roundTripEarlyBackup(req *http.Request, address string) (*h
 		}
 		return ut.Fallback.RoundTrip(req)
 	}
+
 	select {
 	case r := <-completed:
 		if r.err != nil || r.response == nil || r.response.Body == nil {
@@ -97,5 +106,6 @@ type earlyRacingBody struct {
 func (b *earlyRacingBody) Close() error {
 	err := b.ReadCloser.Close()
 	b.cancel()
+
 	return err
 }

@@ -38,6 +38,57 @@ type HTTP3Settings struct {
 	registered bool
 }
 
+// ConnectionCoalescing permits verified HTTP/3 connections to serve additional
+// authorities after certificate and route checks. Client/proxy ownership stays
+// isolated. Insecure TLS, custom verification and configured client credentials
+// keep dedicated connections. Chrome enables this; a plain client does not.
+func (h *HTTP3Settings) ConnectionCoalescing(enabled bool) *HTTP3Settings {
+	h.options.ConnectionCoalescing = enabled
+	return h
+}
+
+// ConnectionPoolPartition adds an application isolation key to HTTP/3 pooling.
+// Connections from different keys never share, even for the same authority.
+// The callback must be concurrency safe and stable for an attempt. Nil uses
+// the built client's network context; browser discovery partitions still apply.
+func (h *HTTP3Settings) ConnectionPoolPartition(partition func(context.Context, string) string) *HTTP3Settings {
+	h.options.ConnectionPoolPartition = partition
+	return h
+}
+
+// OriginFrames accepts server ORIGIN frames for connection coalescing, permitting
+// matching destinations to skip DNS. Certificate checks still apply. It requires
+// ConnectionCoalescing. Chrome enables it; unknown frames otherwise remain ignored.
+func (h *HTTP3Settings) OriginFrames(enabled bool) *HTTP3Settings {
+	h.options.OriginFrames = enabled
+	return h
+}
+
+// IgnoreIPMatching permits a server's NOIP connection option to waive the IP
+// check for otherwise eligible coalescing. It requires ConnectionCoalescing.
+// Chromium 158's source default is false; advertising NOIP alone does not enable it.
+func (h *HTTP3Settings) IgnoreIPMatching(enabled bool) *HTTP3Settings {
+	h.options.IgnoreIPMatching = enabled
+	return h
+}
+
+// OriginFrameLimit bounds distinct learned origins per connection. Zero uses
+// 20; valid explicit limits are 1 through 65536. Invalid entries and duplicates
+// do not consume capacity. Lowering this on a builder does not affect built clients.
+func (h *HTTP3Settings) OriginFrameLimit(limit int) *HTTP3Settings {
+	h.options.OriginFrameLimit = limit
+	return h
+}
+
+// OnOrigin observes newly learned canonical origins after a complete server
+// ORIGIN frame. Each supplied slice belongs to the callback. It must not block
+// or reenter the connection and may run concurrently for different connections.
+// OriginFrames and ConnectionCoalescing must be enabled to learn origins.
+func (h *HTTP3Settings) OnOrigin(callback func(*quic.Conn, []string)) *HTTP3Settings {
+	h.options.OnOrigin = callback
+	return h
+}
+
 // HTTP3GreaseFrame describes one RFC 9114 reserved frame and its payload.
 type HTTP3GreaseFrame = http3.GreaseFrame
 

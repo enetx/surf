@@ -21,6 +21,7 @@ func (rt *roundtripper) Preconnect(req *http.Request) error {
 	if child != nil {
 		return child.Preconnect(req)
 	}
+
 	if rt.requiresHTTP1(req) {
 		return rt.http1trFallback.Preconnect(req)
 	}

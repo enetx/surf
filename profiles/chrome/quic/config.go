@@ -13,6 +13,7 @@ import (
 // Flow-control limits and empty SCIDs follow Chromium 158's quic_context.cc;
 // see tests/testdata/wire/README.md for sources and remaining limitations.
 func ConfigureQUIC(q profiles.QUICConfig) {
+	q.PeerTransportParameters(0x3128).ValidatePeerTransportParameters(ValidatePeerTransportParameters)
 	q.ResumeVersion(false)
 	// Cached SRTT is advertised only for direct connections; QUICHE clamps
 	// its local untrusted estimate, retaining the actual wire value.

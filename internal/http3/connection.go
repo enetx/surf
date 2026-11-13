@@ -34,7 +34,6 @@ func (ut *Transport) dial(
 
 	if candidate, ok := ctx.Value(alternativeRouteKey{}).(alternativeRoute); ok &&
 		candidate.address != "" && strings.EqualFold(candidate.origin, addr) {
-
 		route = candidate
 		target = route.address
 
@@ -73,14 +72,21 @@ func (ut *Transport) dial(
 	}
 
 	connection, err = dial(ctx, target, tlsCfg, cfg, route.hints)
+	if err == nil {
+		ut.coalescer.track(ctx, connection, addr, target, tlsCfg)
+	}
+
 	// DialEarly can expose a resumable connection before TLS finishes.
 	// Its bodyless requests handle ECH rejection in roundTripHTTP3 instead.
 	if !ut.useEarlyData(ctx) && len(echretry.FromContext(ctx)) == 0 {
 		if retry := echretry.Configs(err); len(retry) > 0 && ctx.Err() == nil {
 			tlsCfg = tlsCfg.Clone()
-
 			tlsCfg.EncryptedClientHelloConfigList = retry
+
 			connection, err = dial(ctx, target, tlsCfg, cfg, route.hints)
+			if err == nil {
+				ut.coalescer.track(ctx, connection, addr, target, tlsCfg)
+			}
 		}
 	}
 

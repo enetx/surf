@@ -23,9 +23,11 @@ func TCPCache(cache tls.ClientSessionCache) tls.ClientSessionCache {
 	if cache == nil {
 		return nil
 	}
+
 	if _, wrapped := cache.(tcpSessionCache); wrapped {
 		return cache
 	}
+
 	return tcpSessionCache{cache}
 }
 
@@ -35,6 +37,7 @@ func BaseTCPCache(cache tls.ClientSessionCache) tls.ClientSessionCache {
 	if wrapped, ok := cache.(tcpSessionCache); ok {
 		return wrapped.ClientSessionCache
 	}
+
 	return cache
 }
 
@@ -43,6 +46,7 @@ type tcpSessionCache struct{ tls.ClientSessionCache }
 func (c tcpSessionCache) Get(key string) (*tls.ClientSessionState, bool) {
 	return c.ClientSessionCache.Get("tcp:" + key)
 }
+
 func (c tcpSessionCache) Put(key string, state *tls.ClientSessionState) {
 	c.ClientSessionCache.Put("tcp:"+key, state)
 }

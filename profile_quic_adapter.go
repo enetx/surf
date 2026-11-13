@@ -16,6 +16,16 @@ import (
 // quicadapter delegates profile chains to the public QUICSettings implementation.
 type quicadapter struct{ s *QUICSettings }
 
+func (a quicadapter) PeerTransportParameters(ids ...uint64) profiles.QUICConfig {
+	a.s.PeerTransportParameters(ids...)
+	return a
+}
+
+func (a quicadapter) ValidatePeerTransportParameters(validate func([]transportparams.Parameter) error) profiles.QUICConfig {
+	a.s.ValidatePeerTransportParameters(validate)
+	return a
+}
+
 func (a quicadapter) CompatibleVersionNegotiation(enabled bool) profiles.QUICConfig {
 	a.s.CompatibleVersionNegotiation(enabled)
 	return a

@@ -25,6 +25,7 @@ func (c *trackedTicketCache) Get(key string) (*tls.ClientSessionState, bool) {
 		c.selected[key] = true
 		c.mu.Unlock()
 	}
+
 	return state, ok
 }
 
@@ -32,21 +33,28 @@ func trackTicketRejection(config *tls.Config, q *quic.Config) (*tls.Config, *qui
 	if config == nil {
 		return config, q
 	}
+
 	queue, ok := config.ClientSessionCache.(*tlscache.Cache)
 	if !ok {
 		return config, q
 	}
+
 	tracked := &trackedTicketCache{Cache: queue, selected: make(map[string]bool)}
+
 	config = config.Clone()
 	config.ClientSessionCache = tracked
+
 	q = quictransport.CloneConfig(q)
 	if q == nil {
 		q = quictransport.DefaultConfig()
 	}
+
 	if q.ClientHandshake == nil {
 		q.ClientHandshake = new(quic.ClientHandshake)
 	}
+
 	previous := q.ClientHandshake.OnEarlyDataRejected
+
 	q.ClientHandshake.OnEarlyDataRejected = func(conn *quic.Conn) {
 		tracked.mu.Lock()
 		keys := make([]string, 0, len(tracked.selected))
@@ -54,12 +62,15 @@ func trackTicketRejection(config *tls.Config, q *quic.Config) (*tls.Config, *qui
 			keys = append(keys, key)
 		}
 		tracked.mu.Unlock()
+
 		for _, key := range keys {
 			queue.RejectEarlyData(key)
 		}
+
 		if previous != nil {
 			previous(conn)
 		}
 	}
+
 	return config, q
 }
