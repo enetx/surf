@@ -1,0 +1,5914 @@
+{
+  "schema": 1,
+  "date": "2026-11-14",
+  "scope": "Linux bulk transport observations; not complete browser/OS/first-use parity",
+  "environment": {
+    "os": "Linux ARM64 in a Docker VM",
+    "capture": "eth0 Ethernet/veth packets, before netem egress / IFB ingress effects",
+    "offloads": "GRO, GSO, TSO and UDP segmentation disabled for ordinary interface captures",
+    "browser_user": "non-root",
+    "container_security": "NET_ADMIN/NET_RAW; seccomp unconfined, browser sandbox not disabled",
+    "timing": "Capture spacing is not internal pacing or bare-metal NIC timing; public path, VM scheduling and connection histories vary"
+  },
+  "references": {
+    "chrome": {
+      "product": "Official Google Chrome for Testing",
+      "version": "158.0.8127.18",
+      "architecture": "linux-arm64",
+      "revision": "1727472",
+      "url": "https://storage.googleapis.com/chrome-for-testing-public/158.0.8127.18/linux-arm64/chrome-linux-arm64.zip",
+      "archive_sha256": "bca07f65a24f7cab8758c18f41b8561a40a2a1e98aa01f01e471399179bb6c61"
+    },
+    "firefox": {
+      "product": "Mozilla Firefox",
+      "version": "160.0",
+      "architecture": "linux-aarch64",
+      "build_id": "20261104181552",
+      "source_stamp": "d84e7a6936554efe26097d9d9b24a0e11330e630",
+      "url": "https://archive.mozilla.org/pub/firefox/releases/160.0/linux-aarch64/en-US/",
+      "executable_sha256": "a2edc166515c80cae7b744ee7ff91f227954619b87f6e1ae9a88905cb923b64c"
+    }
+  },
+  "capture_drivers": {
+    "native_sha256": "efa9011f15f16a8af3896c7df783496634e96c8856f202bce613c4e654395df5",
+    "surf_private_driver_sha256": "37ff59be91451bfdbb907c702d8ffa022882a1501c9c5920fa74ba9354937c42",
+    "surf_private_executable_sha256": "af2f7f6d273ea0bcb6b32d81ed302db92a599d20c5d97242c5be29e302d4a8d5",
+    "surf_public_executable_sha256": "7fd8ca14de6f37e16b81ac4a42f5aa15a4c15bc9a7fac0e8bf7b2c1a396222af"
+  },
+  "sources": [
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/net/base/features.cc",
+      "sha256": "08affb103249fa9d0ae8d469528472322a0b6746b4bd27e37d1742c5ea5f4082"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/net/quic/quic_chromium_packet_reader.cc",
+      "sha256": "bb99e8a5c6798f16468c28e6ffdf626f5729f6460b2deb12df4201ee8283387f"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/net/socket/udp_socket_posix.cc",
+      "sha256": "c83c1c813536b1ed2a3b6eeb8dffb12231a0e9ecc2648d0ddf53a96b6b9f5b31"
+    },
+    {
+      "url": "https://github.com/google/quiche/blob/132bfd90ea370faeacee616c70d10210bb12ba66/quiche/quic/core/quic_connection.cc",
+      "sha256": "e095ab5e32c4e26ca0f10907f615e19dfd2b78ca7cafd4dd42cc9a4ef3f35968"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/connection/mod.rs",
+      "sha256": "d154797bbb444029df2333a2ac8149625656fced897994c97e1a903a087d66d4"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/third_party/rust/neqo-transport/src/recovery/mod.rs",
+      "sha256": "92b6fd1e3139bcc64ad286a46de3080051078f9422658c6992b675bf34e623c3"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/socket/neqo_glue/src/lib.rs",
+      "sha256": "84e335f21af53620a0e62e2c4099680475ecbb2a634e0d1b1a783e5262a8435d"
+    },
+    {
+      "url": "https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpChannel.cpp",
+      "sha256": "4c88bef665b802818dedea03ced92169a52b4d815ab651ac79a533fe37b75aa9"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_stream_factory_job_controller.cc",
+      "sha256": "a11093dcbe07b12cb268bf160de4770a6f07312b1b38c2e0c738266a61df2772"
+    }
+  ],
+  "runs": [
+    {
+      "id": "chrome-aio-baseline",
+      "implementation": "native",
+      "browser": "chrome",
+      "condition": "baseline",
+      "started_at": "2026-11-14T07:40:28.476Z",
+      "capture": {
+        "records": 49257,
+        "bytes": 55288190,
+        "linktype": 1,
+        "sha256": "a89096ef9e9347d0da21f217c1223e39047754267860a71b70dbb66cc632c854",
+        "tcpdump": {
+          "captured": 49257,
+          "received_by_filter": 49257,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "8b99948aeec939b34d843302b057ff8b78cb4f7df0accec94cc619d160850b30",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 727.6999999880791
+        },
+        {
+          "id": "download-32m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 33554432,
+          "sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "expected_sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "valid": true,
+          "duration_ms": 10789.40000000596
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 5903.399999991059
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 5968.5
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "4",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-32m",
+          "connection": "4",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "4",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "content-length",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "4",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "connections": {
+          "4": {
+            "client_parameters": {
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_data": 15728640
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 10578,
+              "unknown": 0,
+              "bytes": 8748038,
+              "types": {
+                "2": 3661,
+                "8": 4,
+                "9": 2,
+                "10": 1,
+                "12": 6919,
+                "13": 2,
+                "14": 4,
+                "16": 176,
+                "17": 12,
+                "28": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 5,
+                  "median": 7877830,
+                  "min": 7865222,
+                  "max": 7889167
+                },
+                "non_increasing": 171
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 10,
+                    "median": 3153788,
+                    "min": 3146778,
+                    "max": 3171209
+                  },
+                  "non_increasing": 0
+                },
+                "8": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3155112,
+                    "min": 3155112,
+                    "max": 3155112
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3145850,
+                    "min": 3145850,
+                    "max": 3145850
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 10577,
+                "median": 138,
+                "min": 2,
+                "max": 196421
+              }
+            },
+            "server": {
+              "packets": 37928,
+              "unknown": 0,
+              "bytes": 43066061,
+              "types": {
+                "2": 2223,
+                "6": 1,
+                "10": 7,
+                "14": 35869,
+                "15": 4,
+                "16": 4,
+                "17": 6,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6292638,
+                  "min": 1573499,
+                  "max": 12583983
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146585,
+                    "min": 1573986,
+                    "max": 6292638
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146459,
+                    "min": 1572963,
+                    "max": 6292000
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 37927,
+                "median": 14,
+                "min": 0,
+                "max": 173854
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 35886,
+          "early": {
+            "count": 51,
+            "median": 2,
+            "min": 1,
+            "max": 2,
+            "histogram": {
+              "1": 5,
+              "2": 46
+            }
+          },
+          "late": {
+            "count": 3609,
+            "median": 10,
+            "min": 1,
+            "max": 10,
+            "histogram": {
+              "1": 18,
+              "2": 7,
+              "3": 1,
+              "4": 7,
+              "5": 6,
+              "6": 6,
+              "7": 9,
+              "8": 13,
+              "9": 10,
+              "10": 3532
+            }
+          },
+          "delay_ms": {
+            "count": 3660,
+            "median": 0,
+            "min": 0,
+            "max": 35.16
+          }
+        },
+        "unattributed_packets": []
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--user-data-dir=<private-profile>",
+        "--remote-debugging-port=0",
+        "--no-first-run",
+        "about:blank"
+      ],
+      "prefs": {}
+    },
+    {
+      "id": "surf-chrome-aio-baseline-fixed",
+      "implementation": "surf",
+      "browser": "chrome",
+      "condition": "baseline",
+      "started_at": "2026-11-14T08:26:44.671373554Z",
+      "capture": {
+        "records": 48937,
+        "bytes": 54576875,
+        "linktype": 1,
+        "sha256": "8d4a40b2f4a513957d7cc802eba080615a54e3c3a8d9f12694ef120ad0801ed4",
+        "tcpdump": {
+          "captured": 48937,
+          "received_by_filter": 48937,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "f0ea19c34d20d1134ea4c9bd237b18708575411c4695a0b8dee457a8e0dabbe9",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 899
+        },
+        {
+          "id": "download-32m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 33554432,
+          "sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "expected_sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "valid": true,
+          "duration_ms": 26730
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 8354
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 8004
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-32m",
+          "connection": "0",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "0",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "content-length",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "0",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "connections": {
+          "0": {
+            "client_parameters": {
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_data": 15728640
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 10885,
+              "unknown": 0,
+              "bytes": 8755590,
+              "types": {
+                "2": 3777,
+                "8": 4,
+                "9": 2,
+                "10": 1,
+                "12": 7048,
+                "13": 2,
+                "14": 4,
+                "16": 190,
+                "17": 12,
+                "29": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 5,
+                  "median": 7865800,
+                  "min": 7865090,
+                  "max": 7884230
+                },
+                "non_increasing": 185
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 10,
+                    "median": 3149191,
+                    "min": 3146013,
+                    "max": 3172485
+                  },
+                  "non_increasing": 0
+                },
+                "8": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3161510,
+                    "min": 3161510,
+                    "max": 3161510
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3146605,
+                    "min": 3146605,
+                    "max": 3146605
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 10884,
+                "median": 1222,
+                "min": 0,
+                "max": 164657
+              }
+            },
+            "server": {
+              "packets": 38037,
+              "unknown": 0,
+              "bytes": 42971506,
+              "types": {
+                "2": 2287,
+                "6": 1,
+                "10": 7,
+                "14": 35902,
+                "15": 4,
+                "16": 4,
+                "17": 6,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6292638,
+                  "min": 1573512,
+                  "max": 12583689
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146585,
+                    "min": 1573991,
+                    "max": 6292638
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146459,
+                    "min": 1572973,
+                    "max": 6291701
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 38036,
+                "median": 22,
+                "min": 0,
+                "max": 166670
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 35919,
+          "early": {
+            "count": 52,
+            "median": 2,
+            "min": 1,
+            "max": 2,
+            "histogram": {
+              "1": 6,
+              "2": 46
+            }
+          },
+          "late": {
+            "count": 3725,
+            "median": 10,
+            "min": 1,
+            "max": 10,
+            "histogram": {
+              "1": 44,
+              "2": 35,
+              "3": 29,
+              "4": 24,
+              "5": 28,
+              "6": 32,
+              "7": 20,
+              "8": 22,
+              "9": 34,
+              "10": 3457
+            }
+          },
+          "delay_ms": {
+            "count": 3777,
+            "median": 0.04,
+            "min": 0,
+            "max": 34.16
+          }
+        },
+        "unattributed_packets": []
+      }
+    },
+    {
+      "id": "firefox-aio-baseline",
+      "implementation": "native",
+      "browser": "firefox",
+      "condition": "baseline",
+      "started_at": "2026-11-14T07:41:23.275Z",
+      "capture": {
+        "records": 59042,
+        "bytes": 69622961,
+        "linktype": 1,
+        "sha256": "8086b041faa279eb65191e06a09de7fd23b8a2e01b443ff20df6fe6668e42097",
+        "tcpdump": {
+          "captured": 59042,
+          "received_by_filter": 59042,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "ff6d8ff0be71dfabfe832d5e8785cd1a6ef90ba871079e3ee97d041e369e361f",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h2",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 128
+        },
+        {
+          "id": "warm-1",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 1373
+        },
+        {
+          "id": "download-32m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 33554432,
+          "sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "expected_sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "valid": true,
+          "duration_ms": 14105
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 5855
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 6625
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-1",
+          "connection": "1",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-32m",
+          "connection": "1",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "1",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "content-length",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "1",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "connections": {
+          "1": {
+            "client_parameters": {
+              "initial_max_data": 25165824,
+              "initial_max_stream_data_bidi_local": 12582912,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 13930,
+              "unknown": 0,
+              "bytes": 9184937,
+              "types": {
+                "1": 7,
+                "2": 6784,
+                "6": 1,
+                "8": 2,
+                "10": 3,
+                "11": 2,
+                "12": 7149,
+                "14": 9,
+                "15": 2,
+                "16": 6,
+                "17": 12,
+                "20": 2,
+                "21": 3,
+                "24": 7
+              },
+              "max_data": {
+                "initial": 25165824,
+                "increases": {
+                  "count": 6,
+                  "median": 6301976,
+                  "min": 6291642,
+                  "max": 6613149
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 10,
+                    "median": 3151444,
+                    "min": 3146141,
+                    "max": 3326320
+                  },
+                  "non_increasing": 0
+                },
+                "8": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3147499,
+                    "min": 3147499,
+                    "max": 3147499
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3148239,
+                    "min": 3148239,
+                    "max": 3148239
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 7,
+              "ping_with_ack": 7,
+              "duplicate_packet_numbers": 3,
+              "out_of_order_numbers": 25,
+              "observed_spacing_us": {
+                "count": 13929,
+                "median": 555,
+                "min": 0,
+                "max": 257719
+              }
+            },
+            "server": {
+              "packets": 37432,
+              "unknown": 0,
+              "bytes": 43072066,
+              "types": {
+                "1": 16,
+                "2": 1542,
+                "6": 7,
+                "10": 7,
+                "14": 35892,
+                "15": 4,
+                "16": 4,
+                "17": 6,
+                "24": 7,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6291649,
+                  "min": 1573882,
+                  "max": 12584089
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146813,
+                    "min": 1573416,
+                    "max": 6291649
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3439274,
+                    "min": 1574063,
+                    "max": 6292298
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 16,
+              "ping_with_ack": 16,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 37431,
+                "median": 14,
+                "min": 0,
+                "max": 216839
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 35929,
+          "early": {
+            "count": 45,
+            "median": 2,
+            "min": 1,
+            "max": 5,
+            "histogram": {
+              "1": 4,
+              "2": 37,
+              "3": 2,
+              "4": 1,
+              "5": 1
+            }
+          },
+          "late": {
+            "count": 6739,
+            "median": 3,
+            "min": 1,
+            "max": 183,
+            "histogram": {
+              "1": 36,
+              "2": 2923,
+              "3": 1345,
+              "4": 611,
+              "5": 345,
+              "6": 190,
+              "7": 169,
+              "8": 133,
+              "9": 141,
+              "10": 96,
+              "11": 115,
+              "12": 68,
+              "13": 70,
+              "14": 64,
+              "15": 43,
+              "16": 37,
+              "17": 31,
+              "18": 18,
+              "19": 18,
+              "20": 24,
+              "21": 28,
+              "22": 15,
+              "23": 11,
+              "24": 20,
+              "25": 18,
+              "26": 14,
+              "27": 16,
+              "28": 11,
+              "29": 11,
+              "30": 10,
+              "31": 12,
+              "32": 9,
+              "33": 5,
+              "34": 4,
+              "35": 5,
+              "36": 4,
+              "37": 8,
+              "38": 4,
+              "41": 2,
+              "42": 3,
+              "43": 2,
+              "44": 4,
+              "45": 5,
+              "46": 1,
+              "48": 2,
+              "49": 3,
+              "50": 2,
+              "51": 1,
+              "52": 2,
+              "54": 2,
+              "55": 2,
+              "57": 1,
+              "58": 1,
+              "60": 2,
+              "61": 1,
+              "63": 1,
+              "68": 2,
+              "72": 2,
+              "73": 2,
+              "78": 1,
+              "80": 1,
+              "83": 1,
+              "84": 1,
+              "89": 1,
+              "91": 1,
+              "95": 1,
+              "98": 1,
+              "110": 2,
+              "132": 1,
+              "148": 1,
+              "162": 1,
+              "183": 1
+            }
+          },
+          "delay_ms": {
+            "count": 6784,
+            "median": 0.032,
+            "min": 0,
+            "max": 26.304
+          }
+        },
+        "unattributed_packets": []
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--no-remote",
+        "--profile",
+        "<private-profile>",
+        "--remote-debugging-port=0",
+        "about:blank"
+      ],
+      "prefs": {
+        "remote.prefs.recommended": false,
+        "browser.shell.checkDefaultBrowser": false,
+        "browser.startup.page": 0
+      }
+    },
+    {
+      "id": "surf-firefox-matched-baseline",
+      "implementation": "surf",
+      "browser": "firefox",
+      "condition": "baseline",
+      "started_at": "2026-11-14T08:54:01.337681912Z",
+      "capture": {
+        "records": 55318,
+        "bytes": 55420796,
+        "linktype": 1,
+        "sha256": "6228fd1aa22ea01d79741559e746201da40b39d9eb0fa50f88505033fc3ba04a",
+        "tcpdump": {
+          "captured": 55318,
+          "received_by_filter": 55318,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "dd0428f69036cdb9409f2b7b93bc3a57f9853c0eb2f485843856146b649eb7f8",
+      "attempts": [
+        {
+          "id": "warm-1",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 922,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        },
+        {
+          "id": "download-32m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 33554432,
+          "sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "expected_sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+          "valid": true,
+          "duration_ms": 17692,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 6853,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 6809,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-1",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-32m",
+          "connection": "0",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "0",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "content-length",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "0",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "0": {
+            "client_parameters": {
+              "initial_max_data": 25165824,
+              "initial_max_stream_data_bidi_local": 12582912,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 17621,
+              "unknown": 0,
+              "bytes": 9086934,
+              "types": {
+                "1": 17,
+                "2": 10619,
+                "6": 1,
+                "8": 3,
+                "9": 1,
+                "10": 2,
+                "11": 1,
+                "12": 6996,
+                "13": 2,
+                "14": 228,
+                "16": 6,
+                "17": 12,
+                "20": 2,
+                "21": 3,
+                "24": 5,
+                "29": 1
+              },
+              "max_data": {
+                "initial": 25165824,
+                "increases": {
+                  "count": 6,
+                  "median": 6292961,
+                  "min": 6291487,
+                  "max": 6296272
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 10,
+                    "median": 3146877,
+                    "min": 3145811,
+                    "max": 3149098
+                  },
+                  "non_increasing": 0
+                },
+                "8": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3147531,
+                    "min": 3147531,
+                    "max": 3147531
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3146418,
+                    "min": 3146418,
+                    "max": 3146418
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 17,
+              "ping_with_ack": 17,
+              "duplicate_packet_numbers": 3,
+              "out_of_order_numbers": 36,
+              "observed_spacing_us": {
+                "count": 17620,
+                "median": 87,
+                "min": 0,
+                "max": 464344
+              }
+            },
+            "server": {
+              "packets": 37687,
+              "unknown": 0,
+              "bytes": 43113949,
+              "types": {
+                "1": 42,
+                "2": 1711,
+                "6": 7,
+                "10": 7,
+                "14": 35981,
+                "15": 4,
+                "16": 7,
+                "17": 9,
+                "24": 7,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6651193,
+                  "min": 1573215,
+                  "max": 12584088
+                },
+                "non_increasing": 3
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 2,
+                    "median": 3145888,
+                    "min": 1573957,
+                    "max": 3145888
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3145888,
+                    "min": 1573973,
+                    "max": 6291776
+                  },
+                  "non_increasing": 4
+                }
+              },
+              "ping_without_stream": 42,
+              "ping_with_ack": 35,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 37686,
+                "median": 11,
+                "min": 0,
+                "max": 213384
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 36045,
+          "early": {
+            "count": 44,
+            "median": 2,
+            "min": 1,
+            "max": 5,
+            "histogram": {
+              "1": 4,
+              "2": 35,
+              "3": 3,
+              "4": 1,
+              "5": 1
+            }
+          },
+          "late": {
+            "count": 10575,
+            "median": 2,
+            "min": 1,
+            "max": 33,
+            "histogram": {
+              "1": 120,
+              "2": 5351,
+              "3": 2443,
+              "4": 1208,
+              "5": 493,
+              "6": 317,
+              "7": 145,
+              "8": 117,
+              "9": 56,
+              "10": 37,
+              "11": 35,
+              "12": 37,
+              "13": 17,
+              "14": 16,
+              "15": 10,
+              "16": 11,
+              "17": 11,
+              "18": 11,
+              "19": 14,
+              "20": 10,
+              "21": 10,
+              "22": 5,
+              "23": 3,
+              "24": 9,
+              "25": 10,
+              "26": 5,
+              "27": 3,
+              "28": 5,
+              "29": 4,
+              "30": 3,
+              "31": 3,
+              "32": 55,
+              "33": 1
+            }
+          },
+          "delay_ms": {
+            "count": 10619,
+            "median": 0,
+            "min": 0,
+            "max": 23.368
+          }
+        }
+      }
+    },
+    {
+      "id": "chrome-aio-loss",
+      "implementation": "native",
+      "browser": "chrome",
+      "condition": "delay-loss",
+      "started_at": "2026-11-14T07:59:59.636Z",
+      "capture": {
+        "records": 34920,
+        "bytes": 37348213,
+        "linktype": 1,
+        "sha256": "2e47e05b5acc21dffdbd56134f99e00a94bcdc49bce3a8e2f46b452fcb06b42c",
+        "tcpdump": {
+          "captured": 34920,
+          "received_by_filter": 34920,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "7126f03ab5282ef1cf666f82e7ca97c8c2cae445ecbc95dfe7cb8587ff187a8b",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 818.7999999970198
+        },
+        {
+          "id": "download-16m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 16777216,
+          "sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "expected_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "valid": true,
+          "duration_ms": 96827.20000000298
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 20862.10000000894
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 24288.10000000894
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "5",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-16m",
+          "connection": "5",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "7",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "content-length",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "7",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "connections": {
+          "5": {
+            "client_parameters": {
+              "initial_max_data": 15728640,
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_uni": 6291456
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 2388,
+              "unknown": 0,
+              "bytes": 85512,
+              "types": {
+                "0": 3,
+                "2": 2375,
+                "8": 2,
+                "9": 2,
+                "10": 1,
+                "14": 2,
+                "16": 120,
+                "17": 5,
+                "25": 1,
+                "26": 3
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 2,
+                  "median": 7892296,
+                  "min": 7864779,
+                  "max": 7892296
+                },
+                "non_increasing": 118
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 5,
+                    "median": 3150319,
+                    "min": 3145905,
+                    "max": 3156455
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 2387,
+                "median": 33614,
+                "min": 0,
+                "max": 480450
+              }
+            },
+            "server": {
+              "packets": 14730,
+              "unknown": 0,
+              "bytes": 17230883,
+              "types": {
+                "2": 130,
+                "6": 1,
+                "10": 5,
+                "14": 14678,
+                "15": 2,
+                "24": 2,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 0,
+                  "median": null,
+                  "min": null,
+                  "max": null
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {},
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 14729,
+                "median": 18,
+                "min": 0,
+                "max": 944293
+              }
+            }
+          },
+          "7": {
+            "client_parameters": {
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_data": 15728640,
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_bidi_local": 6291456
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 8007,
+              "unknown": 0,
+              "bytes": 8680279,
+              "types": {
+                "2": 1168,
+                "8": 3,
+                "10": 1,
+                "12": 6936,
+                "13": 2,
+                "14": 8,
+                "16": 51,
+                "17": 2,
+                "20": 1,
+                "21": 1,
+                "28": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 1,
+                  "median": 7864839,
+                  "min": 7864839,
+                  "max": 7864839
+                },
+                "non_increasing": 50
+              },
+              "max_stream_data": {
+                "0": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3145762,
+                    "min": 3145762,
+                    "max": 3145762
+                  },
+                  "non_increasing": 0
+                },
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3151944,
+                    "min": 3151944,
+                    "max": 3151944
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 8006,
+                "median": 2,
+                "min": 0,
+                "max": 1276720
+              }
+            },
+            "server": {
+              "packets": 8914,
+              "unknown": 0,
+              "bytes": 8645921,
+              "types": {
+                "0": 1,
+                "1": 117,
+                "2": 1638,
+                "6": 1,
+                "10": 5,
+                "14": 7293,
+                "15": 2,
+                "16": 4,
+                "17": 6,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6501875,
+                  "min": 1574035,
+                  "max": 12583294
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "0": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3366782,
+                    "min": 1573979,
+                    "max": 6501875
+                  },
+                  "non_increasing": 0
+                },
+                "4": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146445,
+                    "min": 1573620,
+                    "max": 6631741
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 116,
+              "ping_with_ack": 117,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 8913,
+                "median": 573,
+                "min": 0,
+                "max": 1260040
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 22103,
+          "early": {
+            "count": 56,
+            "median": 2,
+            "min": 1,
+            "max": 2,
+            "histogram": {
+              "1": 10,
+              "2": 46
+            }
+          },
+          "late": {
+            "count": 3486,
+            "median": 7,
+            "min": 1,
+            "max": 20,
+            "histogram": {
+              "1": 482,
+              "2": 248,
+              "3": 226,
+              "4": 236,
+              "5": 288,
+              "6": 220,
+              "7": 228,
+              "8": 215,
+              "9": 199,
+              "10": 1135,
+              "11": 2,
+              "12": 1,
+              "13": 4,
+              "19": 1,
+              "20": 1
+            }
+          },
+          "delay_ms": {
+            "count": 3542,
+            "median": 2.912,
+            "min": 0,
+            "max": 32.056
+          }
+        },
+        "unattributed_packets": []
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--user-data-dir=<private-profile>",
+        "--remote-debugging-port=0",
+        "--no-first-run",
+        "about:blank"
+      ],
+      "prefs": {},
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8007: dev eth0 root refcnt 13 limit 10000 delay 20ms loss 0.25% seed 42",
+        " Sent 9327787 bytes 11016 pkt (dropped 26, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 36664873 bytes 30717 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8008: dev surfifb root refcnt 2 limit 10000 delay 20ms loss 0.25% seed 43",
+        " Sent 37020890 bytes 30657 pkt (dropped 64, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0"
+      ]
+    },
+    {
+      "id": "surf-chrome-aio-loss-final",
+      "implementation": "surf",
+      "browser": "chrome",
+      "condition": "delay-loss",
+      "started_at": "2026-11-14T08:32:54.293851883Z",
+      "capture": {
+        "records": 34864,
+        "bytes": 36666915,
+        "linktype": 1,
+        "sha256": "f5a03c1b4d99cc8fcc54e2de44e080ca3f30705bfabe8b3d0fdbe23ac2149a67",
+        "tcpdump": {
+          "captured": 34864,
+          "received_by_filter": 34864,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "054303c8a210644eafa86703f6da69fd8e1888d7c69e6096db5cf0f7fb384157",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 964
+        },
+        {
+          "id": "download-16m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 16777216,
+          "sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "expected_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "valid": true,
+          "duration_ms": 96037
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 31632
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 31731
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-16m",
+          "connection": "0",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "0",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "content-length",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "0",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "connections": {
+          "0": {
+            "client_parameters": {
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_data": 15728640,
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_stream_data_bidi_remote": 6291456
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 10548,
+              "unknown": 0,
+              "bytes": 8744006,
+              "types": {
+                "2": 3403,
+                "8": 4,
+                "9": 2,
+                "10": 1,
+                "12": 7016,
+                "13": 2,
+                "14": 9,
+                "16": 178,
+                "17": 7,
+                "29": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 3,
+                  "median": 7866374,
+                  "min": 7865495,
+                  "max": 7866871
+                },
+                "non_increasing": 175
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 5,
+                    "median": 3147848,
+                    "min": 3146213,
+                    "max": 3154834
+                  },
+                  "non_increasing": 0
+                },
+                "8": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3147692,
+                    "min": 3147692,
+                    "max": 3147692
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3153546,
+                    "min": 3153546,
+                    "max": 3153546
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 10547,
+                "median": 3115,
+                "min": 0,
+                "max": 543426
+              }
+            },
+            "server": {
+              "packets": 24294,
+              "unknown": 0,
+              "bytes": 25887798,
+              "types": {
+                "1": 19,
+                "2": 2394,
+                "6": 1,
+                "10": 7,
+                "14": 21996,
+                "15": 4,
+                "16": 4,
+                "17": 6,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6292638,
+                  "min": 1573509,
+                  "max": 12583689
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146585,
+                    "min": 1573991,
+                    "max": 6292638
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146459,
+                    "min": 1572973,
+                    "max": 6291701
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 16,
+              "ping_with_ack": 19,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 24293,
+                "median": 43,
+                "min": 0,
+                "max": 559942
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 22029,
+          "early": {
+            "count": 50,
+            "median": 2,
+            "min": 1,
+            "max": 4,
+            "histogram": {
+              "1": 7,
+              "2": 42,
+              "4": 1
+            }
+          },
+          "late": {
+            "count": 3353,
+            "median": 7,
+            "min": 1,
+            "max": 19,
+            "histogram": {
+              "1": 414,
+              "2": 200,
+              "3": 198,
+              "4": 298,
+              "5": 242,
+              "6": 194,
+              "7": 187,
+              "8": 221,
+              "9": 207,
+              "10": 1186,
+              "11": 1,
+              "15": 1,
+              "16": 1,
+              "17": 1,
+              "18": 1,
+              "19": 1
+            }
+          },
+          "delay_ms": {
+            "count": 3403,
+            "median": 1.904,
+            "min": 0,
+            "max": 34.344
+          }
+        },
+        "unattributed_packets": []
+      },
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8019: dev eth0 root refcnt 13 limit 10000 delay 20ms loss 0.25% seed 42",
+        " Sent 9193084 bytes 10566 pkt (dropped 17, overlimits 0 requeues 0) ",
+        " backlog 72b 1p requeues 0",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 26577085 bytes 24327 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 801a: dev surfifb root refcnt 2 limit 10000 delay 20ms loss 0.25% seed 43",
+        " Sent 26848952 bytes 24268 pkt (dropped 64, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0"
+      ]
+    },
+    {
+      "id": "firefox-aio-loss",
+      "implementation": "native",
+      "browser": "firefox",
+      "condition": "delay-loss",
+      "started_at": "2026-11-14T08:03:35.013Z",
+      "capture": {
+        "records": 52136,
+        "bytes": 102247509,
+        "linktype": 1,
+        "sha256": "75cea2aea83b180a29cf66cd732deb6df8b06f66fe3ee272473f7c811d256d62",
+        "tcpdump": {
+          "captured": 52136,
+          "received_by_filter": 52136,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "6ae0aab704e42e2cda5da8b383be8fa00871525fae3d54eea5a1a1d0b991fa2c",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h2",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 168
+        },
+        {
+          "id": "warm-1",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 791
+        },
+        {
+          "id": "download-16m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 16777216,
+          "sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "expected_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "valid": true,
+          "duration_ms": 86062
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 28521
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 27863
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-1",
+          "connection": "2",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-16m",
+          "connection": "2",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "2",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "content-length",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "2",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "connections": {
+          "2": {
+            "client_parameters": {
+              "initial_max_data": 25165824,
+              "initial_max_stream_data_bidi_local": 12582912,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 14545,
+              "unknown": 0,
+              "bytes": 9986259,
+              "types": {
+                "0": 8,
+                "1": 166,
+                "2": 6775,
+                "6": 1,
+                "8": 2,
+                "10": 3,
+                "11": 2,
+                "12": 7787,
+                "14": 33,
+                "15": 3,
+                "16": 3,
+                "17": 7,
+                "20": 2,
+                "21": 3,
+                "24": 7
+              },
+              "max_data": {
+                "initial": 25165824,
+                "increases": {
+                  "count": 3,
+                  "median": 6293302,
+                  "min": 6293150,
+                  "max": 6299184
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 5,
+                    "median": 3149599,
+                    "min": 3146075,
+                    "max": 3153756
+                  },
+                  "non_increasing": 0
+                },
+                "8": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3171265,
+                    "min": 3171265,
+                    "max": 3171265
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3148009,
+                    "min": 3148009,
+                    "max": 3148009
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 166,
+              "ping_with_ack": 158,
+              "duplicate_packet_numbers": 3,
+              "out_of_order_numbers": 8,
+              "observed_spacing_us": {
+                "count": 14544,
+                "median": 1636,
+                "min": 0,
+                "max": 548511
+              }
+            },
+            "server": {
+              "packets": 23874,
+              "unknown": 0,
+              "bytes": 25960685,
+              "types": {
+                "0": 1,
+                "1": 93,
+                "2": 1850,
+                "6": 7,
+                "10": 7,
+                "14": 22071,
+                "15": 4,
+                "16": 9,
+                "17": 10,
+                "24": 7,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6815773,
+                  "min": 1573513,
+                  "max": 12583821
+                },
+                "non_increasing": 5
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 2,
+                    "median": 3146692,
+                    "min": 1573048,
+                    "max": 3146692
+                  },
+                  "non_increasing": 5
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146688,
+                    "min": 1572884,
+                    "max": 6349763
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 90,
+              "ping_with_ack": 88,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 23873,
+                "median": 31,
+                "min": 0,
+                "max": 360592
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 22180,
+          "early": {
+            "count": 37,
+            "median": 2,
+            "min": 1,
+            "max": 6,
+            "histogram": {
+              "1": 6,
+              "2": 19,
+              "3": 3,
+              "4": 6,
+              "5": 2,
+              "6": 1
+            }
+          },
+          "late": {
+            "count": 6738,
+            "median": 2,
+            "min": 1,
+            "max": 42,
+            "histogram": {
+              "1": 622,
+              "2": 2796,
+              "3": 1306,
+              "4": 758,
+              "5": 432,
+              "6": 311,
+              "7": 177,
+              "8": 125,
+              "9": 55,
+              "10": 47,
+              "11": 40,
+              "12": 13,
+              "13": 14,
+              "14": 8,
+              "15": 2,
+              "16": 8,
+              "17": 3,
+              "18": 4,
+              "19": 2,
+              "20": 1,
+              "21": 2,
+              "25": 2,
+              "26": 2,
+              "27": 1,
+              "29": 2,
+              "30": 2,
+              "37": 1,
+              "38": 1,
+              "42": 1
+            }
+          },
+          "delay_ms": {
+            "count": 6775,
+            "median": 0.072,
+            "min": 0,
+            "max": 24.224
+          }
+        },
+        "unattributed_packets": []
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--no-remote",
+        "--profile",
+        "<private-profile>",
+        "--remote-debugging-port=0",
+        "about:blank"
+      ],
+      "prefs": {
+        "remote.prefs.recommended": false,
+        "browser.shell.checkDefaultBrowser": false,
+        "browser.startup.page": 0
+      },
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8009: dev eth0 root refcnt 13 limit 10000 delay 20ms loss 0.25% seed 42",
+        " Sent 11180667 bytes 20288 pkt (dropped 38, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 91758305 bytes 69616 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 800a: dev surfifb root refcnt 2 limit 10000 delay 20ms loss 0.25% seed 43",
+        " Sent 92440043 bytes 69409 pkt (dropped 85, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0"
+      ]
+    },
+    {
+      "id": "surf-firefox-matched-loss",
+      "implementation": "surf",
+      "browser": "firefox",
+      "condition": "delay-loss",
+      "started_at": "2026-11-14T08:54:37.302812159Z",
+      "capture": {
+        "records": 37862,
+        "bytes": 37026321,
+        "linktype": 1,
+        "sha256": "9fbce2acc347ae2e8442a931d8195d13eff2d291a2d2010751ad202ee7655029",
+        "tcpdump": {
+          "captured": 37862,
+          "received_by_filter": 37862,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "24aa2514c31c629af20d513e842e2178d188c13b9c82e83a029b95d477f2562a",
+      "attempts": [
+        {
+          "id": "warm-1",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 1017,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        },
+        {
+          "id": "download-16m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 16777216,
+          "sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "expected_sha256": "55c7e25571a69216de25162f191bb2847201a09ee7efe46b5bada034acc695d5",
+          "valid": true,
+          "duration_ms": 75390,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        },
+        {
+          "id": "upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 24601,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        },
+        {
+          "id": "stream-upload-4m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 27456,
+          "peer_certificates": 3,
+          "verified_chains": 1
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-1",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-16m",
+          "connection": "0",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-4m",
+          "connection": "0",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "content-length",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-4m",
+          "connection": "0",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "0": {
+            "client_parameters": {
+              "initial_max_data": 25165824,
+              "initial_max_stream_data_bidi_local": 12582912,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 13798,
+              "unknown": 0,
+              "bytes": 8854281,
+              "types": {
+                "0": 7,
+                "1": 182,
+                "2": 6876,
+                "6": 3,
+                "8": 3,
+                "9": 2,
+                "10": 2,
+                "12": 6920,
+                "13": 2,
+                "14": 228,
+                "16": 3,
+                "17": 7,
+                "24": 5,
+                "29": 1
+              },
+              "max_data": {
+                "initial": 25165824,
+                "increases": {
+                  "count": 3,
+                  "median": 6293104,
+                  "min": 6292145,
+                  "max": 6294117
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 5,
+                    "median": 3147771,
+                    "min": 3146822,
+                    "max": 3214714
+                  },
+                  "non_increasing": 0
+                },
+                "8": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3169532,
+                    "min": 3169532,
+                    "max": 3169532
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3145739,
+                    "min": 3145739,
+                    "max": 3145739
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 182,
+              "ping_with_ack": 175,
+              "duplicate_packet_numbers": 5,
+              "out_of_order_numbers": 20,
+              "observed_spacing_us": {
+                "count": 13797,
+                "median": 2496,
+                "min": 0,
+                "max": 521102
+              }
+            },
+            "server": {
+              "packets": 24049,
+              "unknown": 0,
+              "bytes": 25964257,
+              "types": {
+                "1": 27,
+                "2": 2110,
+                "6": 13,
+                "10": 7,
+                "14": 21994,
+                "15": 4,
+                "16": 4,
+                "17": 6,
+                "24": 7,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 4,
+                  "median": 6291764,
+                  "min": 1577003,
+                  "max": 12583815
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3145760,
+                    "min": 1576535,
+                    "max": 6291764
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 3,
+                    "median": 3146048,
+                    "min": 1573973,
+                    "max": 6291617
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 25,
+              "ping_with_ack": 27,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 24048,
+                "median": 49,
+                "min": 0,
+                "max": 541765
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 22045,
+          "early": {
+            "count": 42,
+            "median": 2,
+            "min": 1,
+            "max": 5,
+            "histogram": {
+              "1": 6,
+              "2": 28,
+              "3": 5,
+              "4": 1,
+              "5": 2
+            }
+          },
+          "late": {
+            "count": 6834,
+            "median": 2,
+            "min": 1,
+            "max": 33,
+            "histogram": {
+              "1": 480,
+              "2": 3331,
+              "3": 1454,
+              "4": 600,
+              "5": 328,
+              "6": 205,
+              "7": 120,
+              "8": 81,
+              "9": 44,
+              "10": 27,
+              "11": 22,
+              "12": 16,
+              "13": 22,
+              "14": 18,
+              "15": 14,
+              "16": 10,
+              "17": 3,
+              "18": 5,
+              "19": 3,
+              "20": 1,
+              "21": 8,
+              "22": 2,
+              "23": 1,
+              "24": 4,
+              "25": 2,
+              "26": 1,
+              "27": 2,
+              "28": 2,
+              "29": 3,
+              "31": 2,
+              "32": 18,
+              "33": 5
+            }
+          },
+          "delay_ms": {
+            "count": 6876,
+            "median": 0.008,
+            "min": 0,
+            "max": 28.944
+          }
+        }
+      },
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 801f: dev eth0 root refcnt 13 limit 10000 delay 20ms loss 0.25% seed 42",
+        " Sent 9444587 bytes 13815 pkt (dropped 21, overlimits 0 requeues 0) ",
+        " backlog 223b 3p requeues 0",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 26640163 bytes 24069 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8020: dev surfifb root refcnt 2 limit 10000 delay 20ms loss 0.25% seed 43",
+        " Sent 26907018 bytes 24010 pkt (dropped 64, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0"
+      ]
+    },
+    {
+      "id": "chrome-aio-reorder-v2",
+      "implementation": "native",
+      "browser": "chrome",
+      "condition": "jitter-reorder",
+      "started_at": "2026-11-14T08:18:11.266Z",
+      "capture": {
+        "records": 13778,
+        "bytes": 10403536,
+        "linktype": 1,
+        "sha256": "58af25b4dc4ab755226f58dbfef707e9b3b4108953ad4c1b6b3d5c06a04e9c85",
+        "tcpdump": {
+          "captured": 13778,
+          "received_by_filter": 13778,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "5864b58eb844b6bf74b9a65f4b366c962272a1dba63b4ff8f2c23c0fc7209d7e",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 1569
+        },
+        {
+          "id": "download-4m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 55902.20000000298
+        },
+        {
+          "id": "upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 18331.60000000894
+        },
+        {
+          "id": "stream-upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 18268.29999999702
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "5",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-4m",
+          "connection": "5",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-1m",
+          "connection": "5",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "content-length",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-1m",
+          "connection": "7",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [
+          {
+            "frame": 282,
+            "type": 1,
+            "bytes": 79
+          }
+        ],
+        "connections": {
+          "5": {
+            "client_parameters": {
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_data": 15728640
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 4122,
+              "unknown": 7,
+              "bytes": 1189266,
+              "types": {
+                "0": 1,
+                "1": 2,
+                "2": 3251,
+                "8": 3,
+                "9": 2,
+                "10": 1,
+                "12": 861,
+                "13": 1,
+                "14": 4,
+                "16": 164,
+                "17": 1,
+                "28": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 0,
+                  "median": null,
+                  "min": null,
+                  "max": null
+                },
+                "non_increasing": 164
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3146180,
+                    "min": 3146180,
+                    "max": 3146180
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 2,
+              "ping_with_ack": 1,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 827,
+              "observed_spacing_us": {
+                "count": 4121,
+                "median": 5862,
+                "min": 0,
+                "max": 18237799
+              }
+            },
+            "server": {
+              "packets": 5517,
+              "unknown": 0,
+              "bytes": 5503102,
+              "types": {
+                "0": 1,
+                "1": 16,
+                "2": 549,
+                "6": 1,
+                "10": 6,
+                "14": 5010,
+                "15": 3,
+                "16": 1,
+                "17": 1,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 1,
+                  "median": 1573009,
+                  "min": 1573009,
+                  "max": 1573009
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1573493,
+                    "min": 1573493,
+                    "max": 1573493
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 10,
+              "ping_with_ack": 12,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 5516,
+                "median": 2129,
+                "min": 0,
+                "max": 612195
+              }
+            }
+          },
+          "7": {
+            "client_parameters": {
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_data": 15728640,
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_uni": 6291456
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 1575,
+              "unknown": 4,
+              "bytes": 1102047,
+              "types": {
+                "2": 718,
+                "8": 1,
+                "10": 1,
+                "12": 863,
+                "13": 1,
+                "14": 1,
+                "16": 35,
+                "28": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 0,
+                  "median": null,
+                  "min": null,
+                  "max": null
+                },
+                "non_increasing": 35
+              },
+              "max_stream_data": {},
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 374,
+              "observed_spacing_us": {
+                "count": 1574,
+                "median": 3550,
+                "min": 0,
+                "max": 246739
+              }
+            },
+            "server": {
+              "packets": 1375,
+              "unknown": 0,
+              "bytes": 1121956,
+              "types": {
+                "0": 1,
+                "1": 15,
+                "2": 376,
+                "6": 1,
+                "10": 4,
+                "14": 1007,
+                "15": 1,
+                "16": 1,
+                "17": 1,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 1,
+                  "median": 1573027,
+                  "min": 1573027,
+                  "max": 1573027
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "0": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1572970,
+                    "min": 1572970,
+                    "max": 1572970
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 14,
+              "ping_with_ack": 15,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 1374,
+                "median": 3043,
+                "min": 0,
+                "max": 428133
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 6055,
+          "early": {
+            "count": 56,
+            "median": 2,
+            "min": 1,
+            "max": 5,
+            "histogram": {
+              "1": 23,
+              "2": 25,
+              "3": 6,
+              "4": 1,
+              "5": 1
+            }
+          },
+          "late": {
+            "count": 3177,
+            "median": 1,
+            "min": 1,
+            "max": 11,
+            "histogram": {
+              "1": 1652,
+              "2": 788,
+              "3": 403,
+              "4": 211,
+              "5": 80,
+              "6": 31,
+              "7": 11,
+              "11": 1
+            }
+          },
+          "delay_ms": {
+            "count": 3233,
+            "median": 0.152,
+            "min": 0,
+            "max": 36.488
+          }
+        }
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--user-data-dir=<private-profile>",
+        "--remote-debugging-port=0",
+        "--no-first-run",
+        "about:blank"
+      ],
+      "prefs": {},
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8011: dev eth0 root refcnt 13 limit 10000 delay 10ms  2ms reorder 5% 25% seed 42 gap 1",
+        " Sent 2709193 bytes 6876 pkt (dropped 0, overlimits 0 requeues 8) ",
+        " backlog 0b 0p requeues 8",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 16939860 bytes 14036 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8012: dev surfifb root refcnt 2 limit 10000 delay 10ms  2ms reorder 5% 25% seed 43 gap 1",
+        " Sent 17136644 bytes 14040 pkt (dropped 0, overlimits 0 requeues 15) ",
+        " backlog 0b 0p requeues 15"
+      ]
+    },
+    {
+      "id": "surf-chrome-aio-reorder-fixed",
+      "implementation": "surf",
+      "browser": "chrome",
+      "condition": "jitter-reorder",
+      "started_at": "2026-11-14T08:23:13.35332659Z",
+      "capture": {
+        "records": 11400,
+        "bytes": 9511855,
+        "linktype": 1,
+        "sha256": "77ef93d90da2b81d17481c7c28a009bd99d45f8716f3c38074b95455f9c30dc9",
+        "tcpdump": {
+          "captured": 11400,
+          "received_by_filter": 11400,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "1e0a241bc2c46f254d6c6091e59c59b81edeec25b0778ca47aced5a3f52ff373",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 3680
+        },
+        {
+          "id": "download-4m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 44493
+        },
+        {
+          "id": "upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 16167
+        },
+        {
+          "id": "stream-upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 14128
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "warm-0",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-4m",
+          "connection": "0",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-1m",
+          "connection": "0",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "content-length",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-1m",
+          "connection": "0",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "origin",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "0": {
+            "client_parameters": {
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_data": 15728640
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 4787,
+              "unknown": 4,
+              "bytes": 2256605,
+              "types": {
+                "2": 2872,
+                "8": 4,
+                "9": 3,
+                "10": 1,
+                "12": 1760,
+                "13": 2,
+                "14": 6,
+                "16": 150,
+                "17": 1,
+                "29": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 0,
+                  "median": null,
+                  "min": null,
+                  "max": null
+                },
+                "non_increasing": 150
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 1,
+                    "median": 3149289,
+                    "min": 3149289,
+                    "max": 3149289
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 382,
+              "observed_spacing_us": {
+                "count": 4786,
+                "median": 6156,
+                "min": 0,
+                "max": 2263038
+              }
+            },
+            "server": {
+              "packets": 6581,
+              "unknown": 0,
+              "bytes": 6573583,
+              "types": {
+                "1": 4,
+                "2": 784,
+                "6": 1,
+                "10": 7,
+                "14": 5827,
+                "15": 4,
+                "16": 2,
+                "17": 2,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 2,
+                  "median": 3146181,
+                  "min": 1573636,
+                  "max": 3146181
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1572899,
+                    "min": 1572899,
+                    "max": 1572899
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1572973,
+                    "min": 1572973,
+                    "max": 1572973
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 3,
+              "ping_with_ack": 4,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 6580,
+                "median": 2176,
+                "min": 0,
+                "max": 2412320
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 5839,
+          "early": {
+            "count": 52,
+            "median": 2,
+            "min": 1,
+            "max": 4,
+            "histogram": {
+              "1": 22,
+              "2": 25,
+              "3": 4,
+              "4": 1
+            }
+          },
+          "late": {
+            "count": 2634,
+            "median": 2,
+            "min": 1,
+            "max": 8,
+            "histogram": {
+              "1": 993,
+              "2": 747,
+              "3": 500,
+              "4": 257,
+              "5": 97,
+              "6": 30,
+              "7": 9,
+              "8": 1
+            }
+          },
+          "delay_ms": {
+            "count": 2686,
+            "median": 0.256,
+            "min": 0,
+            "max": 39.208
+          }
+        }
+      },
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8015: dev eth0 root refcnt 13 limit 10000 delay 10ms  2ms reorder 5% 25% seed 42 gap 1",
+        " Sent 2466544 bytes 4809 pkt (dropped 0, overlimits 0 requeues 8) ",
+        " backlog 0b 0p requeues 8",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 6771585 bytes 6612 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8016: dev surfifb root refcnt 2 limit 10000 delay 10ms  2ms reorder 5% 25% seed 43 gap 1",
+        " Sent 6864433 bytes 6616 pkt (dropped 0, overlimits 0 requeues 12) ",
+        " backlog 0b 0p requeues 12"
+      ]
+    },
+    {
+      "id": "firefox-aio-reorder",
+      "implementation": "native",
+      "browser": "firefox",
+      "condition": "jitter-reorder",
+      "started_at": "2026-11-14T08:20:25.932Z",
+      "capture": {
+        "records": 28099,
+        "bytes": 74553360,
+        "linktype": 1,
+        "sha256": "c3c1e9a4c227c7ae295d881a81526c4ef80ff0da21ca9cea21e11ff0e74a89a3",
+        "tcpdump": {
+          "captured": 28099,
+          "received_by_filter": 28099,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "8b7e92afb5539a7c737ba8070f55dd6f527b81b59e67e2a477d7dc4f450b5af7",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h2",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 195
+        },
+        {
+          "id": "warm-1",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 2310
+        },
+        {
+          "id": "download-4m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 54701
+        },
+        {
+          "id": "upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 17967
+        },
+        {
+          "id": "stream-upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "h3",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 14800
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-1",
+          "connection": "2",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "warm-1",
+          "connection": "2",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-4m",
+          "connection": "2",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "upload-1m",
+          "connection": "2",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "content-length",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        },
+        {
+          "id": "stream-upload-1m",
+          "connection": "2",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "2": {
+            "client_parameters": {
+              "initial_max_data": 25165824,
+              "initial_max_stream_data_bidi_local": 12582912,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 5281,
+              "unknown": 1,
+              "bytes": 2304458,
+              "types": {
+                "0": 14,
+                "1": 100,
+                "2": 3514,
+                "6": 1,
+                "8": 2,
+                "10": 3,
+                "11": 3,
+                "12": 1750,
+                "14": 3,
+                "15": 2,
+                "16": 1,
+                "17": 1,
+                "20": 1,
+                "21": 1,
+                "24": 7
+              },
+              "max_data": {
+                "initial": 25165824,
+                "increases": {
+                  "count": 1,
+                  "median": 6292740,
+                  "min": 6292740,
+                  "max": 6292740
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3146166,
+                    "min": 3146166,
+                    "max": 3146166
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 100,
+              "ping_with_ack": 86,
+              "duplicate_packet_numbers": 7,
+              "out_of_order_numbers": 406,
+              "observed_spacing_us": {
+                "count": 5280,
+                "median": 7986,
+                "min": 0,
+                "max": 1471491
+              }
+            },
+            "server": {
+              "packets": 6677,
+              "unknown": 0,
+              "bytes": 6637833,
+              "types": {
+                "1": 9,
+                "2": 751,
+                "6": 7,
+                "10": 7,
+                "14": 5947,
+                "15": 4,
+                "16": 2,
+                "17": 2,
+                "24": 7,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 2,
+                  "median": 3146063,
+                  "min": 1573669,
+                  "max": 3146063
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1573201,
+                    "min": 1573201,
+                    "max": 1573201
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1573129,
+                    "min": 1573129,
+                    "max": 1573129
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 8,
+              "ping_with_ack": 8,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 6676,
+                "median": 4049,
+                "min": 0,
+                "max": 1609112
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 5970,
+          "early": {
+            "count": 54,
+            "median": 2,
+            "min": 1,
+            "max": 6,
+            "histogram": {
+              "1": 23,
+              "2": 24,
+              "3": 4,
+              "4": 2,
+              "6": 1
+            }
+          },
+          "late": {
+            "count": 3260,
+            "median": 2,
+            "min": 1,
+            "max": 8,
+            "histogram": {
+              "1": 1280,
+              "2": 1498,
+              "3": 378,
+              "4": 78,
+              "5": 15,
+              "6": 5,
+              "7": 2,
+              "8": 4
+            }
+          },
+          "delay_ms": {
+            "count": 3314,
+            "median": 0.088,
+            "min": 0,
+            "max": 28.64
+          }
+        }
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--no-remote",
+        "--profile",
+        "<private-profile>",
+        "--remote-debugging-port=0",
+        "about:blank"
+      ],
+      "prefs": {
+        "remote.prefs.recommended": false,
+        "browser.shell.checkDefaultBrowser": false,
+        "browser.startup.page": 0
+      },
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8013: dev eth0 root refcnt 13 limit 10000 delay 10ms  2ms reorder 5% 25% seed 42 gap 1",
+        " Sent 3264080 bytes 13168 pkt (dropped 0, overlimits 0 requeues 17) ",
+        " backlog 0b 0p requeues 17",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 72620500 bytes 53070 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 8014: dev surfifb root refcnt 2 limit 10000 delay 10ms  2ms reorder 5% 25% seed 43 gap 1",
+        " Sent 73363760 bytes 53074 pkt (dropped 0, overlimits 0 requeues 29) ",
+        " backlog 0b 0p requeues 29"
+      ]
+    },
+    {
+      "id": "surf-firefox-aio-reorder-final",
+      "implementation": "surf",
+      "browser": "firefox",
+      "condition": "jitter-reorder",
+      "started_at": "2026-11-14T08:38:21.134377546Z",
+      "capture": {
+        "records": 11554,
+        "bytes": 9532676,
+        "linktype": 1,
+        "sha256": "01c48a129264a83c9280b87d0465a90cb745623a8d62546a753e6fa20f6e37c3",
+        "tcpdump": {
+          "captured": 11554,
+          "received_by_filter": 11554,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "25f2946248e7899a8d83dd61129644288190f2ff0d9a8043106474e6a142a09e",
+      "attempts": [
+        {
+          "id": "warm-1",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1024,
+          "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+          "valid": true,
+          "duration_ms": 888
+        },
+        {
+          "id": "download-4m",
+          "method": "GET",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 4194304,
+          "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+          "valid": true,
+          "duration_ms": 41995
+        },
+        {
+          "id": "upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 11665
+        },
+        {
+          "id": "stream-upload-1m",
+          "method": "POST",
+          "status": 200,
+          "protocol": "HTTP/3.0",
+          "bytes": 1048576,
+          "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+          "valid": true,
+          "duration_ms": 13159
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-1",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority",
+            "alt-used"
+          ]
+        },
+        {
+          "id": "download-4m",
+          "connection": "0",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority",
+            "alt-used"
+          ]
+        },
+        {
+          "id": "upload-1m",
+          "connection": "0",
+          "stream": 8,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "content-length",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority",
+            "alt-used"
+          ]
+        },
+        {
+          "id": "stream-upload-1m",
+          "connection": "0",
+          "stream": 12,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "origin",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority",
+            "alt-used"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "0": {
+            "client_parameters": {
+              "initial_max_data": 25165824,
+              "initial_max_stream_data_bidi_local": 12582912,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576
+            },
+            "server_parameters": {
+              "initial_max_data": 1048576,
+              "initial_max_stream_data_bidi_local": 1048576,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576,
+              "ack_delay_exponent": 3
+            },
+            "client": {
+              "packets": 5253,
+              "unknown": 6,
+              "bytes": 2281630,
+              "types": {
+                "0": 3,
+                "1": 70,
+                "2": 3510,
+                "6": 2,
+                "8": 3,
+                "9": 2,
+                "10": 2,
+                "12": 1736,
+                "13": 2,
+                "14": 58,
+                "16": 1,
+                "17": 2,
+                "21": 1,
+                "24": 5,
+                "29": 1
+              },
+              "max_data": {
+                "initial": 25165824,
+                "increases": {
+                  "count": 1,
+                  "median": 6292246,
+                  "min": 6292246,
+                  "max": 6292246
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 1,
+                    "median": 3146182,
+                    "min": 3146182,
+                    "max": 3146182
+                  },
+                  "non_increasing": 1
+                }
+              },
+              "ping_without_stream": 70,
+              "ping_with_ack": 67,
+              "duplicate_packet_numbers": 5,
+              "out_of_order_numbers": 907,
+              "observed_spacing_us": {
+                "count": 5252,
+                "median": 5145,
+                "min": 0,
+                "max": 263548
+              }
+            },
+            "server": {
+              "packets": 6292,
+              "unknown": 0,
+              "bytes": 6570701,
+              "types": {
+                "1": 27,
+                "2": 489,
+                "6": 8,
+                "10": 8,
+                "14": 5800,
+                "15": 4,
+                "16": 2,
+                "17": 3,
+                "24": 7,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 1048576,
+                "increases": {
+                  "count": 2,
+                  "median": 3146029,
+                  "min": 1573379,
+                  "max": 3146029
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "8": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1572874,
+                    "min": 1572874,
+                    "max": 1572874
+                  },
+                  "non_increasing": 0
+                },
+                "12": {
+                  "initial": 1048576,
+                  "increases": {
+                    "count": 1,
+                    "median": 1573964,
+                    "min": 1573964,
+                    "max": 1573964
+                  },
+                  "non_increasing": 1
+                }
+              },
+              "ping_without_stream": 27,
+              "ping_with_ack": 27,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 6291,
+                "median": 2647,
+                "min": 0,
+                "max": 263806
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 5846,
+          "early": {
+            "count": 55,
+            "median": 2,
+            "min": 1,
+            "max": 3,
+            "histogram": {
+              "1": 22,
+              "2": 30,
+              "3": 3
+            }
+          },
+          "late": {
+            "count": 3207,
+            "median": 2,
+            "min": 1,
+            "max": 11,
+            "histogram": {
+              "1": 1222,
+              "2": 1551,
+              "3": 339,
+              "4": 76,
+              "5": 13,
+              "6": 3,
+              "7": 1,
+              "8": 1,
+              "11": 1
+            }
+          },
+          "delay_ms": {
+            "count": 3262,
+            "median": 0.064,
+            "min": 0,
+            "max": 28.488
+          }
+        }
+      },
+      "netem_after": [
+        "qdisc noqueue 0: dev lo root refcnt 2 ",
+        " Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 801d: dev eth0 root refcnt 13 limit 10000 delay 10ms  2ms reorder 5% 25% seed 42 gap 1",
+        " Sent 2511403 bytes 5263 pkt (dropped 0, overlimits 0 requeues 8) ",
+        " backlog 151b 2p requeues 8",
+        "qdisc ingress ffff: dev eth0 parent ffff:fff1 ---------------- ",
+        " Sent 6749294 bytes 6312 pkt (dropped 0, overlimits 0 requeues 0) ",
+        " backlog 0b 0p requeues 0",
+        "qdisc netem 801e: dev surfifb root refcnt 2 limit 10000 delay 10ms  2ms reorder 5% 25% seed 43 gap 1",
+        " Sent 6837870 bytes 6315 pkt (dropped 0, overlimits 0 requeues 12) ",
+        " backlog 72b 1p requeues 12"
+      ]
+    },
+    {
+      "id": "chrome-gcs-baseline",
+      "implementation": "native",
+      "browser": "chrome",
+      "condition": "google-storage",
+      "started_at": "2026-11-14T07:36:47.153Z",
+      "capture": {
+        "records": 31131,
+        "bytes": 36839708,
+        "linktype": 1,
+        "sha256": "a0cc18cdbd86b0d25638d9a0ae74195066d232dcea54886056ca38762207b5d2",
+        "tcpdump": {
+          "captured": 31131,
+          "received_by_filter": 31131,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "d331d1493c257ba815891d49c9d3bbbb423645dda0801af93fb1924700314d2e",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 206,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "expected_sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "valid": true,
+          "duration_ms": 1404.5
+        },
+        {
+          "id": "download-32m",
+          "method": "GET",
+          "status": 206,
+          "protocol": "h3",
+          "bytes": 33554432,
+          "sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+          "expected_sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+          "valid": true,
+          "duration_ms": 15971
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "6",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "range",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-32m",
+          "connection": "6",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "range",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "6": {
+            "client_parameters": {
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_data": 15728640,
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_stream_data_bidi_remote": 6291456
+            },
+            "server_parameters": {
+              "initial_max_data": 196608,
+              "initial_max_stream_data_bidi_remote": 131072,
+              "initial_max_stream_data_uni": 131072,
+              "initial_max_stream_data_bidi_local": 131072
+            },
+            "client": {
+              "packets": 2828,
+              "unknown": 0,
+              "bytes": 98403,
+              "types": {
+                "2": 2822,
+                "8": 2,
+                "9": 2,
+                "10": 1,
+                "12": 1,
+                "14": 3,
+                "16": 138,
+                "17": 11,
+                "28": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 4,
+                  "median": 7867096,
+                  "min": 7864548,
+                  "max": 7873805
+                },
+                "non_increasing": 134
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 10,
+                    "median": 3147083,
+                    "min": 3145981,
+                    "max": 3148288
+                  },
+                  "non_increasing": 1
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 2827,
+                "median": 2980,
+                "min": 10,
+                "max": 1090376
+              }
+            },
+            "server": {
+              "packets": 27451,
+              "unknown": 0,
+              "bytes": 34249419,
+              "types": {
+                "2": 144,
+                "6": 1,
+                "7": 1,
+                "8": 4,
+                "10": 1,
+                "12": 27433,
+                "13": 2,
+                "14": 1,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 196608,
+                "increases": {
+                  "count": 0,
+                  "median": null,
+                  "min": null,
+                  "max": null
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {},
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 27450,
+                "median": 22,
+                "min": 0,
+                "max": 1110737
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 27441,
+          "early": {
+            "count": 52,
+            "median": 2,
+            "min": 1,
+            "max": 2,
+            "histogram": {
+              "1": 7,
+              "2": 45
+            }
+          },
+          "late": {
+            "count": 2769,
+            "median": 10,
+            "min": 1,
+            "max": 10,
+            "histogram": {
+              "1": 16,
+              "2": 5,
+              "3": 5,
+              "4": 7,
+              "5": 3,
+              "6": 5,
+              "7": 10,
+              "8": 5,
+              "9": 10,
+              "10": 2703
+            }
+          },
+          "delay_ms": {
+            "count": 2821,
+            "median": 0,
+            "min": 0,
+            "max": 31.728
+          }
+        }
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--user-data-dir=<private-profile>",
+        "--remote-debugging-port=0",
+        "--no-first-run",
+        "about:blank"
+      ],
+      "prefs": {}
+    },
+    {
+      "id": "surf-chrome-gcs-fixed",
+      "implementation": "surf",
+      "browser": "chrome",
+      "condition": "google-storage",
+      "started_at": "2026-11-14T08:28:58.754334495Z",
+      "capture": {
+        "records": 30401,
+        "bytes": 36130795,
+        "linktype": 1,
+        "sha256": "0927d7e569c291b7bec70a51d2170c7a4b152695a3a28ac19ab67c0f6cba7996",
+        "tcpdump": {
+          "captured": 30401,
+          "received_by_filter": 30401,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "180b5e5f7da5fd768f4fb22ba52c8d6bcb837ee99c49b984bcacff5dacf29b54",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 206,
+          "protocol": "HTTP/3.0",
+          "bytes": 1024,
+          "sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "expected_sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "valid": true,
+          "duration_ms": 969
+        },
+        {
+          "id": "download-32m",
+          "method": "GET",
+          "status": 206,
+          "protocol": "HTTP/3.0",
+          "bytes": 33554432,
+          "sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+          "expected_sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+          "valid": true,
+          "duration_ms": 11426
+        }
+      ],
+      "requests": [
+        {
+          "id": "warm-0",
+          "connection": "0",
+          "stream": 0,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "range",
+            "priority"
+          ]
+        },
+        {
+          "id": "download-32m",
+          "connection": "0",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+            "sec-ch-ua-platform",
+            "user-agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "accept",
+            "sec-fetch-site",
+            "sec-fetch-mode",
+            "sec-fetch-dest",
+            "referer",
+            "accept-encoding",
+            "accept-language",
+            "range",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "0": {
+            "client_parameters": {
+              "initial_max_stream_data_bidi_remote": 6291456,
+              "initial_max_stream_data_uni": 6291456,
+              "initial_max_stream_data_bidi_local": 6291456,
+              "initial_max_data": 15728640
+            },
+            "server_parameters": {
+              "initial_max_stream_data_uni": 131072,
+              "initial_max_data": 196608,
+              "initial_max_stream_data_bidi_remote": 131072,
+              "initial_max_stream_data_bidi_local": 131072
+            },
+            "client": {
+              "packets": 2905,
+              "unknown": 0,
+              "bytes": 102544,
+              "types": {
+                "2": 2874,
+                "8": 2,
+                "9": 2,
+                "10": 1,
+                "12": 3,
+                "14": 2,
+                "16": 142,
+                "17": 10,
+                "29": 1
+              },
+              "max_data": {
+                "initial": 15728640,
+                "increases": {
+                  "count": 4,
+                  "median": 7879839,
+                  "min": 7869919,
+                  "max": 7880710
+                },
+                "non_increasing": 138
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 6291456,
+                  "increases": {
+                    "count": 10,
+                    "median": 3153558,
+                    "min": 3148447,
+                    "max": 3195349
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 2904,
+                "median": 1507,
+                "min": 3,
+                "max": 231723
+              }
+            },
+            "server": {
+              "packets": 27479,
+              "unknown": 0,
+              "bytes": 34251387,
+              "types": {
+                "2": 148,
+                "6": 1,
+                "7": 1,
+                "8": 4,
+                "10": 1,
+                "12": 27463,
+                "13": 2,
+                "14": 2,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 196608,
+                "increases": {
+                  "count": 0,
+                  "median": null,
+                  "min": null,
+                  "max": null
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {},
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 27478,
+                "median": 15,
+                "min": 0,
+                "max": 355839
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 27471,
+          "early": {
+            "count": 51,
+            "median": 2,
+            "min": 1,
+            "max": 2,
+            "histogram": {
+              "1": 5,
+              "2": 46
+            }
+          },
+          "late": {
+            "count": 2823,
+            "median": 10,
+            "min": 1,
+            "max": 32,
+            "histogram": {
+              "1": 41,
+              "2": 11,
+              "3": 11,
+              "4": 20,
+              "5": 15,
+              "6": 16,
+              "7": 13,
+              "8": 17,
+              "9": 16,
+              "10": 2661,
+              "14": 1,
+              "32": 1
+            }
+          },
+          "delay_ms": {
+            "count": 2874,
+            "median": 0.072,
+            "min": 0,
+            "max": 31.296
+          }
+        }
+      }
+    },
+    {
+      "id": "firefox-gcs-baseline",
+      "implementation": "native",
+      "browser": "firefox",
+      "condition": "google-storage",
+      "started_at": "2026-11-14T07:38:09.446Z",
+      "capture": {
+        "records": 37499,
+        "bytes": 44089194,
+        "linktype": 1,
+        "sha256": "e5dcf762bf6ee6a2805b647112c2e42decd6303e458f6e8373dc74ed6e7649b8",
+        "tcpdump": {
+          "captured": 37499,
+          "received_by_filter": 37499,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "faba3ea0df10f0e3f6df041edaf6e148806e6c3c1bce247ad52aa61dc60b7441",
+      "attempts": [
+        {
+          "id": "warm-0",
+          "method": "GET",
+          "status": 206,
+          "protocol": "h2",
+          "bytes": 1024,
+          "sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "expected_sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "valid": true,
+          "duration_ms": 376
+        },
+        {
+          "id": "warm-1",
+          "method": "GET",
+          "status": 206,
+          "protocol": "h3",
+          "bytes": 1024,
+          "sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "expected_sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+          "valid": true,
+          "duration_ms": 838
+        },
+        {
+          "id": "download-32m",
+          "method": "GET",
+          "status": 206,
+          "protocol": "h3",
+          "bytes": 33554432,
+          "sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+          "expected_sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+          "valid": true,
+          "duration_ms": 19120
+        }
+      ],
+      "requests": [
+        {
+          "id": "download-32m",
+          "connection": "3",
+          "stream": 4,
+          "ordered_header_names": [
+            ":method",
+            ":scheme",
+            ":authority",
+            ":path",
+            "user-agent",
+            "accept",
+            "accept-language",
+            "accept-encoding",
+            "referer",
+            "range",
+            "sec-fetch-dest",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "priority"
+          ]
+        }
+      ],
+      "metrics": {
+        "unattributed_packets": [],
+        "connections": {
+          "3": {
+            "client_parameters": {
+              "initial_max_data": 25165824,
+              "initial_max_stream_data_bidi_local": 12582912,
+              "initial_max_stream_data_bidi_remote": 1048576,
+              "initial_max_stream_data_uni": 1048576
+            },
+            "server_parameters": {
+              "initial_max_stream_data_uni": 131072,
+              "initial_max_stream_data_bidi_remote": 131072,
+              "initial_max_stream_data_bidi_local": 131072,
+              "initial_max_data": 196608
+            },
+            "client": {
+              "packets": 5555,
+              "unknown": 0,
+              "bytes": 194053,
+              "types": {
+                "0": 2,
+                "1": 17,
+                "2": 5547,
+                "10": 3,
+                "11": 2,
+                "14": 3,
+                "16": 5,
+                "17": 10,
+                "24": 1
+              },
+              "max_data": {
+                "initial": 25165824,
+                "increases": {
+                  "count": 5,
+                  "median": 6295523,
+                  "min": 6292842,
+                  "max": 6358701
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {
+                "4": {
+                  "initial": 12582912,
+                  "increases": {
+                    "count": 10,
+                    "median": 3150000,
+                    "min": 3146208,
+                    "max": 3204410
+                  },
+                  "non_increasing": 0
+                }
+              },
+              "ping_without_stream": 17,
+              "ping_with_ack": 15,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 5554,
+                "median": 1523,
+                "min": 14,
+                "max": 185733
+              }
+            },
+            "server": {
+              "packets": 27448,
+              "unknown": 0,
+              "bytes": 34330608,
+              "types": {
+                "2": 34,
+                "6": 1,
+                "7": 1,
+                "8": 4,
+                "10": 1,
+                "12": 27436,
+                "13": 2,
+                "14": 1,
+                "24": 1,
+                "30": 1
+              },
+              "max_data": {
+                "initial": 196608,
+                "increases": {
+                  "count": 0,
+                  "median": null,
+                  "min": null,
+                  "max": null
+                },
+                "non_increasing": 0
+              },
+              "max_stream_data": {},
+              "ping_without_stream": 0,
+              "ping_with_ack": 0,
+              "duplicate_packet_numbers": 0,
+              "out_of_order_numbers": 0,
+              "observed_spacing_us": {
+                "count": 27447,
+                "median": 16,
+                "min": 0,
+                "max": 182401
+              }
+            }
+          }
+        },
+        "ack": {
+          "server_eliciting": 27444,
+          "early": {
+            "count": 40,
+            "median": 2,
+            "min": 1,
+            "max": 8,
+            "histogram": {
+              "1": 3,
+              "2": 23,
+              "3": 12,
+              "5": 1,
+              "8": 1
+            }
+          },
+          "late": {
+            "count": 5507,
+            "median": 3,
+            "min": 1,
+            "max": 239,
+            "histogram": {
+              "1": 23,
+              "2": 2374,
+              "3": 1109,
+              "4": 585,
+              "5": 325,
+              "6": 225,
+              "7": 114,
+              "8": 108,
+              "9": 94,
+              "10": 80,
+              "11": 66,
+              "12": 52,
+              "13": 44,
+              "14": 35,
+              "15": 26,
+              "16": 21,
+              "17": 25,
+              "18": 24,
+              "19": 22,
+              "20": 11,
+              "21": 10,
+              "22": 13,
+              "23": 9,
+              "24": 9,
+              "25": 11,
+              "26": 7,
+              "27": 6,
+              "28": 8,
+              "29": 5,
+              "30": 2,
+              "31": 4,
+              "32": 4,
+              "33": 3,
+              "34": 4,
+              "35": 1,
+              "37": 1,
+              "38": 2,
+              "39": 1,
+              "40": 1,
+              "41": 2,
+              "42": 2,
+              "46": 1,
+              "49": 2,
+              "51": 1,
+              "54": 1,
+              "55": 1,
+              "56": 4,
+              "57": 1,
+              "59": 1,
+              "60": 2,
+              "61": 1,
+              "62": 1,
+              "63": 2,
+              "64": 1,
+              "66": 2,
+              "70": 2,
+              "74": 1,
+              "80": 1,
+              "81": 1,
+              "82": 1,
+              "83": 3,
+              "109": 1,
+              "114": 1,
+              "115": 2,
+              "117": 1,
+              "135": 1,
+              "139": 1,
+              "147": 1,
+              "239": 1
+            }
+          },
+          "delay_ms": {
+            "count": 5547,
+            "median": 0.04,
+            "min": 0,
+            "max": 28.072
+          }
+        }
+      },
+      "identity": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:160.0) Gecko/20100101 Firefox/160.0",
+        "platform": "Linux x86_64"
+      },
+      "flags": [
+        "--no-remote",
+        "--profile",
+        "<private-profile>",
+        "--remote-debugging-port=0",
+        "about:blank"
+      ],
+      "prefs": {
+        "remote.prefs.recommended": false,
+        "browser.shell.checkDefaultBrowser": false,
+        "browser.startup.page": 0
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "native": "chrome-aio-baseline",
+      "surf": "surf-chrome-aio-baseline-fixed",
+      "cases": [
+        {
+          "id": "download-32m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "upload-4m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "stream-upload-4m",
+          "ordered_fields_equal": true
+        }
+      ]
+    },
+    {
+      "native": "firefox-aio-baseline",
+      "surf": "surf-firefox-matched-baseline",
+      "cases": [
+        {
+          "id": "download-32m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "upload-4m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "stream-upload-4m",
+          "ordered_fields_equal": true
+        }
+      ]
+    },
+    {
+      "native": "chrome-aio-loss",
+      "surf": "surf-chrome-aio-loss-final",
+      "cases": [
+        {
+          "id": "download-16m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "upload-4m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "stream-upload-4m",
+          "ordered_fields_equal": true
+        }
+      ]
+    },
+    {
+      "native": "firefox-aio-loss",
+      "surf": "surf-firefox-matched-loss",
+      "cases": [
+        {
+          "id": "download-16m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "upload-4m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "stream-upload-4m",
+          "ordered_fields_equal": true
+        }
+      ]
+    },
+    {
+      "native": "chrome-aio-reorder-v2",
+      "surf": "surf-chrome-aio-reorder-fixed",
+      "cases": [
+        {
+          "id": "download-4m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "upload-1m",
+          "ordered_fields_equal": true
+        },
+        {
+          "id": "stream-upload-1m",
+          "ordered_fields_equal": true
+        }
+      ]
+    },
+    {
+      "native": "firefox-aio-reorder",
+      "surf": "surf-firefox-aio-reorder-final",
+      "cases": [
+        {
+          "id": "download-4m",
+          "ordered_fields_equal": false,
+          "difference": "Surf diagnostic generated Alt-Used on an anonymous native Fetch; other ordered fields equal. Exact replay now disables automatic Alt-Used."
+        },
+        {
+          "id": "upload-1m",
+          "ordered_fields_equal": false,
+          "difference": "Surf diagnostic generated Alt-Used on an anonymous native Fetch; other ordered fields equal. Exact replay now disables automatic Alt-Used."
+        },
+        {
+          "id": "stream-upload-1m",
+          "ordered_fields_equal": false,
+          "difference": "Surf diagnostic generated Alt-Used on an anonymous native Fetch; other ordered fields equal. Exact replay now disables automatic Alt-Used."
+        }
+      ]
+    },
+    {
+      "native": "chrome-gcs-baseline",
+      "surf": "surf-chrome-gcs-fixed",
+      "cases": [
+        {
+          "id": "download-32m",
+          "ordered_fields_equal": true
+        }
+      ]
+    }
+  ],
+  "excluded_attempts": [
+    {
+      "id": "surf-firefox-matched-reorder",
+      "capture": {
+        "records": 18,
+        "bytes": 16408,
+        "linktype": 1,
+        "sha256": "6d7d9b39054469551f83ae82e0de6df0873ee74c67efaa854b0c847ffcf368ef",
+        "tcpdump": {
+          "captured": 18,
+          "received_by_filter": 40,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "6c860893cf65a5c1165f16ee5b3e34aa87adbe94a982e9f6ce3a7798ead80ca7",
+      "reason": "Cold impaired-path attempt failed to establish H3; not positive H3/header-match evidence. Initial datagrams received no UDP reply in the second run; cause unestablished."
+    },
+    {
+      "id": "surf-firefox-matched-reorder-v2",
+      "capture": {
+        "records": 24,
+        "bytes": 18809,
+        "linktype": 1,
+        "sha256": "a375b03e9c0187bb52aab5b44c557591887c6eba4614af937e409239c6a9c017",
+        "tcpdump": {
+          "captured": 24,
+          "received_by_filter": 33,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "report_sha256": "f54b4cad81353502f538eb9a4bac02589cd5b2819ec831f6ad77fdb6b836a30e",
+      "reason": "Cold impaired-path attempt failed to establish H3; not positive H3/header-match evidence. Initial datagrams received no UDP reply in the second run; cause unestablished."
+    },
+    {
+      "id": "surf-firefox-matched-reorder-v3",
+      "capture": {
+        "records": 24,
+        "bytes": 18809,
+        "linktype": 1,
+        "sha256": "d3d3a062adaf1efa7677a482369690aecbd2172565e23bfb67c165ebec0ed39c",
+        "tcpdump": {
+          "captured": 24,
+          "received_by_filter": 25,
+          "dropped_by_kernel": 0
+        },
+        "snap_truncated_records": 0
+      },
+      "runner_log_sha256": "a04c37ae48326ee87bba6196e3dea280a50da684e83e929eda5de6f50809801f",
+      "reason": "Cold impaired-path attempt failed to establish H3; not positive H3/header-match evidence. Initial datagrams received no UDP reply in the second run; cause unestablished."
+    }
+  ],
+  "before_ack_flush": {
+    "capture": {
+      "records": 47221,
+      "bytes": 54760101,
+      "linktype": 1,
+      "sha256": "8eaa01e3789328393d0bb1453792ef1491c4315aab2526f3639d37027acec43a",
+      "tcpdump": {
+        "captured": 47221,
+        "received_by_filter": 47221,
+        "dropped_by_kernel": 0
+      },
+      "snap_truncated_records": 0
+    },
+    "state": "Before receive-loop ACK flush correction; earlier private executable not retained",
+    "late_ack": {
+      "count": 2264,
+      "median": 14,
+      "min": 1,
+      "max": 41,
+      "histogram": {
+        "1": 38,
+        "2": 5,
+        "3": 4,
+        "5": 3,
+        "6": 5,
+        "7": 1,
+        "8": 7,
+        "9": 6,
+        "10": 373,
+        "11": 290,
+        "12": 235,
+        "13": 164,
+        "14": 145,
+        "15": 118,
+        "16": 123,
+        "17": 89,
+        "18": 88,
+        "19": 66,
+        "20": 53,
+        "21": 49,
+        "22": 48,
+        "23": 43,
+        "24": 29,
+        "25": 32,
+        "26": 21,
+        "27": 21,
+        "28": 22,
+        "29": 17,
+        "30": 16,
+        "31": 3,
+        "32": 75,
+        "33": 13,
+        "34": 12,
+        "35": 13,
+        "36": 5,
+        "37": 8,
+        "38": 8,
+        "39": 6,
+        "40": 7,
+        "41": 3
+      }
+    },
+    "attempts": [
+      {
+        "id": "warm-0",
+        "method": "GET",
+        "status": 200,
+        "protocol": "HTTP/3.0",
+        "bytes": 1024,
+        "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "valid": true,
+        "duration_ms": 851
+      },
+      {
+        "id": "download-32m",
+        "method": "GET",
+        "status": 200,
+        "protocol": "HTTP/3.0",
+        "bytes": 33554432,
+        "sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+        "expected_sha256": "371036ccdfc733fa30542a26a4f276536147c906d1570f0becc1d6f8b868c311",
+        "valid": true,
+        "duration_ms": 10333
+      },
+      {
+        "id": "upload-4m",
+        "method": "POST",
+        "status": 200,
+        "protocol": "HTTP/3.0",
+        "bytes": 4194304,
+        "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+        "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+        "valid": true,
+        "duration_ms": 3819
+      },
+      {
+        "id": "stream-upload-4m",
+        "method": "POST",
+        "status": 200,
+        "protocol": "HTTP/3.0",
+        "bytes": 4194304,
+        "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+        "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+        "valid": true,
+        "duration_ms": 5058
+      }
+    ]
+  },
+  "cold_reorder_control": {
+    "capture": {
+      "records": 20300,
+      "bytes": 45856320,
+      "linktype": 1,
+      "sha256": "8c0a1911dd1a832b128c83b431f67efc2af6c44bdaf966982b034d72e6c2b41c",
+      "tcpdump": {
+        "captured": 20300,
+        "received_by_filter": 20300,
+        "dropped_by_kernel": 0
+      },
+      "snap_truncated_records": 0
+    },
+    "attempts": [
+      {
+        "id": "warm-0",
+        "method": "GET",
+        "status": 200,
+        "protocol": "h2",
+        "bytes": 1024,
+        "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "valid": true,
+        "duration_ms": 232
+      },
+      {
+        "id": "warm-1",
+        "method": "GET",
+        "status": 200,
+        "protocol": "h2",
+        "bytes": 1024,
+        "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "valid": true,
+        "duration_ms": 1397
+      },
+      {
+        "id": "warm-2",
+        "method": "GET",
+        "status": 200,
+        "protocol": "h3",
+        "bytes": 1024,
+        "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "expected_sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf",
+        "valid": true,
+        "duration_ms": 154
+      },
+      {
+        "id": "download-4m",
+        "method": "GET",
+        "status": 200,
+        "protocol": "h3",
+        "bytes": 4194304,
+        "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+        "expected_sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087",
+        "valid": true,
+        "duration_ms": 67365
+      },
+      {
+        "id": "upload-1m",
+        "method": "POST",
+        "status": 200,
+        "protocol": "h3",
+        "bytes": 1048576,
+        "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+        "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+        "valid": true,
+        "duration_ms": 15149
+      },
+      {
+        "id": "stream-upload-1m",
+        "method": "POST",
+        "status": 200,
+        "protocol": "h3",
+        "bytes": 1048576,
+        "sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+        "expected_sha256": "bf63d8a95fcc2e64619813aae35fdcbe871fdd9264caa3f365eb3aed0f679129",
+        "valid": true,
+        "duration_ms": 21401
+      }
+    ],
+    "scope": "Native Firefox needed two H2 warm-ups before H3; independent control, not proof of the same cause as Surf failure"
+  }
+}

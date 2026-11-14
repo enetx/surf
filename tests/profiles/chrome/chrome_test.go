@@ -313,7 +313,8 @@ func trustAnchorsExtension(spec *utls.ClientHelloSpec) *utls.TrustAnchorsExtensi
 }
 
 // chromeTrustAnchors is the trust_anchors (0xca34) body of a Google Chrome 156 desktop
-// ClientHello. Chrome emits this list in compiled-in root store order and never shuffles it, so
+// ClientHello, reconfirmed in Chrome for Testing 158.0.8127.18 on Linux.
+// Chrome emits this list in compiled-in root store order and never shuffles it, so
 // the bytes have to match exactly — a wrong order is as visible on the wire as a wrong set.
 const chromeTrustAnchors = "00b80582df1302010582df1302060582df13020d0582df13020e0582df13020f0582df1302120582df13" +
 	"02130582df13021408839a648c9b2d010708839a648c9b2d010808839a648c9b2d010908839a648c9b2d" +

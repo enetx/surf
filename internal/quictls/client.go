@@ -5,6 +5,7 @@ package quictls
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"slices"
@@ -21,6 +22,21 @@ func Factory(spec func() (utls.ClientHelloSpec, error), inner ...utls.ECHClientH
 	var innerPolicy utls.ECHClientHelloInnerFunc
 	if len(inner) > 0 {
 		innerPolicy = inner[0]
+	}
+
+	return FactoryWithIntermediates(spec, innerPolicy, nil)
+}
+
+// FactoryWithIntermediates retains additional untrusted issuer candidates in
+// each uTLS client. Root ownership and normal certificate verification remain
+// in the supplied TLS configuration; the candidate pool is captured by value.
+func FactoryWithIntermediates(
+	spec func() (utls.ClientHelloSpec, error),
+	innerPolicy utls.ECHClientHelloInnerFunc,
+	intermediates *x509.CertPool,
+) tlsquic.NewClient {
+	if intermediates != nil {
+		intermediates = intermediates.Clone()
 	}
 
 	return func(config *tls.Config) (tlsquic.Conn, error) {
@@ -69,8 +85,9 @@ func Factory(spec func() (utls.ClientHelloSpec, error), inner ...utls.ECHClientH
 		}
 
 		c := &utls.Config{
-			ECHClientHelloInner: innerPolicy,
-			Rand:                config.Rand, Time: config.Time, RootCAs: config.RootCAs,
+			CertificateIntermediates: intermediates,
+			ECHClientHelloInner:      innerPolicy,
+			Rand:                     config.Rand, Time: config.Time, RootCAs: config.RootCAs,
 			ServerName: config.ServerName, NextProtos: slices.Clone(config.NextProtos),
 			InsecureSkipVerify: config.InsecureSkipVerify, VerifyPeerCertificate: config.VerifyPeerCertificate,
 			MinVersion: utls.VersionTLS13, MaxVersion: utls.VersionTLS13, KeyLogWriter: config.KeyLogWriter,

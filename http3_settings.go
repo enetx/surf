@@ -603,6 +603,7 @@ func (h *HTTP3Settings) newTransport(c *Client) (*h3transport.Transport, error) 
 	options.ProtocolHeaders = builder.protocolHeaders
 	options.Fallback = c.GetTransport()
 	options.TLSConfig = c.GetTLSConfig()
+	options.CertificateIntermediates = builder.certificateIntermediates
 
 	if settings := builder.sessionCacheSettings; settings != nil && settings.applied {
 		options.TLSConfig = options.TLSConfig.Clone()

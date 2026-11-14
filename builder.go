@@ -3,6 +3,7 @@ package surf
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 // including proxy settings, TLS fingerprinting, HTTP/2 and HTTP/3 support, retry logic,
 // redirect handling, and browser impersonation capabilities.
 type Builder struct {
+	certificateIntermediates  *x509.CertPool                                // Untrusted issuer candidates for JA-enabled TCP and QUIC.
 	headerProfile             *requestHeaderProfile                         // Snapshot source for profile values and final attempt layout.
 	clientHints               *ClientHints                                  // Explicit Client Hints overrides.
 	clientHintValues          func(profiles.OSKey) g.MapOrd[string, string] // Profile-owned available hints.
@@ -219,6 +221,19 @@ func (b *Builder) Timeout(timeout time.Duration) *Builder {
 func (b *Builder) TLSConfig(config *tls.Config) *Builder {
 	b.SessionCache().register()
 	return b.addCliMW(func(client *Client) error { return tlsConfigMW(client, config) }, 0)
+}
+
+// CertificateIntermediates supplies untrusted issuer candidates for JA-enabled
+// TCP and HTTP/3 certificate verification. The caller's configured roots still
+// decide trust. Chrome presets supply candidates for advertised Trust Anchor IDs.
+// The pool is copied; later builder changes affect future builds. Nil clears it.
+func (b *Builder) CertificateIntermediates(pool *x509.CertPool) *Builder {
+	if pool != nil {
+		pool = pool.Clone()
+	}
+
+	b.certificateIntermediates = pool
+	return b
 }
 
 // InterfaceAddr sets the local network interface for outbound connections.

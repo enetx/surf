@@ -1,0 +1,34 @@
+{
+  "origin": "https://quic.aiortc.org",
+  "navigation": "/",
+  "warmup": {
+    "method": "GET",
+    "path": "/1024",
+    "size": 1024,
+    "sha256": "e8fb68ce4d4d002dba40c0a459d96807c96ded1c2fdefae3f56f8a0c06a4fecf"
+  },
+  "steps": [
+    {
+      "id": "download-4m",
+      "method": "GET",
+      "path": "/4194304",
+      "size": 4194304,
+      "sha256": "4656153f1921ea9f09001428d189084d3db94509dd71990a8a971cfa02998087"
+    },
+    {
+      "id": "upload-1m",
+      "method": "POST",
+      "path": "/echo",
+      "size": 1048576,
+      "echo": true
+    },
+    {
+      "id": "stream-upload-1m",
+      "method": "POST",
+      "path": "/echo",
+      "size": 1048576,
+      "echo": true,
+      "streaming": true
+    }
+  ]
+}

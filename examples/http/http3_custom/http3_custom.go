@@ -76,6 +76,7 @@ func main() {
 				return target, target != info.Current
 			}).
 			AckPacketThreshold(2).
+			AckFlushOnPacket(true).
 			AckDecimation(100, 10).
 			AckDelayRTTDivisor(4).
 			MinAckDelay(time.Millisecond).

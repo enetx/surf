@@ -212,6 +212,11 @@ func (a quicadapter) OmitInitialAckOnHandshake(v bool) profiles.QUICConfig {
 	return a
 }
 
+func (a quicadapter) AckFlushOnPacket(enabled bool) profiles.QUICConfig {
+	a.s.AckFlushOnPacket(enabled)
+	return a
+}
+
 func (a quicadapter) AckPacketThreshold(n uint64) profiles.QUICConfig {
 	a.s.AckPacketThreshold(n)
 	return a

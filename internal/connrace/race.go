@@ -93,7 +93,17 @@ func (r *Racer) SelectProtocol(req *http.Request, address string, early bool) (R
 	if early {
 		slot = 1
 	}
+
 	f := origin.flights[slot]
+	// A background full handshake may confirm QUIC after another slot already
+	// chose TCP. New requests must reconsider the now-usable QUIC connection;
+	// the older completed choice belongs only to its existing waiters.
+	// https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_stream_factory_job_controller.cc
+	if f != nil && f.chosen && f.protocol == 2 && origin.conn != nil &&
+		origin.conn.ConnectionState().TLS.HandshakeComplete && origin.conn.Context().Err() == nil {
+		f = nil
+	}
+
 	if f == nil {
 		ctx, cancel := context.WithCancel(context.WithoutCancel(req.Context()))
 

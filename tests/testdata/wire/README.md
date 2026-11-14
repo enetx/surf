@@ -1,4 +1,8 @@
-Wire fingerprint fixtures cover Chrome 156 on Windows and Android, and Chrome 157 on iOS.
+Current Linux bulk-transfer evidence for Chrome for Testing 158, Firefox 160 and
+Surf is in [linux_load](linux_load/README.md), with source hashes, verified body
+hashes, capture-integrity checks, syscall diagnostics and explicit evidence gaps.
+
+The historical wire fingerprint fixtures below cover Chrome 156 on Windows and Android, and Chrome 157 on iOS.
 
 The iOS reference is checked against Chrome 157.0.8103.37 on iOS 27.0.1.
 The supplied navigation capture omits HTTP/2 PRIORITY and uses Russian; the

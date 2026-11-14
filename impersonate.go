@@ -79,6 +79,11 @@ func (im *Impersonate) Firefox() *Builder {
 // applyVariant materialises a browser and form-factor profile onto the Builder. Profile packages
 // own all data (TLS spec, boundary, H2/H3 SETTINGS, header set), this method owns sequencing.
 func (im *Impersonate) applyVariant(v profiles.Variant) *Builder {
+	im.builder.CertificateIntermediates(nil)
+	if v.CertificateIntermediates != nil {
+		im.builder.CertificateIntermediates(v.CertificateIntermediates())
+	}
+
 	im.builder.clientHintValues = v.ClientHints
 	im.builder.clientHintOS = im.os
 	im.builder.configureTCPSessionCache = v.ConfigureTCPSessionCache

@@ -3,6 +3,7 @@ package surf
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"io"
@@ -29,17 +30,18 @@ import (
 // roundtripper is a higher-level wrapper around HTTP transports, providing
 // TLS session resumption and protocol selection.
 type roundtripper struct {
-	http1tr            *http.Transport
-	http1trFallback    *http.Transport
-	http2tr            *http2.Transport
-	clientSessionCache utls.ClientSessionCache
-	ja                 *JA
-	protocolHeaders    requestHeadersPolicy
-	requestProxy       func(*http.Request) (*url.URL, error)
-	http2settings      *HTTP2Settings
-	http1Required      *http1RequiredCache
-	proxyMu            sync.Mutex
-	proxyTransports    map[string]*roundtripper
+	certificateIntermediates *x509.CertPool
+	http1tr                  *http.Transport
+	http1trFallback          *http.Transport
+	http2tr                  *http2.Transport
+	clientSessionCache       utls.ClientSessionCache
+	ja                       *JA
+	protocolHeaders          requestHeadersPolicy
+	requestProxy             func(*http.Request) (*url.URL, error)
+	http2settings            *HTTP2Settings
+	http1Required            *http1RequiredCache
+	proxyMu                  sync.Mutex
+	proxyTransports          map[string]*roundtripper
 }
 
 // newRoundTripper creates a new roundtripper wrapping the given base transport
@@ -59,6 +61,9 @@ func newRoundTripper(ja *JA, base http.RoundTripper) http.RoundTripper {
 		ja:              ja,
 		protocolHeaders: ja.builder.protocolHeaders,
 		requestProxy:    http1tr.Proxy,
+	}
+	if pool := ja.builder.certificateIntermediates; pool != nil {
+		rt.certificateIntermediates = pool.Clone()
 	}
 
 	rt.configureProxy()
@@ -459,6 +464,7 @@ func (rt *roundtripper) tlsHandshakeOnce(
 	config := &utls.Config{
 		ECHClientHelloInner: rt.ja.echInner,
 		RootCAs:             source.RootCAs, Rand: source.Rand, Time: source.Time,
+		CertificateIntermediates:       rt.certificateIntermediates,
 		VerifyPeerCertificate:          source.VerifyPeerCertificate,
 		EncryptedClientHelloConfigList: slices.Clone(source.EncryptedClientHelloConfigList),
 		ServerName:                     host,

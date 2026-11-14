@@ -107,7 +107,15 @@ func main() {
 	udpReorderEvery := flag.Uint64("udp-reorder-every", 0, "delay every Nth datagram to allow overtaking; zero disables")
 	udpDropEvery := flag.Uint64("udp-drop-every", 0, "drop every Nth UDP datagram per remote/direction; zero disables")
 	scenarioMode := flag.String("scenario", "headers", "headers, uploads or priorities (HTTP/3 only)")
+	bulkPlan := flag.String("bulk-plan", "", "verified public HTTP/3 bulk transfer plan JSON")
+	bulkFields := flag.String("bulk-fields", "", "native ordered fields from bulk-reduce.mjs")
 	flag.Parse()
+	if *bulkPlan != "" {
+		if err := replayBulk(*bulkPlan, *bulkFields, *browser, *out); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 	if *profileOS != "macos" && *profileOS != "windows" {
 		log.Fatal("invalid desktop OS")
 	}

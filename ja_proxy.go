@@ -67,12 +67,13 @@ func (rt *roundtripper) proxyTransport(req *http.Request) (*roundtripper, error)
 	base.DialContext = h3transport.TCPBindingDial(dialer.DialContext)
 
 	child := &roundtripper{
-		http1tr:            base,
-		ja:                 rt.ja,
-		protocolHeaders:    rt.protocolHeaders,
-		http2settings:      rt.http2settings,
-		clientSessionCache: rt.clientSessionCache,
-		http1Required:      rt.http1Required,
+		certificateIntermediates: rt.certificateIntermediates,
+		http1tr:                  base,
+		ja:                       rt.ja,
+		protocolHeaders:          rt.protocolHeaders,
+		http2settings:            rt.http2settings,
+		clientSessionCache:       rt.clientSessionCache,
+		http1Required:            rt.http1Required,
 	}
 
 	child.configureTransports(rt.http2tr != nil)

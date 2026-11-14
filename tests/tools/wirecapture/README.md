@@ -1,5 +1,79 @@
 # Ordinary browser references and local wire diagnostics
 
+## Linux bulk transfers
+
+`native-load.mjs` runs same-origin GET, fixed-length POST and streaming Fetch
+POST in an ordinary visible browser. It verifies response size, status and SHA-256
+and requires HTTP/3 for every planned bulk case. A browser that does not support
+streaming Fetch is recorded as unsupported and cannot pass the complete matrix.
+The browser discovers H3 normally; no protocol, certificate, UA or field-trial
+overrides are used. Keep each fresh profile, key log and pcap outside Git.
+
+The reviewed plans and sanitized Linux observations are in
+[`linux_load`](../../testdata/wire/linux_load/README.md). Requirements are a
+native Linux browser, display/Xvfb, Node 26, tcpdump, ethtool and TShark. The
+recorded environment is Linux ARM64 in a Docker VM; Chrome's reference is
+**official Google Chrome for Testing**, separately labeled from the unbranded
+Chromium Mac references. Browser processes run as a normal non-root user.
+
+```sh
+umask 077
+mkdir -m 700 /tmp/surf-load
+# Disable GRO/GSO/TSO in the isolated network namespace before capturing.
+ethtool -K eth0 gro off gso off tso off tx-udp-segmentation off
+tcpdump -i eth0 -B 65536 -U -s 0 -w /tmp/surf-load/native.pcap 'port 443 or port 53'
+# In another terminal, as the non-root browser user:
+node tests/tools/wirecapture/native-load.mjs chrome /tmp/surf-load/native /path/to/chrome tests/testdata/wire/linux_load/baseline-plan.json
+```
+
+Drain the capture for two seconds after normal browser exit, stop tcpdump with
+SIGINT and wait for its exit. Retain its packet/drop counters. Use actual interface
+captures for timing; the local diagnostic server's synthetic IP envelopes are
+unsuitable. `pcap-integrity.mjs` independently rejects partial/truncated records.
+
+Export full transport metadata separately from decoded request fields to avoid
+retaining repeated HTTP/3 response-body reassembly in the transport export:
+
+```sh
+node tests/tools/wirecapture/pcap-integrity.mjs /tmp/surf-load/native.pcap
+tshark -2 -r /tmp/surf-load/native.pcap -o tls.keylog_file:/tmp/surf-load/native/keys.log --no-duplicate-keys -Y quic -T json -J 'frame ip ipv6 udp quic tls' > /tmp/surf-load/transport.json
+tshark -2 -r /tmp/surf-load/native.pcap -o tls.keylog_file:/tmp/surf-load/native/keys.log --no-duplicate-keys -Y http3.headers.method -T json -J 'frame quic http3' > /tmp/surf-load/headers.json
+node tests/tools/wirecapture/bulk-reduce.mjs /tmp/surf-load/transport.json /tmp/surf-load/transport example.com
+node tests/tools/wirecapture/bulk-reduce.mjs /tmp/surf-load/headers.json /tmp/surf-load/headers example.com
+node tests/tools/wirecapture/bulk-summary.mjs /tmp/surf-load/transport /tmp/surf-load/headers-requests.json
+```
+
+Replace `example.com` with the plan's authority. The reducer requires unused output
+prefixes, preserves connection and request stream IDs, and excludes filtered UDP
+placeholders from packet observations. Bounded streaming JSON parsing rejects
+incomplete exports. ACK observations count only packets actually seen and decoded
+in the matching connection. Repeated credit, retransmissions and MAX_DATA probes
+do not become receive-window increases. Spacing is an observation at the capture
+point; it does not expose the engine's internal pacing decisions.
+
+Replay the same ordered regular/pseudo fields through Surf's configured public
+transport, keeping ForceHTTP3 and disabled TCP racing explicitly diagnostic:
+
+```sh
+go run ./tests/tools/wirecapture -bulk-plan tests/testdata/wire/linux_load/baseline-plan.json -bulk-fields /tmp/surf-load/headers-headers.json -browser chrome -out /tmp/surf-load/surf
+```
+
+This bypasses header-preset middleware to isolate transport mechanics. It does
+disable automatic Alt-Used generation: explicit captured fields remain intact.
+Firefox omits Alt-Used for these anonymous `credentials: "omit"` Fetch requests;
+its ordinary non-anonymous requests retain the normal profile behavior. See
+[`nsHttpChannel.cpp`](https://github.com/mozilla-firefox/firefox/blob/FIREFOX_160_0_RELEASE/netwerk/protocol/http/nsHttpChannel.cpp).
+The replay does
+not prove automatic discovery, first-use history, browser Fetch scheduling or
+Windows identity parity. The source-correct browser policy remains in Surf's
+fluent profile builders.
+
+The recorded impairments use Linux `tc netem` on egress and IFB ingress, preserving
+the native UDP/OOB/batch-read path. See the fixture README for commands and seeds.
+Syscall tracing is a separate intrusive diagnostic, excluded from timing evidence.
+
+## Public fingerprint endpoints
+
 Use `native-endpoint.mjs` for actual browser behavior on publicly trusted HTTPS.
 It launches an ordinary visible Chromium or Firefox with a fresh isolated profile
 and automation/UI controls only. It does not force QUIC, alter protocol preferences,

@@ -52,8 +52,15 @@ func TestConnectionRaceOldConfirmedConnectionPreservesLaterFailure(t *testing.T)
 	defer r.Close(false)
 	r.origins = map[string]*originState{"example.invalid:443": {conn: conn, info: profiles.ConnectionRacingInfo{LastQUICError: laterFailure}}}
 	r.flights = make(map[*flight]struct{})
-	_, err = r.SelectProtocol(raceTestRequest(t, ctx), "example.invalid:443", true)
+	// An early-ready race may still retain its earlier TCP decision while a
+	// full-handshake race has already confirmed QUIC. Do not reuse that winner
+	// for a new request, or bypass the current policy and its later error.
+	selectedTCP := &flight{done: make(chan struct{}), chosen: true, protocol: 2}
+	close(selectedTCP.done)
+	r.origins["example.invalid:443"].flights[1] = selectedTCP
+	result, err := r.SelectProtocol(raceTestRequest(t, ctx), "example.invalid:443", true)
 	require.NoError(t, err)
+	require.Equal(t, 3, result.Protocol)
 	require.ErrorIs(t, observed.LastQUICError, laterFailure)
 	require.False(t, usedEarly, "recent failures require a confirmed handshake")
 }

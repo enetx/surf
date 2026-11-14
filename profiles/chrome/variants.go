@@ -11,6 +11,7 @@ import (
 
 // Desktop is the current Chrome 158 desktop variant.
 var Desktop = profiles.Variant{
+	CertificateIntermediates:  common.CertificateIntermediates,
 	BuildRequestHeaders:       desktop.BuildRequestHeaders,
 	HeaderCase:                common.HeaderCase,
 	ClientHints:               common.ClientHints,
@@ -33,6 +34,7 @@ var Desktop = profiles.Variant{
 
 // Mobile is the current Chrome 158 Android variant.
 var Mobile = profiles.Variant{
+	CertificateIntermediates:  common.CertificateIntermediates,
 	BuildRequestHeaders:       android.BuildRequestHeaders,
 	HeaderCase:                common.HeaderCase,
 	ClientHints:               common.ClientHints,

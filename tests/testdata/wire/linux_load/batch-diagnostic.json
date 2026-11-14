@@ -1,0 +1,51 @@
+{
+  "scope": "Intrusive syscall diagnostics only; excluded from packet timing references",
+  "native": {
+    "calls": 1771,
+    "limits": [
+      45
+    ],
+    "max_returned": 45,
+    "histogram": {
+      "1": 786,
+      "2": 674,
+      "3": 161,
+      "4": 75,
+      "5": 24,
+      "6": 12,
+      "7": 12,
+      "8": 8,
+      "9": 3,
+      "10": 3,
+      "13": 3,
+      "14": 1,
+      "15": 1,
+      "17": 1,
+      "20": 1,
+      "21": 2,
+      "22": 1,
+      "27": 1,
+      "32": 1,
+      "45": 1
+    },
+    "trace_sha256": "43cbbbbbe88e67bdcf6855015195e74091c4c82f12714aae6f6fa0405dab9cfb"
+  },
+  "surf": {
+    "calls": 8238,
+    "limits": [
+      8
+    ],
+    "max_returned": 8,
+    "histogram": {
+      "1": 1852,
+      "2": 2193,
+      "3": 1218,
+      "4": 859,
+      "5": 557,
+      "6": 388,
+      "7": 266,
+      "8": 905
+    },
+    "trace_sha256": "c3a56b9841f7d28ab2a26753fe9a1f5cc9f787cc86fa4ff2b497feb9908c7566"
+  }
+}

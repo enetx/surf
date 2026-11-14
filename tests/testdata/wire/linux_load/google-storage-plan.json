@@ -1,0 +1,23 @@
+{
+  "origin": "https://storage.googleapis.com",
+  "steps": [
+    {
+      "id": "download-32m",
+      "method": "GET",
+      "path": "/chrome-for-testing-public/158.0.8127.18/linux-arm64/chrome-linux-arm64.zip",
+      "size": 33554432,
+      "range": "bytes=0-33554431",
+      "sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+      "status": 206
+    }
+  ],
+  "navigation": "/",
+  "warmup": {
+    "method": "GET",
+    "path": "/chrome-for-testing-public/158.0.8127.18/linux-arm64/chrome-linux-arm64.zip",
+    "size": 1024,
+    "range": "bytes=0-1023",
+    "status": 206,
+    "sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5"
+  }
+}

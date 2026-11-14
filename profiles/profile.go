@@ -18,6 +18,7 @@ package profiles
 
 import (
 	"context"
+	"crypto/x509"
 	"net"
 	"time"
 
@@ -292,6 +293,7 @@ type QUICConfig interface {
 	OmitMaxUDPPayloadSize(bool) QUICConfig
 	MaxDatagramFrameSize(uint64) QUICConfig
 	MaxAckDelay(time.Duration) QUICConfig
+	AckFlushOnPacket(bool) QUICConfig
 	AckPacketThreshold(uint64) QUICConfig
 	AckDecimation(uint64, uint64) QUICConfig
 	AckDelayRTTDivisor(uint32) QUICConfig
@@ -314,6 +316,10 @@ type QUICConfig interface {
 
 // Variant is a self-contained description of one browser and form-factor combination.
 type Variant struct {
+	// CertificateIntermediates provides untrusted chain-building candidates for
+	// certificates elided by a peer. It never supplies additional trust roots.
+	// Nil clears the previous profile's candidates.
+	CertificateIntermediates func() *x509.CertPool
 	// BuildRequestHeaders describes logical defaults and their ordered positions.
 	// Protocol zero prepares values before middleware; actual 1/2/3 prepares the
 	// final private attempt after routing and Client Hints. Empty values reserve

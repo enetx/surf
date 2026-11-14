@@ -4,6 +4,7 @@ package h3transport
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
@@ -81,7 +82,10 @@ type Options struct {
 	Fallback           http.RoundTripper
 	RequestProxy       func(*http.Request) (*url.URL, error)
 	TLSConfig          *tls.Config
-	Dialer             *net.Dialer
+	// CertificateIntermediates supplies untrusted issuer candidates to the
+	// uTLS adapter. TLSConfig.RootCAs remains the authority for certificate trust.
+	CertificateIntermediates *x509.CertPool
+	Dialer                   *net.Dialer
 }
 
 const (
@@ -170,7 +174,11 @@ func (h *Options) configureClientHandshake(config *quic.Config) error {
 		return errors.New("configure either ClientHelloSpec/Factory or ClientHandshake.NewTLSClient")
 	}
 
-	config.ClientHandshake.NewTLSClient = quictls.Factory(h.ClientHelloFactory, h.ECHClientHelloInner)
+	config.ClientHandshake.NewTLSClient = quictls.FactoryWithIntermediates(
+		h.ClientHelloFactory,
+		h.ECHClientHelloInner,
+		h.CertificateIntermediates,
+	)
 
 	return nil
 }

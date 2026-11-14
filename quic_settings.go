@@ -950,6 +950,14 @@ func (q *QUICSettings) ackPolicy() *quic.AckPolicy {
 	return h.AckPolicy
 }
 
+// AckFlushOnPacket gives a queued ACK a send opportunity before the next
+// received UDP datagram. Chrome enables this; Firefox retains receive batching.
+// Socket backpressure can still delay the actual transmission.
+func (q *QUICSettings) AckFlushOnPacket(enabled bool) *QUICSettings {
+	q.ackPolicy().FlushOnPacket = enabled
+	return q
+}
+
 // AckPacketThreshold sets the initial number of ack-eliciting packets per ACK.
 // Zero uses the engine's native threshold. Only Application Data is affected.
 func (q *QUICSettings) AckPacketThreshold(packets uint64) *QUICSettings {

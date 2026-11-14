@@ -1,0 +1,32 @@
+{
+  "scope": "Separate intrusive syscall diagnostic, excluded from timing references",
+  "host": "storage.googleapis.com",
+  "attempts": [
+    {
+      "bytes": 1024,
+      "duration_ms": 1012,
+      "expected_sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+      "id": "warm-0",
+      "method": "GET",
+      "peer_certificates": 1,
+      "protocol": "HTTP/3.0",
+      "sha256": "09d4385a545f9257376f8605a029dc7c123e35932d8217bdf03ad58c4db136f5",
+      "status": 206,
+      "valid": true,
+      "verified_chains": 1
+    },
+    {
+      "bytes": 33554432,
+      "duration_ms": 12719,
+      "expected_sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+      "id": "download-32m",
+      "method": "GET",
+      "peer_certificates": 1,
+      "protocol": "HTTP/3.0",
+      "sha256": "24e5ba55c17f896a94d8cd7dec7aea8a5c89eb6d17a21480eec1119c25e700f6",
+      "status": 206,
+      "valid": true,
+      "verified_chains": 1
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-export async function launchBrowser(executable, flags, pattern) {
+export async function launchBrowser(executable, flags, pattern, options = {}) {
   const proc = spawn(executable, flags, { stdio: ["ignore", "pipe", "pipe"] });
   let logs = "";
   const exited = new Promise((r) => proc.once("exit", r));
@@ -52,7 +52,7 @@ export async function launchBrowser(executable, flags, pattern) {
           pending.delete(id);
           reject(Error(method + " timeout"));
         },
-        method === "session.new" ? 60000 : 20000,
+        method === "session.new" ? 60000 : (options.commandTimeout ?? 20000),
       );
       pending.set(id, { resolve, reject, timer });
       ws.send(
