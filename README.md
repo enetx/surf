@@ -568,14 +568,24 @@ client := surf.NewClient().Builder().Impersonate().Firefox().ForceHTTP3().
 defer client.Close()
 ```
 
-Enablement is explicit; profiles select the delay policy. Firefox uses the
+Automatic discovery races eligible H3 alternatives; in forced-H3 mode,
+`ConnectionRacing(true)` enables the backup explicitly. Profiles select the
+delay policy. Firefox uses the
 pending-transaction backup timer of 100ms. Chrome's policy uses this client's
-observed QUIC success/failure and RTT; Android adds its default 100ms main-job
-delay when applicable. These observations do not implement the browser's full
-Alt-Svc, persistent network state, DNS HTTPS records or Happy Eyeballs scheduler.
+observed QUIC success across origins, with failure and RTT kept per origin.
+The desktop reference's Chromium trial adds 50ms; Android adds its default
+100ms. Both cap the total at three seconds. With no RTT for a new origin,
+these give 350ms and 400ms after QUIC has worked elsewhere in the client.
+Closing idle connections retains this history; a new built client starts fresh.
+The [source and native capture audit](tests/testdata/wire/connection_history/README.md)
+records the scope: OS network-change notifications, persisted network state and
+the browser's full DNS/Alt-Svc/Happy Eyeballs job scheduler are not reproduced.
 `TCPFallbackDelay(d)` overrides the policy (zero starts both handshakes immediately).
 `ConnectionRacingPolicy(func(ConnectionRacingInfo) time.Duration)` supplies a custom
 nonnegative delay; callbacks must return promptly and be concurrency safe.
+`QUICWorked` still describes only the current origin; the additional
+`QUICWorkedInClient` observation describes the shared HTTP/3 transport session.
+Explicit delays and custom policies retain their own behavior.
 
 Requests requiring 1-RTT wait for connection selection before sending. The
 selected transport owns their body, including non-replayable `StreamingBody`

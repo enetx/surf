@@ -27,14 +27,15 @@ type tcpPreparation struct {
 // Racer owns shared connection attempts and per-origin observations.
 // Construct it with New. Transports retain ownership of prepared connections.
 type Racer struct {
-	mu      sync.Mutex
-	closed  bool
-	origins map[string]*originState
-	flights map[*flight]struct{}
-	wg      sync.WaitGroup
-	policy  profiles.ConnectionRacingPolicy
-	quic    func(context.Context, string, bool) error
-	tcp     func(*http.Request) (bool, error)
+	mu         sync.Mutex
+	closed     bool
+	quicWorked bool
+	origins    map[string]*originState
+	flights    map[*flight]struct{}
+	wg         sync.WaitGroup
+	policy     profiles.ConnectionRacingPolicy
+	quic       func(context.Context, string, bool) error
+	tcp        func(*http.Request) (bool, error)
 }
 
 const maxOrigins = 256
@@ -115,7 +116,22 @@ func (r *Racer) SelectProtocol(req *http.Request, address string, early bool) (R
 		preparation := req.Clone(ctx)
 		preparation.Body, preparation.GetBody = nil, nil
 
+		// Chromium's QUIC support gate belongs to its session pool rather than
+		// an individual server. A resumable early connection is evidence only
+		// once its handshake has completed. Surf keeps this in-memory history
+		// within the built client's transport; it has no OS network notifier.
+		// https://github.com/chromium/chromium/blob/158.0.8127.18/net/quic/quic_session_pool.cc
+		if !r.quicWorked {
+			for _, known := range r.origins {
+				if known.conn != nil && known.conn.ConnectionState().TLS.HandshakeComplete {
+					r.quicWorked = true
+					break
+				}
+			}
+		}
+
 		info := origin.info
+		info.QUICWorkedInClient = r.quicWorked
 
 		if origin.conn != nil && origin.conn.ConnectionState().TLS.HandshakeComplete {
 			info.QUICWorked = true
@@ -259,6 +275,7 @@ func (r *Racer) run(
 			quicFinished, quicErr = true, err
 			r.mu.Lock()
 			if err == nil && !early {
+				r.quicWorked = true
 				origin.info.QUICWorked = true
 				origin.info.LastQUICError = nil
 			} else if err != nil && !errors.Is(err, context.Canceled) {

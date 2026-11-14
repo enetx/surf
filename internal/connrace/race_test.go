@@ -24,21 +24,26 @@ func raceTestRequest(t *testing.T, ctx context.Context) *http.Request {
 	return req
 }
 
-func TestConnectionRaceOldConfirmedConnectionPreservesLaterFailure(t *testing.T) {
+func confirmedRaceConnection(t *testing.T) *quic.Conn {
+	t.Helper()
 	cert := httptest.NewTLSServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	serverTLS := cert.TLS.Clone()
 	cert.Close()
 	serverTLS.NextProtos = []string{"race-test"}
 	listener, err := quic.ListenAddr("127.0.0.1:0", serverTLS, nil)
 	require.NoError(t, err)
-	defer listener.Close()
+	t.Cleanup(func() { listener.Close() })
 	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
-	defer cancel()
+	t.Cleanup(cancel)
 	conn, err := quic.DialAddr(ctx, listener.Addr().String(), &tls.Config{InsecureSkipVerify: true, NextProtos: serverTLS.NextProtos}, nil)
 	require.NoError(t, err)
-	defer conn.CloseWithError(0, "test complete")
+	t.Cleanup(func() { conn.CloseWithError(0, "test complete") })
 	require.True(t, conn.ConnectionState().TLS.HandshakeComplete)
+	return conn
+}
 
+func TestConnectionRaceOldConfirmedConnectionPreservesLaterFailure(t *testing.T) {
+	conn := confirmedRaceConnection(t)
 	laterFailure := errors.New("a later QUIC attempt failed")
 	var observed profiles.ConnectionRacingInfo
 	var usedEarly bool
@@ -58,10 +63,12 @@ func TestConnectionRaceOldConfirmedConnectionPreservesLaterFailure(t *testing.T)
 	selectedTCP := &flight{done: make(chan struct{}), chosen: true, protocol: 2}
 	close(selectedTCP.done)
 	r.origins["example.invalid:443"].flights[1] = selectedTCP
-	result, err := r.SelectProtocol(raceTestRequest(t, ctx), "example.invalid:443", true)
+	result, err := r.SelectProtocol(raceTestRequest(t, t.Context()), "example.invalid:443", true)
 	require.NoError(t, err)
 	require.Equal(t, 3, result.Protocol)
 	require.ErrorIs(t, observed.LastQUICError, laterFailure)
+	require.True(t, observed.QUICWorkedInClient,
+		"a confirmed observed connection establishes session support without clearing a later origin failure")
 	require.False(t, usedEarly, "recent failures require a confirmed handshake")
 }
 

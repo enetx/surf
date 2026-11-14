@@ -1,0 +1,377 @@
+{
+  "schema": 1,
+  "date": "2026-11-14",
+  "scope": "Session support and selected TCP backup policy; not complete browser job scheduling or NIC timing parity.",
+  "sources": [
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/net/quic/quic_session_pool.cc",
+      "sha256": "c47104bee57e08ff6c801266ba7bb19bc4de52403d4170e7cc9256bdbb4d5d4d"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/net/base/features.cc",
+      "sha256": "08affb103249fa9d0ae8d469528472322a0b6746b4bd27e37d1742c5ea5f4082"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/net/http/http_stream_factory_job_controller.cc",
+      "sha256": "a11093dcbe07b12cb268bf160de4770a6f07312b1b38c2e0c738266a61df2772"
+    },
+    {
+      "url": "https://github.com/chromium/chromium/blob/158.0.8127.18/testing/variations/fieldtrial_testing_config.json",
+      "sha256": "5ab41a6f6dfb8b9c337f6d3cfc2546a434930e472cbc93b4e1b0a8a55dd5400f"
+    }
+  ],
+  "native": {
+    "platform": "Linux aarch64, official Google Chrome for Testing 158.0.8127.18",
+    "flags": [
+      "--user-data-dir=<private-profile>",
+      "--remote-debugging-port=0",
+      "--no-first-run",
+      "--log-net-log=<private-netlog>",
+      "--net-log-capture-mode=Everything",
+      "about:blank"
+    ],
+    "network_and_verification_overrides": [],
+    "variation": {
+      "source": "field-trial-config",
+      "seed_type": "Null",
+      "study": "DelayMainJobStudyDesktop",
+      "group": "EnabledWith50ms",
+      "feature": "AdditionalDelayMainJob",
+      "additional_delay_ms": 50,
+      "version_html_sha256": "511beb7d1b6a577556468fff2efb5b10a709d29590f9270be6ba1624da69a8ee",
+      "decoded_variation_command_sha256": "365da2c82ef435accd4f9b39a3ec4ea6e46f95ac4270c4ccfa715073dae3820c"
+    },
+    "runs": [
+      {
+        "name": "first-use-chrome",
+        "browser": "Google Chrome for Testing",
+        "version": "158.0.8127.18",
+        "revision": "6449d9f9a6a906edff724b7b220199b3fde4615c-refs/branch-heads/8127@{#845}",
+        "netlog_sha256": "1fda3f5b28ae6e2a832f49cd7879b20d0c073072031df9909f49274301e4ceb4",
+        "capture": {
+          "records": 1001,
+          "bytes": 795242,
+          "sha256": "a306f52e3a76af183d55a358f53bf48b45c990ca8961a42c8d3c97452cdfb9f2",
+          "complete_records": true,
+          "kernel_drops": 0
+        },
+        "controller_delays": [
+          {
+            "controller": 86,
+            "url": "https://quic.aiortc.org/1024?surf-first-use=0",
+            "delay_ms": 0
+          },
+          {
+            "controller": 165,
+            "url": "https://www.google.com/generate_204?surf-first-use=0",
+            "delay_ms": 350
+          },
+          {
+            "controller": 198,
+            "url": "https://www.cloudflare.com/cdn-cgi/trace?surf-first-use=0",
+            "delay_ms": 350
+          },
+          {
+            "controller": 229,
+            "url": "https://cloudflare.com/cdn-cgi/trace?surf-first-use=0",
+            "delay_ms": 350
+          },
+          {
+            "controller": 260,
+            "url": "https://storage.googleapis.com/chromium-browser-snapshots/Linux_ARM64/LAST_CHANGE?surf-first-use=0",
+            "delay_ms": 0
+          }
+        ],
+        "session_admission": [
+          {
+            "source": 81,
+            "host": "www.google.com",
+            "require_confirmation": true
+          },
+          {
+            "source": 115,
+            "host": "www.google.com",
+            "require_confirmation": true
+          },
+          {
+            "source": 158,
+            "host": "quic.aiortc.org",
+            "require_confirmation": false
+          },
+          {
+            "source": 181,
+            "host": "www.google.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 184,
+            "host": "www.google.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 213,
+            "host": "www.cloudflare.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 216,
+            "host": "www.cloudflare.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 244,
+            "host": "cloudflare.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 247,
+            "host": "cloudflare.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 287,
+            "host": "storage.googleapis.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 290,
+            "host": "storage.googleapis.com",
+            "require_confirmation": false
+          }
+        ],
+        "decrypted_requests": [
+          {
+            "frame": 670,
+            "relative_seconds": 4.037296,
+            "udp_stream": 15,
+            "method": "GET",
+            "authority": "quic.aiortc.org",
+            "path": "/1024?surf-first-use=2"
+          },
+          {
+            "frame": 702,
+            "relative_seconds": 5.794201,
+            "udp_stream": 18,
+            "method": "GET",
+            "authority": "www.google.com",
+            "path": "/generate_204?surf-first-use=0"
+          },
+          {
+            "frame": 721,
+            "relative_seconds": 6.92979,
+            "udp_stream": 18,
+            "method": "GET",
+            "authority": "www.google.com",
+            "path": "/generate_204?surf-first-use=1"
+          },
+          {
+            "frame": 725,
+            "relative_seconds": 8.054828,
+            "udp_stream": 18,
+            "method": "GET",
+            "authority": "www.google.com",
+            "path": "/generate_204?surf-first-use=2"
+          },
+          {
+            "frame": 755,
+            "relative_seconds": 9.91799,
+            "udp_stream": 22,
+            "method": "GET",
+            "authority": "www.cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=0"
+          },
+          {
+            "frame": 782,
+            "relative_seconds": 11.075546,
+            "udp_stream": 22,
+            "method": "GET",
+            "authority": "www.cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=1"
+          },
+          {
+            "frame": 790,
+            "relative_seconds": 12.208995,
+            "udp_stream": 22,
+            "method": "GET",
+            "authority": "www.cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=2"
+          },
+          {
+            "frame": 820,
+            "relative_seconds": 14.062038,
+            "udp_stream": 26,
+            "method": "GET",
+            "authority": "cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=0"
+          },
+          {
+            "frame": 848,
+            "relative_seconds": 15.207507,
+            "udp_stream": 26,
+            "method": "GET",
+            "authority": "cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=1"
+          },
+          {
+            "frame": 854,
+            "relative_seconds": 16.349801,
+            "udp_stream": 26,
+            "method": "GET",
+            "authority": "cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=2"
+          },
+          {
+            "frame": 930,
+            "relative_seconds": 20.701231,
+            "udp_stream": 30,
+            "method": "GET",
+            "authority": "storage.googleapis.com",
+            "path": "/chromium-browser-snapshots/Linux_ARM64/LAST_CHANGE?surf-first-use=2"
+          }
+        ]
+      },
+      {
+        "name": "first-use-chrome-inspect",
+        "browser": "Google Chrome for Testing",
+        "version": "158.0.8127.18",
+        "revision": "6449d9f9a6a906edff724b7b220199b3fde4615c-refs/branch-heads/8127@{#845}",
+        "netlog_sha256": "9ad882a3c0267611ed84be2ab5866d55dc338ea45f3b91a27dd4cdda1651ed62",
+        "capture": {
+          "records": 795,
+          "bytes": 677161,
+          "sha256": "4aca1788cae5af3ca7e5c4f7b274b5604c53a9f7894844c5f960789361feb118",
+          "complete_records": true,
+          "kernel_drops": 0
+        },
+        "controller_delays": [
+          {
+            "controller": 75,
+            "url": "https://quic.aiortc.org/1024?surf-first-use=0",
+            "delay_ms": 0
+          },
+          {
+            "controller": 144,
+            "url": "https://quic.aiortc.org/1024?surf-first-use=1",
+            "delay_ms": 350
+          },
+          {
+            "controller": 161,
+            "url": "https://www.cloudflare.com/cdn-cgi/trace?surf-first-use=0",
+            "delay_ms": 350
+          }
+        ],
+        "session_admission": [
+          {
+            "source": 90,
+            "host": "www.google.com",
+            "require_confirmation": true
+          },
+          {
+            "source": 105,
+            "host": "www.google.com",
+            "require_confirmation": true
+          },
+          {
+            "source": 121,
+            "host": "www.google.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 151,
+            "host": "quic.aiortc.org",
+            "require_confirmation": false
+          },
+          {
+            "source": 176,
+            "host": "www.cloudflare.com",
+            "require_confirmation": false
+          },
+          {
+            "source": 179,
+            "host": "www.cloudflare.com",
+            "require_confirmation": false
+          }
+        ],
+        "decrypted_requests": [
+          {
+            "frame": 680,
+            "relative_seconds": 2.612609,
+            "udp_stream": 16,
+            "method": "GET",
+            "authority": "quic.aiortc.org",
+            "path": "/1024?surf-first-use=1"
+          },
+          {
+            "frame": 697,
+            "relative_seconds": 3.772224,
+            "udp_stream": 16,
+            "method": "GET",
+            "authority": "quic.aiortc.org",
+            "path": "/1024?surf-first-use=2"
+          },
+          {
+            "frame": 737,
+            "relative_seconds": 5.595241,
+            "udp_stream": 19,
+            "method": "GET",
+            "authority": "www.cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=0"
+          },
+          {
+            "frame": 758,
+            "relative_seconds": 6.728104,
+            "udp_stream": 19,
+            "method": "GET",
+            "authority": "www.cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=1"
+          },
+          {
+            "frame": 764,
+            "relative_seconds": 7.858837,
+            "udp_stream": 19,
+            "method": "GET",
+            "authority": "www.cloudflare.com",
+            "path": "/cdn-cgi/trace?surf-first-use=2"
+          }
+        ]
+      }
+    ]
+  },
+  "surf": {
+    "platform": "Linux aarch64, Go 1.27.4, published dependency graph (GOWORK=off)",
+    "test": "TestHTTP3ConnectionRacingClientHistoryAcrossOriginsAndClients",
+    "repeats": 5,
+    "profiles": [
+      "Chrome desktop",
+      "Firefox desktop"
+    ],
+    "certificate_verification": "Enabled; explicit generated test trust anchors, no skip-verification override.",
+    "capture": {
+      "records": 546,
+      "bytes": 333679,
+      "sha256": "fa4d70da52fa8d702fc197870ed8b88bc51fd118e8e302d8078e2b3171a7df57",
+      "complete_records": true,
+      "kernel_drops": 0
+    },
+    "decrypted_application_requests": 40,
+    "distinct_udp_streams": 40,
+    "request_methods": [
+      "GET"
+    ],
+    "request_path": "/",
+    "test_log_sha256": "03d4fb2bf4a17257e8b37fdb8a836991a794cd77c4072a63d47f55856371dc1d",
+    "new_origin_delays_ms": {
+      "chrome": 350,
+      "firefox": 100
+    },
+    "independent_client_starts_without_support": true,
+    "idle_cleanup_retains_support": true
+  },
+  "limits": [
+    "Startup and background Chrome traffic share the pool; first application fetch is not a cold whole-browser context.",
+    "NetLog records a chosen timer, not identical NIC timing; readiness can cancel it.",
+    "Source controller gate for already-available H2 and pre-DNS admission are not implemented by this change.",
+    "OS network changes, persisted local-address history and network-dependent early-data admission remain open.",
+    "Public native fetches use opaque responses; only independently decrypted requests are listed as H3 evidence."
+  ]
+}
